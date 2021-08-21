@@ -1,0 +1,23 @@
+name: Sylphia
+version: ${project.version}
+main: me.racci.sylphia.Sylphia
+api-version: 1.17
+prefix: Sylphia
+load: STARTUP
+softdepend:
+  - LuckPerms
+  - PlaceholderAPI
+  - ProtocolLib
+authors: [ Racci ]
+description: Sylphia plugin for SylphMC
+website: mine.SylphMC.com
+permissions:
+  sylphia.*:
+    default: op
+    children:
+      sylphia.command: true
+      sylphia.command.get: true
+      sylphia.command.get.others: true
+      sylphia.command.set: true
+      sylphia.command.reload: true
+      sylphia.command.menu: true

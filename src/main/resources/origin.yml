@@ -1,0 +1,70 @@
+Display-Name: <##ff9c38>Human
+Name: Human
+Origin-Colour: <##ff9c38>
+Hurt-Sound: ENTITY_PLAYER_HURT
+Death-Sound: ENTITY_PLAYER_DEATH
+Permissions:
+  Required:
+    - sylphia.originaccess.human
+  Given:
+    - sylphia.origin.human
+Day/Night:
+  Day: "&eA new day has begun!"
+  Night: "&3The night has come upon us.."
+Effects:
+  Enables:
+    General-Enabled: false
+    Night/Day-Enabled: false
+    Water/Lava-Enabled: false
+  Effects:
+    Slow-falling: false
+    Night-vision: false
+    Jump-boost: 0
+  General:
+    Effects:
+    Attributes:
+  Day/Night:
+    Day-Effects:
+    Night-Effects:
+    Day-Attributes:
+    Night-Attributes:
+  Water/Lava:
+    Water-Effects:
+    Lava-Effects:
+    Water-Attributes:
+    Lava-Attributes:
+Damage:
+  Enables:
+    General-Enabled: false
+    Direct-Sun-Enabled: false
+    Fall-Enabled: false
+    Rain-Enabled: false
+    Water-Enabled: false
+    Fire-Enabled: false
+  Amounts:
+    Sun: 0
+    Fall: 100
+    Lava: 100
+    Water: 0
+    Rain: 0
+GUI:
+  Enchanted: false
+  Material: APPLE
+  Lore:
+    - ''
+    - "<##ff9c38>Generic human twat"
+    - ''
+    - "&6&l              Passives"
+    - "&f&l» &e+Generic human"
+    - ''
+    - "&8&m&l                                   "
+    - ''
+    - "&2&l              Abilities"
+    - "&f&l» &aGeneric baby making"
+    - ''
+    - "&8&m&l                                   "
+    - ''
+    - "&4&l              Debuffs"
+    - "&f&l» &c-Mortal"
+    - ''
+    - "&f&l» &bClick &f&l« &eto change to the <##ff9c38>Human &eorigin."
