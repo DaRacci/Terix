@@ -8,6 +8,7 @@ import me.racci.sylphia.objects.OriginAttribute;
 import me.racci.sylphia.utils.Logger;
 import net.kyori.adventure.text.Component;
 import org.apache.commons.lang3.EnumUtils;
+import org.apache.commons.lang3.math.NumberUtils;
 import org.bukkit.ChatColor;
 import org.bukkit.Material;
 import org.bukkit.Sound;
@@ -26,10 +27,11 @@ import java.io.File;
 import java.util.*;
 import java.util.Map.Entry;
 
-@SuppressWarnings("ALL")
+
+@SuppressWarnings({"RedundantOperationOnEmptyContainer", "deprecation", "unused"})
 public class OriginHandler implements Listener {
-	Sylphia plugin;
-	HashMap<String, Origin> origins = new HashMap<>();
+	private final Sylphia plugin;
+	final HashMap<String, Origin> origins = new HashMap<>();
 
 	public OriginHandler(Sylphia plugin) {
 		this.plugin = plugin;
@@ -51,11 +53,12 @@ public class OriginHandler implements Listener {
 		}
 	}
 
+	@SuppressWarnings("ConstantConditions")
 	public Origin convertToOrigin(String origin, YamlConfiguration file) {
 
 		String displayName;
 		String name;
-		String colour = null;
+		String colour;
 		String bracketName;
 		Sound hurtSound;
 		Sound deathSound;
@@ -124,7 +127,7 @@ public class OriginHandler implements Listener {
 		String waterEffectsPath = "Effects.Water/Lava.Water-Effects";
 		String lavaEffectsPath = "Effects.Water/Lava.Lava-Effects";
 		String GUIEnchantedPath = "GUI.Enchanted";
-		String GUIHeadPath = "GUI.Head";
+		String GUIHeadPath = "GUI.Skull";
 		String GUIItemPath = "GUI.Material";
 		String GUILorePath = "GUI.Lore";
 
@@ -151,7 +154,7 @@ public class OriginHandler implements Listener {
 			file.set(colourPath, "&8");
 			colour = "&8";
 		} else {
-			colour = ChatColor.color(ChatColor.replaceHex(file.get(colourPath).toString()), true);
+			colour = ChatColor.color(ChatColor.replaceHex(Objects.requireNonNull(file.get(colourPath)).toString()), true);
 		}
 
 
@@ -340,19 +343,6 @@ public class OriginHandler implements Listener {
 		}
 
 
-		List<Map<?, ?>> var100 = file.getMapList(generalAttributesPath);
-		List<Map<?, ?>> var101 = file.getMapList(dayAttributesPath);
-		List<Map<?, ?>> var102 = file.getMapList(nightAttributesPath);
-		List<Map<?, ?>> var103 = file.getMapList(waterAttributesPath);
-		List<Map<?, ?>> var104 = file.getMapList(lavaAttributesPath);
-		String attribute;
-
-		String var30;
-		Iterator<String> var31;
-		String[] var32;
-		PotionEffectType potion;
-		Integer level;
-
 		Iterator<String> attributeIterator;
 		String attributeVar0;
 		String[] attributeVar1;
@@ -361,14 +351,16 @@ public class OriginHandler implements Listener {
 		String potionVar0;
 		String[] potionVar1;
 
-		String part1 = "There was an error loading the attribute ";
-		String part2 = "for the origin ";
-		String part3 = "Error adding ";
-		String part4 = " as value for ";
-		String part5 = " for origin ";
-		String part6 = "Integer of effect ";
-		String part7 = " of origin ";
-		String part8 = " is not a invalid number: ";
+		final String theDouble = "The Double of ";
+		final String theAttribute = "The Attribute of ";
+		final String invalidDouble = " isn't a valid Double.";
+		final String invalidAttribute = " isn't a valid Attribute.";
+		final String forOrigin = " for origin ";
+
+		final String theInteger = "The Integer of ";
+		final String thePotion = "The Potion of ";
+		final String invalidInteger = " isn't a valid Integer.";
+		final String invalidPotion = " isn't a valid Potion.";
 
 		if(effectsEnabled) {
 			if(!file.getStringList(generalAttributesPath).isEmpty()) {
@@ -377,13 +369,13 @@ public class OriginHandler implements Listener {
 					attributeVar0 = attributeIterator.next();
 					attributeVar1 = attributeVar0.split(":");
 					if (EnumUtils.isValidEnum(Attribute.class, attributeVar1[0])) {
-						if (Double.valueOf(attributeVar1[1]) != null) {
-							generalAttributes.add(new OriginAttribute(Attribute.valueOf(attributeVar1[0]), Double.valueOf(attributeVar1[1])));
+						if (NumberUtils.isParsable(attributeVar1[1])) {
+							generalAttributes.add(new OriginAttribute(Attribute.valueOf(attributeVar1[0]), Double.parseDouble(attributeVar1[1])));
 						} else {
-							Logger.log(Logger.LogLevel.WARNING, "The Double of " + attributeVar1[0] + part5 + origin + " isn't a valid Double.");
+							Logger.log(Logger.LogLevel.WARNING, theDouble + attributeVar1[0] + forOrigin + origin + invalidDouble);
 						}
 					} else {
-						Logger.log(Logger.LogLevel.WARNING, "The Attribute of " + attributeVar1[0] + part5 + origin + " isn't a valid Attribute.");
+						Logger.log(Logger.LogLevel.WARNING, theAttribute + attributeVar1[0] + forOrigin + origin + invalidAttribute);
 					}
 				}
 			}
@@ -393,13 +385,13 @@ public class OriginHandler implements Listener {
 					potionVar0 = potionIterator.next();
 					potionVar1 = potionVar0.split(":");
 					if (PotionEffectType.getByName(potionVar1[0]) != null) {
-						if (Integer.valueOf(potionVar1[1]) != null) {
-							generalEffects.add(new PotionEffect(PotionEffectType.getByName(potionVar1[0]), Integer.MIN_VALUE, Integer.valueOf(potionVar1[1]), true, false));
+						if (NumberUtils.isParsable(potionVar1[1])) {
+							generalEffects.add(new PotionEffect(PotionEffectType.getByName(potionVar1[0]), Integer.MIN_VALUE, Integer.parseInt(potionVar1[1]), true, false));
 						} else {
-							Logger.log(Logger.LogLevel.WARNING, "The Integer of " + potionVar1[0] + part5 + origin + " isn't a valid Integer.");
+							Logger.log(Logger.LogLevel.WARNING, theInteger + potionVar1[0] + forOrigin + origin + invalidInteger);
 						}
 					} else {
-						Logger.log(Logger.LogLevel.WARNING, "The Potion of " + potionVar1[0] + part5 + origin + " isn't a valid Potion.");
+						Logger.log(Logger.LogLevel.WARNING, thePotion + potionVar1[0] + forOrigin + origin + invalidPotion);
 					}
 				}
 			}
@@ -419,13 +411,13 @@ public class OriginHandler implements Listener {
 					attributeVar0 = attributeIterator.next();
 					attributeVar1 = attributeVar0.split(":");
 					if (EnumUtils.isValidEnum(Attribute.class, attributeVar1[0])) {
-						if (Double.valueOf(attributeVar1[1]) != null) {
-							dayAttributes.add(new OriginAttribute(Attribute.valueOf(attributeVar1[0]), Double.valueOf(attributeVar1[1])));
+						if (NumberUtils.isParsable(attributeVar1[1])) {
+							dayAttributes.add(new OriginAttribute(Attribute.valueOf(attributeVar1[0]), Double.parseDouble(attributeVar1[1])));
 						} else {
-							Logger.log(Logger.LogLevel.WARNING, "The Double of " + attributeVar1[0] + part5 + origin + " isn't a valid Double.");
+							Logger.log(Logger.LogLevel.WARNING, theDouble + attributeVar1[0] + forOrigin + origin + invalidDouble);
 						}
 					} else {
-						Logger.log(Logger.LogLevel.WARNING, "The Attribute of " + attributeVar1[0] + part5 + origin + " isn't a valid Attribute.");
+						Logger.log(Logger.LogLevel.WARNING, theAttribute + attributeVar1[0] + forOrigin + origin + invalidAttribute);
 					}
 				}
 			}
@@ -435,13 +427,13 @@ public class OriginHandler implements Listener {
 					attributeVar0 = attributeIterator.next();
 					attributeVar1 = attributeVar0.split(":");
 					if (EnumUtils.isValidEnum(Attribute.class, attributeVar1[0])) {
-						if (Double.valueOf(attributeVar1[1]) != null) {
-							nightAttributes.add(new OriginAttribute(Attribute.valueOf(attributeVar1[0]), Double.valueOf(attributeVar1[1])));
+						if (NumberUtils.isParsable(attributeVar1[1])) {
+							nightAttributes.add(new OriginAttribute(Attribute.valueOf(attributeVar1[0]), Double.parseDouble(attributeVar1[1])));
 						} else {
-							Logger.log(Logger.LogLevel.WARNING, "The Double of " + attributeVar1[0] + part5 + origin + " isn't a valid Double.");
+							Logger.log(Logger.LogLevel.WARNING, theDouble + attributeVar1[0] + forOrigin + origin + invalidDouble);
 						}
 					} else {
-						Logger.log(Logger.LogLevel.WARNING, "The Attribute of " + attributeVar1[0] + part5 + origin + " isn't a valid Attribute.");
+						Logger.log(Logger.LogLevel.WARNING, theAttribute + attributeVar1[0] + forOrigin + origin + invalidAttribute);
 					}
 				}
 			}
@@ -451,13 +443,13 @@ public class OriginHandler implements Listener {
 					potionVar0 = potionIterator.next();
 					potionVar1 = potionVar0.split(":");
 					if (PotionEffectType.getByName(potionVar1[0]) != null) {
-						if (Integer.valueOf(potionVar1[1]) != null) {
-							dayEffects.add(new PotionEffect(PotionEffectType.getByName(potionVar1[0]), Integer.MIN_VALUE, Integer.valueOf(potionVar1[1]), true, false));
+						if (NumberUtils.isParsable(potionVar1[1])) {
+							dayEffects.add(new PotionEffect(PotionEffectType.getByName(potionVar1[0]), Integer.MIN_VALUE, Integer.parseInt(potionVar1[1]), true, false));
 						} else {
-							Logger.log(Logger.LogLevel.WARNING, "The Integer of " + potionVar1[0] + part5 + origin + " isn't a valid Integer.");
+							Logger.log(Logger.LogLevel.WARNING, theInteger + potionVar1[0] + forOrigin + origin + invalidInteger);
 						}
 					} else {
-						Logger.log(Logger.LogLevel.WARNING, "The Potion of " + potionVar1[0] + part5 + origin + " isn't a valid Potion.");
+						Logger.log(Logger.LogLevel.WARNING, thePotion + potionVar1[0] + forOrigin + origin + invalidPotion);
 					}
 				}
 			}
@@ -467,13 +459,13 @@ public class OriginHandler implements Listener {
 					potionVar0 = potionIterator.next();
 					potionVar1 = potionVar0.split(":");
 					if (PotionEffectType.getByName(potionVar1[0]) != null) {
-						if (Integer.valueOf(potionVar1[1]) != null) {
-							nightEffects.add(new PotionEffect(PotionEffectType.getByName(potionVar1[0]), Integer.MIN_VALUE, Integer.valueOf(potionVar1[1]), true, false));
+						if (NumberUtils.isParsable(potionVar1[1])) {
+							nightEffects.add(new PotionEffect(PotionEffectType.getByName(potionVar1[0]), Integer.MIN_VALUE, Integer.parseInt(potionVar1[1]), true, false));
 						} else {
-							Logger.log(Logger.LogLevel.WARNING, "The Integer of " + potionVar1[0] + part5 + origin + " isn't a valid Integer.");
+							Logger.log(Logger.LogLevel.WARNING, theInteger + potionVar1[0] + forOrigin + origin + invalidInteger);
 						}
 					} else {
-						Logger.log(Logger.LogLevel.WARNING, "The Potion of " + potionVar1[0] + part5 + origin + " isn't a valid Potion.");
+						Logger.log(Logger.LogLevel.WARNING, thePotion + potionVar1[0] + forOrigin + origin + invalidPotion);
 					}
 				}
 			}
@@ -499,13 +491,13 @@ public class OriginHandler implements Listener {
 					attributeVar0 = attributeIterator.next();
 					attributeVar1 = attributeVar0.split(":");
 					if (EnumUtils.isValidEnum(Attribute.class, attributeVar1[0])) {
-						if (Double.valueOf(attributeVar1[1]) != null) {
-							waterAttributes.add(new OriginAttribute(Attribute.valueOf(attributeVar1[0]), Double.valueOf(attributeVar1[1])));
+						if (NumberUtils.isParsable(attributeVar1[1])) {
+							waterAttributes.add(new OriginAttribute(Attribute.valueOf(attributeVar1[0]), Double.parseDouble(attributeVar1[1])));
 						} else {
-							Logger.log(Logger.LogLevel.WARNING, "The Double of " + attributeVar1[0] + part5 + origin + " isn't a valid Double.");
+							Logger.log(Logger.LogLevel.WARNING, theDouble + attributeVar1[0] + forOrigin + origin + invalidDouble);
 						}
 					} else {
-						Logger.log(Logger.LogLevel.WARNING, "The Attribute of " + attributeVar1[0] + part5 + origin + " isn't a valid Attribute.");
+						Logger.log(Logger.LogLevel.WARNING, theAttribute + attributeVar1[0] + forOrigin + origin + invalidAttribute);
 					}
 				}
 			}
@@ -515,13 +507,13 @@ public class OriginHandler implements Listener {
 					attributeVar0 = attributeIterator.next();
 					attributeVar1 = attributeVar0.split(":");
 					if (EnumUtils.isValidEnum(Attribute.class, attributeVar1[0])) {
-						if (Double.valueOf(attributeVar1[1]) != null) {
-							lavaAttributes.add(new OriginAttribute(Attribute.valueOf(attributeVar1[0]), Double.valueOf(attributeVar1[1])));
+						if (NumberUtils.isParsable(attributeVar1[1])) {
+							lavaAttributes.add(new OriginAttribute(Attribute.valueOf(attributeVar1[0]), Double.parseDouble(attributeVar1[1])));
 						} else {
-							Logger.log(Logger.LogLevel.WARNING, "The Double of " + attributeVar1[0] + part5 + origin + " isn't a valid Double.");
+							Logger.log(Logger.LogLevel.WARNING, theDouble + attributeVar1[0] + forOrigin + origin + invalidDouble);
 						}
 					} else {
-						Logger.log(Logger.LogLevel.WARNING, "The Attribute of " + attributeVar1[0] + part5 + origin + " isn't a valid Attribute.");
+						Logger.log(Logger.LogLevel.WARNING, theAttribute + attributeVar1[0] + forOrigin + origin + invalidAttribute);
 					}
 				}
 			}
@@ -531,13 +523,13 @@ public class OriginHandler implements Listener {
 					potionVar0 = potionIterator.next();
 					potionVar1 = potionVar0.split(":");
 					if (PotionEffectType.getByName(potionVar1[0]) != null) {
-						if (Integer.valueOf(potionVar1[1]) != null) {
-							waterEffects.add(new PotionEffect(PotionEffectType.getByName(potionVar1[0]), Integer.MIN_VALUE, Integer.valueOf(potionVar1[1]), true, false));
+						if (NumberUtils.isParsable(potionVar1[1])) {
+							waterEffects.add(new PotionEffect(PotionEffectType.getByName(potionVar1[0]), Integer.MIN_VALUE, Integer.parseInt(potionVar1[1]), true, false));
 						} else {
-							Logger.log(Logger.LogLevel.WARNING, "The Integer of " + potionVar1[0] + part5 + origin + " isn't a valid Integer.");
+							Logger.log(Logger.LogLevel.WARNING, theInteger + potionVar1[0] + forOrigin + origin + invalidInteger);
 						}
 					} else {
-						Logger.log(Logger.LogLevel.WARNING, "The Potion of " + potionVar1[0] + part5 + origin + " isn't a valid Potion.");
+						Logger.log(Logger.LogLevel.WARNING, thePotion + potionVar1[0] + forOrigin + origin + invalidPotion);
 					}
 				}
 			}
@@ -547,13 +539,13 @@ public class OriginHandler implements Listener {
 					potionVar0 = potionIterator.next();
 					potionVar1 = potionVar0.split(":");
 					if (PotionEffectType.getByName(potionVar1[0]) != null) {
-						if (Integer.valueOf(potionVar1[1]) != null) {
-							lavaEffects.add(new PotionEffect(PotionEffectType.getByName(potionVar1[0]), Integer.MIN_VALUE, Integer.valueOf(potionVar1[1]), true, false));
+						if (NumberUtils.isParsable(potionVar1[1])) {
+							lavaEffects.add(new PotionEffect(PotionEffectType.getByName(potionVar1[0]), Integer.MIN_VALUE, Integer.parseInt(potionVar1[1]), true, false));
 						} else {
-							Logger.log(Logger.LogLevel.WARNING, "The Integer of " + potionVar1[0] + part5 + origin + " isn't a valid Integer.");
+							Logger.log(Logger.LogLevel.WARNING, theInteger + potionVar1[0] + forOrigin + origin + invalidInteger);
 						}
 					} else {
-						Logger.log(Logger.LogLevel.WARNING, "The Potion of " + potionVar1[0] + part5 + origin + " isn't a valid Potion.");
+						Logger.log(Logger.LogLevel.WARNING, thePotion + potionVar1[0] + forOrigin + origin + invalidPotion);
 					}
 				}
 			}
@@ -606,7 +598,6 @@ public class OriginHandler implements Listener {
 				}
 			}
 			itemMeta.displayName(Component.text(displayName));
-			//itemMeta.setDisplayName(ChatColor.color(file.getString(displayNamePath)));
 		}
 
 		List<String> requiredPerms = file.getStringList("Permissions.Required");
@@ -627,7 +618,8 @@ public class OriginHandler implements Listener {
 			if(origin.getGeneralAttributes() != null && !origin.getGeneralAttributes().isEmpty()) {
 				for (OriginAttribute attribute : origin.getGeneralAttributes()) {
 					Attribute var1 = attribute.getAttribute();
-					Double var2 = attribute.getValue();
+					double var2 = attribute.getValue();
+					//noinspection ConstantConditions
 					player.getAttribute(var1).setBaseValue(var2);
 				}
 			}
@@ -667,8 +659,7 @@ public class OriginHandler implements Listener {
 		Files = new File(this.plugin.getDataFolder().getAbsolutePath() + "/Origins").listFiles();
 		if (Files != null) {
 			int amount = Files.length;
-			for (int var3 = 0; var3 < amount; ++var3) {
-				File origin = Files[var3];
+			for (File origin : Files) {
 				if (!origin.isDirectory()) {
 					origins.put(origin.getName().toLowerCase().replace(".yml", ""), YamlConfiguration.loadConfiguration(origin));
 				}
@@ -679,19 +670,21 @@ public class OriginHandler implements Listener {
 
 	public String getOriginName(Player player) {
 		PlayerData playerData = plugin.getPlayerManager().getPlayerData(player);
-		if (this.getOrigins().get(playerData.getOrigin()) != null) {
-			return playerData.getOrigin().toUpperCase();
-		} else {
-			return null;
-		}
+		if (playerData != null) {
+			if (this.getOrigins().get(playerData.getOrigin()) != null) {
+				return playerData.getOrigin().toUpperCase();
+			} else {
+				return null;
+			}
+		} return null;
 	}
 
 	public Origin getOrigin(Player player) {
-		return this.getOriginName(player) != null && this.origins.containsKey(this.getOriginName(player)) ? (Origin)this.getOrigins().get(this.getOriginName(player)) : null;
+		return this.getOriginName(player) != null && this.origins.containsKey(this.getOriginName(player)) ? this.getOrigins().get(this.getOriginName(player)) : null;
 	}
 
 
-	public HashMap<String, Origin> getOrigins() {
+	public Map<String, Origin> getOrigins() {
 		return this.origins;
 	}
 

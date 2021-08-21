@@ -4,9 +4,6 @@ import org.bukkit.entity.Player;
 
 public class WorldTime {
 
-	public WorldTime() {
-	}
-
 	public boolean isDay(Player player) {
 		long time = player.getWorld().getTime();
 		return time < 13400 || time > 23400;
