@@ -1,0 +1,7 @@
+Sound-volume: 0.7
+Blacklisted-Worlds:
+  - exampleWorld1
+  - exampleWorld2
+Preview-Worlds:
+  - exampleWorld1
+  - exampleWorld2

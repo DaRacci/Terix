@@ -1,0 +1,16 @@
+Prefixes:
+  Prefix: '&#ffaa00S&#ffbf15y&#ffd52bl&#ffea40p&#ffff55h &f&l»'
+  PrefixBold: '&#ffaa00&lS&#ffbf15&ly&#ffd52b&ll&#ffea40&lp&#ffff55>&lh &f&l»'
+  PrefixError: '&#aa0000S&#bd0000y&#d00000l&#e30000p&#f60000h &#ff0909E&#ff1c1cr&#ff2f2fr&#ff4242o&#ff5555r &f&l»'
+  PrefixBoldError: '&#aa0000&lS&#bd0000&ly&#d00000&ll&#e30000&lp&#f60000&lh &#ff0909&lE&#ff1c1c&lr&#ff2f2f&lr&#ff4242&lo&#ff5555&lr &f&l»'
+  PrefixOrigins: '&#ffff55O&#ffea40r&#ffd52bi&#ffbf15g&#ffaa00i&#ffbf15n&#ffd52bs &f»'
+  PrefixOriginsBold: '&#ffff55&lO&#ffea40&lr&#ffd52b&li&#ffbf15&lg&#ffaa00&li&#ffbf15&ln&#ffd52b&ls &f&l»'
+  PrefixSylphOrigins: '&#ffaa00S&#ffbf15y&#ffd52bl&#ffea40p&#ffff55h &#ffff55O&#ffea40r&#ffd52bi&#ffbf15g&#ffaa00i&#ffbf15n&#ffd52bs &f»'
+  PrefixSylphOriginsBold: '&#ffaa00&lS&#ffbf15&ly&#ffd52b&ll&#ffea40&lp&#ffff55&lh &#ffff55&lO&#ffea40&lr&#ffd52b&li&#ffbf15&lg&#ffaa00&li&#ffbf15&ln&#ffd52b&ls &f&l»'
+Messages:
+  InvalidPlayer: "&cThis isn't a valid &4player&c!"
+  PermissionError: "&cYou don't have &4permission &cto use this command"
+Sounds:
+  ErrorSound:
+  PingSound:
+  SuccessSound:
