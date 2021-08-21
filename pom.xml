@@ -8,16 +8,13 @@
     <artifactId>Sylphia</artifactId>
     <version>0.1-Alpha</version>
     <packaging>jar</packaging>
-
     <name>Sylphia</name>
 
-    <description>Sylphia plugin for SylphMC</description>
     <properties>
         <java.version>1.16</java.version>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
     </properties>
-    <url>mine.SylphMC.com</url>
 
     <build>
         <plugins>
@@ -28,6 +25,9 @@
                 <configuration>
                     <source>1.8</source>
                     <target>1.8</target>
+                    <compilerArgs>
+                        <arg>-parameters</arg>
+                    </compilerArgs>
                 </configuration>
             </plugin>
             <plugin>
@@ -41,29 +41,117 @@
                             <goal>shade</goal>
                         </goals>
                         <configuration>
-                            <dependencyReducedPomLocation>${project.build.directory}/dependency-reduced-pom.xml</dependencyReducedPomLocation>
+                            <outputDirectory>
+                            </outputDirectory>
+                            <shadedArtifactAttached>false</shadedArtifactAttached>
+                            <finalName>Sylphia-${project.version}</finalName>
+<!--                            <shadedClassifierName>${project.inceptionYear}</shadedClassifierName>-->
                             <relocations>
                                 <relocation>
                                     <pattern>co.aikar.commands</pattern>
-                                    <shadedPattern>me.racci.sylphia.acf</shadedPattern>
+                                    <shadedPattern>me.racci.sylphia.utils.acf</shadedPattern>
                                 </relocation>
                                 <relocation>
                                     <pattern>co.aikar.locales</pattern>
-                                    <shadedPattern>me.racci.sylphia.locales</shadedPattern>
+                                    <shadedPattern>me.racci.sylphia.utils.locales</shadedPattern>
                                 </relocation>
                                 <relocation>
                                     <pattern>fr.minuskube.inv</pattern>
-                                    <shadedPattern>me.racci.sylphia.inv</shadedPattern>
+                                    <shadedPattern>me.racci.sylphia.utils.inv</shadedPattern>
                                 </relocation>
                                 <relocation>
                                     <pattern>de.tr7zw.changeme.nbtapi</pattern>
-                                    <shadedPattern>me.racci.sylphia.nbtapi</shadedPattern>
+                                    <shadedPattern>me.racci.sylphia.utils.nbtapi</shadedPattern>
                                 </relocation>
                                 <relocation>
                                     <pattern>com.cryptomorin.xseries</pattern>
-                                    <shadedPattern>me.racci.sylphia.xseries</shadedPattern>
+                                    <shadedPattern>me.racci.sylphia.utils.xseries</shadedPattern>
                                 </relocation>
                             </relocations>
+                            <filters>
+                                <filter>
+                                    <artifact>*:*</artifact>
+                                    <excludes>
+                                        <exclude>META-INF/*.txt</exclude>
+                                        <exclude>LICENSE</exclude>
+                                        <exclude>acf</exclude>
+                                    </excludes>
+                                </filter>
+                                <filter>
+                                    <artifact>*:SmartInvs</artifact>
+                                    <excludes>
+                                        <exclude>META-INF/*.MF</exclude>
+                                        <exclude>plugin.yml</exclude>
+                                    </excludes>
+                                </filter>
+                                <filter>
+                                    <artifact>*:XSeries</artifact>
+                                    <excludes>
+                                        <exclude>META-INF/*.MF</exclude>
+                                    </excludes>
+                                </filter>
+                                <filter>
+                                    <artifact>*:item-nbt-api</artifact>
+                                    <excludes>
+                                        <exclude>META-INF/*.MF</exclude>
+                                    </excludes>
+                                </filter>
+                                <filter>
+                                    <artifact>*:acf-paper</artifact>
+                                    <excludes>
+                                        <exclude>META-INF/*.MF</exclude>
+                                        <exclude>*tr.properties</exclude>
+                                        <exclude>*sv.properties</exclude>
+                                        <exclude>*ru.properties</exclude>
+                                        <exclude>*pt.properties</exclude>
+                                        <exclude>*pl.properties</exclude>
+                                        <exclude>*nn.properties</exclude>
+                                        <exclude>*nl.properties</exclude>
+                                        <exclude>*nb.properties</exclude>
+                                        <exclude>*ja.properties</exclude>
+                                        <exclude>*hu.properties</exclude>
+                                        <exclude>*fr.properties</exclude>
+                                        <exclude>*es.properties</exclude>
+                                        <exclude>*de.properties</exclude>
+                                        <exclude>*cs.properties</exclude>
+                                        <exclude>*bg.properties</exclude>
+                                    </excludes>
+                                </filter>
+                                <filter>
+                                    <artifact>*:functional-annotations</artifact>
+                                    <excludes>
+                                        <exclude>META-INF/*.MF</exclude>
+                                        <exclude>META-INF/maven/de.tr7zw/functional-annotations/pom.properties</exclude>
+                                        <exclude>META-INF/maven/de.tr7zw/functional-annotations/pom.xml</exclude>
+                                    </excludes>
+                                </filter>
+                                <filter>
+                                    <artifact>*:skullcreator</artifact>
+                                    <excludes>
+                                        <exclude>META-INF/*.MF</exclude>
+                                        <exclude>plugin.yml</exclude>
+                                    </excludes>
+                                </filter>
+                                <filter>
+                                    <artifact>*:commons-lang3</artifact>
+                                    <excludes>
+                                        <exclude>META-INF/*.MF</exclude>
+                                        <exclude>org/apache/commons/lang3/time/</exclude>
+                                        <exclude>org/apache/commons/lang3/tuple/</exclude>
+                                        <exclude>org/apache/commons/lang3/text/</exclude>
+                                        <exclude>org/apache/commons/lang3/stream/</exclude>
+                                        <exclude>org/apache/commons/lang3/reflect/</exclude>
+                                        <exclude>org/apache/commons/lang3/mutable/</exclude>
+                                        <exclude>org/apache/commons/lang3/function/</exclude>
+                                        <exclude>org/apache/commons/lang3/exception/</exclude>
+                                        <exclude>org/apache/commons/lang3/event/</exclude>
+                                        <exclude>org/apache/commons/lang3/concurrent/</exclude>
+                                        <exclude>org/apache/commons/lang3/compare/</exclude>
+                                        <exclude>org/apache/commons/lang3/builder/</exclude>
+                                        <exclude>org/apache/commons/lang3/arch/</exclude>
+                                    </excludes>
+                                </filter>
+                            </filters>
                         </configuration>
                     </execution>
                 </executions>
@@ -90,22 +178,10 @@
             <id>aikar</id>
             <url>https://repo.aikar.co/content/groups/aikar/</url>
         </repository>
-<!--        <repository>-->
-<!--            <id>sonatype</id>-->
-<!--            <url>https://oss.sonatype.org/content/groups/public/</url>-->
-<!--        </repository>-->
-<!--        <repository>-->
-<!--            <id>dmulloy2-repo</id>-->
-<!--            <url>https://repo.dmulloy2.net/repository/public/</url>-->
-<!--        </repository>-->
         <repository>
             <id>placeholderapi</id>
             <url>https://repo.extendedclip.com/content/repositories/placeholderapi/</url>
         </repository>
-<!--        <repository>-->
-<!--            <id>luckperms</id>-->
-<!--            <url>https://repo1.maven.org/maven2/net/luckperms/api/</url>-->
-<!--        </repository>-->
         <repository>
             <id>codemc-repo</id>
             <url> https://repo.codemc.io/repository/maven-public/</url>
@@ -139,6 +215,7 @@
             <groupId>org.apache.commons</groupId>
             <artifactId>commons-lang3</artifactId>
             <version>3.12.0</version>
+            <scope>compile</scope>
         </dependency>
         <dependency>
             <groupId>com.github.Archy-X</groupId>
