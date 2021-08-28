@@ -8,5 +8,4 @@ public enum OptionType {
     STRING,
     LIST,
     COLOR
-
 }

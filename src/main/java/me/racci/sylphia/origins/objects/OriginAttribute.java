@@ -1,4 +1,4 @@
-package me.racci.sylphia.objects;
+package me.racci.sylphia.origins.objects;
 
 import org.bukkit.attribute.Attribute;
 

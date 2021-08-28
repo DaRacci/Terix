@@ -4,7 +4,6 @@ import org.jetbrains.annotations.Nullable;
 
 import java.util.Collection;
 import java.util.HashMap;
-import java.util.Locale;
 import java.util.Map;
 
 @SuppressWarnings("unused")
@@ -17,16 +16,16 @@ public class OriginRegistry {
 	}
 
 	public void register(String key, Origin origin) {
-		this.origins.put(key.toLowerCase(Locale.ROOT), origin);
+		this.origins.put(key.toLowerCase(), origin);
 	}
 
-	public Collection<Origin> getSkills() {
+	public Collection<Origin> getOrigins() {
 		return origins.values();
 	}
 
 	@Nullable
 	public Origin getOrigin(String key) {
-		return this.origins.get(key.toLowerCase(Locale.ROOT));
+		return this.origins.get(key.toLowerCase());
 	}
 
 }

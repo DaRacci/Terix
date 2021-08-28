@@ -1,13 +1,10 @@
-Display-Name: <##ff9c38>Human
 Name: Human
-Origin-Colour: <##ff9c38>
+Colour: <##ff9c38>
 Hurt-Sound: ENTITY_PLAYER_HURT
 Death-Sound: ENTITY_PLAYER_DEATH
 Permissions:
   Required:
-    - sylphia.originaccess.human
   Given:
-    - sylphia.origin.human
 Day/Night:
   Day: "&eA new day has begun!"
   Night: "&3The night has come upon us.."

@@ -14,18 +14,19 @@ import me.racci.sylphia.enums.origins.OriginRegistry;
 import me.racci.sylphia.enums.origins.Origins;
 import me.racci.sylphia.enums.originsettings.OriginSettingRegistry;
 import me.racci.sylphia.enums.punishments.PunishmentsRegistry;
-import me.racci.sylphia.events.PlayerChatEvent;
-import me.racci.sylphia.events.PlayerJoinLeaveEvent;
-import me.racci.sylphia.handlers.OriginHandler;
-import me.racci.sylphia.hook.LuckPermsHook;
+import me.racci.sylphia.origins.OriginHandler;
 import me.racci.sylphia.hook.PlaceholderAPIHook;
-import me.racci.sylphia.lang.CommandMessage;
+import me.racci.sylphia.hook.perms.LuckPermsHook;
+import me.racci.sylphia.hook.perms.PermManager;
 import me.racci.sylphia.lang.Lang;
-import me.racci.sylphia.leaderboard.LeaderboardManager;
+import me.racci.sylphia.lang.Prefix;
+import me.racci.sylphia.listeners.PlayerChatEvent;
+import me.racci.sylphia.listeners.PlayerJoinLeaveEvent;
 import me.racci.sylphia.region.RegionListener;
 import me.racci.sylphia.region.RegionManager;
 import me.racci.sylphia.util.world.WorldManager;
 import me.racci.sylphia.utils.Logger;
+import net.luckperms.api.LuckPerms;
 import org.bukkit.Bukkit;
 import org.bukkit.configuration.ConfigurationSection;
 import org.bukkit.configuration.file.YamlConfiguration;
@@ -35,6 +36,8 @@ import org.bukkit.plugin.java.JavaPlugin;
 import java.io.File;
 import java.io.InputStream;
 import java.io.InputStreamReader;
+import java.util.ArrayList;
+import java.util.List;
 
 @SuppressWarnings({"unused"})
 public class Sylphia extends JavaPlugin {
@@ -43,20 +46,20 @@ public class Sylphia extends JavaPlugin {
 	private StorageProvider storageProvider;
 	private InventoryManager inventoryManager;
 	private WorldManager worldManager;
+	private boolean vaultPermissions;
 	private boolean placeholderAPI;
 	private boolean luckPerms;
 	private OptionL optionLoader;
 	private PaperCommandManager commandManager;
 	private Lang lang;
-	private LeaderboardManager leaderboardManager;
 	private RegionManager regionManager;
 
 	private OriginRegistry originRegistry;
 	private OriginSettingRegistry originSettingRegistry;
 	private PunishmentsRegistry punishmentsRegistry;
 
-// private SylphiaConfig config;
 	private OriginHandler originHandler;
+	private PermManager permManager;
 	private LuckPermsHook luckPermsHook;
 
 
@@ -71,52 +74,62 @@ public class Sylphia extends JavaPlugin {
 	//	registerOriginSettings();
 		punishmentsRegistry = new PunishmentsRegistry();
 	//	registerPunishments();
+
 		// Addon Hooks
 		placeholderAPI = Bukkit.getPluginManager().isPluginEnabled("PlaceholderAPI");
 		if (placeholderAPI) {
 			new PlaceholderAPIHook(this).register();
 			Logger.log(Logger.LogLevel.INFO, "Hooked PlaceholderAPI!");
 		}
-		luckPerms = Bukkit.getPluginManager().isPluginEnabled("LuckPerms");
-		if (luckPerms) {
-			new LuckPermsHook();
-			Logger.log(Logger.LogLevel.INFO, "Hooked LuckPerms!");
-		}
+
 		// Load config
 		loadConfig();
 		optionLoader = new OptionL(this);
 		optionLoader.loadOptions();
 		commandManager = new PaperCommandManager(this);
 		Logger.log(Logger.LogLevel.INFO, "Loaded Config");
+
 		// Load Lang
 		lang = new Lang(this);
 		getServer().getPluginManager().registerEvents(lang, this);
 		lang.init();
 		lang.loadEmbeddedMessages(commandManager);
 		lang.loadLanguages(commandManager);
-		Logger.log(Logger.LogLevel.INFO, "Loaded Lang");
+
 		// Register Commands
 		registerCommands();
 		Logger.log(Logger.LogLevel.INFO, "Loaded Commands");
+
 		// Region Manager
 		this.regionManager = new RegionManager(this);
 		Logger.log(Logger.LogLevel.INFO, "Loaded Region Manager");
+
 		// Register Events
 		registerEvents();
 		Logger.log(Logger.LogLevel.INFO, "Loaded Events");
+
 		// Initialize Storage
 		this.playerManager = new PlayerManager();
-		this.leaderboardManager = new LeaderboardManager();
 		setStorageProvider(new YamlStorageProvider(this));
 		Logger.log(Logger.LogLevel.INFO, "Loaded Storage Provider");
+
 		// Load World Manager
 		worldManager = new WorldManager(this);
 		worldManager.loadWorlds();
 		Logger.log(Logger.LogLevel.INFO, "Loaded World Manager");
 
+		// Register Permission Manager
+		try {
+			if(Bukkit.getServicesManager().getRegistration(LuckPerms.class) != null) {
+				this.permManager = new LuckPermsHook();
+				luckPerms = true;
+				Logger.log(Logger.LogLevel.INFO, "Hooked LuckPerms!");
+			}
+		} catch (NoClassDefFoundError e) {
+			Logger.log(Logger.LogLevel.ERROR, "No permission manager found, please make sure one is installed!");
+		}
 
-
-		this.originHandler = new OriginHandler(this); // look into config thing
+		this.originHandler = new OriginHandler(this);
 		Logger.log(Logger.LogLevel.OUTLINE, "*******************************");
 		Logger.log(Logger.LogLevel.SUCCESS, "Sylphia has finished loading successfully");
 	}
@@ -160,7 +173,7 @@ public class Sylphia extends JavaPlugin {
 
 	private void registerCommands() {
 		commandManager.enableUnstableAPI("help"); //Need to learn what this is defined by
-		commandManager.usePerIssuerLocale(true, false); //Probably remove this, dont plan on adding more than english.
+		commandManager.usePerIssuerLocale(true, false); //Probably remove this, don't plan on adding more than english.
 		commandManager.getCommandContexts().registerContext(Origin.class, c -> {
 			Origin origin = originRegistry.getOrigin(c.popFirstArg());
 			if (origin != null) {
@@ -168,6 +181,13 @@ public class Sylphia extends JavaPlugin {
 			} else {
 				throw new InvalidCommandArgument("Origin " + c.popFirstArg() + " not found!");
 			}
+		});
+		commandManager.getCommandCompletions().registerAsyncCompletion("origins", c -> {
+			List<String> values = new ArrayList<>();
+			for (Origin origin : originRegistry.getOrigins()) {
+				values.add(origin.toString().toLowerCase());
+			}
+			return values;
 		});
 		commandManager.registerCommand(new OriginCommand(this));
 	}
@@ -207,7 +227,7 @@ public class Sylphia extends JavaPlugin {
 
 	// Make a way of getting prefix from a set of options
 	public static String getPrefix() {
-		return Lang.getMessage(CommandMessage.PREFIX);
+		return Lang.getMessage(Prefix.SYLPHIA);
 	}
 
 	public OptionL getOptionLoader() {
@@ -226,6 +246,10 @@ public class Sylphia extends JavaPlugin {
 		return luckPerms;
 	}
 
+	public boolean isVaultPermissions() {
+		return vaultPermissions;
+	}
+
 	public StorageProvider getStorageProvider() {
 		return storageProvider;
 	}
@@ -233,11 +257,6 @@ public class Sylphia extends JavaPlugin {
 	public void setStorageProvider(StorageProvider storageProvider) {
 		this.storageProvider = storageProvider;
 	}
-
-	public LeaderboardManager getLeaderboardManager() {
-		return leaderboardManager;
-	}
-
 
 	public RegionManager getRegionManager() {
 		return regionManager;
@@ -247,8 +266,8 @@ public class Sylphia extends JavaPlugin {
 		return originRegistry;
 	}
 
-	public LuckPermsHook getLuckPermsHook() {
-		return luckPermsHook;
+	public PermManager getPermManager() {
+		return permManager;
 	}
 
 

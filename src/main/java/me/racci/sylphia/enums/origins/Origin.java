@@ -1,15 +1,17 @@
 package me.racci.sylphia.enums.origins;
 
-import java.util.Locale;
-
 @SuppressWarnings("unused")
 public interface Origin {
 
 	//ImmutableList<Supplier<Ability>> getPowers();
 
-	String getDescription(Locale locale);
+	String getDescription();
 
-	String getDisplayName(Locale locale);
+	String getDisplayName();
+
+	String getPower();
+
+	String getName();
 
 	String name();
 

@@ -1,7 +1,5 @@
 package me.racci.sylphia.lang;
 
-import java.util.Locale;
-
 public enum ACFCoreMessage {
 
     PERMISSION_DENIED,
@@ -30,7 +28,7 @@ public enum ACFCoreMessage {
     HELP_DETAILED_PARAMETER_FORMAT,
     HELP_SEARCH_HEADER;
 
-    private final String path = "acf.core." + this.name().toLowerCase(Locale.ENGLISH);
+    String path = "acf.core";
 
     public String getPath() {
         return path;

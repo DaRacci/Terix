@@ -1,8 +1,7 @@
-package me.racci.sylphia.events;
+package me.racci.sylphia.listeners;
 
 import io.papermc.paper.event.player.AsyncChatEvent;
 import me.racci.sylphia.Sylphia;
-import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 
@@ -16,6 +15,6 @@ public class PlayerChatEvent implements Listener {
 
 	@EventHandler
 	public void Mention(AsyncChatEvent e) {
-		Player player = e.getPlayer();
+
 	}
 }
