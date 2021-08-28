@@ -1,16 +1,132 @@
 Prefixes:
-  Prefix: '&#ffaa00S&#ffbf15y&#ffd52bl&#ffea40p&#ffff55h &f&l»'
-  PrefixBold: '&#ffaa00&lS&#ffbf15&ly&#ffd52b&ll&#ffea40&lp&#ffff55>&lh &f&l»'
-  PrefixError: '&#aa0000S&#bd0000y&#d00000l&#e30000p&#f60000h &#ff0909E&#ff1c1cr&#ff2f2fr&#ff4242o&#ff5555r &f&l»'
-  PrefixBoldError: '&#aa0000&lS&#bd0000&ly&#d00000&ll&#e30000&lp&#f60000&lh &#ff0909&lE&#ff1c1c&lr&#ff2f2f&lr&#ff4242&lo&#ff5555&lr &f&l»'
-  PrefixOrigins: '&#ffff55O&#ffea40r&#ffd52bi&#ffbf15g&#ffaa00i&#ffbf15n&#ffd52bs &f»'
-  PrefixOriginsBold: '&#ffff55&lO&#ffea40&lr&#ffd52b&li&#ffbf15&lg&#ffaa00&li&#ffbf15&ln&#ffd52b&ls &f&l»'
-  PrefixSylphOrigins: '&#ffaa00S&#ffbf15y&#ffd52bl&#ffea40p&#ffff55h &#ffff55O&#ffea40r&#ffd52bi&#ffbf15g&#ffaa00i&#ffbf15n&#ffd52bs &f»'
-  PrefixSylphOriginsBold: '&#ffaa00&lS&#ffbf15&ly&#ffd52b&ll&#ffea40&lp&#ffff55&lh &#ffff55&lO&#ffea40&lr&#ffd52b&li&#ffbf15&lg&#ffaa00&li&#ffbf15&ln&#ffd52b&ls &f&l»'
+  SYLPHIA: '#ffaa00S#ffbf15y#ffd52bl#ffea40p#ffff55h &f&l»'
+  SYLPHIA_BOLD: '#ffaa00&lS#ffbf15&ly#ffd52b&ll#ffea40&lp#ffff55>&lh &f&l»'
+  ERROR: '#aa0000S#bd0000y#d00000l#e30000p#f60000h #ff0909E#ff1c1cr#ff2f2fr#ff4242o#ff5555r &f&l»'
+  ERROR_BOLD: '#aa0000&lS#bd0000&ly#d00000&ll#e30000&lp#f60000&lh #ff0909&lE#ff1c1c&lr#ff2f2f&lr#ff4242&lo#ff5555&lr &f&l»'
+  ORIGINS: '#ffff55O#ffea40r#ffd52bi#ffbf15g#ffaa00i#ffbf15n#ffd52bs &f»'
+  ORIGINS_BOLD: '#ffff55&lO#ffea40&lr#ffd52b&li#ffbf15&lg#ffaa00&li#ffbf15&ln#ffd52b&ls &f&l»'
 Messages:
   InvalidPlayer: "&cThis isn't a valid &4player&c!"
-  PermissionError: "&cYou don't have &4permission &cto use this command"
 Sounds:
   ErrorSound:
   PingSound:
   SuccessSound:
+Powers:
+  Vampire:
+    DARKSHADOW:
+      name: Dark Shadow
+      desc: 'Teleports you behind your enemies shadow for a dark surprise.'
+      info: 'Shift + LeftClick'
+      use: ''
+    DARKFLIGHT:
+      name: Dark Flight
+      desc: 'Sacrifice your blood for unparalleled speed'
+      info: 'Offhand x 2'
+      use: ''
+    DARKCONVERSION:
+      name: Dark Conversion
+      desc: 'Free a friend from a deadly curse'
+      info: 'Shift + Offhand'
+      use: ''
+  not_ready: '&cAbility not ready! &7({cooldown}s)'
+  not_enough_mana: '&eNot enough mana! &7({mana} {mana_unit} required, you have {current_mana}/{max_mana})'
+acf:
+  core:
+    permission_denied: "&cYou don't have &4permission &cto use this command"
+    permission_denied_parameter: "&cYou don't have &4permission &cto use this sub-command"
+    error_generic_logged: "&cAn error occurred. This problem has been logged. Sorry for the inconvenience."
+    unknown_command: "&cUnknown Command, please type &6/origin help"
+    invalid_syntax: '&eUsage: &e{command} &a{syntax}'
+    error_prefix: '&cError: {message}'
+    error_performing_command: "&cThere was an error performing this command."
+    info_message: '{message}'
+    please_specify_one_of: '&cError: Please specify one of (&e{valid}&c)'
+    must_be_a_number: '&cError: {num} must be a number.'
+    must_be_min_length: '&cError: Must be at least {min} characters long.'
+    must_be_max_length: '&cError: Must be at most {max} characters long.'
+    please_specify_at_most: '&cError: Please specify a value at most {max}.'
+    please_specify_at_least: '&cError: Please specify a value at least {min}.'
+    not_allowed_on_console: '&cError: Console may not execute this command.'
+    could_not_find_player: '&cError: Could not find a player by the name: &e{search}'
+    no_command_matched_search: '&cNo command matched &e{search}.'
+    help_page_information: '&b - Showing page &a{page} &bof &a{totalpages} &b(&e{results}&b results).'
+    help_no_results: '&bError: No more results.'
+    help_header: '&e=== &bShowing help for &a{commandprefix}{command}&e ==='
+    help_format: '&b{commandprefix}{command} &a{parameters} &e{separator} {description}'
+    help_detailed_header: '&e=== &bShowing detailed help for &a{commandprefix}{command}&e ==='
+    help_detailed_command_format: '&b{command} &a{parameters} &e{separator} {description}'
+    help_detailed_parameter_format: '&a{syntaxorname}: &e{description}'
+    help_search_header: '&e=== &bSearch results for &a{commandprefix}{command} {search}&e ==='
+  minecraft:
+    invalid_world: '&cError: That world does not exist.'
+    you_must_be_holding_item: '&cError: You must be holding an item in your main hand.'
+    player_is_vanish_confirm: '&eWarning: &a{vanished} &eis vanished. Do not blow their cover!\n&eTo confirm your action add &a:confirm &eto the end of their name.\n&eEx: {vanished}:confirm'
+    username_too_short: '&cError: Username too short, must be at least three characters.'
+    is_not_a_valid_name: '&cError: &e{name} &cis not a valid username.'
+    multiple_players_match: '&cError: Multiple players matched &b{search} &e({all})&c, please be more specific.'
+    no_player_found_server: '&cNo player matching &e{search} &cis connected to this server.'
+    no_player_found_offline: '&cNo player matching &e{search}&c could be found.'
+    no_player_found: '&cNo player matching &e{search}&c could be found.'
+    location_please_specify_world: '&cError: Please specify world. Example: &eworld:x,y,z.'
+    location_please_specify_xyz: '&cError: Please specify the coordinates x, y, and z. Example: &eworld:x,y,z.'
+    location_console_not_relative: '&cError: Console may not use relative coordinates for location.'
+action_bar:
+  idle: '&c{hp}/{max_hp}❤                 &b{mana}/{max_mana} {mana_unit}'
+  ability: '{message}'
+  boss_bar_xp: '&6{skill} {level} &7({current_xp}/{level_xp} {xp_unit})'
+  boss_bar_maxed: '&6{skill} {level} &7(MAXED)'
+commands:
+  reload: '&aConfig reloaded!'
+  save:
+    already_saving: '&eData is already saving!'
+    saved: '&aPlayers have been saved!'
+  toggle:
+    enabled: '&aYour skills action bar has been enabled'
+    disabled: '&cYour skills action bar has been disabled'
+    not_enabled: '&eSkills action bar is not enabled on this server!'
+  no_profile: '&ePlayer does not have a skills profile!'
+menus:
+  common:
+    close: '&cClose'
+  stats_menu:
+    stats_menu_title: Your Stats
+    player_stat_entry: ' {color}{symbol} {stat} &f{level}'
+    skills: '\n&7Skills: &f{skills}'
+    attack_damage: '&4+{value}% Attack Damage'
+    hp: '&c+{value} ❤'
+    luck: '&2+{value} Luck'
+    xp_gain: '&9+{value}% {xp_unit} Gain'
+    max_mana: '&9Max Mana: {value}'
+    incoming_damage: '&5-{value}% Incoming Damage'
+stats:
+  strength:
+    name: Strength
+    desc: '&7Strength increases your attack damage\n&7with various different weapons'
+    color: '&4'
+    symbol: '➽'
+  health:
+    name: Health
+    desc: '&7Health increases the amount of {hp_unit} you\n&7have, allowing you to last longer in\n&7fights'
+    color: '&c'
+    symbol: '❤'
+  regeneration:
+    name: Regeneration
+    desc: '&7Regeneration increases how fast you\n&7recover both health and mana'
+    color: '&6'
+    symbol: '❥'
+  luck:
+    name: Luck
+    desc: '&7Luck increases your chances of getting\n&7rare loot from mobs, fishing, and more'
+    color: '&2'
+    symbol: '☘'
+  wisdom:
+    name: Wisdom
+    desc: '&7Wisdom increases your max mana, increases\n&7experience gain, and decreases anvil costs'
+    color: '&9'
+    symbol: '✿'
+  toughness:
+    name: Toughness
+    desc: '&7Toughness increases the amount of\n&7damage reduced from enemy attacks'
+    color: '&5'
+    symbol: '✦'
+File_Version: 1

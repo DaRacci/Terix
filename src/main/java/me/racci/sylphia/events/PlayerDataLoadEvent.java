@@ -1,5 +1,6 @@
-package me.racci.sylphia.data;
+package me.racci.sylphia.events;
 
+import me.racci.sylphia.data.PlayerData;
 import org.bukkit.event.Event;
 import org.bukkit.event.HandlerList;
 import org.jetbrains.annotations.NotNull;

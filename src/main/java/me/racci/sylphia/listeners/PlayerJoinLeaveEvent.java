@@ -1,8 +1,8 @@
-package me.racci.sylphia.events;
+package me.racci.sylphia.listeners;
 
 import me.racci.sylphia.Sylphia;
 import me.racci.sylphia.data.PlayerManager;
-import me.racci.sylphia.handlers.OriginHandler;
+import me.racci.sylphia.origins.OriginHandler;
 import me.racci.sylphia.utils.Logger;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
@@ -58,7 +58,8 @@ public class PlayerJoinLeaveEvent implements Listener {
 			@Override
 			public void run() {
 				if (playerManager.getPlayerData(player) != null) {
-					originHandler.applyGeneralEffects(player);
+//					originHandler.applyGeneral(player);
+					Logger.log(Logger.LogLevel.INFO, "Applied effects for " + player.getName() + " on join.");
 				} else {
 					applyEffects(player, playerManager, originHandler);
 					Logger.log(Logger.LogLevel.INFO, "Rescheduling task for applying effects for " + player.getName());

@@ -58,7 +58,7 @@ public class RegionManager {
 
         RegionCoordinate regionCoordinate = new RegionCoordinate(block.getWorld(), regionX, regionZ);
         Region region = regions.get(regionCoordinate);
-        // Create region if does not exist
+        // Create region if it does not exist
         if (region == null) {
             region = new Region(block.getWorld(), regionX, regionZ);
             regions.put(regionCoordinate, region);
@@ -69,7 +69,7 @@ public class RegionManager {
         byte regionChunkX = (byte) (chunkX - regionX * 32);
         byte regionChunkZ = (byte) (chunkZ - regionZ * 32);
         ChunkData chunkData = region.getChunkData(new ChunkCoordinate(regionChunkX, regionChunkZ));
-        // Create chunk data if does not exist
+        // Create chunk data if it does not exist
         if (chunkData == null) {
             chunkData = new ChunkData(region, regionChunkX, regionChunkZ);
             region.setChunkData(new ChunkCoordinate(regionChunkX, regionChunkZ), chunkData);
@@ -86,12 +86,12 @@ public class RegionManager {
 
         RegionCoordinate regionCoordinate = new RegionCoordinate(block.getWorld(), regionX, regionZ);
         Region region = regions.get(regionCoordinate);
-        // Create region if does not exist
+        // Create region if it does not exist
         if (region != null) {
             byte regionChunkX = (byte) (chunkX - regionX * 32);
             byte regionChunkZ = (byte) (chunkZ - regionZ * 32);
             ChunkData chunkData = region.getChunkData(new ChunkCoordinate(regionChunkX, regionChunkZ));
-            // Create chunk data if does not exist
+            // Create chunk data if it does not exist
             if (chunkData != null) {
                 chunkData.removePlacedBlock(new BlockPosition(block.getX(), block.getY(), block.getZ()));
             }

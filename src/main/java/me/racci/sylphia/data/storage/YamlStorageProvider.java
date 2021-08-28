@@ -2,7 +2,7 @@ package me.racci.sylphia.data.storage;
 
 import me.racci.sylphia.Sylphia;
 import me.racci.sylphia.data.PlayerData;
-import me.racci.sylphia.data.PlayerDataLoadEvent;
+import me.racci.sylphia.events.PlayerDataLoadEvent;
 import me.racci.sylphia.enums.originsettings.OriginSetting;
 import me.racci.sylphia.enums.originsettings.OriginSettings;
 import me.racci.sylphia.enums.punishments.Punishment;

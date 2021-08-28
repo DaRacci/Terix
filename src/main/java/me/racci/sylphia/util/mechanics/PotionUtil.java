@@ -1,6 +1,5 @@
 package me.racci.sylphia.util.mechanics;
 
-import com.cryptomorin.xseries.XMaterial;
 import org.bukkit.entity.Player;
 import org.bukkit.potion.PotionData;
 import org.bukkit.potion.PotionEffect;
@@ -61,24 +60,10 @@ public class PotionUtil {
         return minutes + ":" + String.format("%02d", seconds % 60);
     }
 
-    @SuppressWarnings("deprecation")
+
     public static void applyEffect(Player player, PotionEffect effect) {
         if (!effect.getType().isInstant()) {
-            if (XMaterial.isNewVersion()) {
-                player.addPotionEffect(effect);
-            } else {
-                PotionEffect currentEffect = player.getPotionEffect(effect.getType());
-                // Force applies the effect if effect has greater amplifier or longer duration if same amplifier
-                if (currentEffect != null) {
-                    if (effect.getDuration() > currentEffect.getDuration() && effect.getAmplifier() == currentEffect.getAmplifier()) {
-                        player.addPotionEffect(effect, true);
-                    } else if (effect.getAmplifier() > currentEffect.getAmplifier()) {
-                        player.addPotionEffect(effect, true);
-                    }
-                } else {
-                    player.addPotionEffect(effect);
-                }
-            }
+            player.addPotionEffect(effect);
         }
     }
 

@@ -1,7 +1,5 @@
 package me.racci.sylphia.lang;
 
-import java.util.Locale;
-
 public enum ACFMinecraftMessage {
 
     INVALID_WORLD,
@@ -17,7 +15,7 @@ public enum ACFMinecraftMessage {
     LOCATION_PLEASE_SPECIFY_XYZ,
     LOCATION_CONSOLE_NOT_RELATIVE;
 
-    private final String path = "acf.minecraft." + this.name().toLowerCase(Locale.ENGLISH);
+    String path = "acf.minecraft.en";
 
     public String getPath() {
         return path;

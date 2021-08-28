@@ -7,10 +7,18 @@ import me.racci.sylphia.Sylphia;
 import me.racci.sylphia.data.PlayerData;
 import me.racci.sylphia.enums.originsettings.OriginSettings;
 import me.racci.sylphia.enums.punishments.Punishments;
-import me.racci.sylphia.handlers.OriginHandler;
 import me.racci.sylphia.lang.CommandMessage;
 import me.racci.sylphia.lang.Lang;
-import me.racci.sylphia.objects.Origin;
+import me.racci.sylphia.lang.Prefix;
+import me.racci.sylphia.origins.OriginHandler;
+import me.racci.sylphia.origins.objects.Origin;
+import me.racci.sylphia.utils.TextUtil;
+import net.kyori.adventure.text.Component;
+import net.kyori.adventure.text.TextComponent;
+import net.kyori.adventure.text.event.ClickEvent;
+import net.kyori.adventure.text.event.HoverEvent;
+import net.kyori.adventure.text.format.NamedTextColor;
+import net.kyori.adventure.text.format.TextColor;
 import org.bukkit.Bukkit;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
@@ -18,7 +26,7 @@ import org.bukkit.scheduler.BukkitRunnable;
 
 @CommandAlias("origin|origins|sylphia")
 public class OriginCommand extends BaseCommand {
- 
+
 	private final Sylphia plugin;
 	private final ReloadManager reloadManager;
 
@@ -30,8 +38,66 @@ public class OriginCommand extends BaseCommand {
 	@Default
 	@CommandPermission("sylphia.command.main")
 	@Description("Opens information for the players current origin.")
-	public void onSkills(Player player) {
-		player.sendMessage(Lang.getMessage(CommandMessage.NO_PROFILE));
+	public void onOrigin(Player player) {
+		player.sendMessage(Lang.getMessage(Prefix.ORIGINS));
+		// Open GUI Menu for current origin.
+	}
+
+	/*
+	.color(TextColor.color(42, 231, 220) // Changes the color and features of everything in the component
+	.append(Component.text("This was added in an append statement and with colour!", TextColor.color(42, 231, 220)) // Changes only the single component
+	.colorIfAbsent(TextColor.color(108, 12, 123)) // Colours text if it didn't have formatting already
+	 */
+
+	@Subcommand("get")
+	@CommandPermission("sylphia.command.get")
+	@CommandCompletion("@players")
+	@Description("Gets the origin of either yourself or the targeted player")
+	public void onGet(CommandSender sender, @Optional Player player) {
+		if(player == null) {
+			player = (  Player)sender;
+		}
+
+		Origin origin = plugin.getOriginHandler().getOrigin(player);
+		final TextComponent message = Component.text()
+				.append(TextUtil.parseLegacy(Lang.getMessage(Prefix.ORIGINS_BOLD))).build()
+				.append(TextUtil.parseLegacy(" " + player.getDisplayName()).colorIfAbsent(TextColor.color(230, 230, 230)))
+				.append(Component.text(" is the "))
+				.append(TextUtil.parseLegacy(origin.getDisplayName()).clickEvent(ClickEvent.openUrl("https://www.youtube.com/watch?v=dQw4w9WgXcQ")).hoverEvent(HoverEvent.showText(Component.text("haha coons"))))
+				.append(Component.text(" Origin!"))
+				.colorIfAbsent(TextColor.color(42, 231, 220))
+				.toBuilder().build();
+		sender.sendMessage(message);
+	}
+
+
+
+	@Subcommand("reset")
+	@CommandPermission("sylphia.command.set")
+	@CommandCompletion("@players")
+	public void onReset(CommandSender sender, Player player) {}
+
+
+	@Subcommand("set")
+	@CommandPermission("sylphia.command.set")
+	@CommandCompletion("@players")
+	public void onSet(CommandSender sender, Player player, String[] args) {
+		if(player != null) {
+			OriginHandler originHandler = plugin.getOriginHandler();
+			Origin origin = originHandler.getOrigins().get(args[0].toUpperCase());
+			String var1 = "{prefixorigins} {playerdisplayname} has become the {origin} Origin!";
+			final TextComponent Final = Component.text()
+					.append(TextUtil.parseLegacy(Lang.getMessage(Prefix.ORIGINS))).build()
+					.append(TextUtil.parseLegacy(player.getDisplayName())).colorIfAbsent(NamedTextColor.GRAY).toBuilder().build()
+					.append(Component.text(" has become the "))
+					.append(TextUtil.parseLegacy(origin.getDisplayName())).clickEvent(ClickEvent.runCommand("/origin info " + origin.getName()))
+					.append(Component.text(" Origin!"))
+					.colorIfAbsent(NamedTextColor.AQUA).toBuilder().build();
+			player.sendMessage(Final);
+			if(originHandler.getOrigins().containsKey(args[0].toUpperCase())) {
+				originHandler.setOrigin(player, originHandler.getOrigins().get(args[0].toUpperCase()));
+			}
+		}
 	}
 
 	@Subcommand("save")
@@ -100,14 +166,14 @@ public class OriginCommand extends BaseCommand {
 			sender.sendMessage("NightMessage: " + origin.getNightMessage());
 			sender.sendMessage("HurtSound: " + origin.getHurtSound().toString());
 			sender.sendMessage("DeathSound: " + origin.getDeathSound().toString());
-			sender.sendMessage("GeneralEnabled: " + origin.isGeneralEnabled().toString());
-			sender.sendMessage("Night/DayEnabled: " + origin.isNightDayEnabled().toString());
-			sender.sendMessage("Water/LavaEnabled: " + origin.isWaterLavaEnabled().toString());
-			sender.sendMessage("Slowfalling: " + origin.getSlowFalling().toString());
-			sender.sendMessage("Nightvision: " + origin.getNightVision().toString());
+			sender.sendMessage("GeneralEnabled: " + origin.isGeneralEffects().toString());
+			sender.sendMessage("Night/DayEnabled: " + origin.isTimeEffects().toString());
+			sender.sendMessage("Water/LavaEnabled: " + origin.isLiquidEffects().toString());
+			sender.sendMessage("Slowfalling: " + origin.isSlowFalling().toString());
+			sender.sendMessage("Nightvision: " + origin.isNightVision().toString());
 			sender.sendMessage("Jumpboost: " + origin.getJumpBoost().toString());
-			sender.sendMessage("Effects: " + origin.getGeneralEffects());
-			sender.sendMessage("Attributes: " + origin.getGeneralAttributes().toString());
+			sender.sendMessage("Effects: " + origin.getEffects());
+			sender.sendMessage("Attributes: " + origin.getAttributes().toString());
 			sender.sendMessage("DayEffects: " + origin.getDayEffects());
 			sender.sendMessage("DayAttributes: " + origin.getDayAttributes());
 			sender.sendMessage("NightEffects: " + origin.getNightEffects());
@@ -116,48 +182,39 @@ public class OriginCommand extends BaseCommand {
 			sender.sendMessage("WaterAttributes: " + origin.getWaterAttributes());
 			sender.sendMessage("LavaEffects: " + origin.getLavaEffects());
 			sender.sendMessage("LavaAttributes: " + origin.getLavaAttributes());
-			sender.sendMessage("DamageEnabled: " + origin.isDamageEnabled().toString());
-			sender.sendMessage("SunEnabled: " + origin.isSunDamageEnabled().toString());
-			sender.sendMessage("FallEnabled: " + origin.isFallDamageEnabled().toString());
-			sender.sendMessage("RainEnabled: " + origin.isRainDamageEnabled().toString());
-			sender.sendMessage("WaterEnabled: " + origin.isWaterLavaEnabled().toString());
-			sender.sendMessage("FireEnabled: " + origin.isLavaDamageEnabled().toString());
-			sender.sendMessage("SunAmount: " + origin.getSunDamage());
-			sender.sendMessage("FallAmount: " + origin.getFallDamage());
-			sender.sendMessage("RainAmount: " + origin.getRainDamage());
-			sender.sendMessage("WaterAmount: " + origin.getWaterDamage());
-			sender.sendMessage("LavaAmount: " + origin.getLavaDamage());
+			sender.sendMessage("DamageEnabled: " + origin.isDamage().toString());
+			sender.sendMessage("SunEnabled: " + origin.isSun().toString());
+			sender.sendMessage("FallEnabled: " + origin.isFall().toString());
+			sender.sendMessage("RainEnabled: " + origin.isRain().toString());
+			sender.sendMessage("WaterEnabled: " + origin.isWater().toString());
+			sender.sendMessage("FireEnabled: " + origin.isLava().toString());
+			sender.sendMessage("SunAmount: " + origin.getSun());
+			sender.sendMessage("FallAmount: " + origin.getFall());
+			sender.sendMessage("RainAmount: " + origin.getRain());
+			sender.sendMessage("WaterAmount: " + origin.getWater());
+			sender.sendMessage("LavaAmount: " + origin.getFall());
 			sender.sendMessage("Material: " + origin.getItem());
 		}
 	}
-
-
-
-
-
-//	@Subcommand("setall")
+//
+//	@Subcommand("debug test")
 //	@CommandCompletion("@players")
-//	@CommandPermission("aureliumskills.origin.setlevel")
-//	@Description("Sets all of a player's skills to a level.")
-//	public void onSkillSetall(CommandSender sender, @Flags("other") Player player, int level) {
-//		Locale locale = plugin.getLang().getLocale(sender);
-//		if (level > 0) {
-//			PlayerData playerData = plugin.getPlayerManager().getPlayerData(player);
-//			if (playerData == null) return;
-//			for (Origin origin : plugin.getSkillRegistry().getOrigins()) {
-//				if (OptionL.isEnabled(origin)) {
-//					int oldLevel = playerData.getOrigin(origin);
-//					playerData.setSkillLevel(origin, level);
-//					playerData.setSkillXp(origin, 0);
-//				}
-//			}
-//			sender.sendMessage(Sylphia.getPrefix(locale) + Lang.getMessage(CommandMessage.SKILL_SETALL_SET, locale)
-//					.replace("{level}", String.valueOf(level))
-//					.replace("{player}", player.getName()));
-//		} else {
-//			sender.sendMessage(Sylphia.getPrefix(locale) + Lang.getMessage(CommandMessage.SKILL_SETALL_AT_LEAST_ONE, locale));
+//	public void onDebugTest(CommandSender sender, String[] args) {
+//		OriginHandler originalHandler = plugin.getOriginHandler();
+//		if(args[0].equalsIgnoreCase("1")) {
+//			originalHandler.refreshTime((Player)sender);
+//		} else if(args[0].equalsIgnoreCase("2")) {
+//			originalHandler.applyGeneral((Player)sender);
+//		} else if(args[0].equalsIgnoreCase("3")) {
+//			originalHandler.applyLiquid((Player)sender);
+//		} else if(args[0].equalsIgnoreCase("4")) {
+//			originalHandler.applyTime((Player) sender);
 //		}
 //	}
+
+
+
+
 
 
 //	@Subcommand("origin reset")

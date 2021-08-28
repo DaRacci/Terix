@@ -2,7 +2,6 @@ package me.racci.sylphia.enums.origins;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Locale;
 
 @SuppressWarnings("unused")
 public enum Origins implements Origin {
@@ -20,12 +19,24 @@ public enum Origins implements Origin {
 	}
 
 	@Override
-	public String getDescription(Locale locale) {
+	public String getDisplayName() {
 		return null;
 	}
 
 	@Override
-	public String getDisplayName(Locale locale) {
+	public String getPower() {
 		return null;
 	}
+
+	@Override
+	public String getDescription() {
+		return null;
+	}
+
+	@Override
+	public String getName() {
+		return null;
+	}
+
+
 }
