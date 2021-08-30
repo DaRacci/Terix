@@ -1,4 +1,4 @@
-package me.racci.sylphia.enums.origins;
+package me.racci.sylphia.origins.enums;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -24,12 +24,17 @@ public enum Origins implements Origin {
 	}
 
 	@Override
-	public String getPower() {
+	public String getPowers() {
 		return null;
 	}
 
 	@Override
 	public String getDescription() {
+		return null;
+	}
+
+	@Override
+	public String getPower() {
 		return null;
 	}
 

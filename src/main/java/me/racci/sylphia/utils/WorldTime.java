@@ -1,16 +1,15 @@
 package me.racci.sylphia.utils;
 
 import org.bukkit.entity.Player;
+import org.jetbrains.annotations.NotNull;
 
 public class WorldTime {
 
-	public boolean isDay(Player player) {
+	private WorldTime() {
+	}
+
+	public static boolean isDay(@NotNull Player player) {
 		long time = player.getWorld().getTime();
 		return time < 13400 || time > 23400;
 	}
-
-	public boolean isNight(Player player) {
-		return !this.isDay(player);
-	}
-
 }

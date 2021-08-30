@@ -6,13 +6,13 @@ import org.bukkit.event.HandlerList;
 import org.jetbrains.annotations.NotNull;
 
 @SuppressWarnings("unused")
-public class PlayerDataLoadEvent extends Event {
+public class DataLoadEvent extends Event {
 
     private static final HandlerList handlers = new HandlerList();
 
     private final PlayerData playerData;
 
-    public PlayerDataLoadEvent(PlayerData playerData) {
+    public DataLoadEvent(PlayerData playerData) {
         this.playerData = playerData;
     }
 

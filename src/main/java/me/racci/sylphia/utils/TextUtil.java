@@ -14,9 +14,7 @@ import java.util.regex.Pattern;
 public class TextUtil {
 	static Sylphia plugin;
 	private static final String regex = "\\{(\\S+)}";
-	private static final String regexFinal = "[{}]";
 	private static final Pattern pattern = Pattern.compile((regex), Pattern.CASE_INSENSITIVE);
-	private static final Pattern patternFinal = Pattern.compile(regexFinal);
 
 
 	private TextUtil() {

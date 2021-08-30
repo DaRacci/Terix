@@ -71,6 +71,10 @@
                                     <pattern>com.cryptomorin.xseries</pattern>
                                     <shadedPattern>me.racci.sylphia.utils.xseries</shadedPattern>
                                 </relocation>
+                                <relocation>
+                                    <pattern>dev.triumphteam.gui</pattern>
+                                    <shadedPattern>me.racci.sylphia.utils.gui</shadedPattern>
+                                </relocation>
                             </relocations>
                             <filters>
                                 <filter>
@@ -139,19 +143,6 @@
                                     <artifact>*:commons-lang3</artifact>
                                     <excludes>
                                         <exclude>META-INF/*.MF</exclude>
-                                        <exclude>org/apache/commons/lang3/time/</exclude>
-                                        <exclude>org/apache/commons/lang3/tuple/</exclude>
-                                        <exclude>org/apache/commons/lang3/text/</exclude>
-                                        <exclude>org/apache/commons/lang3/stream/</exclude>
-                                        <exclude>org/apache/commons/lang3/reflect/</exclude>
-                                        <exclude>org/apache/commons/lang3/mutable/</exclude>
-                                        <exclude>org/apache/commons/lang3/function/</exclude>
-                                        <exclude>org/apache/commons/lang3/exception/</exclude>
-                                        <exclude>org/apache/commons/lang3/event/</exclude>
-                                        <exclude>org/apache/commons/lang3/concurrent/</exclude>
-                                        <exclude>org/apache/commons/lang3/compare/</exclude>
-                                        <exclude>org/apache/commons/lang3/builder/</exclude>
-                                        <exclude>org/apache/commons/lang3/arch/</exclude>
                                     </excludes>
                                 </filter>
                             </filters>
@@ -197,9 +188,34 @@
             <id>skullcreator-repo</id>
             <url>https://github.com/deanveloper/SkullCreator/raw/mvn-repo</url>
         </repository>
+        <repository>
+            <id>repo</id>
+            <url>https://repo.mattstudios.me/artifactory/public/</url>
+        </repository>
     </repositories>
 
     <dependencies>
+        <dependency>
+            <groupId>org.apache.commons</groupId>
+            <artifactId>commons-lang3</artifactId>
+            <version>3.12.0</version>
+            <scope>compile</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.apache.commons</groupId>
+            <artifactId>commons-text</artifactId>
+            <version>1.9</version>
+        </dependency>
+        <dependency>
+            <groupId>org.apache.commons</groupId>
+            <artifactId>commons-collections4</artifactId>
+            <version>4.4</version>
+        </dependency>
+        <dependency>
+            <groupId>dev.triumphteam</groupId>
+            <artifactId>triumph-gui</artifactId>
+            <version>3.0.3</version>
+        </dependency>
         <dependency>
             <groupId>dev.dbassett</groupId>
             <artifactId>skullcreator</artifactId>
@@ -217,18 +233,6 @@
             <artifactId>purpur-api</artifactId>
             <version>1.17.1-R0.1-SNAPSHOT</version>
             <scope>provided</scope>
-        </dependency>
-        <dependency>
-            <groupId>org.apache.commons</groupId>
-            <artifactId>commons-lang3</artifactId>
-            <version>3.12.0</version>
-            <scope>compile</scope>
-        </dependency>
-        <dependency>
-            <groupId>com.github.Archy-X</groupId>
-            <artifactId>SmartInvs</artifactId>
-            <version>v1.2.8</version>
-            <scope>compile</scope>
         </dependency>
         <dependency>
             <groupId>me.clip</groupId>
