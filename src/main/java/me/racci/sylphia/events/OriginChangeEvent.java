@@ -7,7 +7,7 @@ import org.bukkit.event.Event;
 import org.bukkit.event.HandlerList;
 import org.jetbrains.annotations.NotNull;
 
-public class PlayerOriginChangeEvent extends Event implements Cancellable {
+public class OriginChangeEvent extends Event implements Cancellable {
 
 	private static final HandlerList handlers = new HandlerList();
 	private Player player;
@@ -15,15 +15,11 @@ public class PlayerOriginChangeEvent extends Event implements Cancellable {
 	private Origin newOrigin;
 	private boolean cancelled;
 
-	public PlayerOriginChangeEvent(Player player, Origin oldOrigin, Origin newOrigin) {
+	public OriginChangeEvent(Player player, Origin oldOrigin, Origin newOrigin) {
 		super(true);
 		this.player = player;
 		this.oldOrigin = oldOrigin;
 		this.newOrigin = newOrigin;
-	}
-
-	public static HandlerList getHandlerList() {
-		return handlers;
 	}
 
 	public Player getPlayer() {

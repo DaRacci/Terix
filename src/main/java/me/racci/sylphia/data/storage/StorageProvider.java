@@ -3,7 +3,7 @@ package me.racci.sylphia.data.storage;
 
 import me.racci.sylphia.Sylphia;
 import me.racci.sylphia.data.PlayerData;
-import me.racci.sylphia.events.PlayerDataLoadEvent;
+import me.racci.sylphia.events.DataLoadEvent;
 import me.racci.sylphia.data.PlayerManager;
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
@@ -23,7 +23,7 @@ public abstract class StorageProvider {
 	public PlayerData createNewPlayer(Player player) {
 		PlayerData playerData = new PlayerData(player, plugin);
 		playerManager.addPlayerData(playerData);
-		PlayerDataLoadEvent event = new PlayerDataLoadEvent(playerData);
+		DataLoadEvent event = new DataLoadEvent(playerData);
 		new BukkitRunnable() {
 			@Override
 			public void run() {

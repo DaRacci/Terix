@@ -22,7 +22,7 @@ public class ReloadManager {
         plugin.saveDefaultConfig();
         plugin.getOptionLoader().loadOptions();
         // Load language files
-        lang.loadLangFile();
+        lang.load();
         lang.loadEmbeddedMessages(plugin.getCommandManager());
         lang.loadLanguages(plugin.getCommandManager());
         sender.sendMessage(Sylphia.getPrefix() + ChatColor.GREEN + Lang.getMessage(CommandMessage.RELOAD));

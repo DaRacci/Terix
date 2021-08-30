@@ -1,4 +1,4 @@
-package me.racci.sylphia.enums.origins;
+package me.racci.sylphia.origins.enums;
 
 import org.jetbrains.annotations.Nullable;
 

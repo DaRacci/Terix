@@ -1,4 +1,4 @@
-package me.racci.sylphia.origins.enums.options;
+package me.racci.sylphia.origins.enums.paths;
 
 public enum PathType {
 

@@ -1,7 +1,7 @@
 package me.racci.sylphia.data;
 
 import me.racci.sylphia.Sylphia;
-import me.racci.sylphia.enums.originsettings.OriginSetting;
+import me.racci.sylphia.origins.enums.specials.Special;
 import me.racci.sylphia.enums.punishments.Punishment;
 import org.bukkit.entity.Player;
 
@@ -16,7 +16,7 @@ public class PlayerData {
 	private String origin;
 	private String lastOrigin;
 
-	private final Map<OriginSetting, Integer> originSettings;
+	private final Map<Special, Integer> originSettings;
 
 	private final Map<Punishment, Integer> punishments;
 	private Boolean unban;
@@ -59,15 +59,15 @@ public class PlayerData {
 		this.lastOrigin = origin;
 	}
 
-	public Integer getOriginSetting(OriginSetting originSetting) {
+	public Integer getOriginSetting(Special originSetting) {
 		return originSettings.getOrDefault(originSetting, 1);
 	}
 
-	public void setOriginSetting(OriginSetting originSetting, Integer value) {
+	public void setOriginSetting(Special originSetting, Integer value) {
 		originSettings.put(originSetting, value);
 	}
 
-	public Map<OriginSetting, Integer> getOriginSettingMap() {
+	public Map<Special, Integer> getOriginSettingMap() {
 		return originSettings;
 	}
 

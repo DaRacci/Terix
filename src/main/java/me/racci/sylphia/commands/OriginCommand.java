@@ -5,13 +5,14 @@ import co.aikar.commands.CommandHelp;
 import co.aikar.commands.annotation.*;
 import me.racci.sylphia.Sylphia;
 import me.racci.sylphia.data.PlayerData;
-import me.racci.sylphia.enums.originsettings.OriginSettings;
 import me.racci.sylphia.enums.punishments.Punishments;
 import me.racci.sylphia.lang.CommandMessage;
 import me.racci.sylphia.lang.Lang;
 import me.racci.sylphia.lang.Prefix;
 import me.racci.sylphia.origins.OriginHandler;
+import me.racci.sylphia.origins.enums.specials.Specials;
 import me.racci.sylphia.origins.objects.Origin;
+import me.racci.sylphia.origins.objects.Origin.OriginValue;
 import me.racci.sylphia.utils.TextUtil;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.TextComponent;
@@ -60,7 +61,7 @@ public class OriginCommand extends BaseCommand {
 
 		Origin origin = plugin.getOriginHandler().getOrigin(player);
 		final TextComponent message = Component.text()
-				.append(TextUtil.parseLegacy(Lang.getMessage(Prefix.ORIGINS_BOLD))).build()
+				.append(TextUtil.parseLegacy(Lang.getMessage(Prefix.ORIGINS))).build()
 				.append(TextUtil.parseLegacy(" " + player.getDisplayName()).colorIfAbsent(TextColor.color(230, 230, 230)))
 				.append(Component.text(" is the "))
 				.append(TextUtil.parseLegacy(origin.getDisplayName()).clickEvent(ClickEvent.openUrl("https://www.youtube.com/watch?v=dQw4w9WgXcQ")).hoverEvent(HoverEvent.showText(Component.text("haha coons"))))
@@ -72,10 +73,12 @@ public class OriginCommand extends BaseCommand {
 
 
 
-	@Subcommand("reset")
+	@Subcommand("unset")
 	@CommandPermission("sylphia.command.set")
 	@CommandCompletion("@players")
-	public void onReset(CommandSender sender, Player player) {}
+	public void onUnset(CommandSender sender, Player player) {
+
+	}
 
 
 	@Subcommand("set")
@@ -137,9 +140,9 @@ public class OriginCommand extends BaseCommand {
 				sender.sendMessage("UUID: " + playerData.getPlayer().getUniqueId());
 				sender.sendMessage("Origin: " + playerData.getOrigin());
 				sender.sendMessage("LastOrigin: " + playerData.getLastOrigin());
-				sender.sendMessage("Nightvision: " + playerData.getOriginSetting(OriginSettings.NIGHTVISION));
-				sender.sendMessage("Jumpboost: " + playerData.getOriginSetting(OriginSettings.JUMPBOOST));
-				sender.sendMessage("Slowfalling: " + playerData.getOriginSetting(OriginSettings.SLOWFALLING));
+				sender.sendMessage("Nightvision: " + playerData.getOriginSetting(Specials.NIGHTVISION));
+				sender.sendMessage("Jumpboost: " + playerData.getOriginSetting(Specials.JUMPBOOST));
+				sender.sendMessage("Slowfalling: " + playerData.getOriginSetting(Specials.SLOWFALLING));
 				sender.sendMessage("Bans: " + playerData.getPunishment(Punishments.BANS));
 				sender.sendMessage("Kicks: " + playerData.getPunishment(Punishments.KICKS));
 				sender.sendMessage("Mutes: " + playerData.getPunishment(Punishments.MUTES));
@@ -153,25 +156,36 @@ public class OriginCommand extends BaseCommand {
 	}
 
 	@Subcommand("debug getorigindata")
-	@CommandCompletion("@origins")
+	@CommandCompletion("nameMap|soundMap|timeMap|permissionMap|effectEnableMap|specialMap|normalEffectMaps|conditionEffectMap|conditionAttributeMap|damageEnableMap|DamageAmountMap|Misc")
 	public void onDebugOrigin(CommandSender sender, String[] args) {
-		if(args.length == 0) {
-			OriginHandler originHandler = plugin.getOriginHandler();
-			Origin origin = originHandler.getOrigin((Player)sender);
-			sender.sendMessage("Origin: " + origin.getName());
+		OriginHandler originHandler = plugin.getOriginHandler();
+		Origin origin = originHandler.getOrigin((Player)sender);
+		if(args[0].equalsIgnoreCase("nameMap")) {
+			sender.sendMessage("Name: " + origin.getName());
+			sender.sendMessage("Colour: " + origin.getColour() + "This colour");
 			sender.sendMessage("Displayname: " + origin.getDisplayName());
 			sender.sendMessage("BracketName: " + origin.getBracketName());
-			sender.sendMessage("Colour: " + origin.getColour());
-			sender.sendMessage("DayMessage: " + origin.getDayMessage());
-			sender.sendMessage("NightMessage: " + origin.getNightMessage());
-			sender.sendMessage("HurtSound: " + origin.getHurtSound().toString());
-			sender.sendMessage("DeathSound: " + origin.getDeathSound().toString());
-			sender.sendMessage("GeneralEnabled: " + origin.isGeneralEffects().toString());
-			sender.sendMessage("Night/DayEnabled: " + origin.isTimeEffects().toString());
-			sender.sendMessage("Water/LavaEnabled: " + origin.isLiquidEffects().toString());
+		} else if (args[0].equalsIgnoreCase("soundMap")) {
+			sender.sendMessage("HurtSound: " + origin.getHurt().toString());
+			sender.sendMessage("DeathSound: " + origin.getDeath().toString());
+		} else if (args[0].equalsIgnoreCase("timeMap")) {
+			sender.sendMessage("DayTitle: " + origin.getDayTitle());
+			sender.sendMessage("DaySubtitle: " + origin.getDaySubtitle());
+			sender.sendMessage("NightTitle: " + origin.getNightTitle());
+			sender.sendMessage("NightSubtitle: " + origin.getNightSubtitle());
+		} else if (args[0].equalsIgnoreCase("permissionMap")) {
+			sender.sendMessage("Required: " + origin.getRequiredPermission());
+			sender.sendMessage("Give: " + origin.getGivenPermission());
+		} else if (args[0].equalsIgnoreCase("effectEnableMap")) {
+			sender.sendMessage("Enabled: " + origin.isGeneralEffects().toString());
+			sender.sendMessage("Time: " + origin.isTimeEffects().toString());
+			sender.sendMessage("Liquid: " + origin.isLiquidEffects().toString());
+			sender.sendMessage("Dimension" + origin.isDimensionEffects().toString());
+		} else if (args[0].equalsIgnoreCase("SpecialMap")) {
 			sender.sendMessage("Slowfalling: " + origin.isSlowFalling().toString());
 			sender.sendMessage("Nightvision: " + origin.isNightVision().toString());
-			sender.sendMessage("Jumpboost: " + origin.getJumpBoost().toString());
+			sender.sendMessage("Jumpboost: " + origin.isJumpBoost().toString());
+		} else if (args[0].equalsIgnoreCase("normalEffectMaps")) {
 			sender.sendMessage("Effects: " + origin.getEffects());
 			sender.sendMessage("Attributes: " + origin.getAttributes().toString());
 			sender.sendMessage("DayEffects: " + origin.getDayEffects());
@@ -182,17 +196,43 @@ public class OriginCommand extends BaseCommand {
 			sender.sendMessage("WaterAttributes: " + origin.getWaterAttributes());
 			sender.sendMessage("LavaEffects: " + origin.getLavaEffects());
 			sender.sendMessage("LavaAttributes: " + origin.getLavaAttributes());
+		} else if (args[0].equalsIgnoreCase("conditionEffectMap")) {
+			sender.sendMessage("OD: " + origin.getPotions(OriginValue.OD));
+			sender.sendMessage("OD: " + origin.getAttributes(OriginValue.OD));
+			sender.sendMessage("ON: " + origin.getPotions(Origin.OriginValue.ON));
+			sender.sendMessage("ON: " + origin.getAttributes(Origin.OriginValue.ON));
+			sender.sendMessage("ODW: " + origin.getPotions(Origin.OriginValue.ODW));
+			sender.sendMessage("ODW: " + origin.getAttributes(Origin.OriginValue.ODW));
+			sender.sendMessage("ODL: " + origin.getPotions(Origin.OriginValue.ODL));
+			sender.sendMessage("ODL: " + origin.getAttributes(Origin.OriginValue.ODL));
+			sender.sendMessage("ONW: " + origin.getPotions(Origin.OriginValue.ONW));
+			sender.sendMessage("ONW: " + origin.getAttributes(Origin.OriginValue.ONW));
+			sender.sendMessage("ONL: " + origin.getPotions(Origin.OriginValue.ONL));
+			sender.sendMessage("ONL: " + origin.getAttributes(Origin.OriginValue.ONL));
+			sender.sendMessage("N: " + origin.getPotions(Origin.OriginValue.N));
+			sender.sendMessage("N: " + origin.getAttributes(Origin.OriginValue.N));
+			sender.sendMessage("NL: " + origin.getPotions(Origin.OriginValue.NL));
+			sender.sendMessage("NL: " + origin.getAttributes(Origin.OriginValue.NL));
+			sender.sendMessage("E: " + origin.getPotions(Origin.OriginValue.E));
+			sender.sendMessage("E: " + origin.getAttributes(Origin.OriginValue.E));
+			sender.sendMessage("EW: " + origin.getPotions(Origin.OriginValue.EW));
+			sender.sendMessage("EW: " + origin.getAttributes(Origin.OriginValue.EW));
+			sender.sendMessage("EL: " + origin.getPotions(Origin.OriginValue.EL));
+			sender.sendMessage("EL: " + origin.getAttributes(Origin.OriginValue.EL));
+		} else if (args[0].equalsIgnoreCase("damageEnableMap")) {
 			sender.sendMessage("DamageEnabled: " + origin.isDamage().toString());
 			sender.sendMessage("SunEnabled: " + origin.isSun().toString());
 			sender.sendMessage("FallEnabled: " + origin.isFall().toString());
 			sender.sendMessage("RainEnabled: " + origin.isRain().toString());
 			sender.sendMessage("WaterEnabled: " + origin.isWater().toString());
 			sender.sendMessage("FireEnabled: " + origin.isLava().toString());
+		} else if (args[0].equalsIgnoreCase("damageAmountMap")) {
 			sender.sendMessage("SunAmount: " + origin.getSun());
 			sender.sendMessage("FallAmount: " + origin.getFall());
 			sender.sendMessage("RainAmount: " + origin.getRain());
 			sender.sendMessage("WaterAmount: " + origin.getWater());
 			sender.sendMessage("LavaAmount: " + origin.getFall());
+		} else if (args[0].equalsIgnoreCase("Misc")) {
 			sender.sendMessage("Material: " + origin.getItem());
 		}
 	}

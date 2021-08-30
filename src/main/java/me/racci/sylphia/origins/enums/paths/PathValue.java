@@ -1,11 +1,10 @@
-package me.racci.sylphia.origins.enums.options;
+package me.racci.sylphia.origins.enums.paths;
 
 import org.bukkit.Sound;
 
 import java.util.ArrayList;
 import java.util.List;
 
-@SuppressWarnings("unused")
 public class PathValue {
 
     private Object value;
@@ -39,8 +38,8 @@ public class PathValue {
     }
 
     public double asDouble() {
-        if(value instanceof Double doub) {
-            return doub;
+        if(value instanceof Double doubleValue) {
+            return doubleValue;
         } else {
             return ((Integer) value).doubleValue();
         }

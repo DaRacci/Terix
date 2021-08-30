@@ -2,9 +2,9 @@ package me.racci.sylphia.data.storage;
 
 import me.racci.sylphia.Sylphia;
 import me.racci.sylphia.data.PlayerData;
-import me.racci.sylphia.events.PlayerDataLoadEvent;
-import me.racci.sylphia.enums.originsettings.OriginSetting;
-import me.racci.sylphia.enums.originsettings.OriginSettings;
+import me.racci.sylphia.events.DataLoadEvent;
+import me.racci.sylphia.origins.enums.specials.Special;
+import me.racci.sylphia.origins.enums.specials.Specials;
 import me.racci.sylphia.enums.punishments.Punishment;
 import me.racci.sylphia.enums.punishments.Punishments;
 import org.bukkit.Bukkit;
@@ -37,7 +37,7 @@ public class YamlStorageProvider extends StorageProvider {
 				// Load origin data
 				playerData.setOrigin(config.getString("Origins.Origin"));
 				playerData.setLastOrigin(config.getString("Origins.LastOrigin"));
-				for (OriginSetting originSetting : OriginSettings.values()) {
+				for (Special originSetting : Specials.values()) {
 					String path = "Settings." + originSetting.name().toUpperCase();
 					int value = config.getInt(path, 1);
 					playerData.setOriginSetting(originSetting, value);
@@ -50,7 +50,7 @@ public class YamlStorageProvider extends StorageProvider {
 				playerData.setUnban(config.getBoolean("Punishments.PurchasedUnban", false));
 				playerData.setSilentmode(config.getBoolean("Staff.Silentmode", false));
 				playerManager.addPlayerData(playerData);
-				PlayerDataLoadEvent event = new PlayerDataLoadEvent(playerData);
+				DataLoadEvent event = new DataLoadEvent(playerData);
 				new BukkitRunnable() {
 					@Override
 					public void run() {
@@ -94,7 +94,7 @@ public class YamlStorageProvider extends StorageProvider {
 			} else {
 				config.set("Origins.LastOrigin", "");
 			}
-			for (OriginSetting originSetting : OriginSettings.values()) {
+			for (Special originSetting : Specials.values()) {
 				String path = "Settings." + originSetting.toString();
 				config.set(path, playerData.getOriginSetting(originSetting));
 			}

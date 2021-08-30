@@ -1,7 +1,7 @@
 package me.racci.sylphia.configuration;
 
 import me.racci.sylphia.Sylphia;
-import me.racci.sylphia.enums.origins.Origin;
+import me.racci.sylphia.origins.enums.Origin;
 import org.bukkit.ChatColor;
 import org.bukkit.configuration.file.FileConfiguration;
 import org.bukkit.configuration.file.YamlConfiguration;
@@ -117,6 +117,6 @@ public class OptionL {
     }
 
     public static boolean isEnabled(Origin origin) {
-        return getBoolean(Option.valueOf(origin.name() + "_ENABLED"));
+        return getBoolean(Option.valueOf(origin.getName() + "_ENABLED"));
     }
 }

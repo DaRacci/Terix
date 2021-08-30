@@ -7,17 +7,11 @@ import org.bukkit.attribute.Attribute;
 import org.bukkit.potion.PotionEffect;
 import org.bukkit.potion.PotionEffectType;
 
+import java.util.Objects;
+
 public class Parser {
 
 	private Parser() {
-	}
-
-	public static Attribute parseAttribute(String string) {
-		if (!EnumUtils.isValidEnum(Attribute.class, string)) {
-			return null;
-		} else {
-			return Attribute.valueOf(string);
-		}
 	}
 
 	public static OriginAttribute parseOriginAttribute(String string) {
@@ -44,7 +38,7 @@ public class Parser {
 		String[] potion = string.split(":");
 		if(PotionEffectType.getByName(potion[0]) != null) {
 			if(NumberUtils.isParsable(potion[1])) {
-				return new PotionEffect(PotionEffectType.getByName(potion[0]), Integer.MAX_VALUE, Integer.parseInt(potion[1]), true, false, false);
+				return new PotionEffect(Objects.requireNonNull(PotionEffectType.getByName(potion[0])), Integer.MAX_VALUE, Integer.parseInt(potion[1]), true, false, false);
 			} else {
 				Logger.log(Logger.LogLevel.WARNING, "The given value for " + potion[0] + " is invalid!");
 				return null;

@@ -1,9 +1,10 @@
-package me.racci.sylphia.lang;
+package me.racci.sylphia.origins.enums.powers;
 
-import me.racci.sylphia.enums.origins.Origin;
-import me.racci.sylphia.enums.origins.Origins;
+import me.racci.sylphia.lang.MessageKey;
+import me.racci.sylphia.origins.enums.Origin;
+import me.racci.sylphia.origins.enums.Origins;
 
-public enum OriginPowers implements MessageKey{
+public enum OriginPowers implements MessageKey {
 
 	// Format
 
@@ -31,7 +32,7 @@ public enum OriginPowers implements MessageKey{
 		catch (IllegalArgumentException e) {
 			origin = Origins.valueOf(this.name().substring(0, this.name().indexOf("_")));
 		}
-		path = "origins." + origin.getPower().toLowerCase() + "." + origin.name().toLowerCase() + "." + this.name().substring(origin.name().length() + 1).toLowerCase();
+		path = "origins." + origin.getPowers().toLowerCase() + "." + origin.getName().toLowerCase() + "." + this.name().substring(origin.getName().length() + 1).toLowerCase();
 	}
 
 	public String getPath() {

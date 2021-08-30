@@ -2,19 +2,13 @@ package me.racci.sylphia;
 
 import co.aikar.commands.InvalidCommandArgument;
 import co.aikar.commands.PaperCommandManager;
-import fr.minuskube.inv.InventoryManager;
 import me.racci.sylphia.commands.OriginCommand;
+import me.racci.sylphia.commands.OriginSelector;
 import me.racci.sylphia.configuration.OptionL;
 import me.racci.sylphia.data.PlayerData;
 import me.racci.sylphia.data.PlayerManager;
 import me.racci.sylphia.data.storage.StorageProvider;
 import me.racci.sylphia.data.storage.YamlStorageProvider;
-import me.racci.sylphia.enums.origins.Origin;
-import me.racci.sylphia.enums.origins.OriginRegistry;
-import me.racci.sylphia.enums.origins.Origins;
-import me.racci.sylphia.enums.originsettings.OriginSettingRegistry;
-import me.racci.sylphia.enums.punishments.PunishmentsRegistry;
-import me.racci.sylphia.origins.OriginHandler;
 import me.racci.sylphia.hook.PlaceholderAPIHook;
 import me.racci.sylphia.hook.perms.LuckPermsHook;
 import me.racci.sylphia.hook.perms.PermManager;
@@ -22,6 +16,10 @@ import me.racci.sylphia.lang.Lang;
 import me.racci.sylphia.lang.Prefix;
 import me.racci.sylphia.listeners.PlayerChatEvent;
 import me.racci.sylphia.listeners.PlayerJoinLeaveEvent;
+import me.racci.sylphia.origins.OriginHandler;
+import me.racci.sylphia.origins.enums.Origin;
+import me.racci.sylphia.origins.enums.OriginRegistry;
+import me.racci.sylphia.origins.enums.Origins;
 import me.racci.sylphia.region.RegionListener;
 import me.racci.sylphia.region.RegionManager;
 import me.racci.sylphia.util.world.WorldManager;
@@ -39,14 +37,11 @@ import java.io.InputStreamReader;
 import java.util.ArrayList;
 import java.util.List;
 
-@SuppressWarnings({"unused"})
 public class Sylphia extends JavaPlugin {
 
 	private PlayerManager playerManager;
 	private StorageProvider storageProvider;
-	private InventoryManager inventoryManager;
 	private WorldManager worldManager;
-	private boolean vaultPermissions;
 	private boolean placeholderAPI;
 	private boolean luckPerms;
 	private OptionL optionLoader;
@@ -55,12 +50,11 @@ public class Sylphia extends JavaPlugin {
 	private RegionManager regionManager;
 
 	private OriginRegistry originRegistry;
-	private OriginSettingRegistry originSettingRegistry;
-	private PunishmentsRegistry punishmentsRegistry;
 
 	private OriginHandler originHandler;
 	private PermManager permManager;
-	private LuckPermsHook luckPermsHook;
+
+
 
 
 	@Override
@@ -70,10 +64,10 @@ public class Sylphia extends JavaPlugin {
 		// Registries
 		originRegistry = new OriginRegistry();
 		registerOrigins();
-		originSettingRegistry = new OriginSettingRegistry();
-	//	registerOriginSettings();
-		punishmentsRegistry = new PunishmentsRegistry();
-	//	registerPunishments();
+
+		// GUI
+
+
 
 		// Addon Hooks
 		placeholderAPI = Bukkit.getPluginManager().isPluginEnabled("PlaceholderAPI");
@@ -92,7 +86,7 @@ public class Sylphia extends JavaPlugin {
 		// Load Lang
 		lang = new Lang(this);
 		getServer().getPluginManager().registerEvents(lang, this);
-		lang.init();
+		lang.load();
 		lang.loadEmbeddedMessages(commandManager);
 		lang.loadLanguages(commandManager);
 
@@ -190,6 +184,7 @@ public class Sylphia extends JavaPlugin {
 			return values;
 		});
 		commandManager.registerCommand(new OriginCommand(this));
+		commandManager.registerCommand(new OriginSelector(this));
 	}
 
 	public void registerEvents() {
@@ -211,10 +206,6 @@ public class Sylphia extends JavaPlugin {
 
 	public OriginHandler getOriginHandler() {
 		return this.originHandler;
-	}
-
-	public InventoryManager getInventoryManager() {
-		return inventoryManager;
 	}
 
 	public WorldManager getWorldManager() {
@@ -246,10 +237,6 @@ public class Sylphia extends JavaPlugin {
 		return luckPerms;
 	}
 
-	public boolean isVaultPermissions() {
-		return vaultPermissions;
-	}
-
 	public StorageProvider getStorageProvider() {
 		return storageProvider;
 	}
@@ -270,15 +257,5 @@ public class Sylphia extends JavaPlugin {
 		return permManager;
 	}
 
-
-
-	//}
-
-	// Figure out where this should be registered in aurelium...
-//	private void registerOriginSettings() {
-//		originSettingRegistry.register("slowfalling", OriginSettings.SLOWFALLING);
-//		originSettingRegistry.register("nightvision", OriginSettings.NIGHTVISION);
-//		originSettingRegistry.register("jumpboost", OriginSettings.JUMPBOOST);
-//	}
 
 }
