@@ -28,7 +28,7 @@ public enum ACFCoreMessage {
     HELP_DETAILED_PARAMETER_FORMAT,
     HELP_SEARCH_HEADER;
 
-    String path = "acf.core";
+    private static final String path = "Messages.Core";
 
     public String getPath() {
         return path;

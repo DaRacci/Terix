@@ -15,7 +15,7 @@ public enum ACFMinecraftMessage {
     LOCATION_PLEASE_SPECIFY_XYZ,
     LOCATION_CONSOLE_NOT_RELATIVE;
 
-    String path = "acf.minecraft.en";
+    private static final String path = "Messages.Minecraft";
 
     public String getPath() {
         return path;

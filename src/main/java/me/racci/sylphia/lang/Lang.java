@@ -16,28 +16,25 @@ import java.io.File;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.nio.charset.StandardCharsets;
-import java.util.HashMap;
-import java.util.Locale;
-import java.util.Map;
+import java.util.*;
 
 public class Lang implements Listener {
 
 	private static final Map<MessageKey, String> messagesMap = new HashMap<>();
 	private final Sylphia plugin;
-	String lang = "lang.yml";
-	String fileVersion = "File_Version";
+	private static final String lang = "lang.yml";
+	private static final String fileVersion = "File_Version";
 
 	public Lang(Sylphia plugin) {
 		this.plugin = plugin;
 	}
 
-	public void init() {
+	public void load() {
 		loadLangFile();
 	}
 
-	public void loadLangFile() {
+	private void loadLangFile() {
 		if(!(new File(plugin.getDataFolder(),lang).exists())) {
-			Logger.log(Logger.LogLevel.INFO, "Creating new Lang file");
 			plugin.saveResource(lang, false);
 		}
 	}
@@ -45,8 +42,12 @@ public class Lang implements Listener {
 	public void loadEmbeddedMessages(PaperCommandManager commandManager) {
 		InputStream inputStream = plugin.getResource(lang);
 		if (inputStream != null) {
-			FileConfiguration config = YamlConfiguration.loadConfiguration(new InputStreamReader(inputStream, StandardCharsets.UTF_8));
-			loadMessages(config, commandManager);
+			try {
+				FileConfiguration config = YamlConfiguration.loadConfiguration(new InputStreamReader(inputStream, StandardCharsets.UTF_8));
+				loadMessages(config, commandManager);
+			} catch (Exception e) {
+				e.printStackTrace();
+			}
 		}
 	}
 
@@ -60,7 +61,7 @@ public class Lang implements Listener {
 				loadMessages(config, commandManager);
 			}
 			else {
-				Logger.log(Logger.LogLevel.ERROR, "Could not load lang file, Does this file exist and does it contain a file_version?");
+				Logger.log(Logger.LogLevel.ERROR, "Could not load lang file, Does this file exist and does it contain a File_Version?");
 			}
 		} catch (Exception e) {
 			Logger.log(Logger.LogLevel.ERROR, "Error loading lang file");
@@ -71,11 +72,11 @@ public class Lang implements Listener {
 	}
 
 	private void loadMessages(FileConfiguration config, PaperCommandManager commandManager) {
-		Map<UnitMessage, String> units = new HashMap<>();
-		for (UnitMessage key : UnitMessage.values()) {
+		Map<MessageKey, String> prefixes = new HashMap<>();
+		for (Prefix key : Prefix.values()) {
 			String message = config.getString(key.getPath());
 			if (message != null) {
-				units.put(key, message.replace('&', '§'));
+				prefixes.put(key, message.replace("&", "§"));
 			}
 		}
 		Map<MessageKey, String> messages = Lang.messagesMap;
@@ -92,7 +93,10 @@ public class Lang implements Listener {
 				}
 				String message = config.getString(path);
 				if (message != null) {
-					messages.put(key, ChatColor.color(message, true));
+					messages.put(key, ChatColor.color(TextUtil.replace(message,
+							"{Origins}", prefixes.get(Prefix.ORIGINS),
+							"{Sylphia}", prefixes.get(Prefix.SYLPHIA),
+							"{Error}", prefixes.get(Prefix.ERROR)), true));
 				}
 			}
 		}
@@ -120,7 +124,6 @@ public class Lang implements Listener {
 				int currentVersion = config.getInt(fileVersion);
 				FileConfiguration imbConfig = YamlConfiguration.loadConfiguration(new InputStreamReader(stream, StandardCharsets.UTF_8));
 				int imbVersion = imbConfig.getInt(fileVersion);
-				//If versions do not match
 				if (currentVersion != imbVersion) {
 					try {
 						ConfigurationSection configSection = imbConfig.getConfigurationSection("");
@@ -133,7 +136,7 @@ public class Lang implements Listener {
 								}
 							}
 						}
-						config.set("file_version", imbVersion);
+						config.set(fileVersion, imbVersion);
 						config.save(file);
 						Logger.log(Logger.LogLevel.INFO, lang + " was updated to a new file version, " + keysAdded + " new keys were added.");
 					} catch (Exception e) {

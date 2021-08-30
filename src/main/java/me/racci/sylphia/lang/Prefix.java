@@ -1,28 +1,18 @@
 package me.racci.sylphia.lang;
 
+import org.apache.commons.text.WordUtils;
 import org.bukkit.ChatColor;
 
-@SuppressWarnings("unused")
 public enum Prefix implements MessageKey {
 
-	// Sylphia »
 	SYLPHIA,
-	SYLPHIA_BOLD,
-	// Error »
 	ERROR,
-	ERROR_BOLD,
-	// Origins »
-	ORIGINS,
-	ORIGINS_BOLD;
+	ORIGINS;
 
 	private final String path;
 
 	Prefix() {
-		this.path = "Prefixes." + this.name();
-	}
-
-	Prefix(String path) {
-		this.path = "Prefixes." + path;
+		this.path = "Prefixes." + WordUtils.capitalizeFully(this.name().toLowerCase());
 	}
 
 	public String getPath() {

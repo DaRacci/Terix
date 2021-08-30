@@ -1,16 +1,10 @@
 Prefixes:
-  SYLPHIA: '#ffaa00S#ffbf15y#ffd52bl#ffea40p#ffff55h &f&l»'
-  SYLPHIA_BOLD: '#ffaa00&lS#ffbf15&ly#ffd52b&ll#ffea40&lp#ffff55>&lh &f&l»'
-  ERROR: '#aa0000S#bd0000y#d00000l#e30000p#f60000h #ff0909E#ff1c1cr#ff2f2fr#ff4242o#ff5555r &f&l»'
-  ERROR_BOLD: '#aa0000&lS#bd0000&ly#d00000&ll#e30000&lp#f60000&lh #ff0909&lE#ff1c1c&lr#ff2f2f&lr#ff4242&lo#ff5555&lr &f&l»'
-  ORIGINS: '#ffff55O#ffea40r#ffd52bi#ffbf15g#ffaa00i#ffbf15n#ffd52bs &f»'
-  ORIGINS_BOLD: '#ffff55&lO#ffea40&lr#ffd52b&li#ffbf15&lg#ffaa00&li#ffbf15&ln#ffd52b&ls &f&l»'
-Messages:
-  InvalidPlayer: "&cThis isn't a valid &4player&c!"
-Sounds:
-  ErrorSound:
-  PingSound:
-  SuccessSound:
+  Sylphia: "#ffaa00&lS#ffbf15&ly#ffd52b&ll#ffea40&lp#ffff55>&lh &f&l»"
+  Error: "#aa0000&lS#bd0000&ly#d00000&ll#e30000&lp#f60000&lh #ff0909&lE#ff1c1c&lr#ff2f2f&lr#ff4242&lo#ff5555&lr &f&l»"
+  Origins: "#ffff55&lO#ffea40&lr#ffd52b&li#ffbf15&lg#ffaa00&li#ffbf15&ln#ffd52b&ls &f&l»"
+Colours:
+  Player: "#DCDCDC"
+  Missing: "#2AE7DC"
 Powers:
   Vampire:
     DARKSHADOW:
@@ -30,8 +24,8 @@ Powers:
       use: ''
   not_ready: '&cAbility not ready! &7({cooldown}s)'
   not_enough_mana: '&eNot enough mana! &7({mana} {mana_unit} required, you have {current_mana}/{max_mana})'
-acf:
-  core:
+Messages:
+  Core:
     permission_denied: "&cYou don't have &4permission &cto use this command"
     permission_denied_parameter: "&cYou don't have &4permission &cto use this sub-command"
     error_generic_logged: "&cAn error occurred. This problem has been logged. Sorry for the inconvenience."
@@ -57,7 +51,7 @@ acf:
     help_detailed_command_format: '&b{command} &a{parameters} &e{separator} {description}'
     help_detailed_parameter_format: '&a{syntaxorname}: &e{description}'
     help_search_header: '&e=== &bSearch results for &a{commandprefix}{command} {search}&e ==='
-  minecraft:
+  Minecraft:
     invalid_world: '&cError: That world does not exist.'
     you_must_be_holding_item: '&cError: You must be holding an item in your main hand.'
     player_is_vanish_confirm: '&eWarning: &a{vanished} &eis vanished. Do not blow their cover!\n&eTo confirm your action add &a:confirm &eto the end of their name.\n&eEx: {vanished}:confirm'
@@ -70,63 +64,42 @@ acf:
     location_please_specify_world: '&cError: Please specify world. Example: &eworld:x,y,z.'
     location_please_specify_xyz: '&cError: Please specify the coordinates x, y, and z. Example: &eworld:x,y,z.'
     location_console_not_relative: '&cError: Console may not use relative coordinates for location.'
-action_bar:
-  idle: '&c{hp}/{max_hp}❤                 &b{mana}/{max_mana} {mana_unit}'
-  ability: '{message}'
-  boss_bar_xp: '&6{skill} {level} &7({current_xp}/{level_xp} {xp_unit})'
-  boss_bar_maxed: '&6{skill} {level} &7(MAXED)'
-commands:
-  reload: '&aConfig reloaded!'
-  save:
-    already_saving: '&eData is already saving!'
-    saved: '&aPlayers have been saved!'
-  toggle:
-    enabled: '&aYour skills action bar has been enabled'
-    disabled: '&cYour skills action bar has been disabled'
-    not_enabled: '&eSkills action bar is not enabled on this server!'
-  no_profile: '&ePlayer does not have a skills profile!'
-menus:
-  common:
-    close: '&cClose'
-  stats_menu:
-    stats_menu_title: Your Stats
-    player_stat_entry: ' {color}{symbol} {stat} &f{level}'
-    skills: '\n&7Skills: &f{skills}'
-    attack_damage: '&4+{value}% Attack Damage'
-    hp: '&c+{value} ❤'
-    luck: '&2+{value} Luck'
-    xp_gain: '&9+{value}% {xp_unit} Gain'
-    max_mana: '&9Max Mana: {value}'
-    incoming_damage: '&5-{value}% Incoming Damage'
-stats:
-  strength:
-    name: Strength
-    desc: '&7Strength increases your attack damage\n&7with various different weapons'
-    color: '&4'
-    symbol: '➽'
-  health:
-    name: Health
-    desc: '&7Health increases the amount of {hp_unit} you\n&7have, allowing you to last longer in\n&7fights'
-    color: '&c'
-    symbol: '❤'
-  regeneration:
-    name: Regeneration
-    desc: '&7Regeneration increases how fast you\n&7recover both health and mana'
-    color: '&6'
-    symbol: '❥'
-  luck:
-    name: Luck
-    desc: '&7Luck increases your chances of getting\n&7rare loot from mobs, fishing, and more'
-    color: '&2'
-    symbol: '☘'
-  wisdom:
-    name: Wisdom
-    desc: '&7Wisdom increases your max mana, increases\n&7experience gain, and decreases anvil costs'
-    color: '&9'
-    symbol: '✿'
-  toughness:
-    name: Toughness
-    desc: '&7Toughness increases the amount of\n&7damage reduced from enemy attacks'
-    color: '&5'
-    symbol: '✦'
+  Commands:
+    Reload: '&aConfig reloaded!'
+    Saved: '&aAll Players have been saved!'
+    Toggle:
+      Enabled: '&aYour skills action bar has been enabled'
+      Disabled: '&cYour skills action bar has been disabled'
+GUI:
+  Common:
+    Close: "&cClose"
+    Accept: "&2Accept"
+    Deny: "&cDeny"
+  Selection:
+    Title: "&6&lOrigin &eSelection Menu"
+    Custom_Title: "&eCustom &6&lOrigins"
+    Confirm_Title: "&eConfirm selection"
+  Info:
+    Title: "&6&lOrigin &eInfo Menu"
+    Powers:
+    Passives:
+    Debuffs:
+Origins:
+  Commands:
+    Get: "{Origins} &7{PlayerDisplayName}'s &borigin is the {var} &bOrigin"
+    Set: "{Origins} &bYou have set &7{PlayerDisplayName}'s &borigin to {var}"
+    Unset: "{Origins} &cYou have removed &7{PlayerDisplayName}'s &bOrigin"
+  Result:
+    NotNull: "{Error} &7{PlayerDisplayName} &cdoesn't have an &4Origin"
+  Select:
+    Broadcast: "{Origins} &7{PlayerDisplayName} &ehas selected the {var} &6Origin!"
+    Locked: "{Error} &cYou don't have access to the {var} &cOrigin!"
+    Current: "{Error} &cYou are already the {var} &cOrigin!"
+  Lore:
+    Centered: false
+    Indent: "&f&l»"
+    Passives: "&6&lPassives"
+    Abilities: "&2&lAbilities"
+    Debuffs: "&4&Debuffs"
+    Select: "&f&l» &bClick &f&l« &eto change to the {var} &eorigin."
 File_Version: 1
