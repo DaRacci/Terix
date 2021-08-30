@@ -1,0 +1,76 @@
+Identity:
+  Name: Human
+  Colour: "#ff9c38"
+Sound:
+  Hurt: ENTITY_PLAYER_HURT
+  Death: ENTITY_PLAYER_DEATH
+Permissions:
+  Required:
+  Given:
+TimeMessage:
+  Day:
+    Title: "&2Day!"
+    Subtitle: "&eA new day has begun!"
+  Night:
+    Title: "&5Night.."
+    Subtitle: "&3The night has come upon us.."
+Effects:
+  Enabled: false
+  Time: false
+  Liquid: false
+  Dimension: false
+  Special:
+    Slow-falling: false
+    Night-vision: false
+    Jump-boost: 0
+  General:
+    Effects:
+    Attributes:
+  Day:
+    Effects:
+    Attributes:
+  Night:
+    Effects:
+    Attributes:
+  Water:
+    Effects:
+    Attributes:
+  Lava:
+    Effects:
+    Attributes:
+  Overworld:
+    Effects:
+    Attributes:
+  Nether:
+    Effects:
+    Attributes:
+  End:
+    Effects:
+    Attributes:
+Damage:
+  Enabled: false
+  Sun: false
+  Fall: false
+  Rain: false
+  Water: false
+  Lava: false
+  Amounts:
+    Sun: 0
+    Fall: 100
+    Rain: 0
+    Water: 0
+    Lava: 100
+GUI:
+  Item:
+    Skull: eyJ0ZXh0dXJlcyI6eyJTS0lOIjp7InVybCI6Imh0dHA6Ly90ZXh0dXJlcy5taW5lY3JhZnQubmV0L3RleHR1cmUvOTg4Y2M3YWQ4NDY5YTBmYTg4ZmI1NjczZGMzMWY3MWI1MTJiOGZkMTNjNGUxNjJmMzNkNjFmN2FkOGNiYTJmNSJ9fX0
+    Material: APPLE
+    Enchanted: false
+  Lore:
+    Description:
+      - "#ff9c38Generic human twat"
+    Passives:
+      - "&e+Generic human"
+    Abilities:
+      - "&aGeneric baby making"
+    Debuffs:
+      - "&c-Mortal"

@@ -11,10 +11,10 @@ public interface MessageKey {
     static Set<MessageKey> values() {
         Set<MessageKey> keys = new HashSet<>();
         keys.addAll(Arrays.asList(CommandMessage.values()));
-        keys.addAll(Arrays.asList(MenuMessage.values()));
-        keys.addAll(Arrays.asList(SkillMessage.values()));
-        keys.addAll(Arrays.asList(UnitMessage.values()));
+        keys.addAll(Arrays.asList(GUI.values()));
         keys.addAll(Arrays.asList(Prefix.values()));
+        keys.addAll(Arrays.asList(OriginMessage.values()));
+        keys.addAll(Arrays.asList(Colours.values()));
         return keys;
     }
 }
