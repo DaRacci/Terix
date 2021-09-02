@@ -16,14 +16,25 @@ import org.bukkit.scheduler.BukkitRunnable;
 import java.io.File;
 import java.util.UUID;
 
-public class YamlStorageProvider extends StorageProvider {
+public class JsonStorageProvider extends StorageProvider {
 
-	public YamlStorageProvider(Sylphia plugin) {
+	public JsonStorageProvider(Sylphia plugin) {
 		super(plugin);
 	}
 
 	@Override
 	public void load(Player player) {
+//		Json playerFile = LightningBuilder
+//				.fromPath(player.getUniqueId() + ".json", plugin.getDataFolder() + "/Players/")
+//				.setDataType(DataType.SORTED)
+//				.setReloadSettings(ReloadSettings.MANUALLY)
+//				.addInputStreamFromResource("Player.json")
+//				.createJson();
+
+
+
+
+
 		File file = new File(plugin.getDataFolder() + "/Players/" + player.getUniqueId() + ".yml");
 		if (file.exists()) {
 			FileConfiguration config = YamlConfiguration.loadConfiguration(file);
@@ -117,6 +128,6 @@ public class YamlStorageProvider extends StorageProvider {
 
 	@Override
 	public void save(Player player) {
-		save(player, false);
+		save(player, true);
 	}
 }

@@ -1,6 +1,5 @@
-package me.racci.sylphia.util.world;
+package me.racci.sylphia.utils;
 
-import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.World;
 import org.bukkit.configuration.file.FileConfiguration;
@@ -38,7 +37,7 @@ public class WorldManager {
             blockedCheckBlockReplaceWorlds.add(blockedWorld);
             blockedWorldsLoaded++;
         }
-        Bukkit.getLogger().info("[Sylphia] Loaded " + blockedWorldsLoaded + " blocked worlds.");
+        Logger.log(Logger.Level.INFO, "Loaded " + blockedWorldsLoaded + " blocked worlds.");
     }
 
     public boolean isInBlockedWorld(Location location) {

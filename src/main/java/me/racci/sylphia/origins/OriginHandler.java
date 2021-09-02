@@ -13,15 +13,13 @@ import me.racci.sylphia.origins.enums.paths.Path;
 import me.racci.sylphia.origins.objects.Origin;
 import me.racci.sylphia.origins.objects.Origin.OriginValue;
 import me.racci.sylphia.origins.objects.OriginAttribute;
-import me.racci.sylphia.utils.Logger;
-import me.racci.sylphia.utils.Parser;
-import me.racci.sylphia.utils.TextUtil;
-import me.racci.sylphia.utils.WorldTime;
+import me.racci.sylphia.utils.*;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.TextReplacementConfig;
 import net.kyori.adventure.text.format.TextColor;
 import net.kyori.adventure.title.Title;
 import org.apache.commons.collections4.ListUtils;
+import org.apache.commons.collections4.MapUtils;
 import org.apache.commons.lang3.EnumUtils;
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
@@ -40,6 +38,7 @@ import org.bukkit.inventory.ItemFlag;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.potion.PotionEffect;
 import org.bukkit.scheduler.BukkitRunnable;
+import org.jetbrains.annotations.NotNull;
 
 import java.io.File;
 import java.io.InputStream;
@@ -52,6 +51,7 @@ import java.util.*;
 public class OriginHandler implements Listener {
 
 	private final Sylphia plugin;
+	private static final HashMap<Origin, String> requiredPermList = new HashMap<>();
 	private static final Title.Times times = Title.Times.of(Duration.ofMillis(500), Duration.ofMillis(3000), Duration.ofMillis(1000));
 	private final HashMap<String, Origin> origins = new HashMap<>();
 
@@ -64,9 +64,13 @@ public class OriginHandler implements Listener {
 	private static final Component passives = TextUtil.parseLegacy(spaces + Lang.getMessage(OriginMessage.LORE_PASSIVES));
 	private static final Component abilities = TextUtil.parseLegacy(spaces + Lang.getMessage(OriginMessage.LORE_ABILITIES));
 	private static final Component debuffs = TextUtil.parseLegacy(spaces + Lang.getMessage(OriginMessage.LORE_DEBUFFS));
-	private static final Component select = TextUtil.parseLegacy(Lang.getMessage(OriginMessage.LORE_SELECT));
-	private static final Component indent = TextUtil.parseLegacy(Lang.getMessage(OriginMessage.LORE_INDENT) + " ");
-
+	private static final Component select = TextUtil.parseLegacy(ChatColor.color(Lang.getMessage(OriginMessage.LORE_SELECT), true));
+	private static final String indent = Lang.getMessage(OriginMessage.LORE_INDENT) + " ";
+/*
+----------------------------------------------------------------------------------------------------
+									Registering the origin
+----------------------------------------------------------------------------------------------------
+*/
 	public void refreshOrigins() {
 		this.origins.clear();
 		Map<String, YamlConfiguration> file = this.getAllOriginConfigurations();
@@ -77,13 +81,13 @@ public class OriginHandler implements Listener {
 				}
 			}
 		} else {
-			Logger.log(Logger.LogLevel.ERROR, "No origins found!");
+			Logger.log(Logger.Level.ERROR, "No origins found!");
 		}
 	}
 
 	private Origin convertToOrigin(String origin, YamlConfiguration file) {
 
-		validateFile(file, plugin.getResource("NewOrigin.yml"));
+		validateFile(file, plugin.getResource("Origin.yml"));
 		LinkedHashMap<OriginValue, String> nameMap = new LinkedHashMap<>();
 		LinkedHashMap<OriginValue, Sound> soundMap = new LinkedHashMap<>();
 		LinkedHashMap<OriginValue, String> timeMessageMap = new LinkedHashMap<>();
@@ -94,8 +98,9 @@ public class OriginHandler implements Listener {
 		LinkedHashMap<OriginValue, List<OriginAttribute>> attributeMap = new LinkedHashMap<>();
 		LinkedHashMap<OriginValue, Boolean> damageEnableMap = new LinkedHashMap<>();
 		LinkedHashMap<OriginValue, Integer> damageAmountMap = new LinkedHashMap<>();
+		LinkedHashMap<OriginValue, Object> guiItem = new LinkedHashMap<>();
 		ItemStack item = null;
-
+		Integer slot = null;
 
 		// Names and colours
 		String name = file.getString(Path.NAME.getPath());
@@ -145,37 +150,37 @@ public class OriginHandler implements Listener {
 		damageAmountMap.put(OriginValue.WATER, file.getInt(Path.WATER_AMOUNT.getPath()));
 		damageAmountMap.put(OriginValue.LAVA, file.getInt(Path.LAVA_AMOUNT.getPath())); // Wrong value?
 		if (effectEnableMap.get(OriginValue.GENERAL)) {
-			attributeMap.putAll(putAttribute(Path.GENERAL_ATTRIBUTES.getPath(), OriginValue.GENERAL, file));
-			effectMap.putAll(putEffect(Path.GENERAL_EFFECTS.getPath(), OriginValue.GENERAL, file));
+			attributeMap.putAll(MapUtils.emptyIfNull(putAttribute(Path.GENERAL_ATTRIBUTES.getPath(), OriginValue.GENERAL, file)));
+			effectMap.putAll(MapUtils.emptyIfNull(putEffect(Path.GENERAL_EFFECTS.getPath(), OriginValue.GENERAL, file)));
 		}
 		if (effectEnableMap.get(OriginValue.TIME)) {
-			attributeMap.putAll(putAttribute(Path.DAY_ATTRIBUTES.getPath(), OriginValue.DAY, file));
-			effectMap.putAll(putEffect(Path.DAY_EFFECTS.getPath(), OriginValue.DAY, file));
-			attributeMap.putAll(putAttribute(Path.NIGHT_ATTRIBUTES.getPath(), OriginValue.NIGHT, file));
-			effectMap.putAll(putEffect(Path.NIGHT_EFFECTS.getPath(), OriginValue.NIGHT, file));
+			attributeMap.putAll(MapUtils.emptyIfNull(putAttribute(Path.DAY_ATTRIBUTES.getPath(), OriginValue.DAY, file)));
+			effectMap.putAll(MapUtils.emptyIfNull(putEffect(Path.DAY_EFFECTS.getPath(), OriginValue.DAY, file)));
+			attributeMap.putAll(MapUtils.emptyIfNull(putAttribute(Path.NIGHT_ATTRIBUTES.getPath(), OriginValue.NIGHT, file)));
+			effectMap.putAll(MapUtils.emptyIfNull(putEffect(Path.NIGHT_EFFECTS.getPath(), OriginValue.NIGHT, file)));
 		}
 		if (effectEnableMap.get(OriginValue.LIQUID)) {
-			attributeMap.putAll(putAttribute(Path.WATER_ATTRIBUTES.getPath(), OriginValue.WATER, file));
-			effectMap.putAll(putEffect(Path.WATER_EFFECTS.getPath(), OriginValue.WATER, file));
-			attributeMap.putAll(putAttribute(Path.LAVA_ATTRIBUTES.getPath(), OriginValue.LAVA, file));
-			effectMap.putAll(putEffect(Path.LAVA_EFFECTS.getPath(), OriginValue.LAVA, file));
+			attributeMap.putAll(MapUtils.emptyIfNull(putAttribute(Path.WATER_ATTRIBUTES.getPath(), OriginValue.WATER, file)));
+			effectMap.putAll(MapUtils.emptyIfNull(putEffect(Path.WATER_EFFECTS.getPath(), OriginValue.WATER, file)));
+			attributeMap.putAll(MapUtils.emptyIfNull(putAttribute(Path.LAVA_ATTRIBUTES.getPath(), OriginValue.LAVA, file)));
+			effectMap.putAll(MapUtils.emptyIfNull(putEffect(Path.LAVA_EFFECTS.getPath(), OriginValue.LAVA, file)));
 		}
 		if(effectEnableMap.get(OriginValue.DIMENSION)) {
-			attributeMap.putAll(putAttribute(Path.OVERWORLD_ATTRIBUTES.getPath(), OriginValue.OVERWORLD, file));
-			effectMap.putAll(putEffect(Path.OVERWORLD_EFFECTS.getPath(), OriginValue.OVERWORLD, file));
-			attributeMap.putAll(putAttribute(Path.NETHER_ATTRIBUTES.getPath(), OriginValue.NETHER, file));
-			effectMap.putAll(putEffect(Path.NETHER_EFFECTS.getPath(), OriginValue.NETHER, file));
-			attributeMap.putAll(putAttribute(Path.END_ATTRIBUTES.getPath(), OriginValue.END, file));
-			effectMap.putAll(putEffect(Path.END_EFFECTS.getPath(), OriginValue.END, file));
+			attributeMap.putAll(MapUtils.emptyIfNull(putAttribute(Path.OVERWORLD_ATTRIBUTES.getPath(), OriginValue.OVERWORLD, file)));
+			effectMap.putAll(MapUtils.emptyIfNull(putEffect(Path.OVERWORLD_EFFECTS.getPath(), OriginValue.OVERWORLD, file)));
+			attributeMap.putAll(MapUtils.emptyIfNull(putAttribute(Path.NETHER_ATTRIBUTES.getPath(), OriginValue.NETHER, file)));
+			effectMap.putAll(MapUtils.emptyIfNull(putEffect(Path.NETHER_EFFECTS.getPath(), OriginValue.NETHER, file)));
+			attributeMap.putAll(MapUtils.emptyIfNull(putAttribute(Path.END_ATTRIBUTES.getPath(), OriginValue.END, file)));
+			effectMap.putAll(MapUtils.emptyIfNull(putEffect(Path.END_EFFECTS.getPath(), OriginValue.END, file)));
 		}
 
-		if (!file.isSet(Path.GUI_SKULL.getPath()) || !file.getBoolean(Path.GUI_SKULL.getPath())) {
+		if(!file.isSet(Path.GUI_SKULL.getPath()) || (file.isBoolean(Path.GUI_SKULL.getPath()) && !file.getBoolean(Path.GUI_SKULL.getPath()))) {
 			if (EnumUtils.isValidEnum(Material.class, file.getString(Path.GUI_MATERIAL.getPath()))) {
 				item = new ItemStack(Objects.requireNonNull(Material.getMaterial(Objects.requireNonNull(file.getString(Path.GUI_MATERIAL.getPath())))), 1);
 			} else {
-				Logger.log(Logger.LogLevel.WARNING, "The material for " + origin + " is invalid!");
+				Logger.log(Logger.Level.WARNING, "The material for " + origin + " is invalid!");
 			}
-		} else {
+		} else if (file.isSet(Path.GUI_SKULL.getPath()) && !file.isBoolean(Path.GUI_SKULL.getPath())) {
 			item = SkullCreator.itemFromBase64(Objects.requireNonNull(file.getString(Path.GUI_SKULL.getPath())));
 		}
 		if (item != null) {
@@ -184,31 +189,49 @@ public class OriginHandler implements Listener {
 				item.addItemFlags(ItemFlag.HIDE_ENCHANTS);
 			}
 			List<Component> itemLore = new ArrayList<>();
-			itemLore.add(Component.empty());
-			file.getStringList(Path.GUI_LORE_DESCRIPTION.getPath()).forEach(var1x -> TextUtil.parseLegacy(ChatColor.color(var1x, true)));
-			itemLore.add(Component.empty());
-			itemLore.add(passives);
-			file.getStringList(Path.GUI_LORE_PASSIVES.getPath()).forEach(var1x -> itemLore.add(TextUtil.parseLegacy(ChatColor.color(indent + var1x, true))));
-			itemLore.add(Component.empty());
-			itemLore.add(abilities);
-			file.getStringList(Path.GUI_LORE_ABILITIES.getPath()).forEach(var1x -> itemLore.add(TextUtil.parseLegacy(ChatColor.color(indent + var1x, true))));
-			itemLore.add(Component.empty());
-			itemLore.add(debuffs);
-			file.getStringList(Path.GUI_LORE_DEBUFFS.getPath()).forEach(var1x -> itemLore.add(TextUtil.parseLegacy(ChatColor.color(indent + var1x, true))));
-			itemLore.add(Component.empty());
-			itemLore.add(Component.text("&f&l» &bClick &f&l« &eto change to the {var} &eorigin.")
+			if(file.get(Path.GUI_LORE_DESCRIPTION.getPath()) != null) {
+				itemLore.add(Component.empty());
+				file.getStringList(Path.GUI_LORE_DESCRIPTION.getPath()).forEach(var1x -> TextUtil.parseLegacy(ChatColor.color(var1x, true)));
+				itemLore.add(Component.empty());
+			}
+			if(file.get(Path.GUI_LORE_PASSIVES.getPath()) != null) {
+				itemLore.add(passives);
+				file.getStringList(Path.GUI_LORE_PASSIVES.getPath()).forEach(var1x -> itemLore.add(TextUtil.parseLegacy(ChatColor.color(indent + var1x, true))));
+				itemLore.add(Component.empty());
+			}
+			if(file.get(Path.GUI_LORE_ABILITIES.getPath()) != null) {
+				itemLore.add(abilities);
+				file.getStringList(Path.GUI_LORE_ABILITIES.getPath()).forEach(var1x -> itemLore.add(TextUtil.parseLegacy(ChatColor.color(indent + var1x, true))));
+				itemLore.add(Component.empty());
+			}
+			if(file.get(Path.GUI_LORE_DEBUFFS.getPath()) != null) {
+				itemLore.add(debuffs);
+				file.getStringList(Path.GUI_LORE_DEBUFFS.getPath()).forEach(var1x -> itemLore.add(TextUtil.parseLegacy(ChatColor.color(indent + var1x, true))));
+				itemLore.add(Component.empty());
+			}
+			itemLore.add(TextUtil.parseLegacy(Lang.getMessage(OriginMessage.LORE_SELECT))
 					.replaceText(TextReplacementConfig.builder()
 							.matchLiteral("{var}")
 							.replacement(((matchResult, builder) -> TextUtil.parseLegacy(nameMap.get(OriginValue.DISPLAY_NAME))))
 							.build()));
 			item.lore(itemLore);
 			item.setDisplayName(nameMap.get(OriginValue.DISPLAY_NAME));
+			slot = file.getInt(Path.GUI_SLOT.getPath());
+			guiItem.put(OriginValue.ITEM, item);
+			guiItem.put(OriginValue.SLOT, slot);
+		} else {
+			Logger.log(Logger.Level.WARNING, "There was an error getting a material or skull for " + nameMap.get(OriginValue.DISPLAY_NAME));
 		}
 
-		Logger.log(Logger.LogLevel.INFO, "Debug: Registered origin " + origin + nameMap);
-		return new Origin(nameMap, soundMap, timeMessageMap, permissionMap, effectEnableMap, specialMap, effectMap, attributeMap, damageEnableMap, damageAmountMap, item);
-	}
+		Origin finalOrigin = new Origin(nameMap, soundMap, timeMessageMap, permissionMap, effectEnableMap, specialMap, effectMap, attributeMap, damageEnableMap, damageAmountMap, guiItem);
 
+		if(permissionMap.get(OriginValue.PERMISSION_REQUIRED).get(0) != null) {
+			requiredPermList.putIfAbsent(finalOrigin, permissionMap.get(OriginValue.PERMISSION_REQUIRED).get(0));
+		}
+
+		Logger.log(Logger.Level.INFO, "Debug: Registered origin " + finalOrigin.getDisplayName());
+		return finalOrigin;
+	}
 	private Map<String, YamlConfiguration> getAllOriginConfigurations() {
 		HashMap<String, YamlConfiguration> originMap = new HashMap<>();
 		File[] Files = new File(plugin.getDataFolder().getAbsoluteFile() + "/Origins").listFiles();
@@ -221,7 +244,6 @@ public class OriginHandler implements Listener {
 		}
 		return originMap;
 	}
-
 	public Map<String, Origin> getOrigins() {
 		return this.origins;
 	}
@@ -235,7 +257,7 @@ public class OriginHandler implements Listener {
 					for (String key : configSection.getKeys(true)) {
 						if (!configSection.isConfigurationSection(key) && !file.contains(key)) {
 							file.set(key, imbConfig.get(key));
-							Logger.log(Logger.LogLevel.ERROR, "There was a missing key at " + key + " inside YAML for " + file.getName().replace(".yml", "") + ". Added key to file.");
+							Logger.log(Logger.Level.ERROR, "There was a missing key at " + key + " inside YAML for " + file.getString(Path.NAME.getPath()));
 						}
 					}
 				}
@@ -249,7 +271,7 @@ public class OriginHandler implements Listener {
 		if (!file.getStringList(path).isEmpty()) {
 			ArrayList<OriginAttribute> attributes = new ArrayList<>();
 			for (String attributeString : file.getStringList(path)) {
-				OriginAttribute originAttribute = Parser.parseOriginAttribute(attributeString);
+				OriginAttribute originAttribute = AttributeUtils.parseOriginAttribute(attributeString);
 				if (originAttribute != null) {
 					attributes.add(originAttribute);
 				}
@@ -265,7 +287,7 @@ public class OriginHandler implements Listener {
 		if (!file.getStringList(path).isEmpty()) {
 			ArrayList<PotionEffect> potions = new ArrayList<>();
 			for (String effectString : file.getStringList(path)) {
-				PotionEffect potion = Parser.parseEffect(effectString);
+				PotionEffect potion = PotionUtils.parseOriginPotion(effectString);
 				if (potion != null) {
 					potions.add(potion);
 				}
@@ -276,6 +298,70 @@ public class OriginHandler implements Listener {
 		} else {
 			return null;
 		}
+	}
+
+/*
+----------------------------------------------------------------------------------------------------
+								End of Registering the origin
+						Beginning of Attribute and effect application.
+----------------------------------------------------------------------------------------------------
+*/
+	public void removeAll(@NotNull Player player) {
+		removeAll(player, getOrigin(player));
+	}
+	private void removeAll(@NotNull Player player, @NotNull Origin origin) {
+		for(PotionEffect potion : player.getActivePotionEffects()) {
+			if(PotionUtils.isOriginEffect(potion)) {
+				player.removePotionEffect(potion.getType());
+			}
+		}
+		for(Attribute attribute : AttributeUtils.getPlayerAttributes()) {
+			AttributeInstance instance = player.getAttribute(attribute);
+			if (instance != null && AttributeUtils.isDefault(instance)) {
+				instance.setBaseValue(AttributeUtils.getDefault(attribute));
+			}
+		}
+	}
+
+	public void addAll(@NotNull Player player) {
+		addAll(player, getOrigin(player));
+	}
+	private void addAll(@NotNull Player player, @NotNull Origin origin) {
+		OriginValue originValue = getCondition(player);
+		player.addPotionEffects(origin.getPotions(originValue));
+		origin.getAttributes(originValue).forEach(var1x -> player.getAttribute(var1x.getAttribute()).setBaseValue(var1x.getValue()));
+	}
+	public void addPotions(@NotNull Player player) {
+		addPotions(player, getOrigin(player));
+	}
+	private void addPotions(@NotNull Player player, @NotNull Origin origin) {
+		player.addPotionEffects(origin.getPotions(getCondition(player)));
+	}
+	public void addAttributes(@NotNull Player player) {
+		addAttribute(player, getOrigin(player));
+	}
+
+
+	private OriginValue getCondition(@NotNull Player player) {
+		String var1 = switch (player.getWorld().getEnvironment()) {
+			case NORMAL -> "O";
+			case NETHER -> "N";
+			case THE_END -> "E";
+			default -> throw new UnsupportedOperationException();
+		};
+		if (var1.equals("O")) {
+			var1 = switch ((WorldTime.isDay(player) ? 1 : 0)) {
+				case 0 -> "OD";
+				case 1 -> "ON";
+				default -> throw new IllegalStateException("Unexpected value: " + (WorldTime.isDay(player) ? 1 : 0));
+			};
+		}
+		var1 = switch (player.isInWaterOrBubbleColumn() || player.isInLava() ? 0 : 1) {
+			case 0 -> var1 + "W";
+			case 1 -> var1 + "L";
+			default -> var1;
+		};
+		return OriginValue.valueOf(var1);
 	}
 
 
@@ -323,51 +409,23 @@ public class OriginHandler implements Listener {
 					for (Player recipient : Bukkit.getOnlinePlayers()) {
 						recipient.sendMessage(broadcast);
 					}
-					resetAll(player);
+					removeAll(player);
 				}
 			} else {
 				event.setCancelled(true);
-				Logger.log(Logger.LogLevel.ERROR, "There was an Error setting " + player.getName() + "'s origin to " + newOrigin);
+				Logger.log(Logger.Level.ERROR, "There was an Error setting " + player.getName() + "'s origin to " + newOrigin);
 			}
 		}
 	}
 
-	public String getOriginName(Player player) {
-		PlayerData playerData = plugin.getPlayerManager().getPlayerData(player);
-		if (playerData != null) {
-			if (this.getOrigins().get(playerData.getOrigin()) != null) {
-				return playerData.getOrigin().toUpperCase();
-			} else {
-				return null;
-			}
-		} return null;
-	}
 
-	public Origin getOrigin(Player player) {
-		return this.getOriginName(player) != null && origins.containsKey(this.getOriginName(player)) ? getOrigins().get(this.getOriginName(player)) : null;
-	}
 
 	/*
 	The below takes care of setting effects,
 	and totally resetting the players effects.
 	*/
 
-	public void resetAll(Player player) {
-		for(PotionEffect potion : player.getActivePotionEffects()) {
-			if(potion.getDuration() >= 86400L) {
-				player.removePotionEffect(potion.getType());
-			}
-		}
-		for(Attribute attribute : Attribute.values()) {
-			AttributeInstance instance = player.getAttribute(attribute);
-			if(instance == null) {
-				break;
-			} else if(instance.getBaseValue() != instance.getDefaultValue()) {
-				instance.setBaseValue(instance.getDefaultValue());
-			}
-		}
-		setAll(player);
-	}
+
 	public void setAll(Player player) {
 		Origin origin = getOrigin(player);
 		setGeneral(player, origin);
@@ -383,6 +441,48 @@ public class OriginHandler implements Listener {
 	}
 	public void setLiquid(Player player) {
 		setLiquid(player, getOrigin(player));
+	}
+
+	public void setTest(Player player) {
+		removeAll(player);
+		Origin origin = getOrigin(player);
+		String finalValue = null;
+		switch(player.getWorld().getEnvironment()) {
+			case NORMAL -> {
+				finalValue = "O";
+				if (WorldTime.isDay(player)) {
+					finalValue = finalValue + "D";
+				} else {
+					finalValue = finalValue + "N";
+				}
+				if (player.isInWaterOrBubbleColumn()) {
+					finalValue = finalValue + "W";
+				} else if (player.isInLava()) {
+					finalValue = finalValue + "L";
+				}
+			}
+			case NETHER -> {
+				if (!player.isInLava()) {
+					finalValue = "N";
+				} else {
+					finalValue = "NL";
+				}
+			}
+			case THE_END -> {
+				if (player.isInWaterOrBubbleColumn()) {
+					finalValue = "EW";
+				} else if (player.isInLava()) {
+					finalValue = "EL";
+				} else {
+					finalValue = "E";
+				}
+			}
+			case CUSTOM -> throw new UnsupportedOperationException();
+		}
+		player.addPotionEffects(origin.getPotions(OriginValue.valueOf(finalValue)));
+		for(OriginAttribute attribute : ListUtils.emptyIfNull(origin.getAttributes(OriginValue.valueOf(finalValue)))) {
+			player.getAttribute(attribute.getAttribute()).setBaseValue(attribute.getValue());
+		}
 	}
 
 	private void setGeneral(Player player, Origin origin) {
@@ -472,12 +572,11 @@ public class OriginHandler implements Listener {
 		for (OriginAttribute attribute : ListUtils.emptyIfNull(attributes)) {
 			player.getAttribute(attribute.getAttribute()).setBaseValue(attribute.getValue());
 		}
-		NoteBlockMusic.playMusic(player, player::getLocation, "PIANO,D,2,100 PIANO,B#1 200 PIANO,F 250 PIANO,E 250 PIANO,B 200 PIANO,A 100 PIANO,B 100 PIANO,E");
 		final Title title = Title.title(Component.empty(), TextUtil.parseLegacy(subtitle), times);
 		player.showTitle(title);
 	}
 	private void refreshLiquid(Player player, Origin origin) {
-		//
+		throw new UnsupportedOperationException();
 	}
 
 	private static void addPotions(Player player, List<PotionEffect> potions) {
@@ -522,6 +621,24 @@ public class OriginHandler implements Listener {
 
 
 	public void applyAll(Player player, Origin origin) {
+		throw new UnsupportedOperationException();
+	}
 
+	public Map<Origin, String> getRequiredPermsList() {
+		return requiredPermList;
+	}
+
+	public String getOriginName(Player player) {
+		PlayerData playerData = plugin.getPlayerManager().getPlayerData(player);
+		if (playerData != null) {
+			if (this.getOrigins().get(playerData.getOrigin()) != null) {
+				return playerData.getOrigin().toUpperCase();
+			} else {
+				return null;
+			}
+		} return null;
+	}
+	public Origin getOrigin(Player player) {
+		return this.getOriginName(player) != null && origins.containsKey(this.getOriginName(player)) ? getOrigins().get(this.getOriginName(player)) : null;
 	}
 }

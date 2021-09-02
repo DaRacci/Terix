@@ -7,21 +7,21 @@ Colours:
   Missing: "#2AE7DC"
 Powers:
   Vampire:
-    DARKSHADOW:
-      name: Dark Shadow
-      desc: 'Teleports you behind your enemies shadow for a dark surprise.'
-      info: 'Shift + LeftClick'
-      use: ''
-    DARKFLIGHT:
-      name: Dark Flight
-      desc: 'Sacrifice your blood for unparalleled speed'
-      info: 'Offhand x 2'
-      use: ''
-    DARKCONVERSION:
-      name: Dark Conversion
-      desc: 'Free a friend from a deadly curse'
-      info: 'Shift + Offhand'
-      use: ''
+    Darkshadow:
+      Name: Dark Shadow
+      Desc: 'Teleports you behind your enemies shadow for a dark surprise.'
+      Info: 'Shift + LeftClick'
+      Use: ''
+    Darkflight:
+      Name: Dark Flight
+      Desc: 'Sacrifice your blood for unparalleled speed'
+      Info: 'Offhand x 2'
+      Use: ''
+    Darkconversion:
+      Name: Dark Conversion
+      Desc: 'Free a friend from a deadly curse'
+      Info: 'Shift + Offhand'
+      Use: ''
   not_ready: '&cAbility not ready! &7({cooldown}s)'
   not_enough_mana: '&eNot enough mana! &7({mana} {mana_unit} required, you have {current_mana}/{max_mana})'
 Messages:
@@ -72,9 +72,12 @@ Messages:
       Disabled: '&cYour skills action bar has been disabled'
 GUI:
   Common:
-    Close: "&cClose"
     Accept: "&2Accept"
     Deny: "&cDeny"
+    Close: "&cClose"
+    Back: "&cBack"
+    NextPage: "&8Next Page"
+    PreviousPage: "&8Previous Page"
   Selection:
     Title: "&6&lOrigin &eSelection Menu"
     Custom_Title: "&eCustom &6&lOrigins"

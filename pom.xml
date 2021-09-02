@@ -24,15 +24,6 @@
         <plugins>
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
-                <artifactId>maven-compiler-plugin</artifactId>
-                <version>3.8.1</version>
-                <configuration>
-                    <source>16</source>
-                    <target>16</target>
-                </configuration>
-            </plugin>
-            <plugin>
-                <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-shade-plugin</artifactId>
                 <version>3.3.1-SNAPSHOT</version>
                 <executions>
@@ -56,24 +47,16 @@
                                     <shadedPattern>me.racci.sylphia.libraries.locales</shadedPattern>
                                 </relocation>
                                 <relocation>
-                                    <pattern>fr.minuskube.inv</pattern>
-                                    <shadedPattern>me.racci.sylphia.libraries.inv</shadedPattern>
-                                </relocation>
-                                <relocation>
-                                    <pattern>de.tr7zw.changeme.nbtapi</pattern>
-                                    <shadedPattern>me.racci.sylphia.libraries.nbtapi</shadedPattern>
-                                </relocation>
-                                <relocation>
-                                    <pattern>de.themoep.minedown</pattern>
-                                    <shadedPattern>mc.racci.libraries.minedown</shadedPattern>
-                                </relocation>
-                                <relocation>
                                     <pattern>com.cryptomorin.xseries</pattern>
                                     <shadedPattern>me.racci.sylphia.utils.xseries</shadedPattern>
                                 </relocation>
                                 <relocation>
                                     <pattern>dev.triumphteam.gui</pattern>
                                     <shadedPattern>me.racci.sylphia.utils.gui</shadedPattern>
+                                </relocation>
+                                <relocation>
+                                    <pattern>de.leonhard.storage</pattern>
+                                    <shadedPattern>me.racci.sylphia.utils.storage</shadedPattern>
                                 </relocation>
                             </relocations>
                             <filters>
@@ -82,23 +65,15 @@
                                     <excludes>
                                         <exclude>META-INF/*.txt</exclude>
                                         <exclude>LICENSE</exclude>
-                                    </excludes>
-                                </filter>
-                                <filter>
-                                    <artifact>*:SmartInvs</artifact>
-                                    <excludes>
-                                        <exclude>META-INF/*.MF</exclude>
-                                        <exclude>plugin.yml</exclude>
+                                        <exclude>LICENSE.*</exclude>
+                                        <exclude>LICENSE_configurate-yaml</exclude>
+                                        <exclude>LICENSE_configurate-hocon</exclude>
+                                        <exclude>LICENSE_configurate-gson</exclude>
+                                        <exclude>LICENSE_configurate-core</exclude>
                                     </excludes>
                                 </filter>
                                 <filter>
                                     <artifact>*:XSeries</artifact>
-                                    <excludes>
-                                        <exclude>META-INF/*.MF</exclude>
-                                    </excludes>
-                                </filter>
-                                <filter>
-                                    <artifact>*:item-nbt-api</artifact>
                                     <excludes>
                                         <exclude>META-INF/*.MF</exclude>
                                     </excludes>
@@ -122,14 +97,9 @@
                                         <exclude>*de.properties</exclude>
                                         <exclude>*cs.properties</exclude>
                                         <exclude>*bg.properties</exclude>
-                                    </excludes>
-                                </filter>
-                                <filter>
-                                    <artifact>*:functional-annotations</artifact>
-                                    <excludes>
-                                        <exclude>META-INF/*.MF</exclude>
-                                        <exclude>META-INF/maven/de.tr7zw/functional-annotations/pom.properties</exclude>
-                                        <exclude>META-INF/maven/de.tr7zw/functional-annotations/pom.xml</exclude>
+                                        <exclude>*CN.properties</exclude>
+                                        <exclude>*TW.properties</exclude>
+                                        <exclude>*zh.properties</exclude>
                                     </excludes>
                                 </filter>
                                 <filter>
@@ -140,7 +110,7 @@
                                     </excludes>
                                 </filter>
                                 <filter>
-                                    <artifact>*:commons-lang3</artifact>
+                                    <artifact>*:commons*</artifact>
                                     <excludes>
                                         <exclude>META-INF/*.MF</exclude>
                                     </excludes>
@@ -149,6 +119,24 @@
                         </configuration>
                     </execution>
                 </executions>
+            </plugin>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-compiler-plugin</artifactId>
+                <version>3.8.1</version>
+                <executions>
+                    <execution>
+                        <id>compile</id>
+                        <phase>compile</phase>
+                        <goals>
+                            <goal>compile</goal>
+                        </goals>
+                    </execution>
+                </executions>
+                <configuration>
+                    <source>16</source>
+                    <target>16</target>
+                </configuration>
             </plugin>
         </plugins>
         <resources>
@@ -160,6 +148,18 @@
     </build>
 
     <repositories>
+        <repository>
+            <id>jitpack.io</id>
+            <url>https://jitpack.io</url>
+        </repository>
+        <repository>
+            <id>codemc-repo</id>
+            <url> https://repo.codemc.io/repository/maven-public/</url>
+        </repository>
+        <repository>
+            <id>repo</id>
+            <url>https://repo.mattstudios.me/artifactory/public/</url>
+        </repository>
         <repository>
             <id>purpur</id>
             <url>https://repo.pl3x.net/</url>
@@ -177,24 +177,18 @@
             <url>https://repo.extendedclip.com/content/repositories/placeholderapi/</url>
         </repository>
         <repository>
-            <id>codemc-repo</id>
-            <url> https://repo.codemc.io/repository/maven-public/</url>
-        </repository>
-        <repository>
-            <id>jitpack.io</id>
-            <url>https://jitpack.io</url>
-        </repository>
-        <repository>
             <id>skullcreator-repo</id>
             <url>https://github.com/deanveloper/SkullCreator/raw/mvn-repo</url>
-        </repository>
-        <repository>
-            <id>repo</id>
-            <url>https://repo.mattstudios.me/artifactory/public/</url>
         </repository>
     </repositories>
 
     <dependencies>
+        <dependency>
+            <groupId>com.github.simplix-softworks</groupId>
+            <artifactId>simplixstorage</artifactId>
+            <version>3.2.3</version>
+            <scope>compile</scope>
+        </dependency>
         <dependency>
             <groupId>org.apache.commons</groupId>
             <artifactId>commons-lang3</artifactId>
@@ -205,16 +199,19 @@
             <groupId>org.apache.commons</groupId>
             <artifactId>commons-text</artifactId>
             <version>1.9</version>
+            <scope>compile</scope>
         </dependency>
         <dependency>
             <groupId>org.apache.commons</groupId>
             <artifactId>commons-collections4</artifactId>
             <version>4.4</version>
+            <scope>compile</scope>
         </dependency>
         <dependency>
             <groupId>dev.triumphteam</groupId>
             <artifactId>triumph-gui</artifactId>
             <version>3.0.3</version>
+            <scope>compile</scope>
         </dependency>
         <dependency>
             <groupId>dev.dbassett</groupId>
@@ -247,22 +244,16 @@
             </exclusions>
         </dependency>
         <dependency>
-            <groupId>de.tr7zw</groupId>
-            <artifactId>item-nbt-api</artifactId>
-            <version>2.8.1-SNAPSHOT</version>
-            <scope>compile</scope>
-            <exclusions>
-                <exclusion>
-                    <groupId>de.tr7zw</groupId>
-                    <artifactId>functional-annotations</artifactId>
-                </exclusion>
-            </exclusions>
-        </dependency>
-        <dependency>
             <groupId>com.github.cryptomorin</groupId>
             <artifactId>XSeries</artifactId>
             <version>8.4.0</version>
             <scope>compile</scope>
+            <exclusions>
+                <exclusion>
+                    <groupId>com.github.cryptomorin</groupId>
+                    <artifactId>kingdoms</artifactId>
+                </exclusion>
+            </exclusions>
         </dependency>
         <dependency>
             <groupId>net.luckperms</groupId>
@@ -275,6 +266,12 @@
             <artifactId>annotations</artifactId>
             <version>21.0.1</version>
             <scope>provided</scope>
+        </dependency>
+        <dependency>
+            <groupId>com.github.Archy-X</groupId>
+            <artifactId>SmartInvs</artifactId>
+            <version>v1.2.8</version>
+            <scope>compile</scope>
         </dependency>
     </dependencies>
 </project>

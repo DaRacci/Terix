@@ -59,10 +59,10 @@ public class PlayerJoinLeaveEvent implements Listener {
 			public void run() {
 				if (playerManager.getPlayerData(player) != null) {
 //					originHandler.applyGeneral(player);
-					Logger.log(Logger.LogLevel.INFO, "Applied effects for " + player.getName() + " on join.");
+					Logger.log(Logger.Level.INFO, "Applied effects for " + player.getName() + " on join.");
 				} else {
 					applyEffects(player, playerManager, originHandler);
-					Logger.log(Logger.LogLevel.INFO, "Rescheduling task for applying effects for " + player.getName());
+					Logger.log(Logger.Level.INFO, "Rescheduling task for applying effects for " + player.getName());
 				}
 			}
 		}.runTaskLater(plugin, 15);

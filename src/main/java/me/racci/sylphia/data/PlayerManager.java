@@ -6,6 +6,7 @@ import org.jetbrains.annotations.Nullable;
 
 import java.util.UUID;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.ConcurrentMap;
 
 @SuppressWarnings("unused")
 public class PlayerManager {
@@ -38,7 +39,7 @@ public class PlayerManager {
 		return playerData.containsKey(player.getUniqueId());
 	}
 
-	public ConcurrentHashMap<UUID, PlayerData> getPlayerDataMap() {
+	public ConcurrentMap<UUID, PlayerData> getPlayerDataMap() {
 		return playerData;
 	}
 

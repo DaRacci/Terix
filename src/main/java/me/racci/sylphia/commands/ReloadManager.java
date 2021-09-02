@@ -3,6 +3,7 @@ package me.racci.sylphia.commands;
 import me.racci.sylphia.Sylphia;
 import me.racci.sylphia.lang.CommandMessage;
 import me.racci.sylphia.lang.Lang;
+import me.racci.sylphia.lang.Prefix;
 import org.bukkit.ChatColor;
 import org.bukkit.command.CommandSender;
 
@@ -25,7 +26,7 @@ public class ReloadManager {
         lang.load();
         lang.loadEmbeddedMessages(plugin.getCommandManager());
         lang.loadLanguages(plugin.getCommandManager());
-        sender.sendMessage(Sylphia.getPrefix() + ChatColor.GREEN + Lang.getMessage(CommandMessage.RELOAD));
+        sender.sendMessage(Lang.getMessage(Prefix.SYLPHIA) + ChatColor.GREEN + Lang.getMessage(CommandMessage.RELOAD));
     }
 
 }

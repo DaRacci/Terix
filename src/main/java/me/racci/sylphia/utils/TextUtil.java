@@ -77,13 +77,13 @@ public class TextUtil {
 		Matcher matcher = pattern.matcher(source);
 		while (matcher.find()) {
 			String var1 = matcher.group(1);
-			Logger.log(Logger.LogLevel.INFO, "Result " + var1);
+			Logger.log(Logger.Level.INFO, "Result " + var1);
 			try {
 				String var3 = updatePlaceholder(player, Placeholder.valueOf((var1.toUpperCase())));
-				Logger.log(Logger.LogLevel.INFO, "Result " + var3);
+				Logger.log(Logger.Level.INFO, "Result " + var3);
 				source = source.replace(Pattern.quote(var1), Matcher.quoteReplacement(var3));
 			} catch (Exception e) {
-				Logger.log(Logger.LogLevel.ERROR, "There was an error parsing the placeholder! " + var1);
+				Logger.log(Logger.Level.ERROR, "There was an error parsing the placeholder! " + var1);
 				e.printStackTrace();
 			}
 		}
@@ -92,7 +92,7 @@ public class TextUtil {
 
 	public static Component parsePlaceholder(Player player, String source, Boolean comp) {
 		if(!comp) {
-			Logger.log(Logger.LogLevel.ERROR, "Please do not use the boolean if you don't want a Component!");
+			Logger.log(Logger.Level.ERROR, "Please do not use the boolean if you don't want a Component!");
 			return null;
 		}
 		return Component.text().append(parseLegacy(parsePlaceholder(player, source))).build();

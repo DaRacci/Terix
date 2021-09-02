@@ -1,38 +1,29 @@
 package me.racci.sylphia.origins.enums.powers;
 
 import me.racci.sylphia.lang.MessageKey;
-import me.racci.sylphia.origins.enums.Origin;
-import me.racci.sylphia.origins.enums.Origins;
 
 public enum OriginPowers implements MessageKey {
 
 	// Format
 
 	// Vampire
-	DARKFLIGHT_NAME,
-	DARKFLIGHT_DESC,
-	DARKFLIGHT_INFO,
-	DARKFLIGHT_USE,
-	DARKSHADOW_NAME,
-	DARKSHADOW_DESC,
-	DARKSHADOW_INFO,
-	DARKSHADOW_USE,
-	DARKCONVERSION_NAME,
-	DARKCONVERSION_DESC,
-	DARKCONVERSION_INFO,
-	DARKCONVERSION_USE;
+	DARKFLIGHT_NAME("Powers.Vampire.Darkflight.Name"),
+	DARKFLIGHT_DESC("Powers.Vampire.Darkflight.Desc"),
+	DARKFLIGHT_INFO("Powers.Vampire.Darkflight.Info"),
+	DARKFLIGHT_USE("Powers.Vampire.Darkflight.Use"),
+	DARKSHADOW_NAME("Powers.Vampire.DarkShadow.Name"),
+	DARKSHADOW_DESC("Powers.Vampire.DarkShadow.Desc"),
+	DARKSHADOW_INFO("Powers.Vampire.DarkShadow.Info"),
+	DARKSHADOW_USE("Powers.Vampire.DarkShadow.Use"),
+	DARKCONVERSION_NAME("Powers.Vampire.Darkconversion.Name"),
+	DARKCONVERSION_DESC("Powers.Vampire.Darkconversion.Desc"),
+	DARKCONVERSION_INFO("Powers.Vampire.Darkconversion.Info"),
+	DARKCONVERSION_USE("Powers.Vampire.Darkconversion.Use");
 
 	private final String path;
 
-	OriginPowers() {
-		Origin origin;
-		try {
-			origin = Origins.valueOf(this.name().substring(0, this.name().lastIndexOf("_")));
-		}
-		catch (IllegalArgumentException e) {
-			origin = Origins.valueOf(this.name().substring(0, this.name().indexOf("_")));
-		}
-		path = "origins." + origin.getPowers().toLowerCase() + "." + origin.getName().toLowerCase() + "." + this.name().substring(origin.getName().length() + 1).toLowerCase();
+	OriginPowers(String path) {
+		this.path = path;
 	}
 
 	public String getPath() {

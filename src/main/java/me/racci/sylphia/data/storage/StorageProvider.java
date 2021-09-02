@@ -15,7 +15,7 @@ public abstract class StorageProvider {
 	public final Sylphia plugin;
 	public final PlayerManager playerManager;
 
-	public StorageProvider(Sylphia plugin) {
+	protected StorageProvider(Sylphia plugin) {
 		this.playerManager = plugin.getPlayerManager();
 		this.plugin = plugin;
 	}
@@ -38,25 +38,6 @@ public abstract class StorageProvider {
 				". Please report the error to your server administrator. To prevent your data from resetting permanently" +
 				", your origin data will not be saved. Try relogging to attempt loading again.");
 	}
-
-//	protected void sortLeaderboards(Map<Origin, List<SkillValue>> leaderboards, List<SkillValue> powerLeaderboard, List<SkillValue> averageLeaderboard) {
-//		LeaderboardManager manager = plugin.getLeaderboardManager();
-//		LeaderboardSorter sorter = new LeaderboardSorter();
-//		for (Origin origin : Origins.values()) {
-//			leaderboards.get(origin).sort(sorter);
-//		}
-//		powerLeaderboard.sort(sorter);
-//		AverageSorter averageSorter = new AverageSorter();
-//		averageLeaderboard.sort(averageSorter);
-//
-//		// Add origin leaderboards to map
-//		for (Origin origin : Origins.values()) {
-//			manager.setLeaderboard(origin, leaderboards.get(origin));
-//		}
-//		manager.setPowerLeaderboard(powerLeaderboard);
-//		manager.setAverageLeaderboard(averageLeaderboard);
-//		manager.setSorting(false);
-//	}
 
 	public abstract void load(Player player);
 
