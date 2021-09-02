@@ -5,7 +5,6 @@ import co.aikar.commands.CommandHelp;
 import co.aikar.commands.annotation.*;
 import me.racci.sylphia.Sylphia;
 import me.racci.sylphia.data.PlayerData;
-import me.racci.sylphia.enums.punishments.Punishments;
 import me.racci.sylphia.lang.CommandMessage;
 import me.racci.sylphia.lang.Lang;
 import me.racci.sylphia.lang.Prefix;
@@ -13,7 +12,7 @@ import me.racci.sylphia.origins.OriginHandler;
 import me.racci.sylphia.origins.enums.specials.Specials;
 import me.racci.sylphia.origins.objects.Origin;
 import me.racci.sylphia.origins.objects.Origin.OriginValue;
-import me.racci.sylphia.utils.TextUtil;
+import me.racci.sylphia.utils.text.TextUtil;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.TextComponent;
 import net.kyori.adventure.text.event.ClickEvent;
@@ -116,7 +115,6 @@ public class OriginCommand extends BaseCommand {
 	@CommandCompletion("@players")
 	public void onSet(CommandSender sender, Player player, String[] args) {
 		if(player != null) {
-			OriginHandler originHandler = plugin.getOriginHandler();
 			Origin origin = originHandler.getOrigins().get(args[0].toUpperCase());
 			String var1 = "{prefixorigins} {playerdisplayname} has become the {origin} Origin!";
 			final TextComponent Final = Component.text()
@@ -173,14 +171,6 @@ public class OriginCommand extends BaseCommand {
 				sender.sendMessage("Nightvision: " + playerData.getOriginSetting(Specials.NIGHTVISION));
 				sender.sendMessage("Jumpboost: " + playerData.getOriginSetting(Specials.JUMPBOOST));
 				sender.sendMessage("Slowfalling: " + playerData.getOriginSetting(Specials.SLOWFALLING));
-				sender.sendMessage("Bans: " + playerData.getPunishment(Punishments.BANS));
-				sender.sendMessage("Kicks: " + playerData.getPunishment(Punishments.KICKS));
-				sender.sendMessage("Mutes: " + playerData.getPunishment(Punishments.MUTES));
-				sender.sendMessage("Warns: " + playerData.getPunishment(Punishments.WARNS));
-				sender.sendMessage("PurchasedUnban: " + playerData.isUnban());
-				sender.sendMessage("Silentmode: " + playerData.isSilentmode());
-				sender.sendMessage("PunishmentMap: " + playerData.getPunishmentsMap());
-				sender.sendMessage("OriginSettingMap: " + playerData.getOriginSettingMap());
 			}
 		}
 	}
@@ -188,7 +178,6 @@ public class OriginCommand extends BaseCommand {
 	@Subcommand("debug getorigindata")
 	@CommandCompletion("nameMap|soundMap|timeMap|permissionMap|effectEnableMap|specialMap|normalEffectMaps|conditionEffectMap|conditionAttributeMap|damageEnableMap|DamageAmountMap|Misc")
 	public void onDebugOrigin(CommandSender sender, String[] args) {
-		OriginHandler originHandler = plugin.getOriginHandler();
 		Origin origin = originHandler.getOrigin((Player)sender);
 		if(args[0].equalsIgnoreCase("nameMap")) {
 			sender.sendMessage("Name: " + origin.getName());

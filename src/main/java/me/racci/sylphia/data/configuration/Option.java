@@ -1,4 +1,4 @@
-package me.racci.sylphia.configuration;
+package me.racci.sylphia.data.configuration;
 
 
 public enum Option {

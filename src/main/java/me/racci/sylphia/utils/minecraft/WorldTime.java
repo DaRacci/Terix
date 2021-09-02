@@ -1,4 +1,4 @@
-package me.racci.sylphia.utils;
+package me.racci.sylphia.utils.minecraft;
 
 import org.bukkit.entity.Player;
 import org.jetbrains.annotations.NotNull;

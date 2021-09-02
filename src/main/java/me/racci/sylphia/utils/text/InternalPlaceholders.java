@@ -1,4 +1,4 @@
-package me.racci.sylphia.utils;
+package me.racci.sylphia.utils.text;
 
 import me.racci.sylphia.Sylphia;
 import me.racci.sylphia.lang.Lang;

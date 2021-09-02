@@ -2,7 +2,7 @@ package me.racci.sylphia;
 
 import co.aikar.commands.PaperCommandManager;
 import me.racci.sylphia.commands.OriginCommand;
-import me.racci.sylphia.configuration.OptionL;
+import me.racci.sylphia.data.configuration.OptionL;
 import me.racci.sylphia.data.PlayerData;
 import me.racci.sylphia.data.PlayerManager;
 import me.racci.sylphia.data.storage.StorageProvider;
@@ -17,7 +17,7 @@ import me.racci.sylphia.listeners.PlayerJoinLeaveEvent;
 import me.racci.sylphia.origins.OriginHandler;
 import me.racci.sylphia.origins.objects.Origin;
 import me.racci.sylphia.utils.Logger;
-import me.racci.sylphia.utils.WorldManager;
+import me.racci.sylphia.utils.minecraft.WorldManager;
 import me.racci.sylphia.utils.eventlistners.PlayerMoveListener;
 import net.luckperms.api.LuckPerms;
 import org.bukkit.Bukkit;
@@ -26,9 +26,14 @@ import org.bukkit.configuration.file.YamlConfiguration;
 import org.bukkit.plugin.PluginManager;
 import org.bukkit.plugin.java.JavaPlugin;
 
+import javax.management.Attribute;
+import javax.management.AttributeList;
+import javax.management.MBeanServer;
+import javax.management.ObjectName;
 import java.io.File;
 import java.io.InputStream;
 import java.io.InputStreamReader;
+import java.lang.management.ManagementFactory;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -172,6 +177,23 @@ public class Sylphia extends JavaPlugin {
 		pm.registerEvents(new PlayerChatEvent(this), this);
 		pm.registerEvents(new PlayerConsumeEvent(this), this);
 		pm.registerEvents(new PlayerMoveListener(), this);
+	}
+
+	public static double getProcessCpuLoad() {
+		try {
+			MBeanServer mbs = ManagementFactory.getPlatformMBeanServer();
+			ObjectName name = ObjectName.getInstance("java.lang:type=OperatingSystem");
+			AttributeList list = mbs.getAttributes(name, new String[] { "ProcessCpuLoad" });
+			if (list.isEmpty())
+				return 0.0;
+			Attribute att = (Attribute) list.get(0);
+			Double value = (Double) att.getValue();
+			if (value == -1.0)
+				return 0;
+			return ((value * 1000.0) / 10.0);
+		} catch (Exception e) {
+			return 0;
+		}
 	}
 
 	public PlayerManager getPlayerManager() {
