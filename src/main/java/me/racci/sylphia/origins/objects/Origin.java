@@ -1,6 +1,5 @@
 package me.racci.sylphia.origins.objects;
 
-import me.racci.sylphia.utils.Logger;
 import org.apache.commons.collections4.ListUtils;
 import org.bukkit.Sound;
 import org.bukkit.attribute.Attribute;
@@ -8,29 +7,17 @@ import org.bukkit.inventory.ItemStack;
 import org.bukkit.potion.PotionEffect;
 import org.bukkit.potion.PotionEffectType;
 
-import java.lang.reflect.Field;
 import java.util.*;
 
 public class Origin {
 
-	private static final HashMap<Origin, String> requiredPermList = new HashMap<>();
-	private static final Map<String, Origin> originMap = new LinkedHashMap<>();
 
-	static {
-		loadClassData();
+	private static final Map<String, Origin> originMap = new LinkedHashMap<>();
+	private static void addToMap(Origin origin) {
+		originMap.putIfAbsent(origin.getName().toUpperCase(), origin);
 	}
-	private static void loadClassData() {
-		Arrays.stream(Origin.class.getDeclaredFields())
-				.filter(declaredField -> declaredField.getType() == Origin.class)
-				.forEach(Origin::putInMap);
-	}
-	private static void putInMap(Field declaredField) {
-		try {
-			originMap.putIfAbsent(declaredField.getName(), (Origin) declaredField.get(null));
-		} catch (IllegalAccessException e) {
-			Logger.log(Logger.LogLevel.ERROR, "Could not initialize Origin Map value: " + declaredField.getName() + " " + e);
-		}
-	}
+
+
 
 	private final LinkedHashMap<OriginValue, String> nameMap = new LinkedHashMap<>();
 	private final LinkedHashMap<OriginValue, Sound> soundMap = new LinkedHashMap<>();
@@ -44,7 +31,7 @@ public class Origin {
 	private final LinkedHashMap<OriginValue, List<OriginAttribute>> conditionAttributeMap = new LinkedHashMap<>();
 	private final LinkedHashMap<OriginValue, Boolean> damageEnableMap = new LinkedHashMap<>();
 	private final LinkedHashMap<OriginValue, Integer> damageAmountMap = new LinkedHashMap<>();
-	private final ItemStack GUIItem;
+	private final LinkedHashMap<OriginValue, Object> GUIItem = new LinkedHashMap<>();
 
 
 	public Origin(Map<OriginValue, String> nameMap,
@@ -57,7 +44,8 @@ public class Origin {
 	              Map<OriginValue, List<OriginAttribute>> attributeMap,
 	              Map<OriginValue, Boolean> damageEnableMap,
 	              Map<OriginValue, Integer> damageAmountMap,
-	              ItemStack GUIItem)    {
+	              Map<OriginValue, Object> GUIItem)    {
+		super();
 
 		this.nameMap.putAll(nameMap);
 		this.soundMap.putAll(soundMap);
@@ -69,11 +57,7 @@ public class Origin {
 		this.attributeMap.putAll(attributeMap);
 		this.damageEnableMap.putAll(damageEnableMap);
 		this.damageAmountMap.putAll(damageAmountMap);
-		this.GUIItem = GUIItem;
-
-		if(permissionMap.get(OriginValue.PERMISSION_REQUIRED).get(0) != null) {
-			requiredPermList.putIfAbsent(this, permissionMap.get(OriginValue.PERMISSION_REQUIRED).get(0));
-		}
+		this.GUIItem.putAll(GUIItem);
 
 
 		constructPotionMap(OriginValue.OD, effectMap.get(OriginValue.GENERAL), effectMap.get(OriginValue.OVERWORLD), effectMap.get(OriginValue.DAY), null);
@@ -100,22 +84,19 @@ public class Origin {
 		constructAttributeMap(OriginValue.EW, attributeMap.get(OriginValue.GENERAL), attributeMap.get(OriginValue.END), null, attributeMap.get(OriginValue.WATER));
 		constructAttributeMap(OriginValue.EL, attributeMap.get(OriginValue.GENERAL), attributeMap.get(OriginValue.END), null, attributeMap.get(OriginValue.LAVA));
 
-
+		addToMap(this);
 
 	}
 
 	private void constructPotionMap(OriginValue originValue, List<PotionEffect> general, List<PotionEffect> world, List<PotionEffect> time, List<PotionEffect> liquid) {
 		List<PotionEffect> list = new ArrayList<>();
 		for(PotionEffectType potion : PotionEffectType.values()) {
-			Logger.log(Logger.LogLevel.INFO, potion.toString());
 			PotionEffect finalPotion = new PotionEffect(Objects.requireNonNull(potion), 1, -1);
 			finalPotion = Objects.requireNonNullElse(potionLoop(potion, general, finalPotion), finalPotion);
 			finalPotion = Objects.requireNonNullElse(potionLoop(potion, world, finalPotion), finalPotion);
 			finalPotion = Objects.requireNonNullElse(potionLoop(potion, time, finalPotion), finalPotion);
 			finalPotion = Objects.requireNonNullElse(potionLoop(potion, liquid, finalPotion), finalPotion);
-			Logger.log(Logger.LogLevel.INFO, originValue.name() + ": " + finalPotion);
 			if(!(finalPotion.getDuration() == 1 && finalPotion.getAmplifier() == -1)) {
-				Logger.log(Logger.LogLevel.INFO, "Final" + finalPotion);
 				list.add(finalPotion);
 			}
 		}
@@ -301,12 +282,13 @@ public class Origin {
 	}
 
 	public ItemStack getItem() {
-		return GUIItem;
+		return (ItemStack) GUIItem.get(OriginValue.ITEM);
+	}
+	public Integer getSlot() {
+		return (Integer) GUIItem.get(OriginValue.SLOT);
 	}
 
-	public static Map<Origin, String> originRequiredPermsList() {
-		return requiredPermList;
-	}
+
 
 
 	public static Origin valueOf(String name) {
@@ -316,7 +298,6 @@ public class Origin {
 		}
 		return origin;
 	}
-
 	public static Origin[] values() {
 		return originMap.values().toArray(Origin[]::new).clone();
 	}
@@ -354,6 +335,9 @@ public class Origin {
 		SUN,
 		FALL,
 		RAIN,
+
+		ITEM,
+		SLOT,
 
 		/*
 		O = OVERWORLD

@@ -37,11 +37,11 @@ public class OptionValue {
     }
 
     public double asDouble() {
-        if (!(value instanceof Integer)) {
+        if (!(value instanceof Integer var1x)) {
             return (double) value;
         }
         else {
-            return ((Integer) value).doubleValue();
+            return var1x.doubleValue();
         }
     }
 
@@ -50,8 +50,8 @@ public class OptionValue {
     }
 
     public String asString() {
-        if (value instanceof String) {
-            return (String) value;
+        if (value instanceof String string) {
+            return string;
         }
         else {
             return String.valueOf(value);
@@ -62,8 +62,8 @@ public class OptionValue {
         List<String> stringList = new ArrayList<>();
         if (value instanceof List<?>) {
             for (Object obj : (List<?>) value) {
-                if (obj instanceof String) {
-                    stringList.add((String) obj);
+                if (obj instanceof String string) {
+                    stringList.add(string);
                 }
             }
         }

@@ -3,7 +3,7 @@ version: ${project.version}
 main: me.racci.sylphia.Sylphia
 api-version: 1.17
 prefix: Sylphia
-load: STARTUP
+load: POSTWORLD
 softdepend:
   - LuckPerms
   - PlaceholderAPI

@@ -1,9 +1,7 @@
 package me.racci.sylphia;
 
-import co.aikar.commands.InvalidCommandArgument;
 import co.aikar.commands.PaperCommandManager;
 import me.racci.sylphia.commands.OriginCommand;
-import me.racci.sylphia.commands.OriginSelector;
 import me.racci.sylphia.configuration.OptionL;
 import me.racci.sylphia.data.PlayerData;
 import me.racci.sylphia.data.PlayerManager;
@@ -13,17 +11,14 @@ import me.racci.sylphia.hook.PlaceholderAPIHook;
 import me.racci.sylphia.hook.perms.LuckPermsHook;
 import me.racci.sylphia.hook.perms.PermManager;
 import me.racci.sylphia.lang.Lang;
-import me.racci.sylphia.lang.Prefix;
 import me.racci.sylphia.listeners.PlayerChatEvent;
+import me.racci.sylphia.listeners.PlayerConsumeEvent;
 import me.racci.sylphia.listeners.PlayerJoinLeaveEvent;
 import me.racci.sylphia.origins.OriginHandler;
-import me.racci.sylphia.origins.enums.Origin;
-import me.racci.sylphia.origins.enums.OriginRegistry;
-import me.racci.sylphia.origins.enums.Origins;
-import me.racci.sylphia.region.RegionListener;
-import me.racci.sylphia.region.RegionManager;
-import me.racci.sylphia.util.world.WorldManager;
+import me.racci.sylphia.origins.objects.Origin;
 import me.racci.sylphia.utils.Logger;
+import me.racci.sylphia.utils.WorldManager;
+import me.racci.sylphia.utils.eventlistners.PlayerMoveListener;
 import net.luckperms.api.LuckPerms;
 import org.bukkit.Bukkit;
 import org.bukkit.configuration.ConfigurationSection;
@@ -41,15 +36,13 @@ public class Sylphia extends JavaPlugin {
 
 	private PlayerManager playerManager;
 	private StorageProvider storageProvider;
+//	private SelectorGUI originSelectorGUI;
 	private WorldManager worldManager;
 	private boolean placeholderAPI;
 	private boolean luckPerms;
 	private OptionL optionLoader;
 	private PaperCommandManager commandManager;
 	private Lang lang;
-	private RegionManager regionManager;
-
-	private OriginRegistry originRegistry;
 
 	private OriginHandler originHandler;
 	private PermManager permManager;
@@ -59,21 +52,15 @@ public class Sylphia extends JavaPlugin {
 
 	@Override
 	public void onEnable() {
-		Logger.log(Logger.LogLevel.OUTLINE, "*******************************");
-		Logger.log(Logger.LogLevel.INFO, "Sylphia has started loading!");
-		// Registries
-		originRegistry = new OriginRegistry();
-		registerOrigins();
-
-		// GUI
-
-
+		Logger.log(Logger.Level.OUTLINE, "*******************************");
+		Logger.log(Logger.Level.INFO, "Sylphia has started loading!");
+//		final Items items = new Items(this);
 
 		// Addon Hooks
 		placeholderAPI = Bukkit.getPluginManager().isPluginEnabled("PlaceholderAPI");
 		if (placeholderAPI) {
 			new PlaceholderAPIHook(this).register();
-			Logger.log(Logger.LogLevel.INFO, "Hooked PlaceholderAPI!");
+			Logger.log(Logger.Level.INFO, "Hooked PlaceholderAPI!");
 		}
 
 		// Load config
@@ -81,7 +68,7 @@ public class Sylphia extends JavaPlugin {
 		optionLoader = new OptionL(this);
 		optionLoader.loadOptions();
 		commandManager = new PaperCommandManager(this);
-		Logger.log(Logger.LogLevel.INFO, "Loaded Config");
+		Logger.log(Logger.Level.INFO, "Loaded Config");
 
 		// Load Lang
 		lang = new Lang(this);
@@ -90,42 +77,43 @@ public class Sylphia extends JavaPlugin {
 		lang.loadEmbeddedMessages(commandManager);
 		lang.loadLanguages(commandManager);
 
+		this.originHandler = new OriginHandler(this);
+
 		// Register Commands
 		registerCommands();
-		Logger.log(Logger.LogLevel.INFO, "Loaded Commands");
-
-		// Region Manager
-		this.regionManager = new RegionManager(this);
-		Logger.log(Logger.LogLevel.INFO, "Loaded Region Manager");
+		Logger.log(Logger.Level.INFO, "Loaded Commands");
 
 		// Register Events
 		registerEvents();
-		Logger.log(Logger.LogLevel.INFO, "Loaded Events");
+		Logger.log(Logger.Level.INFO, "Loaded Events");
 
 		// Initialize Storage
 		this.playerManager = new PlayerManager();
 		setStorageProvider(new YamlStorageProvider(this));
-		Logger.log(Logger.LogLevel.INFO, "Loaded Storage Provider");
+		Logger.log(Logger.Level.INFO, "Loaded Storage Provider");
 
 		// Load World Manager
 		worldManager = new WorldManager(this);
 		worldManager.loadWorlds();
-		Logger.log(Logger.LogLevel.INFO, "Loaded World Manager");
+		Logger.log(Logger.Level.INFO, "Loaded World Manager");
 
 		// Register Permission Manager
 		try {
 			if(Bukkit.getServicesManager().getRegistration(LuckPerms.class) != null) {
 				this.permManager = new LuckPermsHook();
 				luckPerms = true;
-				Logger.log(Logger.LogLevel.INFO, "Hooked LuckPerms!");
+				Logger.log(Logger.Level.INFO, "Hooked LuckPerms!");
 			}
 		} catch (NoClassDefFoundError e) {
-			Logger.log(Logger.LogLevel.ERROR, "No permission manager found, please make sure one is installed!");
+			Logger.log(Logger.Level.ERROR, "No permission manager found, please make sure one is installed!");
 		}
 
-		this.originHandler = new OriginHandler(this);
-		Logger.log(Logger.LogLevel.OUTLINE, "*******************************");
-		Logger.log(Logger.LogLevel.SUCCESS, "Sylphia has finished loading successfully");
+
+
+		// GUI
+//		registerInventories();
+		Logger.log(Logger.Level.OUTLINE, "*******************************");
+		Logger.log(Logger.Level.SUCCESS, "Sylphia has finished loading successfully");
 	}
 
 	@Override
@@ -139,11 +127,9 @@ public class Sylphia extends JavaPlugin {
 			reloadConfig();
 			saveConfig();
 		}
-		regionManager.saveAllRegions(false, true);
-		regionManager.clearRegionMap();
 	}
 
-	public void loadConfig() {
+	private void loadConfig() {
 		getConfig().options().copyDefaults(true);
 		saveDefaultConfig();
 		try {
@@ -168,36 +154,24 @@ public class Sylphia extends JavaPlugin {
 	private void registerCommands() {
 		commandManager.enableUnstableAPI("help"); //Need to learn what this is defined by
 		commandManager.usePerIssuerLocale(true, false); //Probably remove this, don't plan on adding more than english.
-		commandManager.getCommandContexts().registerContext(Origin.class, c -> {
-			Origin origin = originRegistry.getOrigin(c.popFirstArg());
-			if (origin != null) {
-				return origin;
-			} else {
-				throw new InvalidCommandArgument("Origin " + c.popFirstArg() + " not found!");
-			}
-		});
+		commandManager.getCommandContexts().registerContext(Origin.class, c -> Origin.valueOf(c.popFirstArg()));
 		commandManager.getCommandCompletions().registerAsyncCompletion("origins", c -> {
 			List<String> values = new ArrayList<>();
-			for (Origin origin : originRegistry.getOrigins()) {
+			for (Origin origin : Origin.values()) {
 				values.add(origin.toString().toLowerCase());
 			}
 			return values;
 		});
 		commandManager.registerCommand(new OriginCommand(this));
-		commandManager.registerCommand(new OriginSelector(this));
+//		commandManager.registerCommand(new OriginSelector());
 	}
 
-	public void registerEvents() {
+	private void registerEvents() {
 		PluginManager pm = getServer().getPluginManager();
 		pm.registerEvents(new PlayerJoinLeaveEvent(this), this);
 		pm.registerEvents(new PlayerChatEvent(this), this);
-		pm.registerEvents(new RegionListener(this), this);
-	}
-
-	// Want to find how to make a dynamic list based off the loaded origins at start and reloads
-	private void registerOrigins() {
-		originRegistry.register("human", Origins.HUMAN);
-		originRegistry.register("raccoon", Origins.RACCOON);
+		pm.registerEvents(new PlayerConsumeEvent(this), this);
+		pm.registerEvents(new PlayerMoveListener(), this);
 	}
 
 	public PlayerManager getPlayerManager() {
@@ -214,11 +188,6 @@ public class Sylphia extends JavaPlugin {
 
 	public PaperCommandManager getCommandManager() {
 		return commandManager;
-	}
-
-	// Make a way of getting prefix from a set of options
-	public static String getPrefix() {
-		return Lang.getMessage(Prefix.SYLPHIA);
 	}
 
 	public OptionL getOptionLoader() {
@@ -243,14 +212,6 @@ public class Sylphia extends JavaPlugin {
 
 	public void setStorageProvider(StorageProvider storageProvider) {
 		this.storageProvider = storageProvider;
-	}
-
-	public RegionManager getRegionManager() {
-		return regionManager;
-	}
-
-	public OriginRegistry getOriginRegistry() {
-		return originRegistry;
 	}
 
 	public PermManager getPermManager() {

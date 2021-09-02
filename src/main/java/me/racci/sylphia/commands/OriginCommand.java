@@ -23,6 +23,7 @@ import net.kyori.adventure.text.format.TextColor;
 import org.bukkit.Bukkit;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
+import org.bukkit.potion.PotionEffect;
 import org.bukkit.scheduler.BukkitRunnable;
 
 @CommandAlias("origin|origins|sylphia")
@@ -30,18 +31,47 @@ public class OriginCommand extends BaseCommand {
 
 	private final Sylphia plugin;
 	private final ReloadManager reloadManager;
+	private final OriginHandler originHandler;
 
 	public OriginCommand(Sylphia plugin) {
 		this.plugin = plugin;
+		this.originHandler = plugin.getOriginHandler();
 		this.reloadManager = new ReloadManager(plugin);
 	}
 
 	@Default
 	@CommandPermission("sylphia.command.main")
 	@Description("Opens information for the players current origin.")
-	public void onOrigin(Player player) {
-		player.sendMessage(Lang.getMessage(Prefix.ORIGINS));
-		// Open GUI Menu for current origin.
+	public void onOrigin(Player player, String[] args) {
+		Origin origin = originHandler.getOrigin(player);
+		if(args[0].equalsIgnoreCase("0")) {
+			originHandler.removeAll(player);
+		}
+		if(args[0].equalsIgnoreCase("1")) {
+			originHandler.setTest(player);
+		}
+		if(args[0].equalsIgnoreCase("2")) {
+		}
+		if(args[0].equalsIgnoreCase("3")) {
+			for(PotionEffect potion : origin.getPotions(OriginValue.ODL)) {
+				player.addPotionEffect(new PotionEffect(potion.getType(), potion.getDuration(), potion.getAmplifier(), false, false, false));
+			}
+		}
+		if(args[0].equalsIgnoreCase("4")) {
+			for(PotionEffect potion : origin.getPotions(OriginValue.ODL)) {
+				player.addPotionEffect(potion);
+			}
+		}
+		if(args[0].equalsIgnoreCase("5")) {
+			for(PotionEffect potion : origin.getPotions(OriginValue.ODL)) {
+				player.addPotionEffect(potion);
+			}
+		}
+		if(args[0].equalsIgnoreCase("6")) {
+			for(PotionEffect potion : origin.getPotions(OriginValue.ODL)) {
+				player.addPotionEffect(potion);
+			}
+		}
 	}
 
 	/*
@@ -77,7 +107,7 @@ public class OriginCommand extends BaseCommand {
 	@CommandPermission("sylphia.command.set")
 	@CommandCompletion("@players")
 	public void onUnset(CommandSender sender, Player player) {
-
+		throw new UnsupportedOperationException();
 	}
 
 
@@ -116,7 +146,7 @@ public class OriginCommand extends BaseCommand {
 				new BukkitRunnable() {
 					@Override
 					public void run() {
-						sender.sendMessage(Sylphia.getPrefix() + Lang.getMessage(CommandMessage.SAVE_SAVED));
+						sender.sendMessage(Lang.getMessage(Prefix.SYLPHIA) + Lang.getMessage(CommandMessage.SAVE_SAVED));
 					}
 				}.runTask(plugin);
 			}

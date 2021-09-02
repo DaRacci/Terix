@@ -4,6 +4,7 @@ public enum GUI implements MessageKey {
 
     // Common
     CLOSE("GUI.Common.Close"),
+    BACK("GUI.Common.Back"),
     ACCEPT("GUI.Common.Accept"),
     DENY("GUI.Common.Deny"),
     // Selection menu

@@ -4,7 +4,7 @@ import co.aikar.commands.MessageKeys;
 import co.aikar.commands.MinecraftMessageKeys;
 import co.aikar.commands.PaperCommandManager;
 import me.racci.sylphia.Sylphia;
-import me.racci.sylphia.util.text.TextUtil;
+import me.racci.sylphia.utils.TextUtil;
 import me.racci.sylphia.utils.Logger;
 import org.bukkit.ChatColor;
 import org.bukkit.configuration.ConfigurationSection;
@@ -52,7 +52,7 @@ public class Lang implements Listener {
 	}
 
 	public void loadLanguages(PaperCommandManager commandManager) {
-		Logger.log(Logger.LogLevel.INFO, "Loading lang...");
+		Logger.log(Logger.Level.INFO, "Loading lang...");
 		long startTime = System.currentTimeMillis();
 		try {
 			File file = new File(plugin.getDataFolder(), lang);
@@ -61,14 +61,14 @@ public class Lang implements Listener {
 				loadMessages(config, commandManager);
 			}
 			else {
-				Logger.log(Logger.LogLevel.ERROR, "Could not load lang file, Does this file exist and does it contain a File_Version?");
+				Logger.log(Logger.Level.ERROR, "Could not load lang file, Does this file exist and does it contain a File_Version?");
 			}
 		} catch (Exception e) {
-			Logger.log(Logger.LogLevel.ERROR, "Error loading lang file");
+			Logger.log(Logger.Level.ERROR, "Error loading lang file");
 			e.printStackTrace();
 		}
 		long endTime = System.currentTimeMillis();
-		Logger.log(Logger.LogLevel.INFO, "Loaded lang in " + (endTime - startTime) + "ms");
+		Logger.log(Logger.Level.INFO, "Loaded lang in " + (endTime - startTime) + "ms");
 	}
 
 	private void loadMessages(FileConfiguration config, PaperCommandManager commandManager) {
@@ -103,7 +103,7 @@ public class Lang implements Listener {
 		for (MessageKey key : MessageKey.values()) {
 			String message = config.getString(key.getPath());
 			if (message == null) {
-				Logger.log(Logger.LogLevel.WARNING, "Message with path " + key.getPath() + " not found!");
+				Logger.log(Logger.Level.WARNING, "Message with path " + key.getPath() + " not found!");
 			}
 		}
 		for (ACFCoreMessage message : ACFCoreMessage.values()) {
@@ -138,7 +138,7 @@ public class Lang implements Listener {
 						}
 						config.set(fileVersion, imbVersion);
 						config.save(file);
-						Logger.log(Logger.LogLevel.INFO, lang + " was updated to a new file version, " + keysAdded + " new keys were added.");
+						Logger.log(Logger.Level.INFO, lang + " was updated to a new file version, " + keysAdded + " new keys were added.");
 					} catch (Exception e) {
 						e.printStackTrace();
 					}

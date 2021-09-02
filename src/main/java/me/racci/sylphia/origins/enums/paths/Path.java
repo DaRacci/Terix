@@ -9,8 +9,8 @@ public enum Path {
 	HURT("Sound.Hurt", PathType.SOUND),
 	DEATH("Sound.Death", PathType.SOUND),
 
-	REQUIRED("Permissions.Required", PathType.LIST),
-	GIVEN("Permissions.Given", PathType.LIST),
+	REQUIRED("Permissions.Required", PathType.LIST, true),
+	GIVEN("Permissions.Given", PathType.LIST, true),
 
 	DAY_TITLE("TimeMessage.Day.Title", PathType.STRING),
 	DAY_SUBTITLE("TimeMessages.Day.Subtitle", PathType.STRING),
@@ -22,22 +22,22 @@ public enum Path {
 	LIQUID_ENABLE("Effects.Liquid", PathType.BOOLEAN),
 	DIMENSION_ENABLE("Effects.Dimension", PathType.BOOLEAN),
 
-	GENERAL_EFFECTS("Effects.General.Effects", PathType.EFFECT),
-	GENERAL_ATTRIBUTES("Effects.General.Attributes", PathType.ATTRIBUTE),
-	DAY_EFFECTS("Effects.Day.Effects", PathType.EFFECT),
-	DAY_ATTRIBUTES("Effects.Day.Attributes", PathType.ATTRIBUTE),
-	NIGHT_EFFECTS("Effects.Night.Effects", PathType.EFFECT),
-	NIGHT_ATTRIBUTES("Effects.Night.Attributes", PathType.ATTRIBUTE),
-	WATER_EFFECTS("Effects.Water.Effects", PathType.EFFECT),
-	WATER_ATTRIBUTES("Effects.Water.Attributes", PathType.ATTRIBUTE),
-	LAVA_EFFECTS("Effects.Lava.Effects", PathType.EFFECT),
-	LAVA_ATTRIBUTES("Effects.Lava.Attributes", PathType.ATTRIBUTE),
-	OVERWORLD_EFFECTS("Effects.Overworld.Effects", PathType.EFFECT),
-	OVERWORLD_ATTRIBUTES("Effects.Overworld.Attributes", PathType.ATTRIBUTE),
-	NETHER_EFFECTS("Effects.Nether.Effects", PathType.EFFECT),
-	NETHER_ATTRIBUTES("Effects.Nether.Attributes", PathType.ATTRIBUTE),
-	END_EFFECTS("Effects.End.Effects", PathType.EFFECT),
-	END_ATTRIBUTES("Effects.End.Attributes", PathType.ATTRIBUTE),
+	GENERAL_EFFECTS("Effects.General.Effects", PathType.EFFECT, true),
+	GENERAL_ATTRIBUTES("Effects.General.Attributes", PathType.ATTRIBUTE, true),
+	DAY_EFFECTS("Effects.Day.Effects", PathType.EFFECT, true),
+	DAY_ATTRIBUTES("Effects.Day.Attributes", PathType.ATTRIBUTE, true),
+	NIGHT_EFFECTS("Effects.Night.Effects", PathType.EFFECT, true),
+	NIGHT_ATTRIBUTES("Effects.Night.Attributes", PathType.ATTRIBUTE, true),
+	WATER_EFFECTS("Effects.Water.Effects", PathType.EFFECT, true),
+	WATER_ATTRIBUTES("Effects.Water.Attributes", PathType.ATTRIBUTE, true),
+	LAVA_EFFECTS("Effects.Lava.Effects", PathType.EFFECT, true),
+	LAVA_ATTRIBUTES("Effects.Lava.Attributes", PathType.ATTRIBUTE, true),
+	OVERWORLD_EFFECTS("Effects.Overworld.Effects", PathType.EFFECT, true),
+	OVERWORLD_ATTRIBUTES("Effects.Overworld.Attributes", PathType.ATTRIBUTE, true),
+	NETHER_EFFECTS("Effects.Nether.Effects", PathType.EFFECT, true),
+	NETHER_ATTRIBUTES("Effects.Nether.Attributes", PathType.ATTRIBUTE, true),
+	END_EFFECTS("Effects.End.Effects", PathType.EFFECT, true),
+	END_ATTRIBUTES("Effects.End.Attributes", PathType.ATTRIBUTE, true),
 
 	SLOWFALLING("Effects.Effects.Slow-falling", PathType.BOOLEAN),
 	NIGHTVISION("Effects.Effects.Night-vision", PathType.BOOLEAN),
@@ -56,29 +56,41 @@ public enum Path {
 	WATER_AMOUNT("Damage.Amounts.Water", PathType.INT),
 	LAVA_AMOUNT("Damage.Amounts.Lava", PathType.INT),
 
-	GUI_SKULL("GUI.Item.Skull", PathType.STRING),
+	GUI_SLOT("GUI.Item.Slot", PathType.INT),
+	GUI_SKULL("GUI.Item.Skull", PathType.STRING, true),
 	GUI_MATERIAL("GUI.Item.Material", PathType.MATERIAL),
 	GUI_ENCHANTED("GUI.Item.Enchanted", PathType.BOOLEAN),
-	GUI_LORE_DESCRIPTION("GUI.Lore.Description", PathType.LIST),
-	GUI_LORE_PASSIVES("GUI.Lore.Passives", PathType.LIST),
-	GUI_LORE_ABILITIES("GUI.Lore.Abilities", PathType.LIST),
-	GUI_LORE_DEBUFFS("GUI.Lore.Debuffs", PathType.LIST);
+	GUI_LORE_DESCRIPTION("GUI.Lore.Description", PathType.LIST, true),
+	GUI_LORE_PASSIVES("GUI.Lore.Passives", PathType.LIST, true),
+	GUI_LORE_ABILITIES("GUI.Lore.Abilities", PathType.LIST, true),
+	GUI_LORE_DEBUFFS("GUI.Lore.Debuffs", PathType.LIST, true);
 
 
 	private final String path;
 	private final PathType type;
+	private final Boolean optional;
+
 
 	Path(String path, PathType type) {
 		this.path = path;
 		this.type = type;
+		this.optional = false;
 	}
+	Path(String path, PathType type, Boolean optional) {
+		this.path = path;
+		this.type = type;
+		this.optional = optional;
+	}
+
 
 	public String getPath() {
 		return path;
 	}
-
 	public PathType getType() {
 		return type;
+	}
+	public Boolean getOptional() {
+		return optional;
 	}
 
 	

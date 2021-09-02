@@ -2,13 +2,7 @@ package me.racci.sylphia.lang;
 
 import java.util.Objects;
 
-public class CustomMessageKey implements MessageKey {
-
-    private final String path;
-
-    public CustomMessageKey(String path) {
-        this.path = path;
-    }
+public record CustomMessageKey(String path) implements MessageKey {
 
     @Override
     public String getPath() {
