@@ -1,4 +1,4 @@
-package me.racci.sylphia.configuration;
+package me.racci.sylphia.data.configuration;
 
 import me.racci.sylphia.Sylphia;
 import me.racci.sylphia.utils.Logger;

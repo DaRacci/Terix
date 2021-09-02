@@ -10,9 +10,9 @@ import org.jetbrains.annotations.NotNull;
 public class OriginChangeEvent extends Event implements Cancellable {
 
 	private static final HandlerList handlers = new HandlerList();
-	private Player player;
-	private Origin oldOrigin;
-	private Origin newOrigin;
+	private final Player player;
+	private final Origin oldOrigin;
+	private final Origin newOrigin;
 	private boolean cancelled;
 
 	public OriginChangeEvent(Player player, Origin oldOrigin, Origin newOrigin) {

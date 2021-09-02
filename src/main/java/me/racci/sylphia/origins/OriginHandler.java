@@ -14,6 +14,10 @@ import me.racci.sylphia.origins.objects.Origin;
 import me.racci.sylphia.origins.objects.Origin.OriginValue;
 import me.racci.sylphia.origins.objects.OriginAttribute;
 import me.racci.sylphia.utils.*;
+import me.racci.sylphia.utils.minecraft.AttributeUtils;
+import me.racci.sylphia.utils.minecraft.PotionUtils;
+import me.racci.sylphia.utils.minecraft.WorldTime;
+import me.racci.sylphia.utils.text.TextUtil;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.TextReplacementConfig;
 import net.kyori.adventure.text.format.TextColor;
@@ -337,9 +341,9 @@ public class OriginHandler implements Listener {
 	private void addPotions(@NotNull Player player, @NotNull Origin origin) {
 		player.addPotionEffects(origin.getPotions(getCondition(player)));
 	}
-	public void addAttributes(@NotNull Player player) {
-		addAttribute(player, getOrigin(player));
-	}
+//	public void addAttributes(@NotNull Player player) {
+//		addAttributes(player, getOrigin(player).get);
+//	}
 
 
 	private OriginValue getCondition(@NotNull Player player) {

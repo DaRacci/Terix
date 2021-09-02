@@ -4,7 +4,7 @@ import co.aikar.commands.MessageKeys;
 import co.aikar.commands.MinecraftMessageKeys;
 import co.aikar.commands.PaperCommandManager;
 import me.racci.sylphia.Sylphia;
-import me.racci.sylphia.utils.TextUtil;
+import me.racci.sylphia.utils.text.TextUtil;
 import me.racci.sylphia.utils.Logger;
 import org.bukkit.ChatColor;
 import org.bukkit.configuration.ConfigurationSection;

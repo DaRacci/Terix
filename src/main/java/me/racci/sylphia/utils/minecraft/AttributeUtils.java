@@ -1,6 +1,7 @@
-package me.racci.sylphia.utils;
+package me.racci.sylphia.utils.minecraft;
 
 import me.racci.sylphia.origins.objects.OriginAttribute;
+import me.racci.sylphia.utils.Logger;
 import org.apache.commons.lang3.EnumUtils;
 import org.apache.commons.lang3.math.NumberUtils;
 import org.bukkit.attribute.Attribute;

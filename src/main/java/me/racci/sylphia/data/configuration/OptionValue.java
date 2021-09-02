@@ -1,4 +1,4 @@
-package me.racci.sylphia.configuration;
+package me.racci.sylphia.data.configuration;
 
 import java.util.ArrayList;
 import java.util.List;

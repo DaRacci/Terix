@@ -2,8 +2,6 @@ package me.racci.sylphia.data.storage;
 
 import me.racci.sylphia.Sylphia;
 import me.racci.sylphia.data.PlayerData;
-import me.racci.sylphia.enums.punishments.Punishment;
-import me.racci.sylphia.enums.punishments.Punishments;
 import me.racci.sylphia.events.DataLoadEvent;
 import me.racci.sylphia.origins.enums.specials.Special;
 import me.racci.sylphia.origins.enums.specials.Specials;
@@ -42,13 +40,6 @@ public class YamlStorageProvider extends StorageProvider {
 					int value = config.getInt(path, 1);
 					playerData.setOriginSetting(originSetting, value);
 				}
-				for (Punishment punishment : Punishments.values()) {
-					String path = "Punishments." + punishment.name().toUpperCase();
-					int value = config.getInt(path, 0);
-					playerData.setPunishments(punishment, value);
-				}
-				playerData.setUnban(config.getBoolean("Punishments.PurchasedUnban", false));
-				playerData.setSilentmode(config.getBoolean("Staff.Silentmode", false));
 				playerManager.addPlayerData(playerData);
 				DataLoadEvent event = new DataLoadEvent(playerData);
 				new BukkitRunnable() {
@@ -98,12 +89,6 @@ public class YamlStorageProvider extends StorageProvider {
 				String path = "Settings." + originSetting.toString();
 				config.set(path, playerData.getOriginSetting(originSetting));
 			}
-			for (Punishment punishment : Punishments.values()) {
-				String path = "Punishments." + punishment.toString();
-				config.set(path, playerData.getPunishment(punishment));
-			}
-			config.set("Punishments.PurchasedUnban", playerData.isUnban());
-			config.set("Staff.Silentmode", playerData.isSilentmode());
 			config.save(file);
 			if (removeFromMemory) {
 				playerManager.removePlayerData(player.getUniqueId()); // Remove from memory

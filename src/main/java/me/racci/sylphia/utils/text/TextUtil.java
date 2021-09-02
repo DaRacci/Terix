@@ -1,9 +1,10 @@
-package me.racci.sylphia.utils;
+package me.racci.sylphia.utils.text;
 
 import co.aikar.commands.annotation.Optional;
 import me.racci.sylphia.Sylphia;
 import me.racci.sylphia.lang.Lang;
 import me.racci.sylphia.lang.Prefix;
+import me.racci.sylphia.utils.Logger;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.serializer.legacy.LegacyComponentSerializer;
 import org.bukkit.entity.Player;
