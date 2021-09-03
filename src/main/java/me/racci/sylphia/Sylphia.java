@@ -1,24 +1,28 @@
 package me.racci.sylphia;
 
 import co.aikar.commands.PaperCommandManager;
+import co.aikar.taskchain.BukkitTaskChainFactory;
+import co.aikar.taskchain.TaskChain;
+import co.aikar.taskchain.TaskChainFactory;
 import me.racci.sylphia.commands.OriginCommand;
-import me.racci.sylphia.data.configuration.OptionL;
 import me.racci.sylphia.data.PlayerData;
 import me.racci.sylphia.data.PlayerManager;
+import me.racci.sylphia.data.configuration.OptionL;
 import me.racci.sylphia.data.storage.StorageProvider;
 import me.racci.sylphia.data.storage.YamlStorageProvider;
 import me.racci.sylphia.hook.PlaceholderAPIHook;
 import me.racci.sylphia.hook.perms.LuckPermsHook;
 import me.racci.sylphia.hook.perms.PermManager;
 import me.racci.sylphia.lang.Lang;
-import me.racci.sylphia.listeners.PlayerChatEvent;
 import me.racci.sylphia.listeners.PlayerConsumeEvent;
 import me.racci.sylphia.listeners.PlayerJoinLeaveEvent;
+import me.racci.sylphia.listeners.PlayerMoveEvent;
 import me.racci.sylphia.origins.OriginHandler;
 import me.racci.sylphia.origins.objects.Origin;
 import me.racci.sylphia.utils.Logger;
-import me.racci.sylphia.utils.minecraft.WorldManager;
+import me.racci.sylphia.utils.eventlistners.PlayerMoveFullListener;
 import me.racci.sylphia.utils.eventlistners.PlayerMoveListener;
+import me.racci.sylphia.utils.minecraft.WorldManager;
 import net.luckperms.api.LuckPerms;
 import org.bukkit.Bukkit;
 import org.bukkit.configuration.ConfigurationSection;
@@ -52,6 +56,8 @@ public class Sylphia extends JavaPlugin {
 	private OriginHandler originHandler;
 	private PermManager permManager;
 
+	private static TaskChainFactory taskChainFactory;
+
 
 
 
@@ -59,6 +65,7 @@ public class Sylphia extends JavaPlugin {
 	public void onEnable() {
 		Logger.log(Logger.Level.OUTLINE, "*******************************");
 		Logger.log(Logger.Level.INFO, "Sylphia has started loading!");
+		taskChainFactory = BukkitTaskChainFactory.create(this);
 //		final Items items = new Items(this);
 
 		// Addon Hooks
@@ -174,7 +181,8 @@ public class Sylphia extends JavaPlugin {
 	private void registerEvents() {
 		PluginManager pm = getServer().getPluginManager();
 		pm.registerEvents(new PlayerJoinLeaveEvent(this), this);
-		pm.registerEvents(new PlayerChatEvent(this), this);
+		pm.registerEvents(new PlayerMoveEvent(this), this);
+		pm.registerEvents(new PlayerMoveFullListener(this), this);
 		pm.registerEvents(new PlayerConsumeEvent(this), this);
 		pm.registerEvents(new PlayerMoveListener(), this);
 	}
@@ -240,5 +248,11 @@ public class Sylphia extends JavaPlugin {
 		return permManager;
 	}
 
+	public static <T> TaskChain<T> newChain() {
+		return taskChainFactory.newChain();
+	}
+	public static <T> TaskChain<T> newSharedChain(String name) {
+		return taskChainFactory.newSharedChain(name);
+	}
 
 }
