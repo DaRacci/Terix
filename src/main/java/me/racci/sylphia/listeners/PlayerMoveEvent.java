@@ -30,10 +30,13 @@ public class PlayerMoveEvent implements Listener {
 	public void onPlayerExitLiquid(PlayerExitLiquidEvent event) {
 		Sylphia.newChain().async(() -> {
 			Player player = event.getPlayer();
-			Integer liquidType = event.getLiquidType();
-			OriginValue condition = getCondition(player, liquidType);
+			OriginValue condition = getCondition(player);
 			player.sendMessage(condition.toString());
 		}).execute();
+	}
+
+	private OriginValue getCondition(Player player) {
+		return getCondition(player, 0);
 	}
 
 	private OriginValue getCondition(Player player, Integer var1) {
@@ -49,7 +52,7 @@ public class PlayerMoveEvent implements Listener {
 				case 1 -> "ON";
 				default -> throw new IllegalStateException("Unexpected value: " + (WorldTime.isDay(player) ? 0 : 1));
 			};
-		};
+		}
 		var2 = switch(var1) {
 			case 1 -> var2 + "W";
 			case 2 -> var2 + "L";
