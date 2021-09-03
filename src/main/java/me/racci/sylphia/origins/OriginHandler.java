@@ -1,6 +1,5 @@
 package me.racci.sylphia.origins;
 
-import com.cryptomorin.xseries.NoteBlockMusic;
 import dev.dbassett.skullcreator.SkullCreator;
 import me.racci.sylphia.Sylphia;
 import me.racci.sylphia.data.PlayerData;
@@ -13,7 +12,7 @@ import me.racci.sylphia.origins.enums.paths.Path;
 import me.racci.sylphia.origins.objects.Origin;
 import me.racci.sylphia.origins.objects.Origin.OriginValue;
 import me.racci.sylphia.origins.objects.OriginAttribute;
-import me.racci.sylphia.utils.*;
+import me.racci.sylphia.utils.Logger;
 import me.racci.sylphia.utils.minecraft.AttributeUtils;
 import me.racci.sylphia.utils.minecraft.PotionUtils;
 import me.racci.sylphia.utils.minecraft.WorldTime;
@@ -396,7 +395,6 @@ public class OriginHandler implements Listener {
 					playerData.setOrigin(newOrigin.toString().toUpperCase());
 					permManager.addPermission(player, newOrigin.getGivenPermission());
 					plugin.getStorageProvider().save(playerData.getPlayer(), false);
-					NoteBlockMusic.playMusic(player, player::getLocation, "PIANO,D,2,100 PIANO,B#1 200 PIANO,F 250 PIANO,E 250 PIANO,B 200 PIANO,A 100 PIANO,B 100 PIANO,E");
 					Component var1 = TextUtil.parseLegacy(player.getDisplayName()).colorIfAbsent(TextColor.fromHexString(Lang.getMessage(Colours.PLAYER)));
 					Component playerComponent = var1.hoverEvent(var1);
 					var1 = TextUtil.parseLegacy(newOrigin.getDisplayName());
@@ -450,41 +448,9 @@ public class OriginHandler implements Listener {
 	public void setTest(Player player) {
 		removeAll(player);
 		Origin origin = getOrigin(player);
-		String finalValue = null;
-		switch(player.getWorld().getEnvironment()) {
-			case NORMAL -> {
-				finalValue = "O";
-				if (WorldTime.isDay(player)) {
-					finalValue = finalValue + "D";
-				} else {
-					finalValue = finalValue + "N";
-				}
-				if (player.isInWaterOrBubbleColumn()) {
-					finalValue = finalValue + "W";
-				} else if (player.isInLava()) {
-					finalValue = finalValue + "L";
-				}
-			}
-			case NETHER -> {
-				if (!player.isInLava()) {
-					finalValue = "N";
-				} else {
-					finalValue = "NL";
-				}
-			}
-			case THE_END -> {
-				if (player.isInWaterOrBubbleColumn()) {
-					finalValue = "EW";
-				} else if (player.isInLava()) {
-					finalValue = "EL";
-				} else {
-					finalValue = "E";
-				}
-			}
-			case CUSTOM -> throw new UnsupportedOperationException();
-		}
-		player.addPotionEffects(origin.getPotions(OriginValue.valueOf(finalValue)));
-		for(OriginAttribute attribute : ListUtils.emptyIfNull(origin.getAttributes(OriginValue.valueOf(finalValue)))) {
+		OriginValue originValue = this.getCondition(player);
+		player.addPotionEffects(origin.getPotions(originValue));
+		for(OriginAttribute attribute : ListUtils.emptyIfNull(origin.getAttributes(originValue))) {
 			player.getAttribute(attribute.getAttribute()).setBaseValue(attribute.getValue());
 		}
 	}

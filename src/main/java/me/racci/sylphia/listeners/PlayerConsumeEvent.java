@@ -8,7 +8,6 @@ import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
 import org.bukkit.event.Listener;
 import org.bukkit.event.player.PlayerItemConsumeEvent;
-import org.bukkit.scheduler.BukkitRunnable;
 
 public class PlayerConsumeEvent implements Listener {
 
@@ -28,12 +27,8 @@ public class PlayerConsumeEvent implements Listener {
 
 		Player player = event.getPlayer();
 		if(event.getItem().getType() == Material.MILK_BUCKET) {
-			new BukkitRunnable() {
-				@Override
-				public void run() {
-					originHandler.setTest(player);
-				}
-			}.runTaskLater(plugin, 10);
+			Sylphia.newChain().delay(20).execute();
+			originHandler.setTest(player);
 		}
 	}
 }

@@ -96,7 +96,6 @@ $RECYCLE.BIN/
 *.lnk
 
 target/
-Server/
 
 pom.xml.tag
 pom.xml.releaseBackup
@@ -112,3 +111,9 @@ buildNumber.properties
 
 # Common working directory
 run/
+/Server/
+Server/
+server/
+/server/
+sylphia/server/
+/Sylphia/Server/

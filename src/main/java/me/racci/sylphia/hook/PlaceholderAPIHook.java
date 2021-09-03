@@ -2,7 +2,7 @@ package me.racci.sylphia.hook;
 
 import me.clip.placeholderapi.expansion.PlaceholderExpansion;
 import me.racci.sylphia.Sylphia;
-import me.racci.sylphia.data.PlayerData;
+import me.racci.sylphia.origins.objects.Origin;
 import org.bukkit.entity.Player;
 
 @SuppressWarnings("all")
@@ -39,27 +39,15 @@ public class PlaceholderAPIHook extends PlaceholderExpansion {
 		return "Alpha-0.1";
 	}
 
+
 	@Override
-	public String onPlaceholderRequest(Player player, String identifier) {
-		if (player == null) {
-			return "";
+	public String onPlaceholderRequest(Player player, String params) {
+		if(params.equalsIgnoreCase("origin")) {
+			return player == null ? null : plugin.getOriginHandler().getOrigin(player).getDisplayName();
 		}
-
-		//Gets origin
-		if (identifier.equals("origin")) {
-			PlayerData playerData = plugin.getPlayerManager().getPlayerData(player);
-			if (playerData != null) {
-				return String.valueOf(playerData.getOrigin());
-			}
+		if(params.equalsIgnoreCase("lastorigin")) {
+			return player == null ? null : Origin.valueOf(plugin.getPlayerManager().getPlayerData(player.getUniqueId()).getLastOrigin()).getDisplayName();
 		}
-
-		//Gets last origin
-		if (identifier.equals("lastorigin")) {
-			PlayerData playerData = plugin.getPlayerManager().getPlayerData(player);
-			if (playerData != null) {
-				return String.valueOf(playerData.getLastOrigin());
-			}
-		}
-		return identifier;
+		return null;
 	}
 }
