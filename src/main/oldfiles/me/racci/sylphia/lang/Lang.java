@@ -3,9 +3,9 @@ package me.racci.sylphia.lang;
 import co.aikar.commands.MessageKeys;
 import co.aikar.commands.MinecraftMessageKeys;
 import co.aikar.commands.PaperCommandManager;
+import me.racci.raccilib.Logger;
 import me.racci.sylphia.Sylphia;
 import me.racci.sylphia.utils.text.TextUtil;
-import me.racci.sylphia.utils.Logger;
 import org.bukkit.ChatColor;
 import org.bukkit.configuration.ConfigurationSection;
 import org.bukkit.configuration.file.FileConfiguration;
@@ -16,7 +16,9 @@ import java.io.File;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.nio.charset.StandardCharsets;
-import java.util.*;
+import java.util.HashMap;
+import java.util.Locale;
+import java.util.Map;
 
 public class Lang implements Listener {
 
@@ -34,7 +36,7 @@ public class Lang implements Listener {
 	}
 
 	private void loadLangFile() {
-		if(!(new File(plugin.getDataFolder(),lang).exists())) {
+		if (!(new File(plugin.getDataFolder(), lang).exists())) {
 			plugin.saveResource(lang, false);
 		}
 	}
@@ -59,8 +61,7 @@ public class Lang implements Listener {
 			FileConfiguration config = updateFile(file, YamlConfiguration.loadConfiguration(file));
 			if (config.contains(fileVersion)) {
 				loadMessages(config, commandManager);
-			}
-			else {
+			} else {
 				Logger.log(Logger.Level.ERROR, "Could not load lang file, Does this file exist and does it contain a File_Version?");
 			}
 		} catch (Exception e) {

@@ -28,9 +28,6 @@
 
 
     <build>
-<!--        <sourceDirectory>${sourceDirectory.location}</sourceDirectory>-->
-<!--        <outputDirectory>${outputDirectory.location}</outputDirectory>-->
-
 
         <plugins>
             <plugin>
@@ -188,10 +185,6 @@
             <name>Aikar</name>
             <url>https://repo.aikar.co/content/groups/aikar/</url>
         </repository>
-        <repository>
-            <id>skullcreator-repo</id>
-            <url>https://github.com/deanveloper/SkullCreator/raw/mvn-repo/</url>
-        </repository>
     </repositories>
 
     <dependencies>
@@ -216,6 +209,10 @@
                     <artifactId>adventure-text-serializer-plain</artifactId>
                     <groupId>net.kyori</groupId>
                 </exclusion>
+                <exclusion>
+                    <artifactId>annotations</artifactId>
+                    <groupId>org.jetbrains</groupId>
+                </exclusion>
             </exclusions>
         </dependency>
         <dependency>
@@ -228,10 +225,9 @@
 <!--        Libraries       -->
 
         <dependency>
-            <groupId>dev.dbassett</groupId>
-            <artifactId>skullcreator</artifactId>
-            <version>3.0.1</version>
-            <scope>compile</scope>
+            <groupId>me.racci</groupId>
+            <artifactId>raccilib</artifactId>
+            <version>ALPHA</version>
         </dependency>
         <dependency>
             <groupId>co.aikar</groupId>
@@ -299,40 +295,34 @@
 
 <!--        Kotlin Stuff        -->
 
-<!--        <dependency>-->
-<!--            <groupId>org.jetbrains.kotlin</groupId>-->
-<!--            <artifactId>kotlin-stdlib</artifactId>-->
-<!--            <version>${Kotlin.version}</version>-->
-<!--            <scope>provided</scope>-->
-<!--            <exclusions>-->
-<!--                <exclusion>-->
-<!--                    <artifactId>annotations</artifactId>-->
-<!--                    <groupId>org.jetbrains</groupId>-->
-<!--                </exclusion>-->
-<!--            </exclusions>-->
-<!--        </dependency>-->
-<!--        <dependency>-->
-<!--            <groupId>org.jetbrains.kotlinx</groupId>-->
-<!--            <artifactId>kotlinx-coroutines-core</artifactId>-->
-<!--            <version>1.5.1-native-mt</version>-->
-<!--            <scope>provided</scope>-->
-<!--            <exclusions>-->
-<!--                <exclusion>-->
-<!--                    <artifactId>kotlin-stdlib</artifactId>-->
-<!--                    <groupId>org.jetbrains.kotlin</groupId>-->
-<!--                </exclusion>-->
-<!--                <exclusion>-->
-<!--                    <artifactId>kotlin-stdlib-common</artifactId>-->
-<!--                    <groupId>org.jetbrains.kotlin</groupId>-->
-<!--                </exclusion>-->
-<!--            </exclusions>-->
-<!--        </dependency>-->
-<!--        <dependency>-->
-<!--            <groupId>com.okkero.skedule</groupId>-->
-<!--            <artifactId>skedule</artifactId>-->
-<!--            <version>1.2.6</version>-->
-<!--            <scope>compile</scope>-->
-<!--        </dependency>-->
+        <dependency>
+            <groupId>org.jetbrains.kotlin</groupId>
+            <artifactId>kotlin-stdlib</artifactId>
+            <version>${Kotlin.version}</version>
+            <scope>provided</scope>
+            <exclusions>
+                <exclusion>
+                    <artifactId>annotations</artifactId>
+                    <groupId>org.jetbrains</groupId>
+                </exclusion>
+            </exclusions>
+        </dependency>
+        <dependency>
+            <groupId>org.jetbrains.kotlinx</groupId>
+            <artifactId>kotlinx-coroutines-core</artifactId>
+            <version>1.5.1-native-mt</version>
+            <scope>provided</scope>
+            <exclusions>
+                <exclusion>
+                    <artifactId>kotlin-stdlib</artifactId>
+                    <groupId>org.jetbrains.kotlin</groupId>
+                </exclusion>
+                <exclusion>
+                    <artifactId>kotlin-stdlib-common</artifactId>
+                    <groupId>org.jetbrains.kotlin</groupId>
+                </exclusion>
+            </exclusions>
+        </dependency>
 
 <!--        Apache Commons      -->
 
@@ -340,13 +330,13 @@
             <groupId>org.apache.commons</groupId>
             <artifactId>commons-lang3</artifactId>
             <version>${CommonsLang.version}</version>
-            <scope>compile</scope>
+            <scope>provied</scope>
         </dependency>
         <dependency>
             <groupId>org.apache.commons</groupId>
             <artifactId>commons-text</artifactId>
             <version>${CommonsText.version}</version>
-            <scope>compile</scope>
+            <scope>provied</scope>
             <exclusions>
                 <exclusion>
                     <artifactId>commons-lang3</artifactId>
@@ -358,10 +348,9 @@
             <groupId>org.apache.commons</groupId>
             <artifactId>commons-collections4</artifactId>
             <version>${CommonsCollections.version}</version>
-            <scope>compile</scope>
+            <scope>provied</scope>
         </dependency>
 
-<!--        Random stuff idk what really        -->
 
         <dependency>
             <groupId>org.jetbrains</groupId>
@@ -375,7 +364,7 @@
         <Java.version>16</Java.version>
         <Kotlin.version>1.5.30</Kotlin.version>
         <Kotlinapi.version>1.5</Kotlinapi.version>
-        <Jetbrains.version>21.0.1</Jetbrains.version>
+        <Jetbrains.version>22.0.0</Jetbrains.version>
         <MavenCompilerPlugin.version>3.8.1</MavenCompilerPlugin.version>
         <!--                Spigot                 -->
         <Spigot.version>1.17.1-R0.1-SNAPSHOT</Spigot.version>

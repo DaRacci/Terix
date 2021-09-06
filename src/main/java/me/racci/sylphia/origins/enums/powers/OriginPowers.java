@@ -1,6 +1,7 @@
 package me.racci.sylphia.origins.enums.powers;
 
 import me.racci.sylphia.lang.MessageKey;
+import org.jetbrains.annotations.NotNull;
 
 public enum OriginPowers implements MessageKey {
 
@@ -26,6 +27,7 @@ public enum OriginPowers implements MessageKey {
 		this.path = path;
 	}
 
+	@NotNull
 	public String getPath() {
 		return path;
 	}

@@ -1,6 +1,6 @@
 name: Sylphia
 version: ${project.version}
-main: me.racci.sylphia.Sylphia
+main: mc.racci.sylphia.Sylphia
 api-version: 1.17
 prefix: Sylphia
 load: POSTWORLD

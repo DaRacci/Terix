@@ -1,7 +1,6 @@
 package me.racci.sylphia.data.configuration;
 
 import me.racci.sylphia.Sylphia;
-import me.racci.sylphia.utils.Logger;
 import org.bukkit.ChatColor;
 import org.bukkit.configuration.file.FileConfiguration;
 import org.bukkit.configuration.file.YamlConfiguration;
