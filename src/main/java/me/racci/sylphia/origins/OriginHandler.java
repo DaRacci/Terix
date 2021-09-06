@@ -1,6 +1,7 @@
 package me.racci.sylphia.origins;
 
 import dev.dbassett.skullcreator.SkullCreator;
+import me.racci.raccilib.Logger;
 import me.racci.sylphia.Sylphia;
 import me.racci.sylphia.data.PlayerData;
 import me.racci.sylphia.events.OriginChangeEvent;
@@ -12,7 +13,6 @@ import me.racci.sylphia.origins.enums.paths.Path;
 import me.racci.sylphia.origins.objects.Origin;
 import me.racci.sylphia.origins.objects.Origin.OriginValue;
 import me.racci.sylphia.origins.objects.OriginAttribute;
-import me.racci.sylphia.utils.Logger;
 import me.racci.sylphia.utils.minecraft.AttributeUtils;
 import me.racci.sylphia.utils.minecraft.PotionUtils;
 import me.racci.sylphia.utils.minecraft.WorldTime;

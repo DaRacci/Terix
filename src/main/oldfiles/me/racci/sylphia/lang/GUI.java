@@ -1,5 +1,7 @@
 package me.racci.sylphia.lang;
 
+import org.jetbrains.annotations.NotNull;
+
 public enum GUI implements MessageKey {
 
     // Common
@@ -23,6 +25,7 @@ public enum GUI implements MessageKey {
         this.path = path;
     }
 
+    @NotNull
     public String getPath() {
         return path;
     }

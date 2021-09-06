@@ -1,6 +1,7 @@
 package me.racci.sylphia.lang;
 
 import org.bukkit.ChatColor;
+import org.jetbrains.annotations.NotNull;
 
 public enum OriginMessage implements MessageKey {
 
@@ -27,6 +28,7 @@ public enum OriginMessage implements MessageKey {
 		this.path = path;
 	}
 
+	@NotNull
 	public String getPath() {
 		return ChatColor.color(path, true);
 	}

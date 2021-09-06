@@ -1,6 +1,5 @@
 package me.racci.sylphia.utils.minecraft;
 
-import me.racci.sylphia.utils.Logger;
 import org.bukkit.Location;
 import org.bukkit.World;
 import org.bukkit.configuration.file.FileConfiguration;

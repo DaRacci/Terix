@@ -2,6 +2,7 @@ package me.racci.sylphia.lang;
 
 import org.apache.commons.text.WordUtils;
 import org.bukkit.ChatColor;
+import org.jetbrains.annotations.NotNull;
 
 public enum Prefix implements MessageKey {
 
@@ -15,6 +16,7 @@ public enum Prefix implements MessageKey {
 		this.path = "Prefixes." + WordUtils.capitalizeFully(this.name().toLowerCase());
 	}
 
+	@NotNull
 	public String getPath() {
 		return ChatColor.color(path, true);
 	}

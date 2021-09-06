@@ -1,5 +1,7 @@
 package me.racci.sylphia.lang;
 
+import org.jetbrains.annotations.NotNull;
+
 public enum CommandMessage implements MessageKey {
 
     RELOAD("Reload"),
@@ -13,6 +15,7 @@ public enum CommandMessage implements MessageKey {
         this.path = "Messages.Commands." + path;
     }
 
+    @NotNull
     public String getPath() {
         return path;
     }

@@ -19,7 +19,6 @@ import me.racci.sylphia.listeners.PlayerJoinLeaveEvent;
 import me.racci.sylphia.listeners.PlayerMoveEvent;
 import me.racci.sylphia.origins.OriginHandler;
 import me.racci.sylphia.origins.objects.Origin;
-import me.racci.sylphia.utils.Logger;
 import me.racci.sylphia.utils.eventlistners.PlayerMoveFullListener;
 import me.racci.sylphia.utils.eventlistners.PlayerMoveListener;
 import me.racci.sylphia.utils.minecraft.WorldManager;
@@ -41,7 +40,7 @@ import java.lang.management.ManagementFactory;
 import java.util.ArrayList;
 import java.util.List;
 
-public class Sylphia extends JavaPlugin {
+public class OldSylphiaPluginMain extends JavaPlugin {
 
 	private PlayerManager playerManager;
 	private StorageProvider storageProvider;
@@ -67,6 +66,7 @@ public class Sylphia extends JavaPlugin {
 		Logger.log(Logger.Level.INFO, "Sylphia has started loading!");
 		taskChainFactory = BukkitTaskChainFactory.create(this);
 //		final Items items = new Items(this);
+
 
 		// Addon Hooks
 		placeholderAPI = Bukkit.getPluginManager().isPluginEnabled("PlaceholderAPI");
@@ -208,9 +208,9 @@ public class Sylphia extends JavaPlugin {
 		return playerManager;
 	}
 
-	public OriginHandler getOriginHandler() {
-		return this.originHandler;
-	}
+//	public OriginHandler getOriginHandler() {
+//		return this.originHandler;
+//	}
 
 	public WorldManager getWorldManager() {
 		return worldManager;
