@@ -53,6 +53,8 @@ import java.util.*;
 @SuppressWarnings({"unused", "deprecation", "ConstantConditions"})
 public class OriginHandler implements Listener {
 
+
+
 	private final Sylphia plugin;
 	private static final HashMap<Origin, String> requiredPermList = new HashMap<>();
 	private static final Title.Times times = Title.Times.of(Duration.ofMillis(500), Duration.ofMillis(3000), Duration.ofMillis(1000));

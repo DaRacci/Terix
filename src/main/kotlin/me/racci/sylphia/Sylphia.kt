@@ -109,9 +109,7 @@ class Sylphia: JavaPlugin() {
     private fun loadLang() {
         lang = Lang(this)
         server.pluginManager.registerEvents(lang!!, this)
-        lang!!.load()
-        lang!!.loadEmbeddedMessages(commandManager)
-        lang!!.loadLanguages(commandManager)
+        lang!!.loadLang(commandManager!!)
     }
 
     private fun loadHooks() {
@@ -154,7 +152,7 @@ class Sylphia: JavaPlugin() {
         commandManager = PaperCommandManager(this)
         commandManager!!.enableUnstableAPI("help") // TODO Look into why this is deprecated
         commandManager!!.usePerIssuerLocale(true, false) // TODO Look into if this is actually needed or not
-        // Context? TODO i don't know what the fuck context is used for!!!
+        // Context? TODO I don't know what the fuck context is used for!!!
         commandManager!!.commandContexts.registerContext(Origin::class.java) // TODO Make this shit smaller again???
             { c: BukkitCommandExecutionContext -> Origin.valueOf(c.popFirstArg())}
         // Completions
