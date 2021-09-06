@@ -1,3 +1,5 @@
+@file:Suppress("unused")
+@file:JvmName("Lang")
 package me.racci.sylphia.lang
 
 import co.aikar.commands.MessageKeys
@@ -132,7 +134,7 @@ class Lang(plugin: Sylphia): Listener {
             if(config.getInt(fileVersion) == newestVersion) {
                 try {
                     val configSection: ConfigurationSection = defaultFile.getConfigurationSection("")!!
-                    var keysAdded: Int = 0
+                    var keysAdded = 0
                     for(key: String in configSection.getKeys(true)) {
                         if(!configSection.isConfigurationSection(key) && !config.contains(key)) {
                             config.set(key, defaultFile.get(key))

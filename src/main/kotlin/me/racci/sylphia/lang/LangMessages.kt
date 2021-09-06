@@ -1,3 +1,5 @@
+@file:Suppress("unused")
+@file:JvmName("LangMessages")
 package me.racci.sylphia.lang
 
 import java.util.*
