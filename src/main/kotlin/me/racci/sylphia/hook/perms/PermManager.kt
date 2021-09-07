@@ -1,3 +1,5 @@
+@file:Suppress("unused")
+@file:JvmName("PermManager")
 package me.racci.sylphia.hook.perms
 
 import org.bukkit.entity.Player

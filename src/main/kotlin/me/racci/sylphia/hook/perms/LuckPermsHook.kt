@@ -1,3 +1,5 @@
+@file:Suppress("unused")
+@file:JvmName("LuckPermsHook")
 package me.racci.sylphia.hook.perms
 
 import net.luckperms.api.LuckPerms

@@ -1,3 +1,4 @@
+@file:Suppress("unused")
 @file:JvmName("PlayerConsumeEvent")
 package me.racci.sylphia.listeners
 
@@ -28,7 +29,7 @@ class PlayerConsumeEvent(private val plugin: Sylphia) : Listener {
             val player = event.player
             if (event.item.type == Material.MILK_BUCKET) {
                 waitFor(20)
-                originHandler.setTest(player)
+//                originHandler.setTest(player)
             }
         }
     }

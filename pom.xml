@@ -28,16 +28,16 @@
 
 
     <build>
-
+        <sourceDirectory>src/main/kotlin</sourceDirectory>
         <plugins>
             <plugin>
                 <groupId>org.jetbrains.kotlin</groupId>
                 <artifactId>kotlin-maven-plugin</artifactId>
                 <version>${Kotlin.version}</version>
                 <configuration>
-                    <apiVersion>${kotlinapi.version}</apiVersion>
-                    <languageVersion>${Kotlin.version}</languageVersion>
-                    <jvmTarget>${java.version}</jvmTarget>
+                    <apiVersion>${Kotlinapi.version}</apiVersion>
+                    <languageVersion>${Kotlinapi.version}</languageVersion>
+                    <jvmTarget>${Java.version}</jvmTarget>
                     <args>
                         <arg>-Xcoroutines=enable</arg>
                     </args>
@@ -213,6 +213,10 @@
                     <artifactId>annotations</artifactId>
                     <groupId>org.jetbrains</groupId>
                 </exclusion>
+                <exclusion>
+                    <artifactId>adventure-api</artifactId>
+                    <groupId>net.kyori</groupId>
+                </exclusion>
             </exclusions>
         </dependency>
         <dependency>
@@ -258,18 +262,6 @@
             <artifactId>triumph-gui</artifactId>
             <version>${TriumphGUI.version}</version>
             <scope>compile</scope>
-        </dependency>
-        <dependency>
-            <groupId>com.github.simplix-softworks</groupId>
-            <artifactId>simplixstorage</artifactId>
-            <version>${SimplexStorage.version}</version>
-            <scope>compile</scope>
-            <exclusions>
-                <exclusion>
-                    <artifactId>annotations</artifactId>
-                    <groupId>org.jetbrains</groupId>
-                </exclusion>
-            </exclusions>
         </dependency>
 
 <!--        Plugin Integrations     -->

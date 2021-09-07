@@ -1,3 +1,4 @@
+@file:Suppress("unused")
 @file:JvmName("Sylphia")
 package me.racci.sylphia
 
@@ -17,14 +18,12 @@ import me.racci.sylphia.hook.PlaceholderAPIHook
 import me.racci.sylphia.hook.perms.LuckPermsHook
 import me.racci.sylphia.hook.perms.PermManager
 import me.racci.sylphia.lang.Lang
-import me.racci.sylphia.listeners.PlayerConsumeEvent
-import me.racci.sylphia.listeners.PlayerJoinLeaveEvent
-import me.racci.sylphia.listeners.PlayerMoveEvent
+import me.racci.sylphia.listeners.*
+import me.racci.sylphia.origins.Origin
 import me.racci.sylphia.origins.OriginHandler
-import me.racci.sylphia.origins.objects.Origin
-import me.racci.sylphia.utils.eventlistners.PlayerMoveFullListener
-import me.racci.sylphia.utils.eventlistners.PlayerMoveListener
-import me.racci.sylphia.utils.minecraft.WorldManager
+import me.racci.sylphia.origins.OriginManager
+import me.racci.sylphia.origins.OriginManager.Origins
+import me.racci.sylphia.utils.WorldManager
 import net.luckperms.api.LuckPerms
 import org.bukkit.Bukkit
 import org.bukkit.configuration.ConfigurationSection
@@ -39,8 +38,8 @@ import java.io.InputStreamReader
 class Sylphia: JavaPlugin() {
 
     // Configs
-    private var lang: Lang? = null
-    private var optionLoader: OptionL? = null
+    var lang: Lang? = null
+    var optionLoader: OptionL? = null
     // Plugin Integrations
     var luckPerms: Boolean? = null
     var placeholderAPI: Boolean? = null
@@ -52,6 +51,7 @@ class Sylphia: JavaPlugin() {
     var worldManager: WorldManager? = null
     var playerManager: PlayerManager? = null
     var originHandler: OriginHandler? = null
+    var originManager: OriginManager? = null
     var commandManager: PaperCommandManager? = null
 
     override fun onEnable() {
@@ -145,6 +145,7 @@ class Sylphia: JavaPlugin() {
     }
 
     private fun loadOriginsManager() {
+        originManager = OriginManager(this)
         originHandler = OriginHandler(this)
     }
 
@@ -154,11 +155,11 @@ class Sylphia: JavaPlugin() {
         commandManager!!.usePerIssuerLocale(true, false) // TODO Look into if this is actually needed or not
         // Context? TODO I don't know what the fuck context is used for!!!
         commandManager!!.commandContexts.registerContext(Origin::class.java) // TODO Make this shit smaller again???
-            { c: BukkitCommandExecutionContext -> Origin.valueOf(c.popFirstArg())}
+            { c: BukkitCommandExecutionContext -> Origins.valueOf(c.popFirstArg()) }
         // Completions
         commandManager!!.commandCompletions.registerAsyncCompletion("origins") {
             val values: MutableList<String> = ArrayList()
-            for (origin in Origin.values()) {
+            for (origin in Origins.values()) {
                 values.add(origin.toString().lowercase())
             }
             values
@@ -170,11 +171,11 @@ class Sylphia: JavaPlugin() {
 
     private fun registerEvents() {
         val pm: PluginManager = server.pluginManager
-        pm.registerEvents(PlayerMoveListener(), this)
         pm.registerEvents(PlayerMoveEvent(this), this)
         pm.registerEvents(PlayerConsumeEvent(this), this)
         pm.registerEvents(PlayerJoinLeaveEvent(this), this)
-        pm.registerEvents(PlayerMoveFullListener(this), this)
+        pm.registerEvents(PlayerRespawnEvent(this), this)
+        pm.registerEvents(PlayerDamageListener(this), this)
     }
 
 
