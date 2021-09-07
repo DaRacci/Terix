@@ -1,3 +1,4 @@
+@file:Suppress("unused")
 @file:JvmName("PlayerJoinLeaveEvent")
 package me.racci.sylphia.listeners
 
@@ -6,7 +7,7 @@ import com.okkero.skedule.schedule
 import me.racci.sylphia.Sylphia
 import me.racci.sylphia.data.PlayerManager
 import me.racci.sylphia.data.storage.StorageProvider
-import me.racci.sylphia.origins.OriginHandler
+import me.racci.sylphia.origins.OriginManager
 import org.bukkit.Bukkit
 import org.bukkit.event.EventHandler
 import org.bukkit.event.EventPriority
@@ -18,7 +19,7 @@ import org.bukkit.scheduler.BukkitScheduler
 class PlayerJoinLeaveEvent(private val plugin: Sylphia) : Listener {
 
     private val scheduler: BukkitScheduler = Bukkit.getScheduler()
-    private val originHandler: OriginHandler = plugin.originHandler!!
+    private val originManager: OriginManager = plugin.originManager!!
     private val playerManager: PlayerManager = plugin.playerManager!!
     private val storageProvider: StorageProvider = plugin.storageProvider!!
 
@@ -30,7 +31,7 @@ class PlayerJoinLeaveEvent(private val plugin: Sylphia) : Listener {
             if (playerManager.getPlayerData(player) == null) {
                 storageProvider.load(player)
                 waitFor(15)
-                originHandler.setTest(player)
+                originManager
 
             }
         }

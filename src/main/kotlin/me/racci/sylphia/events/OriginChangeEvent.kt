@@ -1,6 +1,8 @@
+@file:Suppress("unused")
+@file:JvmName("OriginChangeEvent")
 package me.racci.sylphia.events
 
-import me.racci.sylphia.origins.objects.Origin
+import me.racci.sylphia.origins.Origin
 import org.bukkit.entity.Player
 import org.bukkit.event.Cancellable
 import org.bukkit.event.Event

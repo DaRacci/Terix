@@ -16,6 +16,7 @@ import me.racci.raccilib.utils.LangUpdateFileException
 import me.racci.raccilib.utils.text.colour
 import me.racci.raccilib.utils.text.replace
 import me.racci.sylphia.Sylphia
+import me.racci.sylphia.lang.Lang.Messages.messagesMap
 import org.bukkit.Bukkit
 import org.bukkit.configuration.ConfigurationSection
 import org.bukkit.configuration.file.YamlConfiguration
@@ -26,10 +27,16 @@ import java.io.InputStreamReader
 import java.nio.charset.StandardCharsets
 import java.util.*
 
-
 class Lang(plugin: Sylphia): Listener {
 
-    val messagesMap: LinkedHashMap<MessageKey, String> = LinkedHashMap()
+    object Messages {
+        internal val messagesMap: LinkedHashMap<MessageKey, String> = LinkedHashMap()
+        fun get(key: MessageKey): String {
+            return messagesMap[key]!!
+        }
+    }
+
+
     private val plugin: Sylphia
     private val lang: String = "lang.yml"
     private val fileVersion: String = "File_Version"
@@ -92,7 +99,7 @@ class Lang(plugin: Sylphia): Listener {
         val config: YamlConfiguration = updateLangFile(file, defaultFile, YamlConfiguration.loadConfiguration(file))
         if (config.contains(fileVersion)) {
             val prefixes: HashMap<MessageKey, String> = HashMap()
-            Prefix.values().forEach { key: Prefix -> prefixes[key] = colour(config.getString(key.path)!!, true) }
+            Prefix.values().forEach { key: Prefix -> prefixes[key] = colour(config.getString(key.path), true)!! }
             val messages: HashMap<MessageKey, String> = messagesMap
             for (path: String in config.getKeys(true)) {
                 if (!config.isConfigurationSection(path)) {
@@ -105,7 +112,7 @@ class Lang(plugin: Sylphia): Listener {
                     messages[key!!] = colour(replace(message,
                         "{Origins}", prefixes[Prefix.ORIGINS]!!,
                         "{Sylphia}", prefixes[Prefix.SYLPHIA]!!,
-                        "{Error}", prefixes[Prefix.ERROR]!!), true)
+                        "{Error}", prefixes[Prefix.ERROR]!!), true)!!
                 }
             }
             MessageKey.values().forEach { key: MessageKey -> if(config.getString(key.path) == null) log(Level.WARNING,
@@ -151,5 +158,9 @@ class Lang(plugin: Sylphia): Listener {
             }
         }
         return YamlConfiguration.loadConfiguration(file)
+    }
+
+    companion object {
+        lateinit var Message: Messages
     }
 }

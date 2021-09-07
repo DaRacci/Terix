@@ -11,10 +11,10 @@ interface MessageKey {
     companion object {
         fun values(): Set<MessageKey> {
             val keys: MutableSet<MessageKey> = HashSet()
-            keys.addAll(listOf(*CommandMessage.values()))
+            keys.addAll(listOf(*Command.values()))
             keys.addAll(listOf(*GUI.values()))
             keys.addAll(listOf(*Prefix.values()))
-            keys.addAll(listOf(*OriginMessage.values()))
+            keys.addAll(listOf(*Origins.values()))
             return keys
         }
     }
@@ -56,7 +56,7 @@ enum class GUI(path: String) : MessageKey {
 
 }
 
-enum class CommandMessage(path: String) : MessageKey {
+enum class Command(path: String) : MessageKey {
     RELOAD("Reload"),
     SAVE_SAVED("Saved"),
     TOGGLE_ENABLED("Toggle.Enabled"),
@@ -69,7 +69,7 @@ enum class CommandMessage(path: String) : MessageKey {
     }
 }
 
-enum class OriginMessage(path: String) : MessageKey {
+enum class Origins(path: String) : MessageKey {
 
     COMMAND_GET("Origins.Command.Get"),
     COMMAND_SET("Origins.Command.Set"),

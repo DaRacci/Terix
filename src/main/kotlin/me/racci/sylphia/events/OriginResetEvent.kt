@@ -1,3 +1,5 @@
+@file:Suppress("unused")
+@file:JvmName("OriginResetEvent")
 package me.racci.sylphia.events
 
 import org.bukkit.entity.Player
