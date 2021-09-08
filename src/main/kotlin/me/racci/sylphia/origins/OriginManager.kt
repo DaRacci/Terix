@@ -3,6 +3,7 @@
 package me.racci.sylphia.origins
 
 
+import me.racci.raccilib.utils.worlds.WorldTime
 import me.racci.sylphia.Sylphia
 import me.racci.sylphia.data.PlayerData
 import me.racci.sylphia.origins.OriginHandler.OriginsMap.originsMap
@@ -11,6 +12,7 @@ import me.racci.sylphia.utils.PotionUtils
 import me.racci.sylphia.utils.getCondition
 import org.apache.commons.collections4.ListUtils
 import org.bukkit.Sound
+import org.bukkit.World
 import org.bukkit.attribute.Attribute
 import org.bukkit.attribute.AttributeInstance
 import org.bukkit.entity.Player
@@ -32,9 +34,11 @@ class OriginManager(private val plugin: Sylphia) {
         fun addToMap(origin: Origin) {
             originMap.putIfAbsent(origin.name.uppercase(), origin)
         }
+
         fun valueOf(name: String): Origin {
             return originMap[name] ?: throw IllegalArgumentException("No Origins by the name $name found")
         }
+
         fun values(): Array<Origin> {
             return originMap.values.toTypedArray().clone()
         }
@@ -42,45 +46,61 @@ class OriginManager(private val plugin: Sylphia) {
 
     private fun getOriginName(player: Player): String? {
         val playerData: PlayerData = playerManager.getPlayerData(player.uniqueId)!!
-        return if(originsMap[playerData.origin] != null) playerData.origin!!.uppercase() else null
+        return if (originsMap[playerData.origin] != null) playerData.origin!!.uppercase() else null
     }
+
     fun getOrigin(player: Player): Origin? {
         val originName = getOriginName(player)!!
-        return if(originsMap.containsKey(originName)) originsMap[originName] else null
+        return if (originsMap.containsKey(originName)) originsMap[originName] else null
     }
 
     fun reset(player: Player) {
-        for(potionEffect: PotionEffect in player.activePotionEffects) {
-            if(PotionUtils.isOriginEffect(potionEffect)) {
+        for (potionEffect: PotionEffect in player.activePotionEffects) {
+            if (PotionUtils.isOriginEffect(potionEffect)) {
                 player.removePotionEffect(potionEffect.type)
             }
         }
-        for(attribute: Attribute in AttributeUtils.getPlayerAttributes()) {
+        for (attribute: Attribute in AttributeUtils.getPlayerAttributes()) {
             val instance: AttributeInstance? = player.getAttribute(attribute)
             instance?.baseValue = AttributeUtils.getDefault(attribute)
         }
     }
-    fun add(player: Player,
-            origin: Origin = getOrigin(player)!!,
-            condition: OriginValue = getCondition(player)) {
+
+    fun add(
+        player: Player,
+        origin: Origin = getOrigin(player)!!,
+        condition: OriginValue = getCondition(player)
+    ) {
 
         player.addPotionEffects(origin.conditionEffectMap[condition]!!)
         origin.conditionAttributeMap[condition]?.forEach { var1x ->
             player.getAttribute(var1x!!.attribute)!!.baseValue = var1x.value
         }
     }
-//    fun addTime(player: Player,
-//            origin: Origin = getOrigin(player)!!) {
-//        if(player.world.environment == World.Environment.NORMAL) {
-//            val remove = if(WorldTime.isDay(player))
-//        }
-//    }
 
-
-
-
-
+    fun refreshTime(
+        player: Player,
+        origin: Origin = getOrigin(player)!!
+    ) {
+        if (player.world.environment == World.Environment.NORMAL) {
+            var remove: ArrayList<PotionEffect?>? = null
+            var add: ArrayList<PotionEffect?>? = null
+            when (WorldTime.isDay(player)) {
+                true -> {
+                    remove = origin.effectMap[OriginValue.NIGHT]
+                    add = origin.effectMap[OriginValue.DAY]
+                }
+                false -> {
+                    remove = origin.effectMap[OriginValue.DAY]
+                    add = origin.effectMap[OriginValue.NIGHT]
+                }
+            }
+            remove?.forEach { var1x -> player.removePotionEffect(var1x!!.type) }
+            player.addPotionEffects(add!!)
+        }
+    }
 }
+
 
 class Origin(nameMap: Map<OriginValue, String>,
              soundMap: Map<OriginValue, Sound>,
