@@ -356,7 +356,7 @@
         <Java.version>16</Java.version>
         <Kotlin.version>1.5.30</Kotlin.version>
         <Kotlinapi.version>1.5</Kotlinapi.version>
-        <Jetbrains.version>22.0.0</Jetbrains.version>
+        <Jetbrains.version>21.0.1</Jetbrains.version>
         <MavenCompilerPlugin.version>3.8.1</MavenCompilerPlugin.version>
         <!--                Spigot                 -->
         <Spigot.version>1.17.1-R0.1-SNAPSHOT</Spigot.version>
