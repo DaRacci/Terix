@@ -1,83 +1,57 @@
-package me.racci.sylphia.enums;
+@file:Suppress("unused")
+@file:JvmName("PathValue")
+package me.racci.sylphia.enums
 
-import org.bukkit.Sound;
+import org.bukkit.Sound
 
-import java.util.ArrayList;
-import java.util.List;
-
-public class PathValue {
-
-    private Object value;
-
-    public PathValue(Object value) {
-        this.value = value;
+class PathValue(var value: Any) {
+    fun setValue(value: Int) {
+        this.value = value
     }
 
-    public void setValue(Object value) {
-        this.value = value;
+    fun setValue(value: Double) {
+        this.value = value
     }
 
-    public void setValue(int value) {
-        this.value = value;
+    fun setValue(value: Boolean) {
+        this.value = value
     }
 
-    public void setValue(double value) {
-        this.value = value;
+    fun asInt(): Int {
+        return value as Int
     }
 
-    public void setValue(boolean value) {
-        this.value = value;
+    fun asDouble(): Double {
+        return if(value is Double) {
+            value as Double
+        } else (value as Int).toDouble()
     }
 
-    public Object getValue() {
-        return value;
+    fun asBoolean(): Boolean {
+        return value as Boolean
     }
 
-    public int asInt() {
-        return (int) value;
+    fun asString(): String {
+        return if(value is String) {
+            value as String
+        } else value.toString()
     }
 
-    public double asDouble() {
-        if(value instanceof Double doubleValue) {
-            return doubleValue;
-        } else {
-            return ((Integer) value).doubleValue();
-        }
-    }
-
-    public boolean asBoolean() {
-        return (boolean) value;
-    }
-
-    public String asString() {
-        if(value instanceof String string) {
-            return string;
-        } else {
-            return String.valueOf(value);
-        }
-    }
-
-    public List<String> asList() {
-        List<String> stringList = new ArrayList<>();
-        if(value instanceof List<?> list) {
-            for(Object obj : list) {
-                if(obj instanceof String string) {
-                    stringList.add(string);
+    fun asList(): List<String> {
+        val stringList = ArrayList<String>()
+        if(value is List<*>) {
+            for(obj: Any? in value as List<*>) {
+                if(obj is String) {
+                    stringList.add(value as String)
                 }
             }
         }
-        return stringList;
+        return stringList
     }
 
-    public Sound asSound() {
-        if (value instanceof Sound sound) {
-            return sound;
-        } else {
-            return null;
-        }
+    fun asSound(): Sound? {
+        return if(value is Sound) {
+            value as Sound
+        } else null
     }
-
-//    public PotionEffect asPotionEffect() {
-//
-//    }
 }

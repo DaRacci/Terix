@@ -63,8 +63,6 @@
                             <goal>shade</goal>
                         </goals>
                         <configuration>
-                            <outputDirectory>
-                            </outputDirectory>
                             <shadedArtifactAttached>false</shadedArtifactAttached>
                             <finalName>Sylphia-${project.version}</finalName>
                             <relocations>
@@ -134,24 +132,6 @@
                                 </filter>
                             </filters>
                         </configuration>
-                    </execution>
-                </executions>
-            </plugin>
-            <plugin>
-                <groupId>org.apache.maven.plugins</groupId>
-                <artifactId>maven-compiler-plugin</artifactId>
-                <version>${MavenCompilerPlugin.version}</version>
-                <configuration>
-                    <source>${Java.version}</source>
-                    <target>${Java.version}</target>
-                </configuration>
-                <executions>
-                    <execution>
-                        <id>compile</id>
-                        <phase>compile</phase>
-                        <goals>
-                            <goal>compile</goal>
-                        </goals>
                     </execution>
                 </executions>
             </plugin>
