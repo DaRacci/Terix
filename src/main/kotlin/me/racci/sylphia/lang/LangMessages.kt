@@ -11,6 +11,7 @@ interface MessageKey {
     companion object {
         fun values(): Set<MessageKey> {
             val keys: MutableSet<MessageKey> = HashSet()
+            keys.addAll(listOf(*Empty.values()))
             keys.addAll(listOf(*Command.values()))
             keys.addAll(listOf(*GUI.values()))
             keys.addAll(listOf(*Prefix.values()))
@@ -18,6 +19,13 @@ interface MessageKey {
             return keys
         }
     }
+}
+
+enum class Empty : MessageKey {
+    EMPTY;
+
+    override val path: String = ""
+
 }
 
 enum class Prefix(path: String) : MessageKey {
@@ -75,7 +83,7 @@ enum class Origins(path: String) : MessageKey {
     COMMAND_SET("Origins.Command.Set"),
     COMMAND_UNSET("Origins.Command.Unset"),
 
-    RESULT_NULL("Origins.Lore.NotNull"),
+    RESULT_NULL("Origins.Result.NotNull"),
 
     SELECT_BROADCAST("Origins.Select.Broadcast"),
     SELECT_LOCKED("Origins.Select.Locked"),

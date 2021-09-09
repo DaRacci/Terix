@@ -2,7 +2,7 @@
 @file:JvmName("ReloadManager")
 package me.racci.sylphia.commands
 
-import me.racci.raccilib.utils.text.colour
+import me.racci.raccilib.utils.strings.colour
 import me.racci.sylphia.Sylphia
 import me.racci.sylphia.lang.Command
 import me.racci.sylphia.lang.Lang

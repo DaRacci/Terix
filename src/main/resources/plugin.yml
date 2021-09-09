@@ -1,9 +1,10 @@
 name: Sylphia
 version: ${project.version}
-main: mc.racci.sylphia.Sylphia
+main: me.racci.sylphia.Sylphia
 api-version: 1.17
 prefix: Sylphia
 load: POSTWORLD
+depend: [ RacciLib ]
 softdepend:
   - LuckPerms
   - PlaceholderAPI

@@ -8,8 +8,8 @@ import me.racci.raccilib.Level
 import me.racci.raccilib.log
 import me.racci.raccilib.utils.FileValidationException
 import me.racci.raccilib.utils.items.builders.ItemBuilder
-import me.racci.raccilib.utils.text.LegacyUtils
-import me.racci.raccilib.utils.text.colour
+import me.racci.raccilib.utils.strings.LegacyUtils
+import me.racci.raccilib.utils.strings.colour
 import me.racci.sylphia.Sylphia
 import me.racci.sylphia.enums.Path
 import me.racci.sylphia.lang.Lang
@@ -248,11 +248,13 @@ class OriginHandler(private val plugin: Sylphia): Listener {
 
     private fun getAllOriginConfigurations(): Map<String, YamlConfiguration> {
         val originMap: HashMap<String, YamlConfiguration> = HashMap()
-        val files: Array<out File> = File(plugin.dataFolder.absolutePath + "/Origins").listFiles()!!
-        for(originFile: File in files) {
-            if(!originFile.isDirectory) {
-                validateFile(originFile, YamlConfiguration.loadConfiguration(originFile))
-                originMap[originFile.name.uppercase().replace(".YML", "")] = YamlConfiguration.loadConfiguration(originFile)
+        val files: Array<out File>? = File(plugin.dataFolder.absolutePath + "/Origins").listFiles()
+        if (files != null) {
+            for(originFile: File in files) {
+                if(!originFile.isDirectory) {
+                    validateFile(originFile, YamlConfiguration.loadConfiguration(originFile))
+                    originMap[originFile.name.uppercase().replace(".YML", "")] = YamlConfiguration.loadConfiguration(originFile)
+                }
             }
         }
         return originMap

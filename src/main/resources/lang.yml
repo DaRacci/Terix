@@ -84,11 +84,11 @@ GUI:
     Confirm_Title: "&eConfirm selection"
   Info:
     Title: "&6&lOrigin &eInfo Menu"
-    Powers:
-    Passives:
-    Debuffs:
+    Powers: "Placeholder"
+    Passives: "Placeholder"
+    Debuffs: "Placeholder"
 Origins:
-  Commands:
+  Command:
     Get: "{Origins} &7{PlayerDisplayName}'s &borigin is the {var} &bOrigin"
     Set: "{Origins} &bYou have set &7{PlayerDisplayName}'s &borigin to {var}"
     Unset: "{Origins} &cYou have removed &7{PlayerDisplayName}'s &bOrigin"
@@ -105,4 +105,4 @@ Origins:
     Abilities: "&2&lAbilities"
     Debuffs: "&4&Debuffs"
     Select: "&f&l» &bClick &f&l« &eto change to the {var} &eorigin."
-File_Version: 1
+File_Version: 2

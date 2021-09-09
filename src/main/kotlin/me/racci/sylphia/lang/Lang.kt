@@ -5,16 +5,14 @@ package me.racci.sylphia.lang
 import co.aikar.commands.MessageKeys
 import co.aikar.commands.MinecraftMessageKeys
 import co.aikar.commands.PaperCommandManager
-import com.okkero.skedule.SynchronizationContext
-import com.okkero.skedule.schedule
 import me.racci.raccilib.Level
 import me.racci.raccilib.log
 import me.racci.raccilib.utils.LangDefaultFileException
 import me.racci.raccilib.utils.LangLoadException
 import me.racci.raccilib.utils.LangNoVersionException
 import me.racci.raccilib.utils.LangUpdateFileException
-import me.racci.raccilib.utils.text.colour
-import me.racci.raccilib.utils.text.replace
+import me.racci.raccilib.utils.strings.colour
+import me.racci.raccilib.utils.strings.replace
 import me.racci.sylphia.Sylphia
 import me.racci.sylphia.lang.Lang.Messages.messagesMap
 import org.bukkit.Bukkit
@@ -27,38 +25,30 @@ import java.io.InputStreamReader
 import java.nio.charset.StandardCharsets
 import java.util.*
 
-class Lang(plugin: Sylphia): Listener {
+class Lang(private val plugin: Sylphia): Listener {
 
     object Messages {
         internal val messagesMap: LinkedHashMap<MessageKey, String> = LinkedHashMap()
         fun get(key: MessageKey): String {
-            return messagesMap[key]!!
+            return messagesMap[key] ?: ""
         }
     }
 
 
-    private val plugin: Sylphia
     private val lang: String = "lang.yml"
     private val fileVersion: String = "File_Version"
-    private val scheduler: BukkitScheduler
-
-    init {
-        this.plugin = plugin
-        this.scheduler = Bukkit.getScheduler()
-    }
+    private val scheduler: BukkitScheduler = Bukkit.getScheduler()
 
     /**
      * Well... I mean it's in the name
      */
     fun loadLang(commandManager: PaperCommandManager) {
-        scheduler.schedule(plugin, SynchronizationContext.ASYNC) {
-            val startTime = System.currentTimeMillis()
-            checkExistingFile()
-            val defaultFile: YamlConfiguration = loadDefaultFile()
-            loadLangFile(commandManager, defaultFile)
-            val endTime = System.currentTimeMillis()
-            log(Level.INFO, "Loaded lang in " + (endTime - startTime) + "ms")
-        }
+        val startTime = System.currentTimeMillis()
+        checkExistingFile()
+        val defaultFile: YamlConfiguration = loadDefaultFile()
+        loadLangFile(commandManager, defaultFile)
+        val endTime = System.currentTimeMillis()
+        log(Level.INFO, "Loaded lang in " + (endTime - startTime) + "ms")
     }
     /**
      * Checks if the Lang file exists and if not adds a new one
@@ -103,16 +93,16 @@ class Lang(plugin: Sylphia): Listener {
             val messages: HashMap<MessageKey, String> = messagesMap
             for (path: String in config.getKeys(true)) {
                 if (!config.isConfigurationSection(path)) {
-                    var key: MessageKey? = null
+                    var key: MessageKey = Empty.EMPTY
                     MessageKey.values().forEach {
                         messageKey: MessageKey -> if(messageKey.path == path) { key = messageKey }
                     }
-                    if(key == null) { key = CustomMessageKey(path) }
-                    val message: String = config.getString(path)!!
-                    messages[key!!] = colour(replace(message,
-                        "{Origins}", prefixes[Prefix.ORIGINS]!!,
-                        "{Sylphia}", prefixes[Prefix.SYLPHIA]!!,
-                        "{Error}", prefixes[Prefix.ERROR]!!), true)!!
+                    if(key == Empty.EMPTY) { key = CustomMessageKey(path) }
+                    val message: String = config.getString(path) ?: ""
+                    messages[key] = colour(replace(message,
+                        "{Origins}", prefixes[Prefix.ORIGINS] ?: "",
+                        "{Sylphia}", prefixes[Prefix.SYLPHIA] ?: "",
+                        "{Error}", prefixes[Prefix.ERROR] ?: ""), true)!!
                 }
             }
             MessageKey.values().forEach { key: MessageKey -> if(config.getString(key.path) == null) log(Level.WARNING,
@@ -138,7 +128,8 @@ class Lang(plugin: Sylphia): Listener {
     private fun updateLangFile(file: File, defaultFile: YamlConfiguration, config: YamlConfiguration): YamlConfiguration {
         if(config.contains(fileVersion)) {
             val newestVersion: Int = defaultFile.getInt(fileVersion)
-            if(config.getInt(fileVersion) == newestVersion) {
+            log(Level.INFO, "${config.get(fileVersion)} $newestVersion")
+            if(config.getInt(fileVersion) != newestVersion) {
                 try {
                     val configSection: ConfigurationSection = defaultFile.getConfigurationSection("")!!
                     var keysAdded = 0
