@@ -3,7 +3,7 @@ package me.racci.sylphia.commands
 import co.aikar.commands.BaseCommand
 import co.aikar.commands.CommandHelp
 import co.aikar.commands.annotation.*
-import me.racci.raccilib.utils.text.LegacyUtils
+import me.racci.raccilib.utils.strings.LegacyUtils
 import me.racci.sylphia.Sylphia
 import me.racci.sylphia.data.PlayerData
 import me.racci.sylphia.enums.Special

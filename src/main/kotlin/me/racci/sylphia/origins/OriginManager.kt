@@ -206,12 +206,12 @@ class Origin(nameMap: Map<OriginValue, String>,
 
         val list: ArrayList<PotionEffect?> = ArrayList()
         for (potion in PotionEffectType.values()) {
-            var finalPotion: PotionEffect? = PotionEffect(potion, 1, -1)
+            var finalPotion = PotionEffect(potion, 1, -1)
             finalPotion = potionLoop(potion, general, finalPotion) ?: finalPotion
             finalPotion = potionLoop(potion, world, finalPotion) ?: finalPotion
             finalPotion = potionLoop(potion, time, finalPotion) ?: finalPotion
             finalPotion = potionLoop(potion, liquid, finalPotion) ?: finalPotion
-            if (!(finalPotion?.duration == 1 && finalPotion.amplifier == -1)) {
+            if (!(finalPotion.duration == 1 && finalPotion.amplifier == -1)) {
                 list.add(finalPotion)
             }
         }
