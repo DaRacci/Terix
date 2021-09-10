@@ -1,5 +1,7 @@
 package me.racci.sylphia.data.storage
 
+
+import me.racci.raccilib.skedule.skeduleAsync
 import me.racci.sylphia.Sylphia
 import me.racci.sylphia.data.PlayerData
 import me.racci.sylphia.enums.Special
@@ -8,45 +10,43 @@ import org.bukkit.Bukkit
 import org.bukkit.configuration.file.FileConfiguration
 import org.bukkit.configuration.file.YamlConfiguration
 import org.bukkit.entity.Player
-import org.bukkit.scheduler.BukkitRunnable
 import java.io.File
 import java.util.*
 
 class YamlStorageProvider(plugin: Sylphia) : StorageProvider(plugin) {
+
     override fun load(player: Player) {
-        val file = File(plugin.dataFolder.toString() + "/Players/" + player.uniqueId + ".yml")
-        if (file.exists()) {
-            val config: FileConfiguration = YamlConfiguration.loadConfiguration(file)
-            val playerData = PlayerData(player, plugin)
-            try {
-                // Make sure file name and uuid match
-                val id: UUID = UUID.fromString(config.getString("uuid", player.uniqueId.toString()))
-                require(player.uniqueId == id) { "File name and uuid field do not match!" }
-                // Load origin data
-                playerData.origin = config.getString("Origins.Origins")
-                playerData.lastOrigin = config.getString("Origins.LastOrigin")
-                for (originSetting in Special.values()) {
-                    val path = "Settings." + originSetting.name.uppercase()
-                    val value = config.getInt(path, 1)
-                    playerData.setOriginSetting(originSetting, value)
-                }
-                playerManager!!.addPlayerData(playerData)
-                val event = DataLoadEvent(playerData)
-                object : BukkitRunnable() {
-                    override fun run() {
-                        Bukkit.getPluginManager().callEvent(event)
+        skeduleAsync(plugin) {
+            val file = File(plugin.dataFolder.toString() + "/Players/" + player.uniqueId + ".yml")
+            if (file.exists()) {
+                val config: FileConfiguration = YamlConfiguration.loadConfiguration(file)
+                val playerData = PlayerData(player, plugin as Sylphia)
+                try {
+                    // Make sure file name and uuid match
+                    val id: UUID = UUID.fromString(config.getString("uuid", player.uniqueId.toString()))
+                    require(player.uniqueId == id) { "File name and uuid field do not match!" }
+                    // Load origin data
+                    playerData.origin = config.getString("Origins.Origins")
+                    playerData.lastOrigin = config.getString("Origins.LastOrigin")
+                    for (originSetting in Special.values()) {
+                        val path = "Settings." + originSetting.name.uppercase()
+                        val value = config.getInt(path, 1)
+                        playerData.setOriginSetting(originSetting, value)
                     }
-                }.runTask(plugin)
-            } catch (e: Exception) {
-                Bukkit.getLogger()
-                    .warning("There was an error loading player data for player " + player.name + " with UUID " + player.uniqueId + ", see below for details.")
-                e.printStackTrace()
-                val data = createNewPlayer(player)
-                data.setShouldSave(false)
-                sendErrorMessageToPlayer(player, e)
+                    playerManager!!.addPlayerData(playerData)
+                    val event = DataLoadEvent(playerData)
+                    Bukkit.getPluginManager().callEvent(event)
+                } catch (e: Exception) {
+                    Bukkit.getLogger()
+                        .warning("There was an error loading player data for player " + player.name + " with UUID " + player.uniqueId + ", see below for details.")
+                    e.printStackTrace()
+                    val data = createNewPlayer(player)
+                    data.setShouldSave(false)
+                    sendErrorMessageToPlayer(player, e)
+                }
+            } else {
+                createNewPlayer(player)
             }
-        } else {
-            createNewPlayer(player)
         }
     }
 

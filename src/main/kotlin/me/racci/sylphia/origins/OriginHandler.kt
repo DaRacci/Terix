@@ -2,8 +2,6 @@
 @file:JvmName("OriginHandler")
 package me.racci.sylphia.origins
 
-import com.okkero.skedule.SynchronizationContext
-import com.okkero.skedule.schedule
 import me.racci.raccilib.Level
 import me.racci.raccilib.log
 import me.racci.raccilib.utils.FileValidationException
@@ -59,19 +57,18 @@ class OriginHandler(private val plugin: Sylphia): Listener {
     }
 
     fun refreshOrigins() {
-        scheduler.schedule(plugin, SynchronizationContext.ASYNC) {
-            originsMap.clear()
-            val file: Map<String, YamlConfiguration> = getAllOriginConfigurations()
-            if(file.isNotEmpty()) {
-                for(originEntry: Map.Entry<String, YamlConfiguration> in file.entries) {
-                    if(!originsMap.containsKey(originEntry.key)) {
-                        originsMap[originEntry.key] = createOrigin(originEntry.key, originEntry.value)
-                    }
+        originsMap.clear()
+        val file: Map<String, YamlConfiguration> = getAllOriginConfigurations()
+        if(file.isNotEmpty()) {
+            for(originEntry: Map.Entry<String, YamlConfiguration> in file.entries) {
+                if(!originsMap.containsKey(originEntry.key)) {
+                    originsMap[originEntry.key] = createOrigin(originEntry.key, originEntry.value)
                 }
-            } else {
-                log(Level.WARNING, "No origins found!")
             }
+        } else {
+            log(Level.WARNING, "No origins found!")
         }
+
     }
 
     private fun createOrigin(origin: String, config: YamlConfiguration): Origin {

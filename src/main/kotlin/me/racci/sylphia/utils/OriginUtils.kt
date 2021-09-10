@@ -51,7 +51,7 @@ object PotionUtils {
         return null
     }
 
-    fun isValid(string: String): Boolean {
+    private fun isValid(string: String): Boolean {
         return EnumUtils.isValidEnumIgnoreCase(PrivatePotionEffectType::class.java, string)
     }
 
@@ -104,7 +104,7 @@ object AttributeUtils {
         return null
     }
 
-    fun isValid(string: String?): Boolean {
+    private fun isValid(string: String?): Boolean {
         return EnumUtils.isValidEnumIgnoreCase(Attribute::class.java, string)
     }
 
