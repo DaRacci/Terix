@@ -1,12 +1,14 @@
 Identity:
-  Name: Human
-  Colour: "#ff9c38"
+  Name: Raccoon
+  Colour: "#4f4266"
 Sound:
-  Hurt: ENTITY_PLAYER_HURT
-  Death: ENTITY_PLAYER_DEATH
+  Hurt: ENTITY_FOX_HURT
+  Death: ENTITY_FOX_DEATH
 Permissions:
   Required:
+    - sylphia.raccoon
   Given:
+    - sylphia.raccoon.gay
 TimeMessage:
   Day:
     Title: "&2Day!"
@@ -15,23 +17,29 @@ TimeMessage:
     Title: "&5Night.."
     Subtitle: "&3The night has come upon us.."
 Effects:
-  Enabled: false
+  Enabled: true
   Time: false
   Liquid: false
   Dimension: false
   Special:
     Slow-falling: false
     Night-vision: false
-    Jump-boost: 0
+    Jump-boost: 1
   General:
     Effects:
+      - DAMAGE_RESISTANCE:0
+      - HUNGER:0
     Attributes:
+      - GENERIC_ARMOR:2
+      - GENERIC_MOVEMENT_SPEED:0.12
   Day:
     Effects:
     Attributes:
   Night:
     Effects:
+      - STRENGTH:0
     Attributes:
+      - GENERIC_MOVEMENT_SPEED:0.135
   Water:
     Effects:
     Attributes:
@@ -48,30 +56,32 @@ Effects:
     Effects:
     Attributes:
 Damage:
-  Enabled: false
+  Enabled: true
   Sun: false
-  Fall: false
+  Fall: true
   Rain: false
   Water: false
   Lava: false
   Amounts:
     Sun: 0
-    Fall: 100
+    Fall: 125
     Rain: 0
     Water: 0
     Lava: 100
 GUI:
   Item:
-    Slot: 11
-    Skull: false
-    Material: APPLE
+    Slot: 10
+    Skull: eyJ0ZXh0dXJlcyI6eyJTS0lOIjp7InVybCI6Imh0dHA6Ly90ZXh0dXJlcy5taW5lY3JhZnQubmV0L3RleHR1cmUvOTg4Y2M3YWQ4NDY5YTBmYTg4ZmI1NjczZGMzMWY3MWI1MTJiOGZkMTNjNGUxNjJmMzNkNjFmN2FkOGNiYTJmNSJ9fX0
+    Material: false
     Enchanted: false
   Lore:
     Description:
-      - "#ff9c38Generic human twat"
+      - "#4f4266FAT SHIT"
     Passives:
-      - "&e+Generic human"
+      - "&e+12% Speed - 14% at Night"
+      - "&e+1 Armour"
+      - "&e+Damage resistance"
+      - "&e+Strength 1 at night"
     Abilities:
-      - "&aGeneric baby making"
     Debuffs:
-      - "&c-Mortal"
+      - "&c-Hunger. Constant fucking hunger"

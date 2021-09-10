@@ -2,34 +2,32 @@
 @file:JvmName("PlayerConsumeEvent")
 package me.racci.sylphia.listeners
 
-import com.okkero.skedule.SynchronizationContext
-import com.okkero.skedule.schedule
+import me.racci.raccilib.skedule.SynchronizationContext
+import me.racci.raccilib.skedule.skeduleAsync
 import me.racci.sylphia.Sylphia
-import me.racci.sylphia.origins.OriginHandler
-import org.bukkit.Bukkit
+import me.racci.sylphia.origins.OriginManager
 import org.bukkit.Material
 import org.bukkit.event.EventHandler
 import org.bukkit.event.EventPriority
 import org.bukkit.event.Listener
 import org.bukkit.event.player.PlayerItemConsumeEvent
-import org.bukkit.scheduler.BukkitScheduler
 
-class PlayerConsumeEvent(private val plugin: Sylphia) : Listener {
+class PlayerConsumeListener(private val plugin: Sylphia) : Listener {
 
-    private var scheduler: BukkitScheduler = Bukkit.getScheduler()
-    private var originHandler: OriginHandler = plugin.originHandler!!
+    private var originManager: OriginManager = plugin.originManager!!
 
     @EventHandler(priority = EventPriority.HIGH)
     fun onConsume(event: PlayerItemConsumeEvent) {
-        scheduler.schedule(plugin,  SynchronizationContext.ASYNC) {
+        skeduleAsync(plugin) {
             if (event.isCancelled) {
-                return@schedule
+                return@skeduleAsync
             }
 
             val player = event.player
             if (event.item.type == Material.MILK_BUCKET) {
                 waitFor(20)
-//                originHandler.setTest(player)
+                switchContext(SynchronizationContext.SYNC)
+                originManager.refresh(player)
             }
         }
     }

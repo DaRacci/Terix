@@ -6,7 +6,7 @@ import me.racci.sylphia.Sylphia
 import me.racci.sylphia.enums.Special
 import org.bukkit.entity.Player
 
-class PlayerData(val player: Player, val plugin: Sylphia) {
+class PlayerData(val player: Player, private val plugin: Sylphia) {
     var origin: String? = null
     var lastOrigin: String? = null
     private val originSettings: HashMap<Special, Int> = HashMap()

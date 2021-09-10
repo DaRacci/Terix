@@ -4,8 +4,6 @@ package me.racci.sylphia
 
 import co.aikar.commands.BukkitCommandExecutionContext
 import co.aikar.commands.PaperCommandManager
-import co.aikar.taskchain.BukkitTaskChainFactory
-import co.aikar.taskchain.TaskChainFactory
 import me.racci.raccilib.Level
 import me.racci.raccilib.log
 import me.racci.sylphia.commands.OriginCommand
@@ -45,7 +43,6 @@ class Sylphia: JavaPlugin() {
     var placeholderAPI: Boolean? = null
     // Misc
     var storageProvider: StorageProvider? = null
-    var taskChainFactory: TaskChainFactory? = null
     // Managers
     var permManager: PermManager? = null
     var worldManager: WorldManager? = null
@@ -69,8 +66,6 @@ class Sylphia: JavaPlugin() {
 
         registerCommands()
         registerEvents()
-
-        taskChainFactory = BukkitTaskChainFactory.create(this)
 
         log(Level.SUCCESS, "Sylphia has finished loading successfully!")
         log(Level.OUTLINE, "&m---------------------------------------------")
@@ -171,11 +166,12 @@ class Sylphia: JavaPlugin() {
 
     private fun registerEvents() {
         val pm: PluginManager = server.pluginManager
-        pm.registerEvents(PlayerMoveEvent(this), this)
-        pm.registerEvents(PlayerConsumeEvent(this), this)
-        pm.registerEvents(PlayerJoinLeaveEvent(this), this)
-        pm.registerEvents(PlayerRespawnEvent(this), this)
+        pm.registerEvents(PlayerMoveListener(this), this)
+        pm.registerEvents(PlayerConsumeListener(this), this)
+        pm.registerEvents(PlayerJoinLeaveListener(this), this)
+        pm.registerEvents(PlayerRespawnListener(this), this)
         pm.registerEvents(PlayerDamageListener(this), this)
+        pm.registerEvents(PlayerChangeWorldListener(this), this)
     }
 
 

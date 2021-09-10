@@ -9,22 +9,15 @@ import me.racci.sylphia.events.DataLoadEvent
 import org.bukkit.Bukkit
 import org.bukkit.ChatColor
 import org.bukkit.entity.Player
-import org.bukkit.scheduler.BukkitRunnable
 
-abstract class StorageProvider protected constructor(plugin: Sylphia) {
-    @JvmField
-    val plugin: Sylphia
-    @JvmField
-    val playerManager: PlayerManager?
+abstract class StorageProvider protected constructor(internal val plugin: Sylphia) {
+
+    val playerManager: PlayerManager? = plugin.playerManager
     fun createNewPlayer(player: Player): PlayerData {
         val playerData = PlayerData(player, plugin)
         playerManager!!.addPlayerData(playerData)
         val event = DataLoadEvent(playerData)
-        object : BukkitRunnable() {
-            override fun run() {
-                Bukkit.getPluginManager().callEvent(event)
-            }
-        }.runTask(plugin)
+        Bukkit.getPluginManager().callEvent(event)
         return playerData
     }
 
@@ -39,9 +32,4 @@ abstract class StorageProvider protected constructor(plugin: Sylphia) {
     abstract fun load(player: Player)
     abstract fun save(player: Player)
     abstract fun save(player: Player, removeFromMemory: Boolean)
-
-    init {
-        playerManager = plugin.playerManager
-        this.plugin = plugin
-    }
 }

@@ -6,6 +6,7 @@ package me.racci.sylphia.origins
 import me.racci.raccilib.utils.worlds.WorldTime
 import me.racci.sylphia.Sylphia
 import me.racci.sylphia.data.PlayerData
+import me.racci.sylphia.enums.Special
 import me.racci.sylphia.origins.OriginHandler.OriginsMap.originsMap
 import me.racci.sylphia.utils.AttributeUtils
 import me.racci.sylphia.utils.PotionUtils
@@ -48,7 +49,6 @@ class OriginManager(private val plugin: Sylphia) {
         val playerData: PlayerData = playerManager.getPlayerData(player.uniqueId)!!
         return if (originsMap[playerData.origin] != null) playerData.origin!!.uppercase() else null
     }
-
     fun getOrigin(player: Player): Origin? {
         val originName = getOriginName(player)!!
         return if (originsMap.containsKey(originName)) originsMap[originName] else null
@@ -65,23 +65,56 @@ class OriginManager(private val plugin: Sylphia) {
             instance?.baseValue = AttributeUtils.getDefault(attribute)
         }
     }
-
-    fun add(
-        player: Player,
-        origin: Origin = getOrigin(player)!!,
-        condition: OriginValue = getCondition(player)
-    ) {
-
-        player.addPotionEffects(origin.conditionEffectMap[condition]!!)
+    fun add(player: Player, origin: Origin = getOrigin(player)!!, condition: OriginValue = getCondition(player)) {
         origin.conditionAttributeMap[condition]?.forEach { var1x ->
             player.getAttribute(var1x!!.attribute)!!.baseValue = var1x.value
         }
+        player.addPotionEffects(origin.conditionEffectMap[condition]!!)
+    }
+    fun refresh(player: Player, origin: Origin = getOrigin(player)!!, condition: OriginValue = getCondition(player)) {
+        reset(player)
+        add(player, origin, condition)
     }
 
-    fun refreshTime(
-        player: Player,
-        origin: Origin = getOrigin(player)!!
-    ) {
+    fun refreshSpecial(player: Player, origin: Origin = getOrigin(player)!!, playerData: PlayerData = playerManager.getPlayerData(player.uniqueId)!!) {
+        refreshNightVision(player, origin, playerData)
+        refreshSlowFalling(player, origin, playerData)
+        refreshJump(player, origin, playerData)
+    }
+
+    fun refreshNightVision(player: Player, origin: Origin = getOrigin(player)!!, playerData: PlayerData = playerManager.getPlayerData(player.uniqueId)!!) {
+        val nightVision = playerData.getOriginSetting(Special.NIGHTVISION)
+        if(origin.nightVision && nightVision > 0) {
+            when(nightVision) {
+                1 -> if(WorldTime.isNight(player)) player.addPotionEffect(PotionEffect(PotionEffectType.NIGHT_VISION, Int.MAX_VALUE, 0, true, false, false)) else player.removePotionEffect(PotionEffectType.NIGHT_VISION)
+                2 -> if(!player.hasPotionEffect(PotionEffectType.NIGHT_VISION) || player.getPotionEffect(PotionEffectType.NIGHT_VISION)?.hasIcon()!!) player.addPotionEffect(PotionEffect(PotionEffectType.NIGHT_VISION, Int.MAX_VALUE, 0, true, false, false))
+                else -> TODO()
+            }
+        }
+    }
+    fun refreshJump(player: Player, origin: Origin = getOrigin(player)!!, playerData: PlayerData = playerManager.getPlayerData(player.uniqueId)!!) {
+        val jumpBoost = playerData.getOriginSetting(Special.JUMPBOOST)
+        if(origin.jumpBoost > 0 ) {
+            if(jumpBoost > 0 && (!player.hasPotionEffect(PotionEffectType.JUMP) || player.getPotionEffect(PotionEffectType.JUMP)?.hasIcon()!!)) {
+                player.addPotionEffect(PotionEffect(PotionEffectType.JUMP, Int.MAX_VALUE, jumpBoost, true, false, false))
+            } else if(jumpBoost == 0 && !player.getPotionEffect(PotionEffectType.JUMP)?.hasIcon()!!) {
+                player.removePotionEffect(PotionEffectType.JUMP)
+            }
+        }
+    }
+    fun refreshSlowFalling(player: Player, origin: Origin = getOrigin(player)!!, playerData: PlayerData = playerManager.getPlayerData(player.uniqueId)!!) {
+        val slowFalling = playerData.getOriginSetting(Special.SLOWFALLING)
+        if(origin.slowFalling) {
+            if(slowFalling == 1 && (!player.hasPotionEffect(PotionEffectType.SLOW_FALLING) || player.getPotionEffect(PotionEffectType.SLOW_FALLING)?.hasIcon()!!)) {
+                player.addPotionEffect(PotionEffect(PotionEffectType.SLOW_FALLING, Int.MAX_VALUE, 0, true, false, false))
+            } else if(slowFalling == 0 && !player.getPotionEffect(PotionEffectType.SLOW_FALLING)?.hasIcon()!!) {
+                player.removePotionEffect(PotionEffectType.SLOW_FALLING)
+            }
+        }
+    }
+
+    fun refreshTime(player: Player,
+        origin: Origin = getOrigin(player)!!) {
         if (player.world.environment == World.Environment.NORMAL) {
             var remove: ArrayList<PotionEffect?>? = null
             var add: ArrayList<PotionEffect?>? = null
@@ -165,7 +198,7 @@ class Origin(nameMap: Map<OriginValue, String>,
             OriginValue.EL)
 
         for(originValue: OriginValue in mapTypes) {
-            val value: String = OriginValue.ODL.toString()
+            val value: String = originValue.toString()
             var dimension: OriginValue? = null
             var time: OriginValue? = null
             var liquid: OriginValue? = null

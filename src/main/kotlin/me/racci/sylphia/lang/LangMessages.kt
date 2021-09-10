@@ -68,7 +68,10 @@ enum class Command(path: String) : MessageKey {
     RELOAD("Reload"),
     SAVE_SAVED("Saved"),
     TOGGLE_ENABLED("Toggle.Enabled"),
-    TOGGLE_DISABLED("Toggle.Disabled");
+    TOGGLE_CURRENT("Toggle.Current"),
+    TOGGLE_SPECIFIC("Toggle.Specific"),
+    TOGGLE_DISABLED("Toggle.Disabled"),
+    TOGGLE_NO_PERMISSION("Toggle.NoPermission");
 
     override val path: String
 
