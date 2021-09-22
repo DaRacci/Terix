@@ -28,17 +28,16 @@ enum class ACFCoreMessage {
     HELP_SEARCH_HEADER;
 
     val path: String
-        get() = Companion.path
 
-    companion object {
-        private const val path = "Messages.Core"
+    init {
+        this.path = "Messages.Core.${this.name.lowercase()}"
     }
 }
 
 enum class ACFMinecraftMessage {
     INVALID_WORLD,
     YOU_MUST_BE_HOLDING_ITEM,
-    PLAYER_IS_VANISHED_CONFIRM,
+//    PLAYER_IS_VANISHED_CONFIRM,
     USERNAME_TOO_SHORT,
     IS_NOT_A_VALID_NAME,
     MULTIPLE_PLAYERS_MATCH,
@@ -50,9 +49,8 @@ enum class ACFMinecraftMessage {
     LOCATION_CONSOLE_NOT_RELATIVE;
 
     val path: String
-        get() = Companion.path
 
-    companion object {
-        private const val path = "Messages.Minecraft"
+    init {
+        this.path = "Messages.Minecraft.${this.name.lowercase()}"
     }
 }
