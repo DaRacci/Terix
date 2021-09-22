@@ -1,42 +1,46 @@
-@file:Suppress("unused")
-@file:JvmName("PlayerJoinLeaveEvent")
 package me.racci.sylphia.listeners
 
-import me.racci.raccilib.skedule.SynchronizationContext
 import me.racci.raccilib.skedule.skeduleAsync
-import me.racci.sylphia.Sylphia
-import me.racci.sylphia.data.PlayerManager
-import me.racci.sylphia.data.storage.StorageProvider
-import me.racci.sylphia.origins.OriginManager
+import me.racci.sylphia.extensions.PlayerExtension.currentOrigin
+import me.racci.sylphia.runnables.RainRunnable
+import me.racci.sylphia.runnables.SunLightRunnable
+import me.racci.sylphia.runnables.WaterRunnable
 import org.bukkit.event.EventHandler
 import org.bukkit.event.EventPriority
-import org.bukkit.event.Listener
-import org.bukkit.event.player.PlayerJoinEvent
-import org.bukkit.event.player.PlayerQuitEvent
 
-class PlayerJoinLeaveListener(private val plugin: Sylphia) : Listener {
+class PlayerJoinLeaveListener(private val plugin: me.racci.sylphia.Sylphia) : org.bukkit.event.Listener {
 
-    private val originManager: OriginManager = plugin.originManager!!
-    private val playerManager: PlayerManager = plugin.playerManager!!
-    private val storageProvider: StorageProvider = plugin.storageProvider!!
+    private val originManager: me.racci.sylphia.origins.OriginManager = plugin.originManager
+    private val playerManager: me.racci.sylphia.data.PlayerManager = plugin.playerManager
+    private val storageProvider: me.racci.sylphia.data.storage.StorageProvider = plugin.storageProvider
 
 
     @EventHandler(priority = EventPriority.LOWEST)
-    fun onJoin(event: PlayerJoinEvent) {
+    fun onJoin(event: org.bukkit.event.player.PlayerJoinEvent) {
         skeduleAsync(plugin) {
             val player = event.player
             if (playerManager.getPlayerData(player) == null) {
                 storageProvider.load(player)
                 waitFor(10)
             }
-            switchContext(SynchronizationContext.SYNC)
-            originManager.refresh(player)
+            if(originManager.getOrigin(player) == null) return@skeduleAsync
+            val origin = player.currentOrigin ?: return@skeduleAsync
+            originManager.refreshAll(player, origin)
+            if(origin.enableSun) SunLightRunnable.burnablePlayers.add(event.player)
+            if(origin.enableRain) RainRunnable.rainablePlayers.add(event.player)
+            if(origin.enableWater) WaterRunnable.waterablePlayers.add(event.player)
         }
     }
 
     @EventHandler(priority = EventPriority.LOWEST)
-    fun onQuit(event: PlayerQuitEvent) {
+    fun onQuit(event: org.bukkit.event.player.PlayerQuitEvent) {
         skeduleAsync(plugin) {
+            val burnablePlayers = SunLightRunnable.burnablePlayers
+            val rainablePlayers = RainRunnable.rainablePlayers
+            val waterablePlayers = WaterRunnable.waterablePlayers
+            if(burnablePlayers.contains(event.player)) burnablePlayers.remove(event.player)
+            if(rainablePlayers.contains(event.player)) rainablePlayers.remove(event.player)
+            if(waterablePlayers.contains(event.player)) waterablePlayers.remove(event.player)
             storageProvider.save(event.player, true)
         }
     }

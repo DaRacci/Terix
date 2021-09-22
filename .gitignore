@@ -1,2 +1,6 @@
 /.idea/
 /Server/
+/target
+/dependency-reduced-pom.xml
+/.gitignore
+/RaSylphia.iml

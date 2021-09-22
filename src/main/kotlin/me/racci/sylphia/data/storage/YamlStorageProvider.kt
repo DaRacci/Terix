@@ -51,7 +51,7 @@ class YamlStorageProvider(plugin: Sylphia) : StorageProvider(plugin) {
     }
 
     override fun save(player: Player, removeFromMemory: Boolean) {
-        val playerData = playerManager!!.getPlayerData(player) ?: return
+        val playerData = playerManager.getPlayerData(player) ?: return
         if (playerData.shouldNotSave()) return
         // Save lock
         if (playerData.isSaving) return

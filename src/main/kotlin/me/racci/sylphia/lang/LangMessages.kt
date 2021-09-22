@@ -82,11 +82,14 @@ enum class Command(path: String) : MessageKey {
 
 enum class Origins(path: String) : MessageKey {
 
-    COMMAND_GET("Origins.Command.Get"),
-    COMMAND_SET("Origins.Command.Set"),
-    COMMAND_UNSET("Origins.Command.Unset"),
-
-    RESULT_NULL("Origins.Result.NotNull"),
+    COMMAND_GET_HAS("Origins.Command.Get.HasOrigin"),
+    COMMAND_GET_NULL("Origins.Command.Get.NoOrigin"),
+    COMMAND_SET_SUCCESS("Origins.Command.Set.Success"),
+    COMMAND_SET_CURRENT("Origins.Command.Set.Current"),
+    COMMAND_RESET_SENDER("Origins.Command.Reset.Sender"),
+    COMMAND_RESET_TARGET("Origins.Command.Reset.Target"),
+    COMMAND_TOKEN_SENDER("Origins.Command.Token.Sender"),
+    COMMAND_TOKEN_TARGET("Origins.Command.Token.Target"),
 
     SELECT_BROADCAST("Origins.Select.Broadcast"),
     SELECT_LOCKED("Origins.Select.Locked"),

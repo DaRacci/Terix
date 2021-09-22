@@ -12,10 +12,10 @@ import org.bukkit.entity.Player
 
 abstract class StorageProvider protected constructor(internal val plugin: Sylphia) {
 
-    val playerManager: PlayerManager? = plugin.playerManager
+    val playerManager: PlayerManager = plugin.playerManager
     fun createNewPlayer(player: Player): PlayerData {
         val playerData = PlayerData(player, plugin)
-        playerManager!!.addPlayerData(playerData)
+        playerManager.addPlayerData(playerData)
         val event = DataLoadEvent(playerData)
         Bukkit.getPluginManager().callEvent(event)
         return playerData

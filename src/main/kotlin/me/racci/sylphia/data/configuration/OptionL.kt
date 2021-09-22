@@ -4,8 +4,14 @@ package me.racci.sylphia.data.configuration
 
 import me.racci.raccilib.Level
 import me.racci.raccilib.log
+import me.racci.raccilib.utils.strings.colour
 import me.racci.sylphia.Sylphia
+import me.racci.sylphia.enums.ValueType.*
+import me.racci.sylphia.enums.ValueType
+import org.apache.commons.lang3.EnumUtils
 import org.bukkit.ChatColor
+import org.bukkit.Material
+import org.bukkit.Sound
 import org.bukkit.configuration.file.FileConfiguration
 import org.bukkit.configuration.file.YamlConfiguration
 import java.io.InputStreamReader
@@ -18,44 +24,62 @@ class OptionL(private val plugin: Sylphia) {
         var loaded = 0
         val start = System.currentTimeMillis()
         for (option in Option.values()) {
-            //Get the value from config
             val value = config[option.path]
-            //Check if value exists
-            if (value != null) {
-                //Add if supposed to be int and value is int
-                if ((value is Int || value is Double) && option.type === OptionType.INT) {
-                    options[option] = OptionValue(value)
-                    loaded++
-                } else if ((value is Double || value is Int) && option.type === OptionType.DOUBLE) {
-                    options[option] = OptionValue(value)
-                    loaded++
-                } else if (value is Boolean && option.type === OptionType.BOOLEAN) {
-                    options[option] = OptionValue(value)
-                    loaded++
-                } else if ((value is String || value is Int || value is Double || value is Boolean) && option.type === OptionType.STRING) {
-                    options[option] = OptionValue(value.toString())
-                    loaded++
-                } else if (value is List<*> && option.type === OptionType.LIST) {
-                    options[option] = OptionValue(value)
-                    loaded++
-                } else if (value is String && option.type === OptionType.COLOR) {
-                    options[option] = OptionValue(ChatColor.valueOf(value.toString()))
-                    loaded++
-                } else {
-                    log(
-                        Level.WARNING,
-                        "Incorrect type in config.yml: Option " + option.name + " with path " + option.path + " should be of type " + option.type.name + ", using default value instead!"
-                    )
+            if(value != null) {
+                when(option.type) {
+                    INT, DOUBLE -> {
+                        if(value is Int || value is Double) {
+                            options[option] = OptionValue(value)
+                            loaded++
+                        } else optionError(option)
+                    }
+                    BOOLEAN -> {
+                        if(value is Boolean) {
+                            options[option] = OptionValue(value)
+                            loaded++
+                        } else optionError(option)
+                    }
+                    STRING -> {
+                        if(value is String || value is Int || value is Double || value is Boolean) {
+                            options[option] = OptionValue((colour(value.toString())) as Any)
+                            loaded++
+                        } else optionError(option)
+                    }
+                    LIST -> {
+                        if(value is List<*>) {
+                            options[option] = OptionValue((colour(value as List<String>) as Any))
+                            loaded++
+                        } else optionError(option)
+                    }
+                    COLOR -> {
+                        if(EnumUtils.isValidEnumIgnoreCase(ChatColor::class.java, value as String?)) {
+                            options[option] = OptionValue(value)
+                            loaded++
+                        } else optionError(option)
+                    }
+                    ValueType.SOUND -> {
+                        if(EnumUtils.isValidEnumIgnoreCase(Sound::class.java, value as String?)) {
+                            options[option] = OptionValue(value)
+                            loaded++
+                        } else optionError(option)
+                    }
+                    MATERIAL -> {
+                        if(EnumUtils.isValidEnumIgnoreCase(Material::class.java, value as String?)) {
+                            options[option] = OptionValue(value)
+                            loaded++
+                        } else optionError(option)
+                    }
                 }
             } else {
-                log(
-                    Level.WARNING,
-                    "Missing value in config.yml: Option " + option.name + " with path " + option.path + " was not found, using default value instead!"
-                )
+                log(Level.WARNING,"Missing value in config.yml: Option " + option.name + " with path " + option.path + " was not found, using default value instead!")
             }
         }
         val end = System.currentTimeMillis()
-        log(Level.WARNING, "Loaded " + loaded + " config options in " + (end - start) + " ms")
+        log(Level.INFO, "Loaded " + loaded + " config options in " + (end - start) + " ms")
+    }
+
+    private fun optionError(option: Option) {
+        log(Level.WARNING,"Missing value in config.yml: Option " + option.name + " with path " + option.path + " was not found, using default value instead!")
     }
 
     private fun loadDefaultOptions() {
@@ -63,11 +87,11 @@ class OptionL(private val plugin: Sylphia) {
         if (inputStream != null) {
             val config: FileConfiguration = YamlConfiguration.loadConfiguration(InputStreamReader(inputStream))
             for (option in Option.values()) {
-                if (option.type === OptionType.INT) {
+                if (option.type === INT) {
                     options[option] = OptionValue(config.getInt(option.path))
-                } else if (option.type === OptionType.DOUBLE) {
+                } else if (option.type === DOUBLE) {
                     options[option] = OptionValue(config.getDouble(option.path))
-                } else if (option.type === OptionType.BOOLEAN) {
+                } else if (option.type === BOOLEAN) {
                     options[option] = OptionValue(config.getBoolean(option.path))
                 }
             }
@@ -79,24 +103,29 @@ class OptionL(private val plugin: Sylphia) {
             Option::class.java
         )
 
-        fun getDouble(option: Option): Double {
-            return options[option]!!.asDouble()
-        }
-
         fun getInt(option: Option): Int {
             return options[option]!!.asInt()
         }
-
+        fun getDouble(option: Option): Double {
+            return options[option]!!.asDouble()
+        }
         fun getBoolean(option: Option): Boolean {
             return options[option]!!.asBoolean()
         }
-
         fun getString(option: Option): String {
             return options[option]!!.asString()
         }
-
         fun getList(option: Option): List<String> {
             return options[option]!!.asList()
+        }
+        fun getColour(option: Option): ChatColor {
+            return options[option]!!.asColour()
+        }
+        fun getSound(option: Option): Sound {
+            return options[option]!!.asSound()
+        }
+        fun getMaterial(option: Option): Material {
+            return options[option]!!.asMaterial()
         }
     }
 }

@@ -14,20 +14,17 @@ import org.bukkit.event.player.PlayerItemConsumeEvent
 
 class PlayerConsumeListener(private val plugin: Sylphia) : Listener {
 
-    private var originManager: OriginManager = plugin.originManager!!
+    private var originManager: OriginManager = plugin.originManager
 
     @EventHandler(priority = EventPriority.HIGH)
     fun onConsume(event: PlayerItemConsumeEvent) {
         skeduleAsync(plugin) {
-            if (event.isCancelled) {
+            if (event.isCancelled || originManager.getOrigin(event.player.uniqueId) == null) {
                 return@skeduleAsync
             }
-
-            val player = event.player
             if (event.item.type == Material.MILK_BUCKET) {
                 waitFor(20)
-                switchContext(SynchronizationContext.SYNC)
-                originManager.refresh(player)
+                originManager.refreshAll(event.player)
             }
         }
     }

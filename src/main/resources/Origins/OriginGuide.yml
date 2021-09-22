@@ -1,0 +1,164 @@
+# Sounds: https://hub.spigotmc.org/javadocs/bukkit/org/bukkit/Sound.html
+# Effects: https://hub.spigotmc.org/javadocs/bukkit/org/bukkit/potion/PotionEffectType.html
+# Only some attributes from this list are usable for players,
+# If an incorrect attribute is used the console will report an error
+# Attributes: https://hub.spigotmc.org/javadocs/bukkit/org/bukkit/attribute/Attribute.html
+# Attributes Defaults and limits: https://minecraft.fandom.com/wiki/Attribute#Attributes
+# Minecraft Codes: https://www.digminecraft.com/lists/color_list_pc.php
+# Hex Colour Picker: https://htmlcolorcodes.com/color-picker/
+# Base64 for the head can be found under the Other then under value.
+# Example: eyJ0ZXh0dXJlcyI6eyJTS0lOIjp7InVybCI6Imh0dHA6Ly90ZXh0dXJlcy5taW5lY3JhZnQubmV0L3RleHR1cmUvYjAyZDJjMjU0YmZhOWIzMTVkMDJiNTljZGIwYzM0NjkzOGNmZTc0ZjMzZWVkN2YzY2NkYzNhNmY4MWQ5Y2U2NCJ9fX0=
+# Heads: https://minecraft-heads.com/custom-heads
+# Materials: https://hub.spigotmc.org/javadocs/bukkit/org/bukkit/Material.html
+
+Identity:
+  Name: Human
+  # The Colour could be a hex code such as "#ff9c38"
+  # or the standard Minecraft colour codes such as "&8"
+  Colour: "#ff9c38"
+# You are able to use any sound from the sounds found at
+# the link for Sounds at the top of this file.
+Sound:
+  Hurt: ENTITY_PLAYER_HURT
+  Death: ENTITY_PLAYER_DEATH
+Permissions:
+  # If blank no permission will be required to select
+  # the origin, only one required permission is supported.
+  Required: sylphia.origins.human
+  # You can have any amount of permissions given to an origin,
+  # The must be in a list
+  Given:
+# The time messages can be left empty to disable them.
+# Any hex or standard colour code and be used.
+# The sound can be left empty to disable it,
+# Sounds can be found at the top of this file.
+Time-Message:
+  Day:
+    Title: "&2Day!"
+    Subtitle: "&eA new day has begun!"
+    Sound: BLOCK_NOTE_BLOCK_BASS
+  Night:
+    Title: "&5Night.."
+    Subtitle: "&3The night has come upon us.."
+    Sound: BLOCK_NOTE_BLOCK_BASS
+# The Booleans must be enabled for each list
+# To be registered.
+# Effects and Attributes must be given in a list.
+# Usable Effects and Attributes can be Found at the
+# Top of this file.
+# Attributes and Effects must be in the format as follows
+# INCREASE_DAMAGE:1
+# GENERIC_MAX_HEALTH:20
+Passives:
+  # General effects and attributes that have no
+  # conditions tied to them.
+  Enabled: true
+  # Time effects and attributes only have effect
+  # in the overworld.
+  Time: false
+  # Liquid effects are applied when entering and
+  # exiting water and lava.
+  Liquid: false
+  # Dimension effects are applied when changing world
+  Dimension: false
+  # Toggles are player toggleable by commands
+  # Slow-falling and Night-vision are only true or false,
+  # Jump-boost can be any level, 0 and false both disable it.
+  Toggle:
+    Slow-falling: false
+    Night-vision: false
+    Jump-boost: 0
+  General:
+    Effects:
+      - DAMAGE_RESISTANCE:2
+    Attributes:
+      - GENERIC_MOVEMENT_SPEED:0.12
+  Day:
+    Effects: {}
+    Attributes: {}
+  Night:
+    Effects: {}
+    Attributes: {}
+  Water:
+    Effects: {}
+    Attributes: {}
+  Lava:
+    Effects: {}
+    Attributes: {}
+  Overworld:
+    Effects: {}
+    Attributes: {}
+  Nether:
+    Effects: {}
+    Attributes: {}
+  End:
+    Effects: {}
+    Attributes: {}
+# The damage Boolean if disabled will not
+# modify damage values at all.
+Damage:
+  Sun: false
+  Fall: false
+  Rain: false
+  Water: false
+  Lava: false
+  # Damage Amounts are percentage based,
+  # These can be between 0 and 10,000.
+  # If the value is 0 this will disable damage
+  # from the source entirely
+  # For the non-standard damage sources,
+  # The base amounts are as follows
+  # Sun = 2
+  # Rain = 1
+  # Water = 2
+  Amounts:
+    Sun: 0
+    Fall: 100
+    Rain: 0
+    Water: 0
+    Lava: 100
+Abilities:
+  LifeSteal:
+    Enabled: false
+    Percent: 100
+    Cooldown: false
+    Tools:
+      - SWORD
+  SilkTouch:
+    Enabled: false
+    Chance: 100
+    Cooldown: false
+    Tools:
+      - FIST
+  Teleport:
+    Enabled: false
+    Limit: 16
+    Cooldown: false
+GUI:
+  # Enables or disables the origin appearing in the GUI
+  Enabled: true
+  # Handles the item inside the GUI
+  Item:
+    # Decides the slot that this appears in
+    Slot: 11
+    # Material can be base64 for a head or normal Material,
+    # If invalid the item will be a Barrier block,
+    # If using a head base64 value make sure it is surrounded with ""
+    # A Material list and head lookup is linked at the top
+    # of this file.
+    Material: APPLE
+    # If the item should glow
+    Glow: false
+  # All lore should be in a list
+  # Leaving one of these sections blank
+  # will disable the title of spaces from appearing
+  # on the items lore
+  Lore:
+    Description:
+      - "#ff9c38Generic human twat"
+    Passives:
+      - "&e+Generic human"
+    Abilities:
+      - "&aGeneric baby making"
+    Debuffs:
+      - "&c-Mortal"

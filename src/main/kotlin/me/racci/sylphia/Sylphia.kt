@@ -3,10 +3,14 @@
 package me.racci.sylphia
 
 import co.aikar.commands.BukkitCommandExecutionContext
+import co.aikar.commands.ConditionFailedException
 import co.aikar.commands.PaperCommandManager
+import me.clip.placeholderapi.libs.kyori.adventure.platform.bukkit.BukkitAudiences
 import me.racci.raccilib.Level
 import me.racci.raccilib.log
 import me.racci.sylphia.commands.OriginCommand
+import me.racci.sylphia.commands.SpecialCommands
+import me.racci.sylphia.commands.SylphiaCommand
 import me.racci.sylphia.data.PlayerData
 import me.racci.sylphia.data.PlayerManager
 import me.racci.sylphia.data.configuration.OptionL
@@ -17,11 +21,15 @@ import me.racci.sylphia.hook.perms.LuckPermsHook
 import me.racci.sylphia.hook.perms.PermManager
 import me.racci.sylphia.lang.Lang
 import me.racci.sylphia.listeners.*
+import me.racci.sylphia.managers.ItemManager
+import me.racci.sylphia.managers.SoundManager
+import me.racci.sylphia.managers.WorldManager
 import me.racci.sylphia.origins.Origin
 import me.racci.sylphia.origins.OriginHandler
 import me.racci.sylphia.origins.OriginManager
-import me.racci.sylphia.origins.OriginManager.Origins
-import me.racci.sylphia.utils.WorldManager
+import me.racci.sylphia.runnables.RainRunnable
+import me.racci.sylphia.runnables.SunLightRunnable
+import me.racci.sylphia.runnables.WaterRunnable
 import net.luckperms.api.LuckPerms
 import org.bukkit.Bukkit
 import org.bukkit.configuration.ConfigurationSection
@@ -31,25 +39,33 @@ import org.bukkit.plugin.java.JavaPlugin
 import java.io.File
 import java.io.InputStream
 import java.io.InputStreamReader
+import java.util.*
 
 
 class Sylphia: JavaPlugin() {
 
     // Configs
-    var lang: Lang? = null
-    var optionLoader: OptionL? = null
+    lateinit var lang: Lang ; private set
+    private lateinit var optionLoader: OptionL ; private set
     // Plugin Integrations
-    var luckPerms: Boolean? = null
-    var placeholderAPI: Boolean? = null
+    private var luckPerms: Boolean = false ; private set
+    private var placeholderAPI: Boolean = false ; private set
     // Misc
-    var storageProvider: StorageProvider? = null
+    lateinit var storageProvider: StorageProvider ; private set
     // Managers
-    var permManager: PermManager? = null
-    var worldManager: WorldManager? = null
-    var playerManager: PlayerManager? = null
-    var originHandler: OriginHandler? = null
-    var originManager: OriginManager? = null
-    var commandManager: PaperCommandManager? = null
+    lateinit var audienceManager: BukkitAudiences ; private set
+    private lateinit var soundManager: SoundManager ; private set
+    private lateinit var permManager: PermManager ; private set
+    lateinit var worldManager: WorldManager ; private set
+    lateinit var playerManager: PlayerManager ; private set
+    lateinit var itemManager: ItemManager ; private set
+    lateinit var originHandler: OriginHandler ; private set
+    lateinit var originManager: OriginManager ; private set
+    private lateinit var commandManager: PaperCommandManager ; private set
+
+    companion object {
+        lateinit var instance: Sylphia
+    }
 
     override fun onEnable() {
         log(Level.OUTLINE, "&m---------------------------------------------")
@@ -59,27 +75,64 @@ class Sylphia: JavaPlugin() {
         loadLang()
         loadHooks()
 
+        instance = this
+
+        loadAudienceManager()
         loadPermManager()
         loadWorldManager()
         loadStorageManager()
         loadOriginsManager()
+        loadItemManager()
 
         registerCommands()
         registerEvents()
+        registerRunnables()
+        registerSoundManager()
+
 
         log(Level.SUCCESS, "Sylphia has finished loading successfully!")
         log(Level.OUTLINE, "&m---------------------------------------------")
     }
 
     override fun onDisable() {
-        for(playerData: PlayerData in playerManager!!.playerDataMap.values) {
-            storageProvider!!.save(playerData.player, true)
-        }
-        playerManager!!.playerDataMap.clear()
-        if(File(dataFolder, "config.yml").exists()) {
+
+        playerManager.playerDataMap.values.map(PlayerData::player).map { it }.forEach(storageProvider::save)
+        playerManager.playerDataMap.clear()
+        audienceManager.close()
+        if (File(dataFolder, "config.yml").exists()) {
             reloadConfig()
             saveConfig()
         }
+
+    }
+
+    fun handleReload() {
+        log(Level.OUTLINE, "&m---------------------------------------------")
+        log(Level.INFO, "Sylphia has started reloading!")
+
+        optionLoader.loadOptions()
+        lang.loadLang(commandManager)
+        audienceManager.close()
+        audienceManager = BukkitAudiences.create(this)
+        worldManager.loadWorlds(this)
+        originHandler.loadOrigins()
+        Bukkit.getOnlinePlayers().forEach { player1x ->
+            if(originManager.getOrigin(player1x.uniqueId) == null) return@forEach
+            originManager.refreshAll(player1x)
+        }
+        itemManager.loadItems()
+        commandManager.commandContexts.registerContext(Origin::class.java)
+        { c: BukkitCommandExecutionContext -> OriginManager.valueOf(c.popFirstArg()) }
+        commandManager.commandCompletions.registerAsyncCompletion("origins") {
+            val values: MutableList<String> = ArrayList()
+            for (origin in OriginManager.values()) {
+                values.add(origin.name.replaceFirstChar { if (it.isLowerCase()) it.titlecase(Locale.getDefault()) else it.toString() })
+            }
+            values
+        }
+
+        log(Level.SUCCESS, "Sylphia has finished reloading successfully!")
+        log(Level.OUTLINE, "&m---------------------------------------------")
     }
 
     // TODO This shit???
@@ -97,23 +150,27 @@ class Sylphia: JavaPlugin() {
         }
         saveConfig()
         optionLoader = OptionL(this)
-        optionLoader!!.loadOptions()
+        optionLoader.loadOptions()
     }
 
     // TODO This shit???
     private fun loadLang() {
         lang = Lang(this)
         commandManager = PaperCommandManager(this)
-        server.pluginManager.registerEvents(lang!!, this)
-        lang?.loadLang(commandManager!!)
+        server.pluginManager.registerEvents(lang, this)
+        lang.loadLang(commandManager)
     }
 
     private fun loadHooks() {
         placeholderAPI = Bukkit.getPluginManager().isPluginEnabled("PlaceholderAPI")
-        if (placeholderAPI as Boolean) {
+        if (placeholderAPI) {
             PlaceholderAPIHook(this).register()
             log(Level.INFO, "Hooked PlaceholderAPI!")
         }
+    }
+
+    private fun loadAudienceManager() {
+        audienceManager = BukkitAudiences.create(this)
     }
 
     private fun loadPermManager() {
@@ -130,8 +187,6 @@ class Sylphia: JavaPlugin() {
 
     private fun loadWorldManager() {
         worldManager = WorldManager(this)
-        worldManager!!.loadWorlds()
-        log(Level.INFO, "Loaded World Manager")
     }
 
     private fun loadStorageManager() {
@@ -145,35 +200,62 @@ class Sylphia: JavaPlugin() {
         originHandler = OriginHandler(this)
     }
 
+    private fun loadItemManager() {
+        itemManager = ItemManager()
+    }
+
     private fun registerCommands() {
-        commandManager!!.enableUnstableAPI("help") // TODO Look into why this is deprecated
-        commandManager!!.usePerIssuerLocale(true, false) // TODO Look into if this is actually needed or not
+        commandManager.enableUnstableAPI("help") // TODO Look into why this is deprecated
+        commandManager.locales.defaultLocale = Locale.ENGLISH
+        commandManager.usePerIssuerLocale(true, false) // TODO Look into if this is actually needed or not
         // Context? TODO I don't know what the fuck context is used for!!!
-        commandManager!!.commandContexts.registerContext(Origin::class.java) // TODO Make this shit smaller again???
-            { c: BukkitCommandExecutionContext -> Origins.valueOf(c.popFirstArg()) }
+        commandManager.commandContexts.registerContext(Origin::class.java) // TODO Make this shit smaller again???
+            { c: BukkitCommandExecutionContext -> OriginManager.valueOf(c.popFirstArg()) }
         // Completions
-        commandManager!!.commandCompletions.registerAsyncCompletion("origins") {
+        commandManager.commandCompletions.registerAsyncCompletion("origins") {
             val values: MutableList<String> = ArrayList()
-            for (origin in Origins.values()) {
-                values.add(origin.toString().lowercase())
+            for (origin in OriginManager.values()) {
+                values.add(origin.name.replaceFirstChar { if (it.isLowerCase()) it.titlecase(Locale.getDefault()) else it.toString() })
             }
             values
         }
+        commandManager.commandConditions.addCondition(Int::class.java, "limits") { c, exec, value ->
+            if (value == null) {
+                return@addCondition
+            }
+            if (c.hasConfig("min") && c.getConfigValue("min", 0) > value) {
+                throw ConditionFailedException("Min value must be " + c.getConfigValue("min", 0))
+            }
+            if (c.hasConfig("max") && c.getConfigValue("max", 3) < value) {
+                throw ConditionFailedException("Max value must be " + c.getConfigValue("max", 3))
+            }
+        }
         // Command Registering
-        commandManager!!.registerCommand(OriginCommand(this))
-//		commandManager!!.registerCommand(OriginSelector());
+        commandManager.registerCommand(OriginCommand(this))
+        commandManager.registerCommand(SylphiaCommand(this))
+        SpecialCommands(this, commandManager)
     }
 
     private fun registerEvents() {
         val pm: PluginManager = server.pluginManager
-        pm.registerEvents(PlayerMoveListener(this), this)
+        pm.registerEvents(PlayerMoveListener(originManager), this)
         pm.registerEvents(PlayerConsumeListener(this), this)
         pm.registerEvents(PlayerJoinLeaveListener(this), this)
         pm.registerEvents(PlayerRespawnListener(this), this)
         pm.registerEvents(PlayerDamageListener(this), this)
         pm.registerEvents(PlayerChangeWorldListener(this), this)
+        pm.registerEvents(OriginEventListener(this), this)
+        pm.registerEvents(RunnableListener(), this)
     }
 
+    private fun registerRunnables() {
+        val pm: PluginManager = server.pluginManager
+        SunLightRunnable(pm).runTaskTimerAsynchronously(this, 0L, 20)
+        RainRunnable(pm).runTaskTimerAsynchronously(this, 0L, 20)
+        WaterRunnable(pm).runTaskTimerAsynchronously(this, 0L, 20)
+    }
 
-
+    private fun registerSoundManager() {
+        soundManager = SoundManager(this)
+    }
 }

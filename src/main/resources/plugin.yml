@@ -4,7 +4,7 @@ main: me.racci.sylphia.Sylphia
 api-version: 1.17
 prefix: Sylphia
 load: POSTWORLD
-depend: [ RacciLib ]
+depend: [ RacciLib, ProtocolLib ]
 softdepend:
   - LuckPerms
   - PlaceholderAPI

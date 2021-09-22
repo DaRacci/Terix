@@ -9,14 +9,13 @@ import me.racci.raccilib.utils.items.builders.ItemBuilder
 import me.racci.raccilib.utils.strings.LegacyUtils
 import me.racci.raccilib.utils.strings.colour
 import me.racci.sylphia.Sylphia
-import me.racci.sylphia.enums.Path
 import me.racci.sylphia.lang.Lang
 import me.racci.sylphia.lang.Origins
-import me.racci.sylphia.origins.OriginHandler.OriginsMap.originsMap
+import me.racci.sylphia.origins.OriginFile.*
+import me.racci.sylphia.origins.OriginHandler.OriginsMap.origins
 import me.racci.sylphia.utils.AttributeUtils
 import me.racci.sylphia.utils.PotionUtils
 import net.kyori.adventure.text.Component
-import org.apache.commons.collections4.MapUtils.emptyIfNull
 import org.apache.commons.lang3.EnumUtils
 import org.bukkit.Bukkit
 import org.bukkit.Material
@@ -39,30 +38,30 @@ class OriginHandler(private val plugin: Sylphia): Listener {
 
     private val scheduler: BukkitScheduler = Bukkit.getScheduler()
     private val spaces = "              "
-    private val passives = LegacyUtils.parseLegacy(spaces + Lang.Messages.get(Origins.LORE_PASSIVES))!!
-    private val abilities = LegacyUtils.parseLegacy(spaces + Lang.Messages.get(Origins.LORE_ABILITIES))!!
-    private val debuffs = LegacyUtils.parseLegacy(spaces + Lang.Messages.get(Origins.LORE_DEBUFFS))!!
-    private val select = LegacyUtils.parseLegacy(Lang.Messages.get(Origins.LORE_SELECT))!!
+    private val passives = LegacyUtils.parseLegacy(spaces + Lang.Messages.get(Origins.LORE_PASSIVES))
+    private val abilities = LegacyUtils.parseLegacy(spaces + Lang.Messages.get(Origins.LORE_ABILITIES))
+    private val debuffs = LegacyUtils.parseLegacy(spaces + Lang.Messages.get(Origins.LORE_DEBUFFS))
+    private val select = LegacyUtils.parseLegacy(Lang.Messages.get(Origins.LORE_SELECT))
     private val indent: String = Lang.Messages.get(Origins.LORE_INDENT) + " "
 
     object OriginsMap {
-        internal val originsMap: HashMap<String, Origin> = HashMap()
+        internal val origins: HashMap<String, Origin> = HashMap()
         fun get(): HashMap<String, Origin> {
-            return originsMap
+            return origins
         }
     }
 
     init {
-        refreshOrigins()
+        loadOrigins()
     }
 
-    fun refreshOrigins() {
-        originsMap.clear()
+    fun loadOrigins() {
+        origins.clear()
         val file: Map<String, YamlConfiguration> = getAllOriginConfigurations()
         if(file.isNotEmpty()) {
             for(originEntry: Map.Entry<String, YamlConfiguration> in file.entries) {
-                if(!originsMap.containsKey(originEntry.key)) {
-                    originsMap[originEntry.key] = createOrigin(originEntry.key, originEntry.value)
+                if(!origins.containsKey(originEntry.key)) {
+                    origins[originEntry.key] = createOrigin(originEntry.value)
                 }
             }
         } else {
@@ -71,172 +70,182 @@ class OriginHandler(private val plugin: Sylphia): Listener {
 
     }
 
-    private fun createOrigin(origin: String, config: YamlConfiguration): Origin {
+    private fun createOrigin(config: YamlConfiguration): Origin {
 
-        val nameMap = LinkedHashMap<OriginValue, String>()
+        val identityMap = LinkedHashMap<OriginValue, String>()
         val soundMap = LinkedHashMap<OriginValue, Sound>()
         val timeMessageMap = LinkedHashMap<OriginValue, String?>()
-        val permissionMap = LinkedHashMap<OriginValue, ArrayList<String?>?>()
-        val effectEnableMap = LinkedHashMap<OriginValue, Boolean>()
-        val specialMap = LinkedHashMap<OriginValue, Int>()
-        val effectMap = LinkedHashMap<OriginValue, List<PotionEffect?>?>()
-        val attributeMap = LinkedHashMap<OriginValue, List<OriginAttribute?>?>()
+        val permissionMap = LinkedHashMap<OriginValue, Any?>()
+        val passiveEnableMap = LinkedHashMap<OriginValue, Boolean>()
+        val toggleMap = LinkedHashMap<OriginValue, Any>()
+        val effectMap = LinkedHashMap<OriginValue, HashSet<PotionEffect>>()
+        val attributeMap = LinkedHashMap<OriginValue, HashSet<OriginAttribute>>()
         val damageEnableMap = LinkedHashMap<OriginValue, Boolean>()
         val damageAmountMap = LinkedHashMap<OriginValue, Int>()
-        val guiItem = LinkedHashMap<OriginValue, Any>()
-        val item: ItemStack?
-        val slot: Int?
+        val guiItem = LinkedHashMap<OriginValue, Any?>()
 
-        // Names and colours
-        val name: String = config.getString(Path.NAME.path) ?: "null"
-        val colour = colour(config.getString(Path.COLOUR.path) ?: "&8", true)
-        nameMap[OriginValue.NAME] = name
-        nameMap[OriginValue.COLOUR] = colour!!
-        nameMap[OriginValue.DISPLAY_NAME] = colour + name
-        nameMap[OriginValue.BRACKET_NAME] = "$colour[$name]"
-        // Sounds
+        val attributeBase = HashMap<OriginValue, HashSet<BaseAttribute>>()
+        val attributeModifier = HashMap<OriginValue, HashSet<AttributeModifier>>()
 
-        soundMap[OriginValue.HURT] = Sound.valueOf(config.getString(Path.HURT.path)?: "ENTITY_PLAYER_HURT")
-        soundMap[OriginValue.DEATH] = Sound.valueOf(config.getString(Path.DEATH.path)?: "ENTITY_PLAYER_DEATH")
-        // Time titles and subtitles
-        timeMessageMap[OriginValue.DAY_TITLE] = colour(config.getString(Path.DAY_TITLE.path), true)
-        timeMessageMap[OriginValue.DAY_SUBTITLE] = colour(config.getString(Path.DAY_SUBTITLE.path), true)
-        timeMessageMap[OriginValue.NIGHT_TITLE] = colour(config.getString(Path.NIGHT_TITLE.path), true)
-        timeMessageMap[OriginValue.NIGHT_SUBTITLE] = colour(config.getString(Path.NIGHT_SUBTITLE.path), true)
-        // Permissions
-        permissionMap[OriginValue.PERMISSION_REQUIRED] = ArrayList(config.getStringList(Path.REQUIRED.path))
-        permissionMap[OriginValue.PERMISSION_GIVEN] = ArrayList(config.getStringList(Path.GIVEN.path))
-        // Effect enables
-        effectEnableMap[OriginValue.GENERAL] = config.getBoolean(Path.GENERAL_ENABLE.path)
-        effectEnableMap[OriginValue.TIME] = config.getBoolean(Path.TIME_ENABLE.path)
-        effectEnableMap[OriginValue.LIQUID] = config.getBoolean(Path.LIQUID_ENABLE.path)
-        effectEnableMap[OriginValue.DIMENSION] = config.getBoolean(Path.LIQUID_ENABLE.path)
-        // Toggleable effects
-        specialMap[OriginValue.SPECIAL_SLOWFALLING] = if (config.getBoolean(Path.SLOWFALLING.path)) 0 else 1
-        specialMap[OriginValue.SPECIAL_NIGHTVISION] = if (config.getBoolean(Path.NIGHTVISION.path)) 0 else 1
-        specialMap[OriginValue.SPECIAL_JUMPBOOST] = config.getInt(Path.JUMPBOOST.path)
-        // Damage enables
-        damageEnableMap[OriginValue.DAMAGE] = config.getBoolean(Path.DAMAGE_ENABLE.path)
-        damageEnableMap[OriginValue.SUN] = config.getBoolean(Path.SUN_ENABLE.path)
-        damageEnableMap[OriginValue.FALL] = config.getBoolean(Path.FALL_ENABLE.path)
-        damageEnableMap[OriginValue.RAIN] = config.getBoolean(Path.RAIN_ENABLE.path)
-        damageEnableMap[OriginValue.WATER] = config.getBoolean(Path.WATER_ENABLE.path)
-        damageEnableMap[OriginValue.LAVA] = config.getBoolean(Path.LAVA_ENABLE.path)
-        // Damage amounts
-        damageAmountMap[OriginValue.SUN] = config.getInt(Path.SUN_AMOUNT.path)
-        damageAmountMap[OriginValue.FALL] = config.getInt(Path.FALL_AMOUNT.path)
-        damageAmountMap[OriginValue.RAIN] = config.getInt(Path.RAIN_AMOUNT.path)
-        damageAmountMap[OriginValue.WATER] = config.getInt(Path.WATER_AMOUNT.path)
-        damageAmountMap[OriginValue.LAVA] = config.getInt(Path.LAVA_AMOUNT.path)
 
-        validateAttribute(Path.GENERAL_ATTRIBUTES.path, OriginValue.GENERAL, config)
-        if(effectEnableMap[OriginValue.GENERAL] == true) {
-            attributeMap.putAll(validateAttribute(Path.GENERAL_ATTRIBUTES.path, OriginValue.GENERAL, config))
-            effectMap.putAll(emptyIfNull(validatePotion(Path.GENERAL_EFFECTS.path, OriginValue.GENERAL, config)))
-        }
-        if(effectEnableMap[OriginValue.TIME] == true) {
-            attributeMap.putAll(emptyIfNull(validateAttribute(Path.DAY_ATTRIBUTES.path, OriginValue.DAY, config)))
-            effectMap.putAll(emptyIfNull(validatePotion(Path.DAY_EFFECTS.path, OriginValue.DAY, config)))
-            attributeMap.putAll(emptyIfNull(validateAttribute(Path.NIGHT_ATTRIBUTES.path, OriginValue.NIGHT, config)))
-            effectMap.putAll(emptyIfNull(validatePotion(Path.NIGHT_EFFECTS.path, OriginValue.NIGHT, config)))
-        }
-        if(effectEnableMap[OriginValue.LIQUID] == true) {
-            attributeMap.putAll(emptyIfNull(validateAttribute(Path.WATER_ATTRIBUTES.path, OriginValue.WATER, config)))
-            effectMap.putAll(emptyIfNull(validatePotion(Path.WATER_EFFECTS.path, OriginValue.WATER, config)))
-            attributeMap.putAll(emptyIfNull(validateAttribute(Path.LAVA_ATTRIBUTES.path, OriginValue.LAVA, config)))
-            effectMap.putAll(emptyIfNull(validatePotion(Path.LAVA_EFFECTS.path, OriginValue.LAVA, config)))
-        }
-        if(effectEnableMap[OriginValue.DIMENSION] == true) {
-            attributeMap.putAll(emptyIfNull(validateAttribute(Path.OVERWORLD_ATTRIBUTES.path, OriginValue.OVERWORLD, config)))
-            effectMap.putAll(emptyIfNull(validatePotion(Path.OVERWORLD_EFFECTS.path, OriginValue.OVERWORLD, config)))
-            attributeMap.putAll(emptyIfNull(validateAttribute(Path.NETHER_ATTRIBUTES.path, OriginValue.NETHER, config)))
-            effectMap.putAll(emptyIfNull(validatePotion(Path.NETHER_EFFECTS.path, OriginValue.NETHER, config)))
-            attributeMap.putAll(emptyIfNull(validateAttribute(Path.END_ATTRIBUTES.path, OriginValue.END, config)))
-            effectMap.putAll(emptyIfNull(validatePotion(Path.END_EFFECTS.path, OriginValue.END, config)))
-        }
-        var itemStack: ItemStack? = null
-        if(!config.isSet(Path.GUI_SKULL.path) || (config.isBoolean(
-                Path.GUI_SKULL.path) && !config.getBoolean(
-                Path.GUI_SKULL.path))) {
-            if(EnumUtils.isValidEnum(Material::class.java, config.getString(Path.GUI_MATERIAL.path))) {
-                itemStack = ItemStack(Material.getMaterial(config.getString(Path.GUI_MATERIAL.path) ?: "APPLE")!!)
+        var var1: Any? = config.getString(IDENTITY_NAME.path) ?: IDENTITY_NAME.default
+        var var2: Any? = colour(config.getString(IDENTITY_COLOUR.path)) ?: IDENTITY_COLOUR.default
+
+        identityMap[OriginValue.NAME] = var1 as String
+        identityMap[OriginValue.COLOUR] = var2 as String
+        identityMap[OriginValue.DISPLAY_NAME] = "$var2$var1"
+        identityMap[OriginValue.BRACKET_NAME] = "$var2[$var1]"
+
+        soundMap[OriginValue.HURT] = Sound.valueOf(config.getString(SOUND_HURT.path) ?: "ENTITY_PLAYER_HURT")
+        soundMap[OriginValue.DEATH] = Sound.valueOf(config.getString(SOUND_HURT.path) ?: "ENTITY_PLAYER_DEATH")
+        soundMap[OriginValue.DAY_SOUND] = Sound.valueOf(config.getString(DAY_SOUND.path) ?: "ENTITY_PLAYER_HURT")
+        soundMap[OriginValue.NIGHT_SOUND] = Sound.valueOf(config.getString(NIGHT_SOUND.path) ?: "ENTITY_PLAYER_HURT")
+
+        timeMessageMap[OriginValue.DAY_TITLE] = colour(config.getString(DAY_TITLE.path)) ?: DAY_TITLE.default as String
+        timeMessageMap[OriginValue.DAY_SUBTITLE] = colour(config.getString(DAY_SUBTITLE.path)) ?: DAY_SUBTITLE.default as String
+        timeMessageMap[OriginValue.NIGHT_TITLE] = colour(config.getString(NIGHT_TITLE.path)) ?: NIGHT_TITLE.default as String
+        timeMessageMap[OriginValue.NIGHT_SUBTITLE] = colour(config.getString(NIGHT_SUBTITLE.path)) ?: NIGHT_SUBTITLE.default as String
+
+        permissionMap[OriginValue.PERMISSION_REQUIRED] = config.getString(PERMISSION_REQUIRED.path).orEmpty()
+        permissionMap[OriginValue.PERMISSION_GIVEN] = setOf(config.getStringList(PERMISSION_GIVEN.path)).toHashSet()
+
+        passiveEnableMap[OriginValue.GENERAL] = config.getBoolean(PASSIVES_GENERAL.path)
+        passiveEnableMap[OriginValue.TIME] = config.getBoolean(PASSIVES_TIME.path)
+        passiveEnableMap[OriginValue.LIQUID] = config.getBoolean(PASSIVES_LIQUID.path)
+        passiveEnableMap[OriginValue.DIMENSION] = config.getBoolean(PASSIVES_DIMENSION.path)
+
+        toggleMap[OriginValue.TOGGLE_SLOWFALLING] = config.getBoolean(TOGGLES_SLOWFALLING.path)
+        toggleMap[OriginValue.TOGGLE_NIGHTVISION] = config.getBoolean(TOGGLES_NIGHTVISION.path)
+        var1 = config.get(TOGGLES_JUMPBOOST.path) ?: false
+        toggleMap[OriginValue.TOGGLE_JUMPBOOST] =
+            if(var1 is Boolean)
+                if(var1) 1 else 0
+                    else if(var1 is Int && (var1 in 0..16)) var1 else 0
+
+        damageEnableMap[OriginValue.SUN] = config.getBoolean(SUN_ENABLED.path)
+        damageEnableMap[OriginValue.FALL] = config.getBoolean(FALL_ENABLED.path)
+        damageEnableMap[OriginValue.RAIN] = config.getBoolean(RAIN_ENABLED.path)
+        damageEnableMap[OriginValue.WATER] = config.getBoolean(WATER_ENABLED.path)
+        damageEnableMap[OriginValue.LAVA] = config.getBoolean(LAVA_ENABLED.path)
+
+        damageAmountMap[OriginValue.SUN] = config.get(SUN_AMOUNT.path) as Int? ?: SUN_AMOUNT.default as Int
+        damageAmountMap[OriginValue.FALL] = config.get(FALL_AMOUNT.path) as Int? ?: FALL_AMOUNT.default as Int
+        damageAmountMap[OriginValue.RAIN] = config.get(RAIN_AMOUNT.path) as Int? ?: RAIN_AMOUNT.default as Int
+        damageAmountMap[OriginValue.WATER] = config.get(WATER_AMOUNT.path) as Int? ?: WATER_AMOUNT.default as Int
+        damageAmountMap[OriginValue.LAVA] = config.get(LAVA_AMOUNT.path) as Int? ?: LAVA_AMOUNT.default as Int
+
+        attributeBase[OriginValue.GENERAL] = if(passiveEnableMap[OriginValue.GENERAL] == true) attributeBase(GENERAL_ATTRIBUTES.path, config) else emptySet<BaseAttribute>().toHashSet()
+        attributeModifier[OriginValue.DAY] = if(passiveEnableMap[OriginValue.TIME] == true) attributeModifiers(OriginValue.DAY, DAY_ATTRIBUTES.path, config) else emptySet<AttributeModifier>().toHashSet()
+        attributeModifier[OriginValue.NIGHT] = if(passiveEnableMap[OriginValue.TIME] == true) attributeModifiers(OriginValue.NIGHT, NIGHT_ATTRIBUTES.path, config) else emptySet<AttributeModifier>().toHashSet()
+        attributeModifier[OriginValue.WATER] = if(passiveEnableMap[OriginValue.LIQUID] == true) attributeModifiers(OriginValue.WATER, WATER_ATTRIBUTES.path, config) else emptySet<AttributeModifier>().toHashSet()
+        attributeModifier[OriginValue.LAVA] = if(passiveEnableMap[OriginValue.LIQUID] == true) attributeModifiers(OriginValue.LAVA, LAVA_ATTRIBUTES.path, config) else emptySet<AttributeModifier>().toHashSet()
+        attributeModifier[OriginValue.OVERWORLD] = if(passiveEnableMap[OriginValue.DIMENSION] == true) attributeModifiers(OriginValue.OVERWORLD, OVERWORLD_ATTRIBUTES.path, config) else emptySet<AttributeModifier>().toHashSet()
+        attributeModifier[OriginValue.NETHER] = if(passiveEnableMap[OriginValue.DIMENSION] == true) attributeModifiers(OriginValue.NETHER, NETHER_ATTRIBUTES.path, config) else emptySet<AttributeModifier>().toHashSet()
+        attributeModifier[OriginValue.END] = if(passiveEnableMap[OriginValue.DIMENSION] == true) attributeModifiers(OriginValue.END, END_ATTRIBUTES.path, config) else emptySet<AttributeModifier>().toHashSet()
+
+        effectMap[OriginValue.GENERAL] = if(passiveEnableMap[OriginValue.GENERAL] == true) verifyPotions(GENERAL_EFFECTS.path, config) else emptySet<PotionEffect>().toHashSet()
+        effectMap[OriginValue.DAY] = if(passiveEnableMap[OriginValue.TIME] == true) verifyPotions(DAY_EFFECTS.path, config) else emptySet<PotionEffect>().toHashSet()
+        effectMap[OriginValue.NIGHT] = if(passiveEnableMap[OriginValue.TIME] == true) verifyPotions(NIGHT_EFFECTS.path, config) else emptySet<PotionEffect>().toHashSet()
+        effectMap[OriginValue.WATER] = if(passiveEnableMap[OriginValue.LIQUID] == true) verifyPotions(WATER_EFFECTS.path, config) else emptySet<PotionEffect>().toHashSet()
+        effectMap[OriginValue.LAVA] = if(passiveEnableMap[OriginValue.LIQUID] == true) verifyPotions(LAVA_EFFECTS.path, config) else emptySet<PotionEffect>().toHashSet()
+        effectMap[OriginValue.OVERWORLD] = if(passiveEnableMap[OriginValue.DIMENSION] == true) verifyPotions(OVERWORLD_EFFECTS.path, config) else emptySet<PotionEffect>().toHashSet()
+        effectMap[OriginValue.NETHER] = if(passiveEnableMap[OriginValue.DIMENSION] == true) verifyPotions(NETHER_EFFECTS.path, config) else emptySet<PotionEffect>().toHashSet()
+        effectMap[OriginValue.END] = if(passiveEnableMap[OriginValue.DIMENSION] == true) verifyPotions(END_EFFECTS.path, config) else emptySet<PotionEffect>().toHashSet()
+
+        var1 = config.getBoolean(GUI_ENABLED.path)
+        if(var1) {
+            var1 = config.getString(GUI_MATERIAL.path)
+            var1 = if(EnumUtils.isValidEnum(Material::class.java, var1)) {
+                Material.valueOf(var1 ?: "BARRIER")
             } else {
-                log(Level.WARNING, "The material for $origin is invalid!")
+                ItemBuilder.skull()
+                    .texture(var1 as String)
+                    .build()
             }
-        } else if (config.isSet(Path.GUI_SKULL.path) && !config.isBoolean(
-                Path.GUI_SKULL.path)) {
-            itemStack = ItemBuilder.skull()
-                .texture(config.getString(Path.GUI_SKULL.path)!!)
-                .build()!!
+            var2 = ArrayList<Component>()
+            var2.add(Component.empty())
+            if(config.get(GUI_LORE_DESCRIPTION.path) != null) {
+                config.getStringList(GUI_LORE_DESCRIPTION.path).forEach { var1x -> LegacyUtils.parseLegacy(colour(var1x, true))}
+                var2.add(Component.empty())
+            }
+            if(config.get(GUI_LORE_PASSIVES.path) != null) {
+                var2.add(passives)
+                config.getStringList(GUI_LORE_PASSIVES.path).forEach { var1x -> LegacyUtils.parseLegacy(colour(indent + var1x, true))}
+                var2.add(Component.empty())
+            }
+            if(config.get(GUI_LORE_ABILITIES.path) != null) {
+                var2.add(abilities)
+                config.getStringList(GUI_LORE_ABILITIES.path).forEach { var1x -> LegacyUtils.parseLegacy(colour(indent + var1x, true))}
+                var2.add(Component.empty())
+            }
+            if(config.get(GUI_LORE_DEBUFFS.path) != null) {
+                var2.add(debuffs)
+                config.getStringList(GUI_LORE_DEBUFFS.path).forEach { var1x -> LegacyUtils.parseLegacy(colour(indent + var1x, true))}
+                var2.add(Component.empty())
+            }
+
+            var1 = ItemBuilder.from(var1 as ItemStack)
+                .amount(1)
+                .glow(config.getBoolean(GUI_GLOW.path))
+                .setNbt("GUIItem", true)
+                .name(LegacyUtils.parseLegacy(identityMap[OriginValue.DISPLAY_NAME]))
+                .lore(var2)
+                .build()
         }
-        val enchanted: Boolean = config.getBoolean(Path.GUI_ENCHANTED.path)
-        val itemLore = ArrayList<Component>()
-        if(config.get(Path.GUI_LORE_DESCRIPTION.path) != null) {
-            itemLore.add(Component.empty())
-            config.getStringList(Path.GUI_LORE_DESCRIPTION.path).forEach { var1x -> LegacyUtils.parseLegacy(colour(var1x, true))}
-            itemLore.add(Component.empty())
+//        TODO("If item nbt is false make item null in constructor")
+        if(var1 is Boolean) {
+            var1 = ItemBuilder.from(Material.BEDROCK)
+                .setNbt("GUIItem", false)
+                .build()
         }
-        if(config.get(Path.GUI_LORE_PASSIVES.path) != null) {
-            itemLore.add(passives)
-            config.getStringList(Path.GUI_LORE_PASSIVES.path).forEach { var1x -> LegacyUtils.parseLegacy(colour(indent + var1x, true))}
-            itemLore.add(Component.empty())
-        }
-        if(config.get(Path.GUI_LORE_ABILITIES.path) != null) {
-            itemLore.add(abilities)
-            config.getStringList(Path.GUI_LORE_ABILITIES.path).forEach { var1x -> LegacyUtils.parseLegacy(colour(indent + var1x, true))}
-            itemLore.add(Component.empty())
-        }
-        if(config.get(Path.GUI_LORE_DEBUFFS.path) != null) {
-            itemLore.add(debuffs)
-            config.getStringList(Path.GUI_LORE_DEBUFFS.path).forEach { var1x -> LegacyUtils.parseLegacy(colour(indent + var1x, true))}
-            itemLore.add(Component.empty())
-        }
-        item = ItemBuilder.from(itemStack!!)
-            .amount(1)
-            .glow(enchanted)
-            .unbreakable()
-            .name(LegacyUtils.parseLegacy(nameMap[OriginValue.DISPLAY_NAME])!!)
-            .setNbt("GUIItem", true)
-            .lore(itemLore)
-            .build()!!
-        slot = config.getInt(Path.GUI_SLOT.path)
-        guiItem[OriginValue.ITEM] = item
-        guiItem[OriginValue.SLOT] = slot
-        val finalOrigin = Origin(
-            nameMap,
+        var2 = config.getInt(GUI_SLOT.path)
+        guiItem[OriginValue.ITEM] = var1
+        guiItem[OriginValue.SLOT] = var2
+        return Origin(
+            identityMap,
             soundMap,
             timeMessageMap,
             permissionMap,
-            effectEnableMap,
-            specialMap,
+            passiveEnableMap,
+            attributeBase,
+            attributeModifier,
+            toggleMap,
             effectMap,
             attributeMap,
             damageEnableMap,
             damageAmountMap,
             guiItem
         )
-
-        if (permissionMap[OriginValue.PERMISSION_REQUIRED]?.get(0) != null) {
-            requiredPermList.putIfAbsent(finalOrigin, permissionMap[OriginValue.PERMISSION_REQUIRED]?.get(0)!!)
-        }
-        log(Level.INFO, "Debug: Registered origin " + finalOrigin.displayName)
-        return finalOrigin
     }
 
-    private fun validateAttribute(path: String, originValue: OriginValue, file: YamlConfiguration): LinkedHashMap<OriginValue, ArrayList<OriginAttribute>> {
-        val attributes = ArrayList<OriginAttribute>()
-        for (attributeString: String in file.getStringList(path)) {
-            attributes.add(AttributeUtils.parseOriginAttribute(attributeString)!!)
+    private fun attributeBase(path: String, file: YamlConfiguration) : HashSet<BaseAttribute> {
+        val attributes = HashSet<BaseAttribute>()
+        for(attributeString in file.getStringList(path)) {
+            attributes.add(AttributeUtils.createBaseAttribute(attributeString) ?: continue)
         }
-        val map = LinkedHashMap<OriginValue, ArrayList<OriginAttribute>>()
-        map[originValue] = attributes
-        return map
+        return attributes
+    }
+
+    private fun attributeModifiers(condition: OriginValue, path: String, file: YamlConfiguration): HashSet<AttributeModifier> {
+        val attributes = HashSet<AttributeModifier>()
+        for(attributeString in file.getStringList(path)) {
+            attributes.add(AttributeUtils.createModifier(condition, attributeString) ?: continue)
+        }
+        return attributes
+    }
+
+    private fun verifyPotions(path: String, file: YamlConfiguration): HashSet<PotionEffect> {
+        val potions = HashSet<PotionEffect>()
+        for(potionString in file.getStringList(path)) {
+            potions.add(PotionUtils.createPotion(potionString) ?: continue)
+        }
+        return potions
     }
 
     private fun validatePotion(path: String, originValue: OriginValue, file: YamlConfiguration): Map<OriginValue, ArrayList<PotionEffect>> {
         val potions = ArrayList<PotionEffect>()
         for (effectString: String in file.getStringList(path)) {
-            potions.add(PotionUtils.parseOriginPotion(effectString)!!)
+            potions.add(PotionUtils.createPotion(effectString)!!)
         }
         val map = LinkedHashMap<OriginValue, ArrayList<PotionEffect>>()
         map[originValue] = potions

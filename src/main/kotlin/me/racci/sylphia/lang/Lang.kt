@@ -14,12 +14,12 @@ import me.racci.raccilib.utils.LangUpdateFileException
 import me.racci.raccilib.utils.strings.colour
 import me.racci.raccilib.utils.strings.replace
 import me.racci.sylphia.Sylphia
+import me.racci.sylphia.data.configuration.Option
+import me.racci.sylphia.data.configuration.OptionL
 import me.racci.sylphia.lang.Lang.Messages.messagesMap
-import org.bukkit.Bukkit
 import org.bukkit.configuration.ConfigurationSection
 import org.bukkit.configuration.file.YamlConfiguration
 import org.bukkit.event.Listener
-import org.bukkit.scheduler.BukkitScheduler
 import java.io.File
 import java.io.InputStreamReader
 import java.nio.charset.StandardCharsets
@@ -34,10 +34,8 @@ class Lang(private val plugin: Sylphia): Listener {
         }
     }
 
-
     private val lang: String = "lang.yml"
     private val fileVersion: String = "File_Version"
-    private val scheduler: BukkitScheduler = Bukkit.getScheduler()
 
     /**
      * Well... I mean it's in the name
@@ -102,16 +100,29 @@ class Lang(private val plugin: Sylphia): Listener {
                     messages[key] = colour(replace(message,
                         "{Origins}", prefixes[Prefix.ORIGINS] ?: "",
                         "{Sylphia}", prefixes[Prefix.SYLPHIA] ?: "",
-                        "{Error}", prefixes[Prefix.ERROR] ?: ""), true)!!
+                        "{Error}", prefixes[Prefix.ERROR] ?: "",
+                        "{token}", OptionL.getString(Option.ORIGIN_TOKEN_NAME)), true) ?: ""
                 }
             }
             MessageKey.values().forEach { key: MessageKey -> if(config.getString(key.path) == null) log(Level.WARNING,
                 "Message with path " + key.path + " wasn't found!") }
             ACFCoreMessage.values().forEach { message: ACFCoreMessage ->
-                commandManager.locales.addMessage(Locale.ENGLISH, MessageKeys.valueOf(message.name), colour(config.getString(message.path)!!, true))
+                commandManager.locales.addMessage(Locale.ENGLISH,
+                    MessageKeys.valueOf(message.name),
+                    colour(replace(
+                        config.getString(message.path) ?: MessageKeys.valueOf(message.name).messageKey.key,
+                        "{Origins}", prefixes[Prefix.ORIGINS] ?: "",
+                        "{Sylphia}", prefixes[Prefix.SYLPHIA] ?: "",
+                        "{Error}", prefixes[Prefix.ERROR] ?: ""), true)
+                )
             }
             ACFMinecraftMessage.values().forEach { message: ACFMinecraftMessage ->
-                commandManager.locales.addMessage(Locale.ENGLISH, MinecraftMessageKeys.valueOf(message.name), colour(config.getString(message.path)!!, true))
+                commandManager.locales.addMessage(Locale.ENGLISH, MinecraftMessageKeys.valueOf(message.name), colour(replace(
+                    config.getString(message.path) ?: MessageKeys.valueOf(message.name).messageKey.key,
+                    "{Origins}", prefixes[Prefix.ORIGINS] ?: "",
+                    "{Sylphia}", prefixes[Prefix.SYLPHIA] ?: "",
+                    "{Error}", prefixes[Prefix.ERROR] ?: ""), true)
+                )
             }
             messagesMap.putAll(messages)
         } else {
@@ -128,7 +139,6 @@ class Lang(private val plugin: Sylphia): Listener {
     private fun updateLangFile(file: File, defaultFile: YamlConfiguration, config: YamlConfiguration): YamlConfiguration {
         if(config.contains(fileVersion)) {
             val newestVersion: Int = defaultFile.getInt(fileVersion)
-            log(Level.INFO, "${config.get(fileVersion)} $newestVersion")
             if(config.getInt(fileVersion) != newestVersion) {
                 try {
                     val configSection: ConfigurationSection = defaultFile.getConfigurationSection("")!!
@@ -149,9 +159,5 @@ class Lang(private val plugin: Sylphia): Listener {
             }
         }
         return YamlConfiguration.loadConfiguration(file)
-    }
-
-    companion object {
-        lateinit var Message: Messages
     }
 }

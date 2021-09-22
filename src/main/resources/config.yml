@@ -1,4 +1,11 @@
-Sound-volume: 0.7
+Origin-Token:
+  Material: CLOCK
+  Enchanted: false
+  Amount: 1
+  Name: "#ffe462&lO#ffe160&lr#ffde5e&li#ffdb5c&lg#ffd85a&li#ffd558&ln #ffd157&lT#ffce55&lo#ffcb54&lk#ffc852&le#ffc551&ln"
+  Lore:
+    - "#FFFBA5Right click with this to change your origin!"
+Sound-Volume: 0.7
 Blacklisted-Worlds:
   - exampleWorld1
   - exampleWorld2
