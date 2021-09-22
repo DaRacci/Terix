@@ -4,9 +4,6 @@ Identity:
 Sound:
   Hurt: ENTITY_PLAYER_HURT
   Death: ENTITY_PLAYER_DEATH
-Permissions:
-  Required: {}
-  Given: {}
 Time-Message:
   Day:
     Title: "&2Day!"

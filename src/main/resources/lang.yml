@@ -1,6 +1,6 @@
 Prefixes:
-  Sylphia: "#ffaa00&lS#ffbf15&ly#ffd52b&ll#ffea40&lp#ffff55>&lh &f&l»"
-  Error: "#aa0000&lS#bd0000&ly#d00000&ll#e30000&lp#f60000&lh #ff0909&lE#ff1c1c&lr#ff2f2f&lr#ff4242&lo#ff5555&lr &f&l»"
+  Sylphia: "#ffaa00&lS#ffbf15&ly#ffd52b&ll#ffea40&lp#ffff55&lh &f&l»"
+  Error: "#aa0000&lE#bd0000&lr#d00000&lr#e30000&lo#f60000&lr &f&l»"
   Origins: "#ffff55&lO#ffea40&lr#ffd52b&li#ffbf15&lg#ffaa00&li#ffbf15&ln#ffd52b&ls &f&l»"
 Colours:
   Item: "#f0e171"
@@ -68,13 +68,13 @@ Messages:
     location_console_not_relative: '&cError: Console may not use relative coordinates for location.'
   Commands:
     Reload: "{Sylphia} &aReloaded sucessfully"
-    Saved: '{Sylphia} &aAll Players have been saved!'
+    Saved: "{Sylphia} &aAll Players have been saved!"
     Toggle:
-      Enabled: "{Origins} &bYou have enabled {var}"
-      Disabled: "{Origins} &cYou have disabled {var}"
-      Specific: "{Origins} &bYou have turned {special} to {option}"
+      Enabled: "{Origins} &bYou have enabled {special}"
+      Disabled: "{Origins} &cYou have disabled {special}"
+      Specific: "{Origins} &bYou have turned {special} &bto {option}"
       Current: "{Error} &cYou already have this setting enabled!"
-      NoPermission: "{Error} &cYou origin doesn't have access to &4{var}!"
+      NoPermission: "{Error} &cYour origin doesn't have access to &4{special}!"
 GUI:
   Common:
     Accept: "&2Accept"
@@ -94,11 +94,18 @@ GUI:
     Debuffs: "Placeholder"
 Origins:
   Command:
-    Get: "{Origins} &7{PlayerDisplayName}'s &borigin is the {var} &bOrigin"
-    Set: "{Origins} &bYou have set &7{PlayerDisplayName}'s &borigin to {var}"
-    Unset: "{Origins} &cYou have removed &7{PlayerDisplayName}'s &bOrigin"
-  Result:
-    NotNull: "{Error} &7{PlayerDisplayName} &cdoesn't have an &4Origin"
+    Get:
+      HasOrigin: "{Origins} &7{PlayerDisplayName}'s &borigin is the {origin} &bOrigin"
+      NoOrigin: "{Error} &7{PlayerDisplayName} &cdoesn't have an &4Origin"
+    Set:
+      Success: "{Origins} &bYou have set &7{PlayerDisplayName}'s &borigin to {var}"
+      Current: "{Error} &7{PlayerDisplayName} &cis already the {origin} &cOrigin!"
+    Reset:
+      Sender: "{Origins} &cYou have removed &7{PlayerDisplayName}'s &cOrigin"
+      Target: "{Origins} &cYour origin has been removed by &7{SenderDisplayName}"
+    Token:
+      Sender: "{Origins} &bYou have given &7{PlayerDisplayName} &b{amount} {token}&b!"
+      Target: "{Origins} &bYou have been given {amount} {token}&b!"
   Select:
     Broadcast: "{Origins} &7{PlayerDisplayName} &ehas selected the {var} &6Origin!"
     Locked: "{Error} &cYou don't have access to the {var} &cOrigin!"
@@ -110,4 +117,4 @@ Origins:
     Abilities: "&2&lAbilities"
     Debuffs: "&4&Debuffs"
     Select: "&f&l» &bClick &f&l« &eto change to the {var} &eorigin."
-File_Version: 3
+File_Version: 4

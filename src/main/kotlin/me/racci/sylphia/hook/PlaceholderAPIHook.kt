@@ -4,7 +4,7 @@ package me.racci.sylphia.hook
 
 import me.clip.placeholderapi.expansion.PlaceholderExpansion
 import me.racci.sylphia.Sylphia
-import me.racci.sylphia.origins.OriginManager.Origins
+import me.racci.sylphia.origins.OriginManager
 import org.bukkit.entity.Player
 
 class PlaceholderAPIHook(private val plugin: Sylphia) : PlaceholderExpansion() {
@@ -31,11 +31,11 @@ class PlaceholderAPIHook(private val plugin: Sylphia) : PlaceholderExpansion() {
 
     override fun onPlaceholderRequest(player: Player, params: String): String? {
         if (params.equals("origin", ignoreCase = true)) {
-            return plugin.originManager!!.getOrigin(player)?.displayName
+            return plugin.originManager.getOrigin(player)?.displayName
         }
         return if (params.equals("lastOrigin", ignoreCase = true)) {
-            Origins.valueOf(
-                plugin.playerManager!!.getPlayerData(
+            OriginManager.valueOf(
+                plugin.playerManager.getPlayerData(
                     player.uniqueId
                 )?.lastOrigin!!
             ).displayName

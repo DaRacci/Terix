@@ -2,14 +2,14 @@
 @file:JvmName("OriginUtils")
 package me.racci.sylphia.utils
 
-import me.racci.raccilib.Level
-import me.racci.raccilib.log
 import me.racci.raccilib.utils.OriginConditionException
 import me.racci.raccilib.utils.worlds.WorldTime
+import me.racci.sylphia.extensions.PlayerExtension.isDay
+import me.racci.sylphia.origins.AttributeModifier
+import me.racci.sylphia.origins.BaseAttribute
 import me.racci.sylphia.origins.OriginAttribute
 import me.racci.sylphia.origins.OriginValue
 import org.apache.commons.lang3.EnumUtils
-import org.apache.commons.lang3.math.NumberUtils
 import org.bukkit.World.Environment.*
 import org.bukkit.attribute.Attribute
 import org.bukkit.attribute.Attribute.*
@@ -32,31 +32,38 @@ fun getCondition(player: Player): OriginValue {
     val liquidCondition: String = if(player.isInWaterOrBubbleColumn) "W" else if(player.isInLava) "L" else ""
     return OriginValue.valueOf("$dimensionCondition$timeCondition$liquidCondition")
 }
+fun getConditionSet(player: Player): HashSet<OriginValue> {
+    val condition = HashSet<OriginValue>()
+    val var1 = player.world.environment
+    condition.add(when(var1) {
+        NORMAL -> OriginValue.OVERWORLD
+        NETHER -> OriginValue.NETHER
+        THE_END -> OriginValue.END
+        else -> throw OriginConditionException("Unexpected value: " + player.world.environment)
+    })
+    if(var1 == NORMAL) {
+        condition.add(when(player.isDay) {
+            true -> OriginValue.DAY
+            false -> OriginValue.NIGHT
+        })
+    }
+    if(player.isInWaterOrBubbleColumn) condition.add(OriginValue.WATER)
+        else if(player.isInLava) condition.add(OriginValue.LAVA)
+    return condition
+}
 
 object PotionUtils {
-    private val potionEffectTypes = ArrayList<PotionEffectType>()
-    fun parseOriginPotion(string: String): PotionEffect? {
+
+    private val potionEffectTypes = HashSet<PotionEffectType>()
+
+    fun createPotion(string: String): PotionEffect? {
         val potion = string.split(":".toRegex()).toTypedArray()
-        if (isValid(potion[0])) {
-            if (NumberUtils.isParsable(potion[1])) {
-                return PotionEffect(
-                    PotionEffectType.getByName(potion[0])!!, Int.MAX_VALUE, potion[1].toInt(), true, false, false
-                )
-            } else {
-                log(Level.WARNING, "Invalid Integer " + potion[1] + " for " + potion[0])
-            }
-        } else {
-            log(Level.WARNING, "Invalid Potion " + potion[0])
-        }
-        return null
+        if ((potion[1].toIntOrNull() ?: return null) !in 0..if(isValid(potion[0])) PrivatePotionEffectType.valueOf(potion[0]).maxLevel else return null) return null
+        return PotionEffect(PotionEffectType.getByName(potion[0])!!, Int.MAX_VALUE, potion[1].toInt(), true, false, false)
     }
 
     private fun isValid(string: String): Boolean {
-        return EnumUtils.isValidEnumIgnoreCase(PrivatePotionEffectType::class.java, string)
-    }
-
-    fun isValidLevel(potion: PotionEffect): Boolean {
-        return potion.amplifier <= PrivatePotionEffectType.valueOf(potion.type.toString()).maxLevel
+        return EnumUtils.isValidEnum(PrivatePotionEffectType::class.java, string)
     }
 
     fun isInfinite(potion: PotionEffect): Boolean {
@@ -67,8 +74,7 @@ object PotionUtils {
         return !potion.hasIcon() || potion.isAmbient || potion.duration >= 86400
     }
 
-    val potionTypes: List<PotionEffectType>
-        get() = potionEffectTypes
+    val potionTypes: HashSet<PotionEffectType> = potionEffectTypes
 
     fun getHigherPotion(var1: PotionEffect, var2: PotionEffect): PotionEffect {
         return if (var1.amplifier > var2.amplifier) var1 else var2
@@ -89,27 +95,38 @@ object AttributeUtils {
 
     private val playerAttributes = ArrayList<Attribute>()
 
-
-    fun parseOriginAttribute(string: String): OriginAttribute? {
+    fun createModifier(condition: OriginValue, string: String) : AttributeModifier? {
         val attribute = string.split(":".toRegex()).toTypedArray()
-        if (isValid(attribute[0])) {
-            if (NumberUtils.isParsable(attribute[1])) {
-                return OriginAttribute(Attribute.valueOf(attribute[0]), attribute[1].toDouble())
-            } else {
-                log(Level.WARNING, "Invalid Double " + attribute[1] + " for " + attribute[0])
-            }
-        } else {
-            log(Level.WARNING, "Invalid Attribute " + attribute[0])
-        }
-        return null
+        val var1 = if(isValid(attribute[0])) PrivateAttribute.valueOf(attribute[0]) else return null
+        if ((attribute[1].toDoubleOrNull() ?: return null) !in var1.minLevel..var1.maxLevel) return null
+        return AttributeModifier(Attribute.valueOf(attribute[0]),
+            org.bukkit.attribute.AttributeModifier(condition.toString(), attribute[1].toDouble(), org.bukkit.attribute.AttributeModifier.Operation.ADD_SCALAR))
+    }
+
+    fun createBaseAttribute(string: String) : BaseAttribute? {
+        val attribute = string.split(":".toRegex()).toTypedArray()
+        val var1 = if(isValid(attribute[0])) PrivateAttribute.valueOf(attribute[0]) else return null
+        if ((attribute[1].toDoubleOrNull() ?: return null) !in var1.minLevel..var1.maxLevel) return null
+        return BaseAttribute(Attribute.valueOf(attribute[0]), attribute[1].toDouble())
+    }
+
+    fun createAttribute(string: String): OriginAttribute? {
+        val attribute = string.split(":".toRegex()).toTypedArray()
+        val var1 = if(isValid(attribute[0])) PrivateAttribute.valueOf(attribute[0]) else return null
+        if ((attribute[1].toDoubleOrNull() ?: return null) !in var1.minLevel..var1.maxLevel) return null
+        return OriginAttribute(Attribute.valueOf(attribute[0]), attribute[1].toDouble())
     }
 
     private fun isValid(string: String?): Boolean {
-        return EnumUtils.isValidEnumIgnoreCase(Attribute::class.java, string)
+        return EnumUtils.isValidEnum(Attribute::class.java, string)
     }
 
     fun isDefault(attribute: AttributeInstance): Boolean {
         return getDefault(attribute.attribute) == attribute.baseValue
+    }
+
+    fun isDefault(attribute: OriginAttribute): Boolean {
+        return getDefault(attribute.attribute) == attribute.value
     }
 
     fun getDefault(attribute: Attribute): Double {
@@ -195,5 +212,4 @@ internal enum class PrivateAttribute(
     GENERIC_ARMOR_TOUGHNESS(0.0, 0.0, 20.0, Attribute.GENERIC_ARMOR_TOUGHNESS),
     GENERIC_ARMOR(0.0,0.0,30.0,Attribute.GENERIC_ARMOR),
     GENERIC_LUCK(0.0, -1024.0, 1024.0, Attribute.GENERIC_LUCK);
-
 }
