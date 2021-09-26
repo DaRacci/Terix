@@ -33,7 +33,7 @@ class YamlStorageProvider(plugin: Sylphia) : StorageProvider(plugin) {
                         val value = config.getInt(path, 1)
                         playerData.setOriginSetting(originSetting, value)
                     }
-                    playerManager!!.addPlayerData(playerData)
+                    playerManager.addPlayerData(playerData)
                     val event = DataLoadEvent(playerData)
                     Bukkit.getPluginManager().callEvent(event)
                 } catch (e: Exception) {
