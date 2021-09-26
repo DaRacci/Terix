@@ -7,13 +7,40 @@
     <parent>
         <artifactId>Racci-Parent</artifactId>
         <groupId>me.racci</groupId>
-        <version>0.0.1</version>
+        <version>0.0.2</version>
         <relativePath>../pom.xml</relativePath>
     </parent>
 
     <artifactId>Sylphia</artifactId>
-    <version>0.0.1</version>
+    <version>${project.parent.version}</version>
     <name>Sylphia</name>
+
+    <dependencies>
+        <dependency>
+            <groupId>me.racci</groupId>
+            <artifactId>RacciCore</artifactId>
+            <version>${project.parent.version}</version>
+            <scope>provided</scope>
+        </dependency>
+        <dependency>
+            <groupId>com.comphenix.protocol</groupId>
+            <artifactId>ProtocolLib</artifactId>
+            <version>4.7.0</version>
+            <scope>provided</scope>
+        </dependency>
+        <dependency>
+            <groupId>me.clip</groupId>
+            <artifactId>placeholderapi</artifactId>
+            <version>2.10.10</version>
+            <scope>provided</scope>
+        </dependency>
+        <dependency>
+            <groupId>net.luckperms</groupId>
+            <artifactId>api</artifactId>
+            <version>5.3</version>
+            <scope>provided</scope>
+        </dependency>
+    </dependencies>
 
     <build>
         <resources>

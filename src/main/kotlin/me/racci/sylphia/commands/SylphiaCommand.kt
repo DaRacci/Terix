@@ -14,7 +14,7 @@ import org.bukkit.Sound
 import org.bukkit.command.CommandSender
 import org.bukkit.entity.Player
 
-@CommandAlias("sylphia|sylph|sylphian")
+@CommandAlias("sylphia|sylphian")
 class SylphiaCommand(private val plugin: Sylphia) : BaseCommand() {
 
     private val storageManager = plugin.storageProvider
