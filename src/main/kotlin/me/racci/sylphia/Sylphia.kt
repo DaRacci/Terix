@@ -14,6 +14,7 @@ import me.racci.sylphia.data.PlayerManager
 import me.racci.sylphia.data.configuration.OptionL
 import me.racci.sylphia.data.storage.StorageProvider
 import me.racci.sylphia.data.storage.YamlStorageProvider
+import me.racci.sylphia.factories.PotionFactory
 import me.racci.sylphia.hook.PlaceholderAPIHook
 import me.racci.sylphia.hook.perms.LuckPermsHook
 import me.racci.sylphia.hook.perms.PermManager
@@ -25,6 +26,7 @@ import me.racci.sylphia.managers.WorldManager
 import me.racci.sylphia.origins.Origin
 import me.racci.sylphia.origins.OriginHandler
 import me.racci.sylphia.origins.OriginManager
+import me.racci.sylphia.origins.abilityevents.OffhandListener
 import me.racci.sylphia.runnables.RainRunnable
 import me.racci.sylphia.runnables.SunLightRunnable
 import me.racci.sylphia.runnables.WaterRunnable
@@ -39,6 +41,9 @@ import java.io.InputStream
 import java.io.InputStreamReader
 import java.util.*
 
+
+lateinit var sylphia: Sylphia ; private set
+lateinit var potionFactory: PotionFactory ; private set
 
 class Sylphia: JavaPlugin() {
 
@@ -69,6 +74,8 @@ class Sylphia: JavaPlugin() {
         log(Level.OUTLINE, "&m---------------------------------------------")
         log(Level.INFO, "Sylphia has started loading!")
 
+        sylphia = this
+
         loadConfig()
         loadLang()
         loadHooks()
@@ -82,6 +89,7 @@ class Sylphia: JavaPlugin() {
         loadOriginsManager()
         loadItemManager()
 
+        registerFactories()
         registerCommands()
         registerEvents()
         registerRunnables()
@@ -244,6 +252,7 @@ class Sylphia: JavaPlugin() {
         pm.registerEvents(PlayerChangeWorldListener(this), this)
         pm.registerEvents(OriginEventListener(this), this)
         pm.registerEvents(RunnableListener(), this)
+        pm.registerEvents(OffhandListener(), this)
     }
 
     private fun registerRunnables() {
@@ -255,5 +264,9 @@ class Sylphia: JavaPlugin() {
 
     private fun registerSoundManager() {
         soundManager = SoundManager(this)
+    }
+
+    private fun registerFactories() {
+        potionFactory = PotionFactory()
     }
 }
