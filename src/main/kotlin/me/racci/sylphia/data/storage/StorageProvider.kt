@@ -1,5 +1,3 @@
-@file:Suppress("unused")
-@file:JvmName("StorageProvider")
 package me.racci.sylphia.data.storage
 
 import me.racci.sylphia.Sylphia

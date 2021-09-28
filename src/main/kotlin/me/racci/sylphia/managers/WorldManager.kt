@@ -1,14 +1,11 @@
-@file:Suppress("unused")
-@file:JvmName("WorldManager")
 package me.racci.sylphia.managers
 
-import me.racci.raccilib.Level
-import me.racci.raccilib.log
+import me.racci.raccicore.Level
+import me.racci.raccicore.log
 import me.racci.sylphia.Sylphia
 import org.bukkit.Location
 import org.bukkit.World
 import org.bukkit.entity.Player
-import org.bukkit.plugin.Plugin
 
 class WorldManager(plugin: Sylphia) {
 

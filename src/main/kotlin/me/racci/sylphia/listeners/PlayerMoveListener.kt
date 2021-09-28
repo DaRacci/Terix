@@ -1,13 +1,11 @@
-@file:Suppress("unused")
-@file:JvmName("PlayerMoveEvent")
 package me.racci.sylphia.listeners
 
-import me.racci.raccilib.events.PlayerEnterLiquidEvent
-import me.racci.raccilib.events.PlayerExitLiquidEvent
-import me.racci.raccilib.events.PlayerMoveFullXYZEvent
-import me.racci.raccilib.skedule.SynchronizationContext
-import me.racci.raccilib.skedule.skeduleAsync
-import me.racci.raccilib.skedule.skeduleSync
+import me.racci.raccicore.events.PlayerEnterLiquidEvent
+import me.racci.raccicore.events.PlayerExitLiquidEvent
+import me.racci.raccicore.events.PlayerMoveFullXYZEvent
+import me.racci.raccicore.skedule.SynchronizationContext
+import me.racci.raccicore.skedule.skeduleAsync
+import me.racci.raccicore.skedule.skeduleSync
 import me.racci.sylphia.Sylphia
 import me.racci.sylphia.extensions.PlayerExtension.currentOrigin
 import me.racci.sylphia.origins.OriginManager

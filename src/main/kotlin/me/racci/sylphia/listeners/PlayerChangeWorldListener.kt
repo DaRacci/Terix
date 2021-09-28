@@ -1,7 +1,7 @@
 package me.racci.sylphia.listeners
 
-import me.racci.raccilib.skedule.skeduleAsync
-import me.racci.raccilib.utils.strings.colour
+import me.racci.raccicore.skedule.skeduleAsync
+import me.racci.raccicore.utils.strings.colour
 import me.racci.sylphia.Sylphia
 import me.racci.sylphia.origins.OriginManager
 import org.bukkit.Sound

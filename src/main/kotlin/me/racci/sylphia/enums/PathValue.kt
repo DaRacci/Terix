@@ -1,5 +1,3 @@
-@file:Suppress("unused")
-@file:JvmName("PathValue")
 package me.racci.sylphia.enums
 
 import org.bukkit.Sound

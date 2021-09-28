@@ -13,7 +13,7 @@ class SunLightRunnable(private val manager: org.bukkit.plugin.PluginManager) : o
     override fun run() {
         for(player in burnablePlayers) {
             if(player.isDay && !player.isInWaterOrRainOrBubbleColumn && player.location.block.temperature > 0.0 && player.location.block.lightFromSky.toInt() == 15) {
-                me.racci.raccilib.skedule.skeduleSync(me.racci.sylphia.Sylphia.instance) {
+                me.racci.raccicore.skedule.skeduleSync(me.racci.sylphia.Sylphia.instance) {
                     manager.callEvent(me.racci.sylphia.events.BurnInSunLightEvent(player, (2.0 * (player.currentOrigin ?: return@skeduleSync).sunAmount / 100)))
                 }
             }

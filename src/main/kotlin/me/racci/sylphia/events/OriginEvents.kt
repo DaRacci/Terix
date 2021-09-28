@@ -1,6 +1,6 @@
 package me.racci.sylphia.events
 
-import me.racci.raccilib.events.KotlinEvent
+import me.racci.raccicore.events.KotlinEvent
 import me.racci.sylphia.origins.Origin
 import org.bukkit.entity.Player
 

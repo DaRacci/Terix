@@ -1,5 +1,3 @@
-@file:Suppress("unused")
-@file:JvmName("PlaceholderAPIHook")
 package me.racci.sylphia.hook
 
 import me.clip.placeholderapi.expansion.PlaceholderExpansion

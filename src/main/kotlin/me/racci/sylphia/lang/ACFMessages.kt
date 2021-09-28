@@ -1,5 +1,3 @@
-@file:Suppress("unused")
-@file:JvmName("ACFMessages")
 package me.racci.sylphia.lang
 
 enum class ACFCoreMessage {
