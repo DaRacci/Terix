@@ -8,8 +8,6 @@ import com.comphenix.protocol.events.PacketAdapter
 import com.comphenix.protocol.events.PacketEvent
 import com.comphenix.protocol.wrappers.EnumWrappers
 import me.racci.sylphia.Sylphia
-import me.racci.sylphia.origins.OriginManager
-import org.bukkit.Sound.ENTITY_PLAYER_DEATH
 import org.bukkit.Sound.ENTITY_PLAYER_HURT
 
 class SoundManager(private val plugin: Sylphia) {

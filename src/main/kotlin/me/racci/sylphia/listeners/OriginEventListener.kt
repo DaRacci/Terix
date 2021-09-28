@@ -1,7 +1,7 @@
 package me.racci.sylphia.listeners
 
-import me.racci.raccilib.utils.strings.LegacyUtils
-import me.racci.raccilib.utils.strings.replace
+import me.racci.raccicore.utils.strings.LegacyUtils
+import me.racci.raccicore.utils.strings.replace
 import me.racci.sylphia.Sylphia
 import me.racci.sylphia.events.OriginChangeEvent
 import me.racci.sylphia.events.OriginResetEvent

@@ -1,19 +1,15 @@
-@file:Suppress("unused")
-@file:JvmName("OriginUtils")
 package me.racci.sylphia.utils
 
-import me.racci.raccilib.utils.OriginConditionException
-import me.racci.raccilib.utils.worlds.WorldTime
+import me.racci.raccicore.utils.OriginConditionException
+import me.racci.raccicore.utils.worlds.WorldTime
 import me.racci.sylphia.extensions.PlayerExtension.isDay
 import me.racci.sylphia.origins.AttributeModifier
 import me.racci.sylphia.origins.BaseAttribute
-import me.racci.sylphia.origins.OriginAttribute
 import me.racci.sylphia.origins.OriginValue
 import org.apache.commons.lang3.EnumUtils
 import org.bukkit.World.Environment.*
 import org.bukkit.attribute.Attribute
 import org.bukkit.attribute.Attribute.*
-import org.bukkit.attribute.AttributeInstance
 import org.bukkit.entity.Player
 import org.bukkit.potion.PotionEffect
 import org.bukkit.potion.PotionEffectType
@@ -110,23 +106,8 @@ object AttributeUtils {
         return BaseAttribute(Attribute.valueOf(attribute[0]), attribute[1].toDouble())
     }
 
-    fun createAttribute(string: String): OriginAttribute? {
-        val attribute = string.split(":".toRegex()).toTypedArray()
-        val var1 = if(isValid(attribute[0])) PrivateAttribute.valueOf(attribute[0]) else return null
-        if ((attribute[1].toDoubleOrNull() ?: return null) !in var1.minLevel..var1.maxLevel) return null
-        return OriginAttribute(Attribute.valueOf(attribute[0]), attribute[1].toDouble())
-    }
-
     private fun isValid(string: String?): Boolean {
         return EnumUtils.isValidEnum(Attribute::class.java, string)
-    }
-
-    fun isDefault(attribute: AttributeInstance): Boolean {
-        return getDefault(attribute.attribute) == attribute.baseValue
-    }
-
-    fun isDefault(attribute: OriginAttribute): Boolean {
-        return getDefault(attribute.attribute) == attribute.value
     }
 
     fun getDefault(attribute: Attribute): Double {
@@ -141,14 +122,6 @@ object AttributeUtils {
 
     fun getPlayerAttributes(): List<Attribute> {
         return playerAttributes
-    }
-
-    fun getHigherAttribute(var1: AttributeInstance, var2: AttributeInstance): AttributeInstance {
-        return if (var1.baseValue > var2.baseValue) var1 else var2
-    }
-
-    fun getLowerAttribute(var1: AttributeInstance, var2: AttributeInstance): AttributeInstance {
-        return if (var1.baseValue < var2.baseValue) var1 else var2
     }
 
     init {

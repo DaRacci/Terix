@@ -1,5 +1,3 @@
-@file:Suppress("unused")
-@file:JvmName("ValueType")
 package me.racci.sylphia.enums
 
 enum class ValueType {

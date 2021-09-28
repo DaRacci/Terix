@@ -1,18 +1,16 @@
-@file:Suppress("unused")
-@file:JvmName("Lang")
 package me.racci.sylphia.lang
 
 import co.aikar.commands.MessageKeys
 import co.aikar.commands.MinecraftMessageKeys
 import co.aikar.commands.PaperCommandManager
-import me.racci.raccilib.Level
-import me.racci.raccilib.log
-import me.racci.raccilib.utils.LangDefaultFileException
-import me.racci.raccilib.utils.LangLoadException
-import me.racci.raccilib.utils.LangNoVersionException
-import me.racci.raccilib.utils.LangUpdateFileException
-import me.racci.raccilib.utils.strings.colour
-import me.racci.raccilib.utils.strings.replace
+import me.racci.raccicore.Level
+import me.racci.raccicore.log
+import me.racci.raccicore.utils.LangDefaultFileException
+import me.racci.raccicore.utils.LangLoadException
+import me.racci.raccicore.utils.LangNoVersionException
+import me.racci.raccicore.utils.LangUpdateFileException
+import me.racci.raccicore.utils.strings.colour
+import me.racci.raccicore.utils.strings.replace
 import me.racci.sylphia.Sylphia
 import me.racci.sylphia.data.configuration.Option
 import me.racci.sylphia.data.configuration.OptionL

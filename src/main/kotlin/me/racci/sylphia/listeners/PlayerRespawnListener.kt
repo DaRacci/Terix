@@ -1,8 +1,6 @@
-@file:Suppress("unused")
-@file:JvmName("PlayerRespawnEvent")
 package me.racci.sylphia.listeners
 
-import me.racci.raccilib.skedule.skeduleAsync
+import me.racci.raccicore.skedule.skeduleAsync
 import me.racci.sylphia.Sylphia
 import me.racci.sylphia.origins.OriginManager
 import org.bukkit.event.EventHandler

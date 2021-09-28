@@ -1,5 +1,3 @@
-@file:Suppress("unused")
-@file:JvmName("GUIEnums")
 package me.racci.sylphia.gui
 
 enum class MenuType(path: String) {

@@ -1,12 +1,10 @@
 package me.racci.sylphia.managers
 
-import me.racci.raccilib.utils.items.builders.ItemBuilder
-import me.racci.raccilib.utils.strings.LegacyUtils
-import me.racci.raccilib.utils.strings.colour
-import me.racci.sylphia.Sylphia
+import me.racci.raccicore.utils.items.builders.ItemBuilder
+import me.racci.raccicore.utils.strings.LegacyUtils
+import me.racci.raccicore.utils.strings.colour
 import me.racci.sylphia.data.configuration.Option
 import me.racci.sylphia.data.configuration.OptionL
-import net.kyori.adventure.text.format.Style
 import net.kyori.adventure.text.format.TextDecoration
 import org.bukkit.inventory.ItemFlag
 import org.bukkit.inventory.ItemStack

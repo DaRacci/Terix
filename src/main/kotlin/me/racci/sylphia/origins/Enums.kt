@@ -1,4 +1,3 @@
-@file:Suppress("unused")
 package me.racci.sylphia.origins
 
 import me.racci.sylphia.enums.ValueType

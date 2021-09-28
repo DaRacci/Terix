@@ -1,5 +1,3 @@
-@file:Suppress("unused")
-@file:JvmName("PlayerData")
 package me.racci.sylphia.data
 
 import me.racci.sylphia.Sylphia
