@@ -1,5 +1,3 @@
-@file:Suppress("unused")
-@file:JvmName("Option")
 package me.racci.sylphia.data.configuration
 
 import me.racci.sylphia.enums.ValueType

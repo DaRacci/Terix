@@ -1,13 +1,11 @@
-@file:Suppress("unused")
-@file:JvmName("OriginHandler")
 package me.racci.sylphia.origins
 
-import me.racci.raccilib.Level
-import me.racci.raccilib.log
-import me.racci.raccilib.utils.FileValidationException
-import me.racci.raccilib.utils.items.builders.ItemBuilder
-import me.racci.raccilib.utils.strings.LegacyUtils
-import me.racci.raccilib.utils.strings.colour
+import me.racci.raccicore.Level
+import me.racci.raccicore.log
+import me.racci.raccicore.utils.FileValidationException
+import me.racci.raccicore.utils.items.builders.ItemBuilder
+import me.racci.raccicore.utils.strings.LegacyUtils
+import me.racci.raccicore.utils.strings.colour
 import me.racci.sylphia.Sylphia
 import me.racci.sylphia.lang.Lang
 import me.racci.sylphia.lang.Origins

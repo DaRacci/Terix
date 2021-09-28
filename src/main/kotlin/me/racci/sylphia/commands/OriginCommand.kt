@@ -1,13 +1,12 @@
-@file:Suppress("unused")
 package me.racci.sylphia.commands
 
 import co.aikar.commands.BaseCommand
 import co.aikar.commands.CommandHelp
 import co.aikar.commands.annotation.*
-import me.racci.raccilib.skedule.skeduleAsync
-import me.racci.raccilib.utils.strings.LegacyUtils
-import me.racci.raccilib.utils.strings.colour
-import me.racci.raccilib.utils.strings.replace
+import me.racci.raccicore.skedule.skeduleAsync
+import me.racci.raccicore.utils.strings.LegacyUtils
+import me.racci.raccicore.utils.strings.colour
+import me.racci.raccicore.utils.strings.replace
 import me.racci.sylphia.Sylphia
 import me.racci.sylphia.events.OriginChangeEvent
 import me.racci.sylphia.events.OriginResetEvent
@@ -52,7 +51,8 @@ class OriginCommand(private val plugin: Sylphia) : BaseCommand() {
             val origin = originManager.getOrigin(player.uniqueId)
             if(origin != null) {
                 sender.sendMessage(Component.text()
-                    .append(LegacyUtils.parseLegacy(replace(Lang.Messages.get(Origins.COMMAND_GET_HAS),
+                    .append(
+                        LegacyUtils.parseLegacy(replace(Lang.Messages.get(Origins.COMMAND_GET_HAS),
                         "{PlayerDisplayName}", player.displayName,
                         "{origin}", origin.displayName))).build())
             } else {

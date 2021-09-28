@@ -1,5 +1,3 @@
-@file:Suppress("unused")
-@file:JvmName("OptionValue")
 package me.racci.sylphia.data.configuration
 
 import org.bukkit.ChatColor

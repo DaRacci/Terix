@@ -1,10 +1,8 @@
-@file:Suppress("unused")
-@file:JvmName("OptionL")
 package me.racci.sylphia.data.configuration
 
-import me.racci.raccilib.Level
-import me.racci.raccilib.log
-import me.racci.raccilib.utils.strings.colour
+import me.racci.raccicore.utils.strings.colour
+import me.racci.raccicore.Level
+import me.racci.raccicore.log
 import me.racci.sylphia.Sylphia
 import me.racci.sylphia.enums.ValueType.*
 import me.racci.sylphia.enums.ValueType

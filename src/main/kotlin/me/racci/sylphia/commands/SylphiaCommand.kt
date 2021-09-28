@@ -1,10 +1,9 @@
-@file:Suppress("unused")
 package me.racci.sylphia.commands
 
 import co.aikar.commands.BaseCommand
 import co.aikar.commands.annotation.*
-import me.racci.raccilib.skedule.skeduleAsync
-import me.racci.raccilib.utils.strings.LegacyUtils
+import me.racci.raccicore.skedule.skeduleAsync
+import me.racci.raccicore.utils.strings.LegacyUtils
 import me.racci.sylphia.Sylphia
 import me.racci.sylphia.lang.Command
 import me.racci.sylphia.lang.Lang

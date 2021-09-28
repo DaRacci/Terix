@@ -1,5 +1,3 @@
-@file:Suppress("unused")
-@file:JvmName("PlayerDamageListener")
 package me.racci.sylphia.listeners
 
 import me.racci.sylphia.Sylphia

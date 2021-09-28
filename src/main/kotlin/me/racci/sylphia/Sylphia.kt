@@ -1,13 +1,11 @@
-@file:Suppress("unused")
-@file:JvmName("Sylphia")
 package me.racci.sylphia
 
 import co.aikar.commands.BukkitCommandExecutionContext
 import co.aikar.commands.ConditionFailedException
 import co.aikar.commands.PaperCommandManager
 import me.clip.placeholderapi.libs.kyori.adventure.platform.bukkit.BukkitAudiences
-import me.racci.raccilib.Level
-import me.racci.raccilib.log
+import me.racci.raccicore.Level
+import me.racci.raccicore.log
 import me.racci.sylphia.commands.OriginCommand
 import me.racci.sylphia.commands.SpecialCommands
 import me.racci.sylphia.commands.SylphiaCommand

@@ -1,5 +1,3 @@
-@file:Suppress("unused")
-@file:JvmName("PlayerManager")
 package me.racci.sylphia.data
 
 import org.bukkit.entity.Player

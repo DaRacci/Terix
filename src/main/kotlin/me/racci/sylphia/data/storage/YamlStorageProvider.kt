@@ -1,7 +1,6 @@
 package me.racci.sylphia.data.storage
 
-
-import me.racci.raccilib.skedule.skeduleAsync
+import me.racci.raccicore.skedule.skeduleAsync
 import me.racci.sylphia.Sylphia
 import me.racci.sylphia.data.PlayerData
 import me.racci.sylphia.enums.Special
