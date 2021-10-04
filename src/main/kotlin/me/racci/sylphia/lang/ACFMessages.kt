@@ -25,11 +25,8 @@ enum class ACFCoreMessage {
     HELP_DETAILED_PARAMETER_FORMAT,
     HELP_SEARCH_HEADER;
 
-    val path: String
+    val path: String = "Messages.Core.${this.name.lowercase()}"
 
-    init {
-        this.path = "Messages.Core.${this.name.lowercase()}"
-    }
 }
 
 enum class ACFMinecraftMessage {
@@ -46,9 +43,6 @@ enum class ACFMinecraftMessage {
     LOCATION_PLEASE_SPECIFY_XYZ,
     LOCATION_CONSOLE_NOT_RELATIVE;
 
-    val path: String
+    val path: String = "Messages.Minecraft.${this.name.lowercase()}"
 
-    init {
-        this.path = "Messages.Minecraft.${this.name.lowercase()}"
-    }
 }

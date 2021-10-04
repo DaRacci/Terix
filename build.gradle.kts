@@ -5,7 +5,7 @@ plugins {
 }
 
 group = "${gradle.rootProject.group}"
-version = "0.0.3"
+version = "0.0.4"
 
 dependencies {
 

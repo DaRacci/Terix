@@ -3,11 +3,12 @@ package me.racci.sylphia.managers
 import me.racci.raccicore.Level
 import me.racci.raccicore.log
 import me.racci.sylphia.Sylphia
+import me.racci.sylphia.plugin
 import org.bukkit.Location
 import org.bukkit.World
 import org.bukkit.entity.Player
 
-class WorldManager(plugin: Sylphia) {
+class WorldManager {
 
     private var disabledWorlds = ArrayList<String>()
     private var previewWorlds = ArrayList<String>()

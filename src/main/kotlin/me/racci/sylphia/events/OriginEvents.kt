@@ -1,27 +1,27 @@
 package me.racci.sylphia.events
 
 import me.racci.raccicore.events.KotlinEvent
-import me.racci.sylphia.origins.Origin
+import me.racci.sylphia.factories.Origin
 import org.bukkit.entity.Player
 
 class OriginChangeEvent(val player: Player,
                         val oldOrigin: Origin?,
                         val newOrigin: Origin,
                         val sender: Player?,
-                        ) : KotlinEvent(true) { }
+                        ) : KotlinEvent(true)
 
 class OriginResetEvent(val player: Player,
                        val sender: Player,
-                       ) : KotlinEvent(true) { }
+                       ) : KotlinEvent(true)
 
 class BurnInSunLightEvent(val player: Player,
                           val damage: Double,
-                          ) : KotlinEvent(false) { }
+                          ) : KotlinEvent(false)
 
 class RainDamageEvent(val player: Player,
                       val damage: Double,
-                      ) : KotlinEvent(false) { }
+                      ) : KotlinEvent(false)
 
 class WaterDamageEvent(val player: Player,
                        val damage: Double,
-                       ) : KotlinEvent(false) { }
+                       ) : KotlinEvent(false)

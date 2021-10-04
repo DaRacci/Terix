@@ -1,21 +1,17 @@
 package me.racci.sylphia.listeners
 
-import me.racci.sylphia.Sylphia
 import me.racci.sylphia.extensions.PlayerExtension.currentOrigin
+import me.racci.sylphia.originManager
 import org.bukkit.Sound
 import org.bukkit.entity.Player
 import org.bukkit.event.EventHandler
 import org.bukkit.event.EventPriority
 import org.bukkit.event.Listener
 import org.bukkit.event.entity.EntityCombustEvent
-import org.bukkit.event.entity.EntityDamageByEntityEvent
 import org.bukkit.event.entity.EntityDamageEvent
 import org.bukkit.event.entity.PlayerDeathEvent
 
-class PlayerDamageListener(plugin: Sylphia): Listener {
-
-    private val originManager = plugin.originManager
-    private val audience = plugin.audienceManager
+class PlayerDamageListener : Listener {
 
     @EventHandler(priority = EventPriority.LOWEST)
     fun onOriginDamageChange(event: EntityDamageEvent) {
@@ -24,22 +20,22 @@ class PlayerDamageListener(plugin: Sylphia): Listener {
         val origin = player.currentOrigin
         when(event.cause) {
             EntityDamageEvent.DamageCause.FALL -> {
-                if (origin?.enableFall == true) {
-                    if (origin.fallAmount == 0) {
+                if (origin?.enable?.fall == true) {
+                    if (origin.damage.fall == 0) {
                         event.isCancelled = true
                         return
                     }
-                    event.damage = event.damage * (origin.fallAmount / 100)
+                    event.damage = event.damage * (origin.damage.fall / 100)
                 }
             }
             EntityDamageEvent.DamageCause.LAVA, EntityDamageEvent.DamageCause.FIRE, EntityDamageEvent.DamageCause.FIRE_TICK, EntityDamageEvent.DamageCause.HOT_FLOOR -> {
-                if (origin?.enableLava == true) {
-                    if (origin.lavaAmount == 0) {
+                if (origin?.enable?.lava == true) {
+                    if (origin.damage.lava == 0) {
                         player.fireTicks = 0
                         event.isCancelled = true
                         return
                     }
-                    event.damage = event.damage * (origin.lavaAmount / 100)
+                    event.damage = event.damage * (origin.damage.lava / 100)
                 }
             }
             else -> return
@@ -50,7 +46,7 @@ class PlayerDamageListener(plugin: Sylphia): Listener {
     fun onCombustEvent(event: EntityCombustEvent) {
         if (event.entity is Player) {
             val origin = (event.entity as Player).currentOrigin ?: return
-            if (origin.enableLava && origin.lavaAmount == 0) event.isCancelled = true
+            if (origin.enable.lava && origin.damage.lava == 0) event.isCancelled = true
         }
     }
 
@@ -59,7 +55,7 @@ class PlayerDamageListener(plugin: Sylphia): Listener {
         if(event.isCancelled || event.finalDamage == 0.0) return
         if(event.entity is Player) {
             val player = event.entity as Player
-            player.world.playSound(player.location, originManager.getOrigin(player.uniqueId)?.hurtSound?:Sound.ENTITY_PLAYER_HURT, 1f, 1f)
+            player.world.playSound(player.location, originManager.getOrigin(player.uniqueId)?.sound?.hurtSound?:Sound.ENTITY_PLAYER_HURT, 1f, 1f)
         }
     }
 
@@ -67,8 +63,8 @@ class PlayerDamageListener(plugin: Sylphia): Listener {
     fun onDeath(event: PlayerDeathEvent) {
         if(event.isCancelled) return
         val player = event.entity
-//        player.world.playSound(player.location, originManager.getOrigin(player.uniqueId)?.deathSound?:Sound.ENTITY_PLAYER_DEATH, 1f, 1f)
-        event.deathSound = originManager.getOrigin(player.uniqueId)?.hurtSound ?: Sound.ENTITY_PLAYER_DEATH
+//        player.world.playSound(player.location, originManager.getOrigin(player.uniqueId)?.deathSound?:_Sound.ENTITY_PLAYER_DEATH, 1f, 1f)
+        event.deathSound = originManager.getOrigin(player.uniqueId)?.sound?.hurtSound ?: Sound.ENTITY_PLAYER_DEATH
     }
 
 }

@@ -1,7 +1,6 @@
 package me.racci.sylphia.commands
 
 import co.aikar.commands.BaseCommand
-import co.aikar.commands.PaperCommandManager
 import co.aikar.commands.annotation.*
 import me.racci.raccicore.skedule.SynchronizationContext
 import me.racci.raccicore.skedule.skeduleAsync
@@ -13,6 +12,8 @@ import me.racci.sylphia.enums.Special
 import me.racci.sylphia.lang.Command
 import me.racci.sylphia.lang.Lang
 import me.racci.sylphia.lang.Prefix
+import me.racci.sylphia.originManager
+import me.racci.sylphia.playerManager
 import net.kyori.adventure.key.Key
 import net.kyori.adventure.sound.Sound
 import net.kyori.adventure.sound.Sound.sound
@@ -20,25 +21,17 @@ import org.bukkit.entity.Player
 import org.bukkit.potion.PotionEffect
 import org.bukkit.potion.PotionEffectType
 
-class SpecialCommands(internal val plugin: Sylphia, commandManager: PaperCommandManager) {
-
-    private val originManager = plugin.originManager
-    private val playerManager = plugin.playerManager
-
-    init {
-        commandManager.registerCommand(NightVisionCommand(plugin))
-    }
-
+class SpecialCommands : BaseCommand() {
 
     @CommandAlias("nightvision")
-    inner class NightVisionCommand(private val plugin: Sylphia) : BaseCommand() {
+    inner class NightVisionCommand(private val plugin: Sylphia) {
 
         @Default
-        @CommandPermission("sylphia.commands.nightvision")
+        @CommandPermission("plugin.commands.nightvision")
         @Description("Toggles night vision")
         fun onToggle(player: Player) {
-            println(originManager.getOrigin(player.uniqueId)?.nightVision)
-            if(originManager.getOrigin(player)?.nightVision == true) {
+            println(originManager.getOrigin(player.uniqueId)?.special?.nightVision)
+            if(originManager.getOrigin(player)?.special?.nightVision == true) {
                 val playerData = playerManager.getPlayerData(player.uniqueId) ?: return
                 when(playerData.getOriginSetting(Special.NIGHTVISION)) {
                     0 -> {
@@ -60,7 +53,9 @@ class SpecialCommands(internal val plugin: Sylphia, commandManager: PaperCommand
 
                 }
             } else {
-                player.sendMessage(replace(Lang.Messages.get(Command.TOGGLE_NO_PERMISSION), "{special}", colour("&2Night Vision")!!))
+                player.sendMessage(replace(Lang.Messages.get(Command.TOGGLE_NO_PERMISSION), "{special}",
+                    colour("&2Night Vision")
+                ))
                 player.playSound(sound(Key.key("block.note_block.bass"), Sound.Source.PLAYER, 1f, 1f))
             }
         }
@@ -68,7 +63,7 @@ class SpecialCommands(internal val plugin: Sylphia, commandManager: PaperCommand
         @Subcommand("on")
         fun onToggleOn(player: Player) {
             skeduleAsync(plugin) {
-                if(originManager.getOrigin(player)?.nightVision == true) {
+                if(originManager.getOrigin(player)?.special?.nightVision == true) {
                     val playerData = playerManager.getPlayerData(player.uniqueId) ?: return@skeduleAsync
                     when(playerData.getOriginSetting(Special.NIGHTVISION)) {
                         2 -> {
@@ -78,8 +73,9 @@ class SpecialCommands(internal val plugin: Sylphia, commandManager: PaperCommand
                         else -> {
                             playerData.setOriginSetting(Special.NIGHTVISION, 2)
                             player.sendMessage(replace(Lang.Messages.get(Command.TOGGLE_SPECIFIC),
-                                "{special}", colour("&2Night Vision")!!,
-                                "{option}", colour("&aon")!!))
+                                "{special}", colour("&2Night Vision"),
+                                "{option}", colour("&aon")
+                            ))
                             player.playSound(sound(Key.key("entity.experience_orb.pickup"), Sound.Source.PLAYER, 0.5f, 1f))
                             switchContext(SynchronizationContext.SYNC)
                             player.addPotionEffect(PotionEffect(PotionEffectType.NIGHT_VISION, Int.MAX_VALUE, 0, true, false, false))
@@ -92,7 +88,7 @@ class SpecialCommands(internal val plugin: Sylphia, commandManager: PaperCommand
         @Subcommand("off")
         fun onToggleOff(player: Player) {
             skeduleAsync(plugin) {
-                if(originManager.getOrigin(player)?.nightVision == true) {
+                if(originManager.getOrigin(player)?.special?.nightVision == true) {
                     val playerData = playerManager.getPlayerData(player.uniqueId) ?: return@skeduleAsync
                     when(playerData.getOriginSetting(Special.NIGHTVISION)) {
                         0 -> {
@@ -102,8 +98,9 @@ class SpecialCommands(internal val plugin: Sylphia, commandManager: PaperCommand
                         else -> {
                             playerData.setOriginSetting(Special.NIGHTVISION, 0)
                             player.sendMessage(replace(Lang.Messages.get(Command.TOGGLE_SPECIFIC),
-                                "{special}", colour("&2Night Vision")!!,
-                                "{option}", colour("&coff")!!))
+                                "{special}", colour("&2Night Vision"),
+                                "{option}", colour("&coff")
+                            ))
                             player.playSound(sound(Key.key("item.shield.block"), Sound.Source.PLAYER, 0.5f, 1f))
                             switchContext(SynchronizationContext.SYNC)
                             player.removePotionEffect(PotionEffectType.NIGHT_VISION)
@@ -116,7 +113,7 @@ class SpecialCommands(internal val plugin: Sylphia, commandManager: PaperCommand
         @Subcommand("night")
         fun onToggleNight(player: Player) {
             skeduleAsync(plugin) {
-                if(originManager.getOrigin(player)?.nightVision == true) {
+                if(originManager.getOrigin(player)?.special?.nightVision == true) {
                     val playerData = playerManager.getPlayerData(player.uniqueId) ?: return@skeduleAsync
                     when(playerData.getOriginSetting(Special.NIGHTVISION)) {
                         1 -> {
@@ -126,8 +123,9 @@ class SpecialCommands(internal val plugin: Sylphia, commandManager: PaperCommand
                         else -> {
                             playerData.setOriginSetting(Special.NIGHTVISION, 1)
                             player.sendMessage(replace(Lang.Messages.get(Command.TOGGLE_SPECIFIC),
-                                "{special}", colour("&2Night Vision")!!,
-                                "{option}", colour("&5night")!!))
+                                "{special}", colour("&2Night Vision"),
+                                "{option}", colour("&5night")
+                            ))
                             player.playSound(sound(Key.key("entity.bat.takeoff"), Sound.Source.PLAYER, 0.5f, 1f))
                             if(WorldTime.isNight(player)) {
                                 switchContext(SynchronizationContext.SYNC)

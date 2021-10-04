@@ -2,6 +2,7 @@ package me.racci.sylphia.handlers
 
 import me.racci.sylphia.enums.Condition
 import me.racci.sylphia.extensions.PlayerExtension.currentOrigin
+import me.racci.sylphia.factories.Origin
 import me.racci.sylphia.utils.AttributeUtils
 import org.bukkit.attribute.Attribute
 import org.bukkit.attribute.AttributeModifier
@@ -17,8 +18,8 @@ object AttributeHandler {
      * @param player
      * @return EnumMap<Attribute, Double>
      */
-    private fun getBase(player: Player) : EnumMap<Attribute, Double>? {
-        return player.currentOrigin?.parentAttribute
+    private fun getBase(player: Player, origin: Origin? = player.currentOrigin) : EnumMap<Attribute, Double>? {
+        return origin?.baseAttributes
     }
     /**
      * Sets the base attributes for the players' origin.
@@ -27,8 +28,8 @@ object AttributeHandler {
      *
      * @param player
      */
-    fun setBase(player: Player) {
-        for(attribute in getBase(player) ?: return) {
+    fun setBase(player: Player, origin: Origin? = player.currentOrigin) {
+        for(attribute in getBase(player, origin) ?: return) {
             player.getAttribute(attribute.key)!!.baseValue = attribute.value
         }
     }
@@ -41,8 +42,8 @@ object AttributeHandler {
      * @param [player]
      * @return [Boolean]
      */
-    fun hasBase(player: Player) : Boolean {
-        for(attribute in getBase(player) ?: return true) {
+    fun hasBase(player: Player, origin: Origin? = player.currentOrigin) : Boolean {
+        for(attribute in getBase(player, origin) ?: return true) {
             if(player.getAttribute(attribute.key)!!.baseValue != attribute.value) return false
         }
         return true
@@ -56,8 +57,8 @@ object AttributeHandler {
      * @param condition
      * @return EnumMap<Attribute, AttributeModifier>
      */
-    private fun getCondition(player: Player, condition: Condition) : EnumMap<Attribute, AttributeModifier> {
-        return player.currentOrigin?.attributeMap?.get(condition)?.modifiers ?: EnumMap(Attribute::class.java)
+    private fun getCondition(player: Player, condition: Condition, origin: Origin? = player.currentOrigin) : EnumMap<Attribute, AttributeModifier> {
+        return origin?.attributes?.get(condition)?.modifiers ?: EnumMap(Attribute::class.java)
     }
     /**
      * Adds the attribute modifiers for the given condition.
@@ -67,7 +68,8 @@ object AttributeHandler {
      * @param player
      * @param condition
      */
-    fun setCondition(player: Player, condition: Condition) {
+    fun setCondition(player: Player, condition: Condition, origin: Origin? = player.currentOrigin) {
+        if(origin == null) return
         for(modifier in getCondition(player, condition)) {
             player.getAttribute(modifier.key)!!.addModifier(modifier.value)
         }
@@ -80,7 +82,8 @@ object AttributeHandler {
      * @param player
      * @param condition
      */
-    fun removeCondition(player: Player, condition: Condition) {
+    fun removeCondition(player: Player, condition: Condition, origin: Origin? = player.currentOrigin) {
+        if(origin == null) return
         for (modifier in getCondition(player, condition)) {
             player.getAttribute(modifier.key)!!.removeModifier(modifier.value)
         }
@@ -95,7 +98,8 @@ object AttributeHandler {
      * @param condition
      * @return
      */
-    fun hasCondition(player: Player, condition: Condition) : Boolean {
+    fun hasCondition(player: Player, condition: Condition, origin: Origin? = player.currentOrigin) : Boolean {
+        if(origin == null) return true
         for (modifier in getCondition(player, condition)) {
             if (player.getAttribute(modifier.key)!!.modifiers
                     .map(AttributeModifier::getName)
@@ -115,8 +119,8 @@ object AttributeHandler {
      */
     fun reset(player: Player) {
         for(attribute in AttributeUtils.getPlayerAttributes()) {
-            player.getAttribute(attribute)!!.modifiers.clear()
-            player.getAttribute(attribute)!!.baseValue = AttributeUtils.getDefault(attribute)
+            player.getAttribute(attribute)?.modifiers?.clear()
+            player.getAttribute(attribute)?.baseValue = AttributeUtils.getDefault(attribute)
         }
         for(attribute in getBase(player).orEmpty()) {
             player.getAttribute(attribute.key)!!.baseValue = attribute.value

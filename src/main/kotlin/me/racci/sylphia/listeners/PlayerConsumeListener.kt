@@ -1,17 +1,15 @@
 package me.racci.sylphia.listeners
 
 import me.racci.raccicore.skedule.skeduleAsync
-import me.racci.sylphia.Sylphia
-import me.racci.sylphia.origins.OriginManager
+import me.racci.sylphia.originManager
+import me.racci.sylphia.plugin
 import org.bukkit.Material
 import org.bukkit.event.EventHandler
 import org.bukkit.event.EventPriority
 import org.bukkit.event.Listener
 import org.bukkit.event.player.PlayerItemConsumeEvent
 
-class PlayerConsumeListener(private val plugin: Sylphia) : Listener {
-
-    private var originManager: OriginManager = plugin.originManager
+class PlayerConsumeListener : Listener {
 
     @EventHandler(priority = EventPriority.HIGH)
     fun onConsume(event: PlayerItemConsumeEvent) {

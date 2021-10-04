@@ -1,73 +1,30 @@
 package me.racci.sylphia.utils
 
-import me.racci.raccicore.utils.OriginConditionException
-import me.racci.raccicore.utils.worlds.WorldTime
-import me.racci.sylphia.extensions.PlayerExtension.isDay
-import me.racci.sylphia.origins.AttributeModifier
-import me.racci.sylphia.origins.BaseAttribute
-import me.racci.sylphia.origins.OriginValue
+import me.racci.raccicore.utils.worlds.WorldTime.isDay
+import me.racci.sylphia.enums.Condition
+import me.racci.sylphia.enums.Condition.*
 import org.apache.commons.lang3.EnumUtils
-import org.bukkit.World.Environment.*
 import org.bukkit.attribute.Attribute
 import org.bukkit.attribute.Attribute.*
 import org.bukkit.entity.Player
 import org.bukkit.potion.PotionEffect
 import org.bukkit.potion.PotionEffectType
 
-fun getCondition(player: Player): OriginValue {
-    val dimensionCondition: String = when(player.world.environment) {
-        NORMAL -> "O"
-        NETHER -> "N"
-        THE_END -> "E"
-        else -> throw OriginConditionException("Unexpected value: " + player.world.environment)
-    }
-    val timeCondition: String = if(dimensionCondition == "O") when(WorldTime.isDay(player)) {
-        true -> "D"
-        false -> "N"
-    } else ""
-    val liquidCondition: String = if(player.isInWaterOrBubbleColumn) "W" else if(player.isInLava) "L" else ""
-    return OriginValue.valueOf("$dimensionCondition$timeCondition$liquidCondition")
-}
-fun getConditionSet(player: Player): HashSet<OriginValue> {
-    val condition = HashSet<OriginValue>()
-    val var1 = player.world.environment
-    condition.add(when(var1) {
-        NORMAL -> OriginValue.OVERWORLD
-        NETHER -> OriginValue.NETHER
-        THE_END -> OriginValue.END
-        else -> throw OriginConditionException("Unexpected value: " + player.world.environment)
-    })
-    if(var1 == NORMAL) {
-        condition.add(when(player.isDay) {
-            true -> OriginValue.DAY
-            false -> OriginValue.NIGHT
-        })
-    }
-    if(player.isInWaterOrBubbleColumn) condition.add(OriginValue.WATER)
-        else if(player.isInLava) condition.add(OriginValue.LAVA)
-    return condition
+
+fun getConditions(player: Player) : Array<Condition> {
+    return arrayOf(
+        when(player.world.environment.ordinal) {2 -> NETHER;3 -> END;else -> OVERWORLD},
+        if(player.world.environment.ordinal == 1) when(isDay(player)) {true -> DAY;false -> NIGHT} else NULL,
+        if(player.isInWaterOrBubbleColumn) WATER else if(player.isInLava) LAVA else NULL
+    )
 }
 
 object PotionUtils {
 
     private val potionEffectTypes = HashSet<PotionEffectType>()
 
-    fun createPotion(string: String): PotionEffect? {
-        val potion = string.split(":".toRegex()).toTypedArray()
-        if ((potion[1].toIntOrNull() ?: return null) !in 0..if(isValid(potion[0])) PrivatePotionEffectType.valueOf(potion[0]).maxLevel else return null) return null
-        return PotionEffect(PotionEffectType.getByName(potion[0])!!, Int.MAX_VALUE, potion[1].toInt(), true, false, false)
-    }
-
-    private fun isValid(string: String): Boolean {
+    fun isValid(string: String): Boolean {
         return EnumUtils.isValidEnum(PrivatePotionEffectType::class.java, string)
-    }
-
-    fun isInfinite(potion: PotionEffect): Boolean {
-        return potion.duration >= 86400
-    }
-
-    fun isOriginEffect(potion: PotionEffect): Boolean {
-        return !potion.hasIcon() || potion.isAmbient || potion.duration >= 86400
     }
 
     val potionTypes: HashSet<PotionEffectType> = potionEffectTypes
@@ -91,22 +48,7 @@ object AttributeUtils {
 
     private val playerAttributes = ArrayList<Attribute>()
 
-    fun createModifier(condition: OriginValue, string: String) : AttributeModifier? {
-        val attribute = string.split(":".toRegex()).toTypedArray()
-        val var1 = if(isValid(attribute[0])) PrivateAttribute.valueOf(attribute[0]) else return null
-        if ((attribute[1].toDoubleOrNull() ?: return null) !in var1.minLevel..var1.maxLevel) return null
-        return AttributeModifier(Attribute.valueOf(attribute[0]),
-            org.bukkit.attribute.AttributeModifier(condition.toString(), attribute[1].toDouble(), org.bukkit.attribute.AttributeModifier.Operation.ADD_SCALAR))
-    }
-
-    fun createBaseAttribute(string: String) : BaseAttribute? {
-        val attribute = string.split(":".toRegex()).toTypedArray()
-        val var1 = if(isValid(attribute[0])) PrivateAttribute.valueOf(attribute[0]) else return null
-        if ((attribute[1].toDoubleOrNull() ?: return null) !in var1.minLevel..var1.maxLevel) return null
-        return BaseAttribute(Attribute.valueOf(attribute[0]), attribute[1].toDouble())
-    }
-
-    private fun isValid(string: String?): Boolean {
+    fun isValid(string: String?): Boolean {
         return EnumUtils.isValidEnum(Attribute::class.java, string)
     }
 

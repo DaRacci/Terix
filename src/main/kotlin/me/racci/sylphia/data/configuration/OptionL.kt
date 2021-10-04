@@ -55,7 +55,7 @@ class OptionL(private val plugin: Sylphia) {
                             loaded++
                         } else optionError(option)
                     }
-                    ValueType.SOUND -> {
+                    SOUND -> {
                         if(EnumUtils.isValidEnumIgnoreCase(Sound::class.java, value as String?)) {
                             options[option] = OptionValue(value)
                             loaded++
@@ -67,6 +67,9 @@ class OptionL(private val plugin: Sylphia) {
                             loaded++
                         } else optionError(option)
                     }
+                    MATERIAL_HEAD -> TODO()
+                    EFFECT -> TODO()
+                    ATTRIBUTE -> TODO()
                 }
             } else {
                 log(Level.WARNING,"Missing value in config.yml: Option " + option.name + " with path " + option.path + " was not found, using default value instead!")

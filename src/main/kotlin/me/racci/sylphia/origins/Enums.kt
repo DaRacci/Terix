@@ -3,8 +3,6 @@ package me.racci.sylphia.origins
 import me.racci.sylphia.enums.ValueType
 import me.racci.sylphia.enums.ValueType.*
 import org.bukkit.Material.BARRIER
-import org.bukkit.Sound.ENTITY_PLAYER_DEATH
-import org.bukkit.Sound.ENTITY_PLAYER_HURT
 
 enum class OriginFile (val path: String,
                        val type: ValueType,
@@ -14,19 +12,19 @@ enum class OriginFile (val path: String,
     IDENTITY_NAME("Identity.Name", STRING, "Null"),
     IDENTITY_COLOUR("Identity.Colour", STRING, ""),
 
-    SOUND_HURT("Sound.Hurt", SOUND, ENTITY_PLAYER_HURT),
-    SOUND_DEATH("Sound.Death", SOUND, ENTITY_PLAYER_DEATH),
+    SOUND_HURT("_Sound.Hurt", SOUND, "ENTITY_PLAYER_HURT"),
+    SOUND_DEATH("_Sound.Death", SOUND, "ENTITY_PLAYER_DEATH"),
 
     PERMISSION_REQUIRED("Permissions.Required", STRING, null, true),
     PERMISSION_GIVEN("Permission.Given", LIST, null, true),
 
-    DAY_TITLE("Time-Message.Day.Title", STRING, null, true),
-    DAY_SUBTITLE("Time-Message.Day.Subtitle", STRING, null, true),
-    DAY_SOUND("Time-Message.Day.Sound", SOUND, null, true),
+    DAY_TITLE("Time-Message.Day.Title", STRING, "", true),
+    DAY_SUBTITLE("Time-Message.Day.Subtitle", STRING, "", true),
+    DAY_SOUND("Time-Message.Day._Sound", SOUND, "", true),
 
-    NIGHT_TITLE("Time-Message.Night.Title", STRING, null, true),
-    NIGHT_SUBTITLE("Time-Message.Night.Subtitle", STRING, null, true),
-    NIGHT_SOUND("Time-Message.Night.Sound", SOUND, null, true),
+    NIGHT_TITLE("Time-Message.Night.Title", STRING, "", true),
+    NIGHT_SUBTITLE("Time-Message.Night.Subtitle", STRING, "", true),
+    NIGHT_SOUND("Time-Message.Night._Sound", SOUND, "", true),
 
     PASSIVES_GENERAL("Passives.Enabled", BOOLEAN, false),
     PASSIVES_TIME("Passives.Time", BOOLEAN, false),
