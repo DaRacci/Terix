@@ -3,14 +3,11 @@ package me.racci.sylphia.listeners
 import me.racci.raccicore.events.PlayerEnterLiquidEvent
 import me.racci.raccicore.events.PlayerExitLiquidEvent
 import me.racci.raccicore.events.PlayerMoveFullXYZEvent
-import me.racci.raccicore.skedule.SynchronizationContext
 import me.racci.raccicore.skedule.skeduleAsync
 import me.racci.raccicore.skedule.skeduleSync
-import me.racci.sylphia.Sylphia
-import me.racci.sylphia.extensions.PlayerExtension.currentOrigin
-import me.racci.sylphia.origins.OriginManager
-import me.racci.sylphia.origins.OriginValue.LAVA
-import me.racci.sylphia.origins.OriginValue.WATER
+import me.racci.sylphia.enums.Condition
+import me.racci.sylphia.originManager
+import me.racci.sylphia.plugin
 import org.bukkit.Bukkit
 import org.bukkit.Material
 import org.bukkit.block.data.Levelled
@@ -25,26 +22,24 @@ import kotlin.math.roundToInt
 import kotlin.math.sqrt
 
 
-class PlayerMoveListener(private val originManager: OriginManager): org.bukkit.event.Listener {
-
+class PlayerMoveListener : org.bukkit.event.Listener {
 
     @EventHandler(priority = EventPriority.NORMAL)
     fun onEnterLiquid(event: PlayerEnterLiquidEvent) {
-        val liquid = if(event.liquidType == 1) WATER else LAVA
-        originManager.addAttributeModifiers(event.player, liquid, event.player.currentOrigin)
-        originManager.addPotions(event.player, liquid, event.player.currentOrigin)
+        val liquid = if(event.liquidType == 1) Condition.WATER else Condition.LAVA
+        val player = event.player
+        originManager.addCondition(player, liquid)
     }
 
     @EventHandler(priority = EventPriority.NORMAL)
     fun onExitLiquid(event: PlayerExitLiquidEvent) {
-        val liquid = if(event.liquidType == 1) WATER else LAVA
-        originManager.removeAttributeModifiers(event.player, liquid, event.player.currentOrigin)
-        originManager.removePotions(event.player, liquid, event.player.currentOrigin)
+        val liquid = if(event.liquidType == 1) Condition.WATER else Condition.LAVA
+        originManager.removeCondition(event.player, liquid)
     }
 
     @EventHandler
     fun onLavaWalk(event: PlayerMoveFullXYZEvent) {
-        skeduleAsync(Sylphia.instance) {
+        skeduleAsync(plugin) {
             val player = event.player
             val circle = VectorUtils.getCircle(3)
             for(vector in circle) {

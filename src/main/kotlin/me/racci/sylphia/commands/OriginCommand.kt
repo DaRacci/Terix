@@ -7,14 +7,16 @@ import me.racci.raccicore.skedule.skeduleAsync
 import me.racci.raccicore.utils.strings.LegacyUtils
 import me.racci.raccicore.utils.strings.colour
 import me.racci.raccicore.utils.strings.replace
-import me.racci.sylphia.Sylphia
 import me.racci.sylphia.events.OriginChangeEvent
 import me.racci.sylphia.events.OriginResetEvent
+import me.racci.sylphia.factories.Origin
+import me.racci.sylphia.itemManager
 import me.racci.sylphia.lang.Lang
 import me.racci.sylphia.lang.Origins
 import me.racci.sylphia.lang.Prefix
 import me.racci.sylphia.managers.Item
-import me.racci.sylphia.origins.Origin
+import me.racci.sylphia.originManager
+import me.racci.sylphia.plugin
 import net.kyori.adventure.text.Component
 import org.bukkit.Bukkit
 import org.bukkit.Sound
@@ -23,13 +25,10 @@ import org.bukkit.entity.Player
 
 
 @CommandAlias("origin|origins")
-class OriginCommand(private val plugin: Sylphia) : BaseCommand() {
-
-    private val originManager = plugin.originManager
-    private val scheduler = Bukkit.getScheduler()
+class OriginCommand : BaseCommand() {
 
     @Default
-    @CommandPermission("sylphia.command.main")
+    @CommandPermission("plugin.command.main")
     @Description("Opens information for the players current origin.")
     fun onOrigin(sender: CommandSender) {
         sender.sendMessage("${(sender as Player).isInRain} : ${sender.isInDaylight}")
@@ -43,7 +42,7 @@ class OriginCommand(private val plugin: Sylphia) : BaseCommand() {
 	 */
 
     @Subcommand("get")
-    @CommandPermission("sylphia.command.get")
+    @CommandPermission("plugin.command.get")
     @CommandCompletion("@players")
     @Description("Gets the origin of either yourself or the targeted player")
     fun onGet(sender: CommandSender, player: Player = sender as Player) {
@@ -54,7 +53,7 @@ class OriginCommand(private val plugin: Sylphia) : BaseCommand() {
                     .append(
                         LegacyUtils.parseLegacy(replace(Lang.Messages.get(Origins.COMMAND_GET_HAS),
                         "{PlayerDisplayName}", player.displayName,
-                        "{origin}", origin.displayName))).build())
+                        "{origin}", origin.identity.displayName))).build())
             } else {
                 sender.sendMessage(Component.text()
                     .append(LegacyUtils.parseLegacy(replace(Lang.Messages.get(Origins.COMMAND_GET_NULL),
@@ -64,7 +63,7 @@ class OriginCommand(private val plugin: Sylphia) : BaseCommand() {
     }
 
     @Subcommand("set")
-    @CommandPermission("sylphia.command.set")
+    @CommandPermission("plugin.command.set")
     @CommandCompletion("@players @origins")
     @Description("Sets the targeted players origin")
     fun onSet(sender: CommandSender, @Flags("other") player: Player, origin: Origin) {
@@ -83,7 +82,7 @@ class OriginCommand(private val plugin: Sylphia) : BaseCommand() {
     }
 
     @Subcommand("reset")
-    @CommandPermission("sylphia.command.reset")
+    @CommandPermission("plugin.command.reset")
     @CommandCompletion("@players")
     @Description("Sets the targeted players origin to Lost/Nothing")
     fun onReset(sender: CommandSender, @Optional player: Player = sender as Player) {
@@ -95,25 +94,25 @@ class OriginCommand(private val plugin: Sylphia) : BaseCommand() {
     }
 
 
-    @Subcommand("reload")
-    @CommandPermission("sylphia.command.reload")
+    @Subcommand("doReload")
+    @CommandPermission("plugin.command.doReload")
     @Description("Reloads only the origins")
     fun onReload(sender: CommandSender) {
-        plugin.originHandler.loadOrigins()
+        originManager.refresh()
         Bukkit.getOnlinePlayers().forEach { player1x ->
             if(originManager.getOrigin(player1x.uniqueId) == null) return@forEach
-            originManager.refreshAll(player1x)
+            originManager.removeAll(player1x)
         }
         sender.sendMessage(colour("${Lang.Messages.get(Prefix.ORIGINS)} &bReloaded Origins!").orEmpty())
     }
 
     @Subcommand("token")
-    @CommandPermission("sylphia.command.token")
+    @CommandPermission("plugin.command.token")
     @Syntax("[amount] [player]")
     @CommandCompletion("@range:1-64")
     @Description("Gives either yourself or the targeted player an Origin token")
     fun onToken(sender: CommandSender, @Optional @Conditions("limits:min=1,max=64") amount: Int = 1, @Optional player: Player = sender as Player) {
-        player.inventory.addItem(plugin.itemManager.items[Item.ORIGIN_TOKEN]?.asQuantity(amount) ?: return)
+        player.inventory.addItem(itemManager.items[Item.ORIGIN_TOKEN]?.asQuantity(amount) ?: return)
         player.playSound(player.location, Sound.BLOCK_BEEHIVE_EXIT, 1f, 1f)
         if(player != sender) {
             sender.sendMessage(Component.text()
@@ -137,7 +136,7 @@ class OriginCommand(private val plugin: Sylphia) : BaseCommand() {
 
 
     @Subcommand("help")
-    @CommandPermission("sylphia.command.help")
+    @CommandPermission("plugin.command.help")
     fun onHelp(sender: CommandSender?, help: CommandHelp) {
         help.showHelp()
     }

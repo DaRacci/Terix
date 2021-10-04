@@ -6,9 +6,9 @@ Sound:
   Death: ENTITY_FOX_DEATH
 Permissions:
   Required:
-    - sylphia.raccoon
+    - plugin.raccoon
   Given:
-    - sylphia.raccoon.gay
+    - plugin.raccoon.gay
 TimeMessage:
   Day:
     Title: "&2Day!"

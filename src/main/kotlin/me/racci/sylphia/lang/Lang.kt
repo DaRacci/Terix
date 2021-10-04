@@ -32,6 +32,12 @@ class Lang(private val plugin: Sylphia): Listener {
         }
     }
 
+    companion object {
+        fun get(key: MessageKey) : String {
+            return messagesMap[key] ?: ""
+        }
+    }
+
     private val lang: String = "lang.yml"
     private val fileVersion: String = "File_Version"
 

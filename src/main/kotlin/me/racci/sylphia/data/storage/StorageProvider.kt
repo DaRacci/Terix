@@ -1,18 +1,16 @@
 package me.racci.sylphia.data.storage
 
-import me.racci.sylphia.Sylphia
 import me.racci.sylphia.data.PlayerData
-import me.racci.sylphia.data.PlayerManager
 import me.racci.sylphia.events.DataLoadEvent
+import me.racci.sylphia.playerManager
 import org.bukkit.Bukkit
 import org.bukkit.ChatColor
 import org.bukkit.entity.Player
 
-abstract class StorageProvider protected constructor(internal val plugin: Sylphia) {
+abstract class StorageProvider {
 
-    val playerManager: PlayerManager = plugin.playerManager
     fun createNewPlayer(player: Player): PlayerData {
-        val playerData = PlayerData(player, plugin)
+        val playerData = PlayerData(player)
         playerManager.addPlayerData(playerData)
         val event = DataLoadEvent(playerData)
         Bukkit.getPluginManager().callEvent(event)

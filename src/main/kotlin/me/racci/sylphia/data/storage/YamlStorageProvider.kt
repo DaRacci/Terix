@@ -1,10 +1,11 @@
 package me.racci.sylphia.data.storage
 
 import me.racci.raccicore.skedule.skeduleAsync
-import me.racci.sylphia.Sylphia
 import me.racci.sylphia.data.PlayerData
 import me.racci.sylphia.enums.Special
 import me.racci.sylphia.events.DataLoadEvent
+import me.racci.sylphia.playerManager
+import me.racci.sylphia.plugin
 import org.bukkit.Bukkit
 import org.bukkit.configuration.file.FileConfiguration
 import org.bukkit.configuration.file.YamlConfiguration
@@ -12,14 +13,14 @@ import org.bukkit.entity.Player
 import java.io.File
 import java.util.*
 
-class YamlStorageProvider(plugin: Sylphia) : StorageProvider(plugin) {
+class YamlStorageProvider : StorageProvider() {
 
     override fun load(player: Player) {
         skeduleAsync(plugin) {
             val file = File(plugin.dataFolder.toString() + "/Players/" + player.uniqueId + ".yml")
             if (file.exists()) {
                 val config: FileConfiguration = YamlConfiguration.loadConfiguration(file)
-                val playerData = PlayerData(player, plugin as Sylphia)
+                val playerData = PlayerData(player)
                 try {
                     // Make sure file name and uuid match
                     val id: UUID = UUID.fromString(config.getString("uuid", player.uniqueId.toString()))

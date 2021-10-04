@@ -1,14 +1,14 @@
 package me.racci.sylphia.data
 
-import me.racci.sylphia.Sylphia
 import me.racci.sylphia.enums.Special
 import org.bukkit.entity.Player
+import java.util.*
 
-class PlayerData(val player: Player, private val plugin: Sylphia) {
+class PlayerData(val player: Player) {
     var origin: String? = null
     var lastOrigin: String? = null
-    private val originSettings: HashMap<Special, Int> = HashMap()
-    private val cooldownMap: HashMap<String, Long> = HashMap()
+    private val originSettings = EnumMap<Special, Int>(Special::class.java)
+    private val cooldownMap = HashMap<String, Long>()
     var isSaving: Boolean = false
     private var shouldSave: Boolean
 

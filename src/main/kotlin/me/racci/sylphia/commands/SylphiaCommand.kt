@@ -4,23 +4,21 @@ import co.aikar.commands.BaseCommand
 import co.aikar.commands.annotation.*
 import me.racci.raccicore.skedule.skeduleAsync
 import me.racci.raccicore.utils.strings.LegacyUtils
-import me.racci.sylphia.Sylphia
 import me.racci.sylphia.lang.Command
 import me.racci.sylphia.lang.Lang
+import me.racci.sylphia.storageManager
+import me.racci.sylphia.plugin
 import net.kyori.adventure.text.Component
 import org.bukkit.Bukkit
 import org.bukkit.Sound
 import org.bukkit.command.CommandSender
 import org.bukkit.entity.Player
 
-@CommandAlias("sylphia|sylphian")
-class SylphiaCommand(private val plugin: Sylphia) : BaseCommand() {
-
-    private val storageManager = plugin.storageProvider
-    private val playerManager = plugin.playerManager
+@CommandAlias("plugin|sylphian")
+class SylphiaCommand : BaseCommand() {
 
     @Default
-    @CommandPermission("sylphia.command.main")
+    @CommandPermission("plugin.command.main")
     @Description("Base command for Sylphia")
     fun onSylphia(sender: CommandSender) {
         sender.sendMessage("fuck")
@@ -28,7 +26,7 @@ class SylphiaCommand(private val plugin: Sylphia) : BaseCommand() {
 
 
     @Subcommand("save")
-    @CommandPermission("sylphia.command.save")
+    @CommandPermission("plugin.command.save")
     @Description("Saves all online players")
     fun onSave(sender: CommandSender) {
         skeduleAsync(plugin) {
@@ -42,11 +40,11 @@ class SylphiaCommand(private val plugin: Sylphia) : BaseCommand() {
         }
     }
 
-    @Subcommand("reload")
-    @CommandPermission("sylphia.command.reload")
+    @Subcommand("doReload")
+    @CommandPermission("plugin.command.doReload")
     @Description("Reloads all parts of Sylphia")
     fun onReload(sender: CommandSender) {
-        plugin.handleReload()
+        plugin.reload()
         sender.sendMessage(Component.text()
             .append(LegacyUtils.parseLegacy(Lang.Messages.get(Command.RELOAD))).build())
     }

@@ -19,5 +19,11 @@ enum class Condition {
     LEVITATION,
 
 
+    /**
+     * Other stuff
+     */
+    NULL,
+
+
 
 }

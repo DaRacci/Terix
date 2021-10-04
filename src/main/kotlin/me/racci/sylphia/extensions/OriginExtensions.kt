@@ -1,33 +1,25 @@
 package me.racci.sylphia.extensions
 
 import me.racci.raccicore.utils.worlds.WorldTime
-import me.racci.sylphia.Sylphia
+import me.racci.sylphia.originManager
 import me.racci.sylphia.origins.OriginManager
+import me.racci.sylphia.playerManager
 import org.bukkit.entity.Player
-import org.bukkit.potion.PotionEffect
-
-object PotionEffectExtension {
-
-    val PotionEffect.origin
-        get() = !this.hasIcon() || this.isAmbient || this.duration >= 86400
-
-
-}
 
 object PlayerExtension {
 
     var Player.currentOrigin
-        get() = Sylphia.instance.originManager.getOrigin(this.uniqueId)
+        get() = originManager.getOrigin(this.uniqueId)
         set(origin) {
-            val playerData = Sylphia.instance.playerManager.getPlayerData(this.uniqueId)
+            val playerData = playerManager.getPlayerData(this.uniqueId)
             playerData?.lastOrigin = playerData?.origin ?: "LOST"
-            playerData?.origin = origin?.name?.uppercase() ?: "LOST"
+            playerData?.origin = origin?.identity?.name?.uppercase() ?: "LOST"
         }
     val Player.previousOrigin
-        get() = OriginManager.valueOf(Sylphia.instance.playerManager.getPlayerData(this.uniqueId)?.lastOrigin.orEmpty())
+        get() = OriginManager.valueOf(playerManager.getPlayerData(this.uniqueId)?.lastOrigin.orEmpty())
 
     val Player.hasOrigin
-        get() = OriginManager.contains(Sylphia.instance.playerManager.getPlayerData(this.uniqueId)?.origin.orEmpty())
+        get() = OriginManager.contains(playerManager.getPlayerData(this.uniqueId)?.origin.orEmpty())
 
     val Player.isDay
         get() = WorldTime.isDay(this)

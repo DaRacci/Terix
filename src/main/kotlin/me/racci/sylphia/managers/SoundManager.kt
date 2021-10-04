@@ -7,10 +7,10 @@ import com.comphenix.protocol.events.ListenerPriority
 import com.comphenix.protocol.events.PacketAdapter
 import com.comphenix.protocol.events.PacketEvent
 import com.comphenix.protocol.wrappers.EnumWrappers
-import me.racci.sylphia.Sylphia
+import me.racci.sylphia.plugin
 import org.bukkit.Sound.ENTITY_PLAYER_HURT
 
-class SoundManager(private val plugin: Sylphia) {
+class SoundManager {
 
     private var protocolManager: ProtocolManager = ProtocolLibrary.getProtocolManager()!!
 

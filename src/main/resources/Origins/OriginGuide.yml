@@ -24,7 +24,7 @@ Sound:
 Permissions:
   # If blank no permission will be required to select
   # the origin, only one required permission is supported.
-  Required: sylphia.origins.human
+  Required: plugin.origins.human
   # You can have any amount of permissions given to an origin,
   # The must be in a list
   Given:
