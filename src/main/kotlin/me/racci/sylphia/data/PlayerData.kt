@@ -1,10 +1,9 @@
 package me.racci.sylphia.data
 
 import me.racci.sylphia.enums.Special
-import org.bukkit.entity.Player
 import java.util.*
 
-class PlayerData(val player: Player) {
+class PlayerData(val uuid: UUID) {
     var origin: String? = null
     var lastOrigin: String? = null
     private val originSettings = EnumMap<Special, Int>(Special::class.java)

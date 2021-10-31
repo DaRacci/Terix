@@ -1,17 +1,18 @@
 package me.racci.sylphia.data.storage
 
 import me.racci.sylphia.data.PlayerData
+import me.racci.sylphia.data.PlayerManager
 import me.racci.sylphia.events.DataLoadEvent
-import me.racci.sylphia.playerManager
 import org.bukkit.Bukkit
 import org.bukkit.ChatColor
 import org.bukkit.entity.Player
+import java.util.*
 
 abstract class StorageProvider {
 
-    fun createNewPlayer(player: Player): PlayerData {
-        val playerData = PlayerData(player)
-        playerManager.addPlayerData(playerData)
+    fun createNewPlayer(uuid: UUID): PlayerData {
+        val playerData = PlayerData(uuid)
+        PlayerManager.addPlayerData(playerData)
         val event = DataLoadEvent(playerData)
         Bukkit.getPluginManager().callEvent(event)
         return playerData
@@ -25,7 +26,6 @@ abstract class StorageProvider {
         )
     }
 
-    abstract fun load(player: Player)
-    abstract fun save(player: Player)
-    abstract fun save(player: Player, removeFromMemory: Boolean)
+    abstract fun load(uuid: UUID)
+    abstract fun save(uuid: UUID, removeFromMemory: Boolean = false)
 }
