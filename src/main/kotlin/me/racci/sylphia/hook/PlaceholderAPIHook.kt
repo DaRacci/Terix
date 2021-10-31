@@ -2,43 +2,24 @@ package me.racci.sylphia.hook
 
 import me.clip.placeholderapi.expansion.PlaceholderExpansion
 import me.racci.sylphia.Sylphia
-import me.racci.sylphia.originManager
+import me.racci.sylphia.data.PlayerManager
 import me.racci.sylphia.origins.OriginManager
-import me.racci.sylphia.playerManager
 import org.bukkit.entity.Player
 
-class PlaceholderAPIHook(private val plugin: Sylphia) : PlaceholderExpansion() {
+class PlaceholderAPIHook : PlaceholderExpansion() {
 
-    override fun persist(): Boolean {
-        return true
-    }
+    override fun persist() = true
+    override fun canRegister() = true
 
-    override fun canRegister(): Boolean {
-        return true
-    }
-
-    override fun getIdentifier(): String {
-        return "plugin"
-    }
-
-    override fun getAuthor(): String {
-        return "Racci"
-    }
-
-    override fun getVersion(): String {
-        return "Alpha-0.1"
-    }
+    override fun getAuthor() = Sylphia.instance.description.authors.joinToString(", ")
+    override fun getVersion() = Sylphia.instance.description.version
+    override fun getIdentifier() = Sylphia.instance.description.name
 
     override fun onPlaceholderRequest(player: Player, params: String): String {
-        if (params.equals("origin", ignoreCase = true)) {
-            return originManager.getOrigin(player)?.identity?.displayName ?: ""
+        return when (params.lowercase()) {
+            "origin" -> OriginManager.getOrigin(player)?.identity?.displayName ?: ""
+            "lastorigin" -> OriginManager.valueOf(PlayerManager[player.uniqueId].lastOrigin ?: return "").identity.displayName
+            else -> ""
         }
-        return if (params.equals("lastOrigin", ignoreCase = true)) {
-            OriginManager.valueOf(
-                playerManager.getPlayerData(
-                    player.uniqueId
-                )?.lastOrigin!!
-            ).identity.displayName
-        } else ""
     }
 }
