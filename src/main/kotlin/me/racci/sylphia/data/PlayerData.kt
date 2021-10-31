@@ -15,7 +15,7 @@ data class PlayerData(val uuid: UUID) {
     operator fun get(special: Special): Int =
         originSettings.getOrDefault(special, 1)
     operator fun set(special: Special, value: Int) {
-        originSettings[special] = value}
+        originSettings[special] = value.coerceIn(0..special.max)}
 
 }
 
