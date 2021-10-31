@@ -1,5 +1,7 @@
 package me.racci.sylphia.enums
 
+import me.racci.sylphia.Sylphia
+
 enum class Condition {
 
     /**
@@ -18,12 +20,12 @@ enum class Condition {
      */
     LEVITATION,
 
-
     /**
      * Other stuff
      */
-    NULL,
+    NULL;
 
-
+    fun toNamespacedkey() =
+        Sylphia.namespacedKey("condition_${name.lowercase()}")
 
 }
