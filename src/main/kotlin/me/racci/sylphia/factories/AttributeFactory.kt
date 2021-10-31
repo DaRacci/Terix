@@ -7,7 +7,7 @@ import org.bukkit.attribute.AttributeModifier
 import java.util.*
 import kotlin.collections.HashMap
 
-object AttributeFactory {
+internal object AttributeFactory {
 
     fun newCondition(
         condition: Condition,
@@ -21,6 +21,5 @@ object AttributeFactory {
         return AttributeCondition(map)
     }
 }
-
 
 data class AttributeCondition(var modifiers: EnumMap<Attribute, AttributeModifier>)
