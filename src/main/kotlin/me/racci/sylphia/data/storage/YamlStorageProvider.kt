@@ -22,12 +22,12 @@ class YamlStorageProvider(val plugin: Sylphia) : StorageProvider() {
                 Sylphia.log.error("There was an error loading player data for the player with the UUID $uuid, see below for details.")
                 it.printStackTrace()
                 val data = createNewPlayer(uuid)
-                data.setShouldSave(false)
+                data.shouldSave = false
             }) {
                 require(uuid == UUID.fromString(config.getString("uuid"))) {"File name and uuid field do not match!"}
                 playerData.origin       = config.getString("Origins.Origin")
                 playerData.lastOrigin   = config.getString("Origins.LastOrigin")
-                Special.values().forEach{playerData.setOriginSetting(it, config.getInt("Settings.${it.name.uppercase()}"))}
+                Special.values().forEach{playerData[it] = config.getInt("Settings.${it.name.uppercase()}")}
                 PlayerManager.addPlayerData(playerData)
                 pm.callEvent(DataLoadEvent(playerData))
             }
@@ -37,8 +37,7 @@ class YamlStorageProvider(val plugin: Sylphia) : StorageProvider() {
 
     override fun save(uuid: UUID, removeFromMemory: Boolean) {
         val playerData = PlayerManager[uuid]
-        if(playerData == null
-            || playerData.shouldNotSave()
+        if(!playerData.shouldSave
             || playerData.isSaving
         ) return
         playerData.isSaving = true
@@ -52,7 +51,7 @@ class YamlStorageProvider(val plugin: Sylphia) : StorageProvider() {
             config["Origins.Origin"]    = playerData.origin ?: ""
             config["Origins.LastOrigin"]= playerData.lastOrigin ?: ""
             Special.values().forEach{config["Settings.$it"] =
-                playerData.getOriginSetting(it)}
+                playerData[it]}
             config.save(file)
             if(removeFromMemory) PlayerManager.removePlayerData(uuid)
         }

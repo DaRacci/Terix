@@ -8,11 +8,7 @@ internal object PlayerManager {
 
     private val playerData = ConcurrentHashMap<UUID, PlayerData>()
 
-    operator fun get(uuid: UUID) = playerData[uuid]
-
-    fun init() {
-
-    }
+    operator fun get(uuid: UUID) = playerData[uuid]!!
 
     fun close() {
         playerData.keys.forEach(Sylphia.storageManager::save)
