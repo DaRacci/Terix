@@ -1,10 +1,10 @@
 package me.racci.sylphia.hook.perms
 
-import org.bukkit.entity.Player
+import java.util.UUID
 
 interface PermManager {
-    fun addPermission(player: Player, permissions: List<String?>)
-    fun addPermission(player: Player, permission: String?)
-    fun removePermission(player: Player, permissions: List<String?>)
-    fun removePermission(player: Player, permission: String?)
+    fun addPermission(uuid: UUID, permissions: List<String>)
+    fun addPermission(uuid: UUID, permission: String)
+    fun removePermission(uuid: UUID, permissions: List<String>)
+    fun removePermission(uuid: UUID, permission: String)
 }
