@@ -6,15 +6,11 @@ import me.racci.sylphia.utils.PrivatePotionEffectType
 import org.bukkit.potion.PotionEffect
 import org.bukkit.potion.PotionEffectType
 
-class PotionFactory {
+internal object PotionFactory {
 
     lateinit var levitationPotion: PotionEffect
 
-    init {
-        reload()
-    }
-
-    private fun reload() {
+    fun init() {
         levitationPotion = PotionEffect(
             PotionEffectType.LEVITATION,
             Int.MAX_VALUE,
@@ -22,18 +18,14 @@ class PotionFactory {
             true,
             false,
             false,
-            Condition.LEVITATION
+            Condition.LEVITATION.toNamespacedkey()
         )
     }
 
-    companion object {
-
-        fun newPotion(string: String, condition: Condition) : PotionEffect? {
-            val potion = string.split(":".toRegex()).toTypedArray()
-            if ((potion[1].toIntOrNull() ?: return null) !in 0..if(PotionUtils.isValid(potion[0])) PrivatePotionEffectType.valueOf(potion[0]).maxLevel else return null) return null
-            return PotionEffect(PotionEffectType.getByName(potion[0])!!, Int.MAX_VALUE, potion[1].toInt(), true, false, false, condition)
-        }
-
+    fun newPotion(string: String, condition: Condition) : PotionEffect? {
+        val potion = string.split(":".toRegex()).toTypedArray()
+        if ((potion[1].toIntOrNull() ?: return null) !in 0..if(PotionUtils.isValid(potion[0])) PrivatePotionEffectType.valueOf(potion[0]).maxLevel else return null) return null
+        return PotionEffect(PotionEffectType.getByName(potion[0])!!, Int.MAX_VALUE, potion[1].toInt(), true, false, false, condition.toNamespacedkey())
     }
 
 

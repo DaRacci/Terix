@@ -1,12 +1,10 @@
 package me.racci.sylphia.factories
 
-import me.racci.raccicore.listeners.KotlinListener
 import me.racci.raccicore.utils.items.builders.ItemBuilder
 import me.racci.raccicore.utils.strings.colour
 import me.racci.raccicore.utils.strings.textOf
 import me.racci.sylphia.enums.Condition
 import me.racci.sylphia.enums.Condition.*
-import me.racci.sylphia.enums.ValueType
 import me.racci.sylphia.lang.Lang
 import me.racci.sylphia.lang.Origins
 import me.racci.sylphia.origins.OriginFile.*
@@ -22,7 +20,7 @@ import org.bukkit.inventory.ItemStack
 import org.bukkit.potion.PotionEffect
 import java.util.*
 
-class OriginFactory : KotlinListener {
+internal object OriginFactory {
 
     fun generate(config: YamlConfiguration) : Origin {
         val modifierMaps = EnumMap<Condition, HashMap<Attribute, Double>>(Condition::class.java)
@@ -145,11 +143,11 @@ class OriginFactory : KotlinListener {
                 .setNbt("GUIItem", true)
                 .name(textOf(identities[0]))
                 .lore(var2)
-                .build()!!
+                .build()
         } else {
             ItemBuilder.from(Material.BEDROCK)
                 .setNbt("GUIItem", false)
-                .build()!!
+                .build()
         }, config.getInt(GUI_SLOT.path, 0))
         val baseAttributes = EnumMap<Attribute, Double>(Attribute::class.java)
 
@@ -210,7 +208,7 @@ class OriginFactory : KotlinListener {
 }
 
 data class Origin(private val identities:   Array<String>,
-                  private val sounds:       Array<Sound?>,
+                  private val sounds:       Array<org.bukkit.Sound?>,
                   private val messages:     Array<String>,
                   private val perms:        Array<List<String>>,
                   private val enables:      BooleanArray,
@@ -223,7 +221,7 @@ data class Origin(private val identities:   Array<String>,
                   ) {
 
     val identity        = Identity()
-    val sound           = _Sound()
+    val sound           = Sound()
     val message         = Message()
     val permissions     = Permissions()
     val enable          = Enables()
@@ -238,7 +236,7 @@ data class Origin(private val identities:   Array<String>,
         val bracketName     get() = "$colour[$name]"
     }
 
-    inner class _Sound {
+    inner class Sound {
         val hurtSound       get() = sounds[0]
         val deathSound      get() = sounds[1]
         val daySound        get() = sounds[2]

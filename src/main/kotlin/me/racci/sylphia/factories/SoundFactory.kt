@@ -3,22 +3,17 @@ package me.racci.sylphia.factories
 import net.kyori.adventure.key.Key
 import net.kyori.adventure.sound.Sound
 
-class SoundFactory {
+internal object SoundFactory {
 
     lateinit var errorSound: Sound
 
-    init {
-        reload()
-    }
-
-    private fun reload() {
+    fun init() {
 
         errorSound = Sound.sound(Key.key(
             "block.note_block.bass"),
             Sound.Source.PLAYER,
             0.7f, 1f
         )
-
 
     }
 

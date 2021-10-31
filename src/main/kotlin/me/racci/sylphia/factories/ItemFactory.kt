@@ -2,7 +2,7 @@ package me.racci.sylphia.factories
 
 import org.bukkit.inventory.ItemStack
 
-class ItemFactory {
+object ItemFactory {
 
 
 
