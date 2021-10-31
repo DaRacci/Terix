@@ -1,95 +1,62 @@
 package me.racci.sylphia.data.storage
 
-import me.racci.raccicore.skedule.skeduleAsync
+import me.racci.raccicore.utils.catch
+import me.racci.raccicore.utils.pm
+import me.racci.sylphia.Sylphia
 import me.racci.sylphia.data.PlayerData
+import me.racci.sylphia.data.PlayerManager
 import me.racci.sylphia.enums.Special
 import me.racci.sylphia.events.DataLoadEvent
-import me.racci.sylphia.playerManager
-import me.racci.sylphia.plugin
-import org.bukkit.Bukkit
-import org.bukkit.configuration.file.FileConfiguration
 import org.bukkit.configuration.file.YamlConfiguration
-import org.bukkit.entity.Player
 import java.io.File
 import java.util.*
 
-class YamlStorageProvider : StorageProvider() {
+class YamlStorageProvider(val plugin: Sylphia) : StorageProvider() {
 
-    override fun load(player: Player) {
-        skeduleAsync(plugin) {
-            val file = File(plugin.dataFolder.toString() + "/Players/" + player.uniqueId + ".yml")
-            if (file.exists()) {
-                val config: FileConfiguration = YamlConfiguration.loadConfiguration(file)
-                val playerData = PlayerData(player)
-                try {
-                    // Make sure file name and uuid match
-                    val id: UUID = UUID.fromString(config.getString("uuid", player.uniqueId.toString()))
-                    require(player.uniqueId == id) { "File name and uuid field do not match!" }
-                    // Load origin data
-                    playerData.origin = config.getString("Origins.Origins")
-                    playerData.lastOrigin = config.getString("Origins.LastOrigin")
-                    for (originSetting in Special.values()) {
-                        val path = "Settings." + originSetting.name.uppercase()
-                        val value = config.getInt(path, 1)
-                        playerData.setOriginSetting(originSetting, value)
-                    }
-                    playerManager.addPlayerData(playerData)
-                    val event = DataLoadEvent(playerData)
-                    Bukkit.getPluginManager().callEvent(event)
-                } catch (e: Exception) {
-                    Bukkit.getLogger()
-                        .warning("There was an error loading player data for player " + player.name + " with UUID " + player.uniqueId + ", see below for details.")
-                    e.printStackTrace()
-                    val data = createNewPlayer(player)
-                    data.setShouldSave(false)
-                    sendErrorMessageToPlayer(player, e)
-                }
-            } else {
-                createNewPlayer(player)
+    override fun load(uuid: UUID) {
+        val file = File("${plugin.dataFolder}/Players/$uuid.yml")
+        if(file.exists()) {
+            val config = YamlConfiguration.loadConfiguration(file)
+            val playerData = PlayerData(uuid)
+            catch<Exception>({
+                Sylphia.log.error("There was an error loading player data for the player with the UUID $uuid, see below for details.")
+                it.printStackTrace()
+                val data = createNewPlayer(uuid)
+                data.setShouldSave(false)
+            }) {
+                require(uuid == UUID.fromString(config.getString("uuid"))) {"File name and uuid field do not match!"}
+                playerData.origin       = config.getString("Origins.Origin")
+                playerData.lastOrigin   = config.getString("Origins.LastOrigin")
+                Special.values().forEach{playerData.setOriginSetting(it, config.getInt("Settings.${it.name.uppercase()}"))}
+                PlayerManager.addPlayerData(playerData)
+                pm.callEvent(DataLoadEvent(playerData))
             }
-        }
+        } else createNewPlayer(uuid)
+
     }
 
-    override fun save(player: Player, removeFromMemory: Boolean) {
-        val playerData = playerManager.getPlayerData(player) ?: return
-        if (playerData.shouldNotSave()) return
-        // Save lock
-        if (playerData.isSaving) return
+    override fun save(uuid: UUID, removeFromMemory: Boolean) {
+        val playerData = PlayerManager[uuid]
+        if(playerData == null
+            || playerData.shouldNotSave()
+            || playerData.isSaving
+        ) return
         playerData.isSaving = true
-        // Load file
-        val file = File(plugin.dataFolder.toString() + "/Players/" + player.uniqueId + ".yml")
-        val config: FileConfiguration = YamlConfiguration.loadConfiguration(file)
-        try {
-            config["User-Info.Username"] = player.name
-            config["User-Info.UUID"] = player.uniqueId.toString()
-            // Save origin data
-            if (playerData.origin != null) {
-                config["Origins.Origins"] = playerData.origin
-            } else {
-                config["Origins.Origins"] = ""
-            }
-            if (playerData.lastOrigin != null) {
-                config["Origins.LastOrigin"] = playerData.lastOrigin
-            } else {
-                config["Origins.LastOrigin"] = ""
-            }
-            for (originSetting in Special.values()) {
-                val path = "Settings.$originSetting"
-                config[path] = playerData.getOriginSetting(originSetting)
-            }
+        val file    = File("${plugin.dataFolder}/Players/$uuid.yml")
+        val config  = YamlConfiguration.loadConfiguration(file)
+        catch<Exception>({
+            Sylphia.log.error("There was an error saving player data for the player with the UUID $uuid, see below for details.")
+            it.printStackTrace()
+        }) {
+            config["UUID"]              = uuid
+            config["Origins.Origin"]    = playerData.origin ?: ""
+            config["Origins.LastOrigin"]= playerData.lastOrigin ?: ""
+            Special.values().forEach{config["Settings.$it"] =
+                playerData.getOriginSetting(it)}
             config.save(file)
-            if (removeFromMemory) {
-                playerManager.removePlayerData(player.uniqueId) // Remove from memory
-            }
-        } catch (e: Exception) {
-            Bukkit.getLogger()
-                .warning("There was an error saving player data for player " + player.name + " with UUID " + player.uniqueId + ", see below for details.")
-            e.printStackTrace()
+            if(removeFromMemory) PlayerManager.removePlayerData(uuid)
         }
-        playerData.isSaving = false // Unlock
+        playerData.isSaving = false
     }
 
-    override fun save(player: Player) {
-        save(player, false)
-    }
 }

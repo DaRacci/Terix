@@ -1,34 +1,31 @@
 package me.racci.sylphia.data
 
-import org.bukkit.entity.Player
+import me.racci.sylphia.Sylphia
 import java.util.*
 import java.util.concurrent.ConcurrentHashMap
-import java.util.concurrent.ConcurrentMap
 
-class PlayerManager {
+internal object PlayerManager {
 
-    private val playerData: ConcurrentHashMap<UUID, PlayerData> = ConcurrentHashMap()
-    fun getPlayerData(player: Player): PlayerData? {
-        return playerData[player.uniqueId]
+    private val playerData = ConcurrentHashMap<UUID, PlayerData>()
+
+    operator fun get(uuid: UUID) = playerData[uuid]
+
+    fun init() {
+
     }
 
-    fun getPlayerData(id: UUID): PlayerData? {
-        return playerData[id]
+    fun close() {
+        playerData.keys.forEach(Sylphia.storageManager::save)
+        playerData.clear()
+        playerData.clear()
+    }
+
+    fun removePlayerData(uuid: UUID) {
+        playerData.remove(uuid)
     }
 
     fun addPlayerData(playerData: PlayerData) {
-        this.playerData[playerData.player.uniqueId] = playerData
+        this.playerData[playerData.uuid] = playerData
     }
-
-    fun removePlayerData(id: UUID) {
-        playerData.remove(id)
-    }
-
-    fun hasPlayerData(player: Player): Boolean {
-        return playerData.containsKey(player.uniqueId)
-    }
-
-    val playerDataMap: ConcurrentMap<UUID, PlayerData>
-        get() = playerData
 
 }

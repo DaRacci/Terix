@@ -1,11 +1,10 @@
 package me.racci.sylphia.data.configuration
 
-import me.racci.raccicore.utils.strings.colour
 import me.racci.raccicore.Level
 import me.racci.raccicore.log
+import me.racci.raccicore.utils.strings.colour
 import me.racci.sylphia.Sylphia
 import me.racci.sylphia.enums.ValueType.*
-import me.racci.sylphia.enums.ValueType
 import org.apache.commons.lang3.EnumUtils
 import org.bukkit.ChatColor
 import org.bukkit.Material
