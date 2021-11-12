@@ -1,11 +1,12 @@
 package me.racci.sylphia.runnables
 
+import me.racci.raccicore.runnables.KotlinRunnable
 import me.racci.raccicore.utils.pm
+import me.racci.sylphia.Sylphia
 import me.racci.sylphia.extensions.PlayerExtension.currentOrigin
-import me.racci.sylphia.plugin
 import org.bukkit.entity.Player
 
-class WaterRunnable : org.bukkit.scheduler.BukkitRunnable() {
+class WaterRunnable(plugin: Sylphia) : KotlinRunnable(plugin, true) {
 
     companion object {
         val waterablePlayers = HashSet<Player>()

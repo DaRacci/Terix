@@ -1,14 +1,15 @@
 package me.racci.sylphia.listeners
 
+import me.racci.raccicore.utils.extensions.KotlinListener
 import me.racci.raccicore.utils.strings.LegacyUtils
 import me.racci.raccicore.utils.strings.replace
+import me.racci.sylphia.data.PlayerManager
 import me.racci.sylphia.events.OriginChangeEvent
 import me.racci.sylphia.events.OriginResetEvent
 import me.racci.sylphia.extensions.PlayerExtension.currentOrigin
 import me.racci.sylphia.lang.Lang
 import me.racci.sylphia.lang.Origins
-import me.racci.sylphia.originManager
-import me.racci.sylphia.playerManager
+import me.racci.sylphia.origins.OriginManager
 import me.racci.sylphia.runnables.RainRunnable
 import me.racci.sylphia.runnables.SunLightRunnable
 import me.racci.sylphia.runnables.WaterRunnable
@@ -17,21 +18,20 @@ import org.bukkit.Bukkit
 import org.bukkit.Sound
 import org.bukkit.event.EventHandler
 import org.bukkit.event.EventPriority
-import org.bukkit.event.Listener
 
-class OriginEventListener : Listener {
+class OriginEventListener : KotlinListener {
 
-    @EventHandler(priority = EventPriority.NORMAL)
+    @EventHandler(priority = EventPriority.HIGHEST, ignoreCancelled = true)
     fun onOriginChange(event: OriginChangeEvent) {
-        if(event.isCancelled) return
 
         val player = event.player
         val origin = event.newOrigin
 
         if(origin == event.oldOrigin) {
+            event.sender?.sendMessage(Lang[Origins.COMMAND_SET_CURRENT])
             event.sender?.sendMessage(Component.text()
                 .append(LegacyUtils.parseLegacy(
-                    replace(Lang.Messages.get(Origins.COMMAND_SET_CURRENT),
+                    replace(Lang[Origins.COMMAND_SET_CURRENT],
                         "{PlayerDisplayName}", player.displayName,
                         "{origin}", origin.identity.displayName)))
                 .build()
@@ -44,7 +44,7 @@ class OriginEventListener : Listener {
             if(player1x != event.sender) {
                 player1x.sendMessage(Component.text()
                     .append(LegacyUtils.parseLegacy(
-                        replace(Lang.Messages.get(Origins.SELECT_BROADCAST),
+                        replace(Lang[Origins.SELECT_BROADCAST],
                             "{PlayerDisplayName}", player.displayName,
                             "{var}", origin.identity.displayName)))
                     .build()
@@ -53,7 +53,7 @@ class OriginEventListener : Listener {
         }
         event.sender?.sendMessage(Component.text()
                 .append(LegacyUtils.parseLegacy(
-                    replace(Lang.Messages.get(Origins.COMMAND_SET_SUCCESS),
+                    replace(Lang[Origins.COMMAND_SET_SUCCESS],
                         "{PlayerDisplayName}", player.displayName,
                         "{var}", origin.identity.displayName)))
                 .build()
@@ -69,19 +69,19 @@ class OriginEventListener : Listener {
         if(origin.enable.sun) burnablePlayers.add(event.player)
         if(origin.enable.rain) rainablePlayers.add(event.player)
         if(origin.enable.water) waterablePlayers.add(event.player)
-        playerManager.getPlayerData(player.uniqueId)?.setShouldSave(true)
-        originManager.refreshAll(player, origin)
+        PlayerManager[player.uniqueId].save()
+        OriginManager.refreshAll(player, origin)
     }
 
     @EventHandler(priority = EventPriority.NORMAL)
-    fun onOriginReset(event: OriginResetEvent) {
+    suspend fun onOriginReset(event: OriginResetEvent) {
         if (event.isCancelled) return
         val player = event.player
         if (player.currentOrigin == null) {
             event.isCancelled = true
             event.sender.sendMessage(Component.text()
                 .append(LegacyUtils.parseLegacy(
-                    replace(Lang.Messages.get(Origins.COMMAND_GET_NULL),
+                    replace(Lang[Origins.COMMAND_GET_NULL],
                     "{PlayerDisplayName}", player.displayName))
                 )
             )
@@ -91,7 +91,7 @@ class OriginEventListener : Listener {
         if(event.sender != player) {
             player.sendMessage(Component.text()
                 .append(LegacyUtils.parseLegacy(
-                    replace(Lang.Messages.get(Origins.COMMAND_RESET_TARGET),
+                    replace(Lang[Origins.COMMAND_RESET_TARGET],
                         "{SenderDisplayName}", event.sender.displayName)
                 ))
             )
@@ -99,11 +99,11 @@ class OriginEventListener : Listener {
         player.playSound(player.location, Sound.BLOCK_NOTE_BLOCK_IRON_XYLOPHONE, 1f, 0.7f)
         event.sender.sendMessage(Component.text()
             .append(LegacyUtils.parseLegacy(
-                replace(Lang.Messages.get(Origins.COMMAND_RESET_SENDER),
+                replace(Lang[Origins.COMMAND_RESET_SENDER],
                     "{PlayerDisplayName}", player.displayName,))).build()
         )
         player.currentOrigin = null
-        playerManager.getPlayerData(player.uniqueId)?.setShouldSave(true)
-        originManager.removeAll(player)
+        PlayerManager[player.uniqueId].save()
+        OriginManager.removeAll(player)
     }
 }

@@ -1,23 +1,22 @@
 package me.racci.sylphia.listeners
 
-import me.racci.raccicore.skedule.skeduleAsync
+import com.github.shynixn.mccoroutine.asyncDispatcher
+import kotlinx.coroutines.withContext
+import me.racci.raccicore.utils.extensions.KotlinListener
 import me.racci.raccicore.utils.strings.colour
-import me.racci.sylphia.originManager
-import me.racci.sylphia.plugin
+import me.racci.sylphia.Sylphia
+import me.racci.sylphia.origins.OriginManager
 import org.bukkit.Sound
 import org.bukkit.event.EventHandler
 import org.bukkit.event.EventPriority
-import org.bukkit.event.Listener
 import org.bukkit.event.player.PlayerChangedWorldEvent
 
-class PlayerChangeWorldListener : Listener {
+class PlayerChangeWorldListener : KotlinListener {
 
     @EventHandler(priority = EventPriority.NORMAL)
-    fun onChangeWorld(event: PlayerChangedWorldEvent) {
-        skeduleAsync(plugin) {
-            if(originManager.getOrigin(event.player.uniqueId) == null) return@skeduleAsync
-            originManager.refreshAll(event.player)
-        }
+    suspend fun onChangeWorld(event: PlayerChangedWorldEvent) = withContext(Sylphia.instance.asyncDispatcher) {
+        if(OriginManager.getOrigin(event.player.uniqueId) == null) return@withContext
+        OriginManager.refreshAll(event.player)
         event.player.playSound(event.player.location, Sound.BLOCK_BEACON_ACTIVATE, 1f, 1f)
         event.player.sendTitle(colour("&cRelease.."), colour("&4You feel power flowing through you."), 10, 60, 10)
     }

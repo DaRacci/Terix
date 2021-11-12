@@ -5,3 +5,4 @@
 /.gitignore
 /RaSylphia.iml
 /build/kotlin/compileKotlin/
+/build/

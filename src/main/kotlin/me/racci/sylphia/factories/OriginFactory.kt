@@ -1,13 +1,72 @@
 package me.racci.sylphia.factories
 
-import me.racci.raccicore.utils.items.builders.ItemBuilder
+import me.racci.raccicore.builders.ItemBuilder
+import me.racci.raccicore.interfaces.IFactory
 import me.racci.raccicore.utils.strings.colour
 import me.racci.raccicore.utils.strings.textOf
 import me.racci.sylphia.enums.Condition
-import me.racci.sylphia.enums.Condition.*
+import me.racci.sylphia.enums.Condition.DAY
+import me.racci.sylphia.enums.Condition.END
+import me.racci.sylphia.enums.Condition.LAVA
+import me.racci.sylphia.enums.Condition.NETHER
+import me.racci.sylphia.enums.Condition.NIGHT
+import me.racci.sylphia.enums.Condition.OVERWORLD
+import me.racci.sylphia.enums.Condition.PARENT
+import me.racci.sylphia.enums.Condition.WATER
 import me.racci.sylphia.lang.Lang
 import me.racci.sylphia.lang.Origins
-import me.racci.sylphia.origins.OriginFile.*
+import me.racci.sylphia.origins.OriginFile.DAY_ATTRIBUTES
+import me.racci.sylphia.origins.OriginFile.DAY_EFFECTS
+import me.racci.sylphia.origins.OriginFile.DAY_SOUND
+import me.racci.sylphia.origins.OriginFile.DAY_SUBTITLE
+import me.racci.sylphia.origins.OriginFile.DAY_TITLE
+import me.racci.sylphia.origins.OriginFile.END_ATTRIBUTES
+import me.racci.sylphia.origins.OriginFile.END_EFFECTS
+import me.racci.sylphia.origins.OriginFile.FALL_AMOUNT
+import me.racci.sylphia.origins.OriginFile.FALL_ENABLED
+import me.racci.sylphia.origins.OriginFile.GENERAL_ATTRIBUTES
+import me.racci.sylphia.origins.OriginFile.GENERAL_EFFECTS
+import me.racci.sylphia.origins.OriginFile.GUI_ENABLED
+import me.racci.sylphia.origins.OriginFile.GUI_LORE_ABILITIES
+import me.racci.sylphia.origins.OriginFile.GUI_LORE_DEBUFFS
+import me.racci.sylphia.origins.OriginFile.GUI_LORE_DESCRIPTION
+import me.racci.sylphia.origins.OriginFile.GUI_LORE_PASSIVES
+import me.racci.sylphia.origins.OriginFile.GUI_MATERIAL
+import me.racci.sylphia.origins.OriginFile.GUI_SLOT
+import me.racci.sylphia.origins.OriginFile.IDENTITY_COLOUR
+import me.racci.sylphia.origins.OriginFile.IDENTITY_NAME
+import me.racci.sylphia.origins.OriginFile.LAVA_AMOUNT
+import me.racci.sylphia.origins.OriginFile.LAVA_ATTRIBUTES
+import me.racci.sylphia.origins.OriginFile.LAVA_EFFECTS
+import me.racci.sylphia.origins.OriginFile.LAVA_ENABLED
+import me.racci.sylphia.origins.OriginFile.NETHER_ATTRIBUTES
+import me.racci.sylphia.origins.OriginFile.NETHER_EFFECTS
+import me.racci.sylphia.origins.OriginFile.NIGHT_ATTRIBUTES
+import me.racci.sylphia.origins.OriginFile.NIGHT_EFFECTS
+import me.racci.sylphia.origins.OriginFile.NIGHT_SOUND
+import me.racci.sylphia.origins.OriginFile.NIGHT_SUBTITLE
+import me.racci.sylphia.origins.OriginFile.NIGHT_TITLE
+import me.racci.sylphia.origins.OriginFile.OVERWORLD_ATTRIBUTES
+import me.racci.sylphia.origins.OriginFile.OVERWORLD_EFFECTS
+import me.racci.sylphia.origins.OriginFile.PASSIVES_DIMENSION
+import me.racci.sylphia.origins.OriginFile.PASSIVES_GENERAL
+import me.racci.sylphia.origins.OriginFile.PASSIVES_LIQUID
+import me.racci.sylphia.origins.OriginFile.PASSIVES_TIME
+import me.racci.sylphia.origins.OriginFile.PERMISSION_GIVEN
+import me.racci.sylphia.origins.OriginFile.PERMISSION_REQUIRED
+import me.racci.sylphia.origins.OriginFile.RAIN_AMOUNT
+import me.racci.sylphia.origins.OriginFile.RAIN_ENABLED
+import me.racci.sylphia.origins.OriginFile.SOUND_DEATH
+import me.racci.sylphia.origins.OriginFile.SOUND_HURT
+import me.racci.sylphia.origins.OriginFile.SUN_AMOUNT
+import me.racci.sylphia.origins.OriginFile.SUN_ENABLED
+import me.racci.sylphia.origins.OriginFile.TOGGLES_JUMPBOOST
+import me.racci.sylphia.origins.OriginFile.TOGGLES_NIGHTVISION
+import me.racci.sylphia.origins.OriginFile.TOGGLES_SLOWFALLING
+import me.racci.sylphia.origins.OriginFile.WATER_AMOUNT
+import me.racci.sylphia.origins.OriginFile.WATER_ATTRIBUTES
+import me.racci.sylphia.origins.OriginFile.WATER_EFFECTS
+import me.racci.sylphia.origins.OriginFile.WATER_ENABLED
 import me.racci.sylphia.utils.AttributeUtils
 import me.racci.sylphia.utils.PrivateAttribute
 import net.kyori.adventure.text.Component
@@ -18,9 +77,9 @@ import org.bukkit.attribute.Attribute
 import org.bukkit.configuration.file.YamlConfiguration
 import org.bukkit.inventory.ItemStack
 import org.bukkit.potion.PotionEffect
-import java.util.*
+import java.util.EnumMap
 
-internal object OriginFactory {
+object OriginFactory: IFactory<OriginFactory>  {
 
     fun generate(config: YamlConfiguration) : Origin {
         val modifierMaps = EnumMap<Condition, HashMap<Attribute, Double>>(Condition::class.java)
@@ -112,9 +171,9 @@ internal object OriginFactory {
             var1 = if(EnumUtils.isValidEnum(Material::class.java, var1)) {
                 Material.valueOf(var1 ?: "BARRIER")
             } else {
-                ItemBuilder.skull()
-                    .texture(var1 as String)
-                    .build()
+                ItemBuilder.head {
+                    texture = var1 as String
+                }
             }
             var2 = ArrayList<Component>()
             var2.add(Component.empty())
@@ -123,31 +182,31 @@ internal object OriginFactory {
                 var2.add(Component.empty())
             }
             if(config.get(GUI_LORE_PASSIVES.path) != null) {
-                var2.add(textOf(Lang.get(Origins.LORE_PASSIVES)))
+                var2.add(textOf(Lang[Origins.LORE_PASSIVES]))
                 config.getStringList(GUI_LORE_PASSIVES.path).forEach { var1x -> textOf(colour("              $var1x", true))}
                 var2.add(Component.empty())
             }
             if(config.get(GUI_LORE_ABILITIES.path) != null) {
-                var2.add(textOf(Lang.get(Origins.LORE_ABILITIES)))
+                var2.add(textOf(Lang[Origins.LORE_ABILITIES]))
                 config.getStringList(GUI_LORE_ABILITIES.path).forEach { var1x -> textOf(colour("              $var1x", true))}
                 var2.add(Component.empty())
             }
             if(config.get(GUI_LORE_DEBUFFS.path) != null) {
-                var2.add(textOf(Lang.get(Origins.LORE_DEBUFFS)))
+                var2.add(textOf(Lang[Origins.LORE_DEBUFFS]))
                 config.getStringList(GUI_LORE_DEBUFFS.path).forEach { var1x -> textOf(colour("              $var1x", true))}
                 var2.add(Component.empty())
             }
-            ItemBuilder.from(var1 as ItemStack)
-                .amount(1)
-                .glow(config.getBoolean(GUI_GLOW.path))
-                .setNbt("GUIItem", true)
-                .name(textOf(identities[0]))
-                .lore(var2)
-                .build()
+            ItemBuilder.from(var1 as ItemStack) {
+                amount = 1
+                glow()
+                nbt = "GUIItem" to true
+                name = textOf(identities[0])
+                lore = var2 as Component
+            }
         } else {
-            ItemBuilder.from(Material.BEDROCK)
-                .setNbt("GUIItem", false)
-                .build()
+            ItemBuilder.from(Material.BEDROCK) {
+                nbt = "GUIItem" to false
+            }
         }, config.getInt(GUI_SLOT.path, 0))
         val baseAttributes = EnumMap<Attribute, Double>(Attribute::class.java)
 
@@ -188,7 +247,7 @@ internal object OriginFactory {
         }
 
         for(fvar1 in Condition.values()) {
-            potions.putIfAbsent(fvar1, ArrayList<PotionEffect>(0))
+            potions.putIfAbsent(fvar1, ArrayList())
         }
 
         return Origin(
@@ -204,6 +263,18 @@ internal object OriginFactory {
             attributes,
             potions,
         )
+    }
+
+    override fun init() {
+        TODO("Not yet implemented")
+    }
+
+    override fun reload() {
+        TODO("Not yet implemented")
+    }
+
+    override fun close() {
+        TODO("Not yet implemented")
     }
 }
 

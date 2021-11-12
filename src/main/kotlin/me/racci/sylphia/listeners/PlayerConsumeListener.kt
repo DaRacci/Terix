@@ -1,26 +1,26 @@
 package me.racci.sylphia.listeners
 
-import me.racci.raccicore.skedule.skeduleAsync
-import me.racci.sylphia.originManager
-import me.racci.sylphia.plugin
+import com.github.shynixn.mccoroutine.asyncDispatcher
+import kotlinx.coroutines.delay
+import kotlinx.coroutines.withContext
+import me.racci.raccicore.utils.extensions.KotlinListener
+import me.racci.sylphia.Sylphia
+import me.racci.sylphia.origins.OriginManager
 import org.bukkit.Material
 import org.bukkit.event.EventHandler
 import org.bukkit.event.EventPriority
-import org.bukkit.event.Listener
 import org.bukkit.event.player.PlayerItemConsumeEvent
 
-class PlayerConsumeListener : Listener {
+class PlayerConsumeListener : KotlinListener {
 
     @EventHandler(priority = EventPriority.HIGH)
-    fun onConsume(event: PlayerItemConsumeEvent) {
-        skeduleAsync(plugin) {
-            if (event.isCancelled || originManager.getOrigin(event.player.uniqueId) == null) {
-                return@skeduleAsync
-            }
-            if (event.item.type == Material.MILK_BUCKET) {
-                waitFor(20)
-                originManager.refreshAll(event.player)
-            }
+    suspend fun onConsume(event: PlayerItemConsumeEvent) = withContext(Sylphia.instance.asyncDispatcher) {
+        if (event.isCancelled || OriginManager.getOrigin(event.player.uniqueId) == null) {
+            return@withContext
+        }
+        if (event.item.type == Material.MILK_BUCKET) {
+            delay(1000L)
+            OriginManager.refreshAll(event.player)
         }
     }
 

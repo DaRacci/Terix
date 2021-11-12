@@ -1,19 +1,22 @@
 package me.racci.sylphia.listeners
 
+import com.github.shynixn.mccoroutine.asyncDispatcher
+import com.github.shynixn.mccoroutine.minecraftDispatcher
+import kotlinx.coroutines.withContext
 import me.racci.raccicore.events.PlayerEnterLiquidEvent
 import me.racci.raccicore.events.PlayerExitLiquidEvent
 import me.racci.raccicore.events.PlayerMoveFullXYZEvent
-import me.racci.raccicore.skedule.skeduleAsync
-import me.racci.raccicore.skedule.skeduleSync
+import me.racci.raccicore.utils.extensions.KotlinListener
+import me.racci.sylphia.Sylphia
+import me.racci.sylphia.Sylphia.Companion.removeMetadata
+import me.racci.sylphia.Sylphia.Companion.setMetadata
 import me.racci.sylphia.enums.Condition
-import me.racci.sylphia.originManager
-import me.racci.sylphia.plugin
+import me.racci.sylphia.origins.OriginManager
 import org.bukkit.Bukkit
 import org.bukkit.Material
 import org.bukkit.block.data.Levelled
 import org.bukkit.event.EventHandler
 import org.bukkit.event.EventPriority
-import org.bukkit.metadata.FixedMetadataValue
 import org.bukkit.scheduler.BukkitRunnable
 import org.bukkit.util.NumberConversions
 import org.bukkit.util.Vector
@@ -22,62 +25,63 @@ import kotlin.math.roundToInt
 import kotlin.math.sqrt
 
 
-class PlayerMoveListener : org.bukkit.event.Listener {
+class PlayerMoveListener : KotlinListener {
 
     @EventHandler(priority = EventPriority.NORMAL)
-    fun onEnterLiquid(event: PlayerEnterLiquidEvent) {
+    suspend fun onEnterLiquid(event: PlayerEnterLiquidEvent) {
         val liquid = if(event.liquidType == 1) Condition.WATER else Condition.LAVA
         val player = event.player
-        originManager.addCondition(player, liquid)
+        OriginManager.addCondition(player, liquid)
     }
 
     @EventHandler(priority = EventPriority.NORMAL)
-    fun onExitLiquid(event: PlayerExitLiquidEvent) {
+    suspend fun onExitLiquid(event: PlayerExitLiquidEvent) {
         val liquid = if(event.liquidType == 1) Condition.WATER else Condition.LAVA
-        originManager.removeCondition(event.player, liquid)
+        OriginManager.removeCondition(event.player, liquid)
     }
 
     @EventHandler
-    fun onLavaWalk(event: PlayerMoveFullXYZEvent) {
-        skeduleAsync(plugin) {
-            val player = event.player
-            val circle = VectorUtils.getCircle(3)
-            for(vector in circle) {
-                val loc = player.location.add(vector).add(0.0, -1.0, 0.0)
-                val block = player.world.getBlockAt(loc)
-                if (block.type != Material.LAVA) {
-                    continue
-                }
-                val data = block.blockData as Levelled
-                if (data.level != 0) {
-                    continue
-                }
-                skeduleSync(plugin) {
-                    block.type = Material.CRYING_OBSIDIAN
-                    block.setMetadata("byLavaWalker", FixedMetadataValue(plugin, true))
+    suspend fun onLavaWalk(event: PlayerMoveFullXYZEvent) = withContext(Sylphia.instance.asyncDispatcher) {
+        val player = event.player
+        val circle = VectorUtils.getCircle(3)
+        for(vector in circle) {
+            val loc = player.location.add(vector).add(0.0, -1.0, 0.0)
+            val block = player.world.getBlockAt(loc)
+            if (block.type != Material.LAVA) {
+                continue
+            }
+            val data = block.blockData as Levelled
+            if (data.level != 0) {
+                continue
+            }
+            withContext(Sylphia.instance.minecraftDispatcher) {
+                block.type = Material.CRYING_OBSIDIAN
+                setMetadata(block, "byLavaWalker")
 
-                    val replace = object : BukkitRunnable() {
-                        override fun run() {
-                            if (block.type == Material.CRYING_OBSIDIAN && player.world
-                                    .getBlockAt(player.location.add(0.0, -1.0, 0.0)) != block
-                            ) {
-                                block.type = Material.LAVA
-                                block.removeMetadata("byLavaWalker", plugin)
-                                this.cancel()
-                            }
+                val replace = object : BukkitRunnable() {
+                    override fun run() {
+                        if (block.type == Material.CRYING_OBSIDIAN && player.world
+                                .getBlockAt(player.location.add(0.0, -1.0, 0.0)) != block
+                        ) {
+                            block.type = Material.LAVA
+                            removeMetadata(block, "byLavaWalker")
+                            this.cancel()
                         }
                     }
-                    Bukkit.getScheduler().runTaskLater(plugin, Runnable {
-                        if (block.type == Material.CRYING_OBSIDIAN) {
-                            if (player.world.getBlockAt(player.location.add(0.0, -1.0, 0.0)) != block) {
-                                block.type = Material.LAVA
-                                block.removeMetadata("byLavaWalker", plugin)
-                            } else {
-                                replace.runTaskTimer(plugin, 120, 120)
-                            }
-                        }
-                    }, 120)
                 }
+                Sylphia.run({
+
+                }, 2, true)
+                Bukkit.getScheduler().runTaskLater(Sylphia.instance, Runnable {
+                    if (block.type == Material.CRYING_OBSIDIAN) {
+                        if (player.world.getBlockAt(player.location.add(0.0, -1.0, 0.0)) != block) {
+                            block.type = Material.LAVA
+                            block.removeMetadata("byLavaWalker", Sylphia.instance)
+                        } else {
+                            replace.runTaskTimer(Sylphia.instance, 120, 120)
+                        }
+                    }
+                }, 120)
             }
         }
     }
@@ -142,7 +146,7 @@ object VectorUtils {
         if (cached != null) {
             return cached
         }
-        val vectors: MutableList<Vector> = ArrayList<Vector>()
+        val vectors: MutableList<Vector> = ArrayList()
         var xoffset = -radius.toDouble()
         var zoffset = -radius.toDouble()
         while (zoffset <= radius) {
@@ -170,7 +174,7 @@ object VectorUtils {
      * @return An array of [Vector]s.
      */
     fun getSquare(radius: Int): Array<Vector> {
-        val vectors: MutableList<Vector> = ArrayList<Vector>()
+        val vectors: MutableList<Vector> = ArrayList()
         var xoffset = -radius
         var zoffset = -radius
         while (zoffset <= radius) {
@@ -191,7 +195,7 @@ object VectorUtils {
      * @return An array of [Vector]s.
      */
     fun getCube(radius: Int): Array<Vector> {
-        val vectors: MutableList<Vector> = ArrayList<Vector>()
+        val vectors: MutableList<Vector> = ArrayList()
         for (y in -radius..radius) {
             for (z in -radius..radius) {
                 for (x in -radius..radius) {
@@ -206,6 +210,6 @@ object VectorUtils {
     /**
     * Cached circles to prevent many sqrt calls.
     */
-    private val CIRCLE_CACHE: MutableMap<Int, Array<Vector>> = HashMap<Int, Array<Vector>>()
+    private val CIRCLE_CACHE: MutableMap<Int, Array<Vector>> = HashMap()
 
 }

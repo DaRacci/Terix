@@ -1,13 +1,13 @@
 package me.racci.sylphia.factories
 
+import me.racci.raccicore.interfaces.IFactory
 import me.racci.raccicore.utils.math.MathUtils
 import me.racci.sylphia.enums.Condition
 import org.bukkit.attribute.Attribute
 import org.bukkit.attribute.AttributeModifier
-import java.util.*
-import kotlin.collections.HashMap
+import java.util.EnumMap
 
-internal object AttributeFactory {
+object AttributeFactory: IFactory<AttributeFactory> {
 
     fun newCondition(
         condition: Condition,
@@ -19,6 +19,18 @@ internal object AttributeFactory {
                 AttributeModifier(condition.name, multiplier, AttributeModifier.Operation.ADD_SCALAR)
         }
         return AttributeCondition(map)
+    }
+
+    override fun init() {
+        TODO("Not yet implemented")
+    }
+
+    override fun reload() {
+        TODO("Not yet implemented")
+    }
+
+    override fun close() {
+        TODO("Not yet implemented")
     }
 }
 

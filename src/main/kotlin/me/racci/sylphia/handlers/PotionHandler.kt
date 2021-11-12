@@ -9,7 +9,7 @@ import org.bukkit.potion.PotionEffect
 object PotionHandler {
 
     private fun getCondition(player: Player, condition: Condition, origin: Origin? = player.currentOrigin) : ArrayList<PotionEffect> {
-        return origin?.potions?.get(condition) ?: ArrayList(0)
+        return origin?.potions?.get(condition) ?: ArrayList()
     }
 
     fun setBase(player: Player, origin: Origin? = player.currentOrigin) {
@@ -26,9 +26,7 @@ object PotionHandler {
 
     fun removeCondition(player: Player, condition: Condition, origin: Origin? = player.currentOrigin) {
         for (potion in getCondition(player, condition, origin)) {
-            if (player.hasPotionEffect(potion.type) &&
-                player.getPotionEffect(potion.type)!!.extra == condition
-            ) {
+            if (player.getPotionEffect(potion.type)?.key == condition.key) {
                 player.removePotionEffect(potion.type)
             }
         }
@@ -37,7 +35,7 @@ object PotionHandler {
     fun hasCondition(player: Player, condition: Condition, origin: Origin? = player.currentOrigin) : Boolean {
         for (potion in getCondition(player, condition, origin)) {
             if (!player.hasPotionEffect(potion.type) ||
-                player.getPotionEffect(potion.type)!!.extra != condition
+                player.getPotionEffect(potion.type)!!.key != condition.key
             ) {
                 return false
             }
@@ -47,7 +45,7 @@ object PotionHandler {
 
     fun reset(player: Player) {
         for(potion in player.activePotionEffects) {
-            if(potion.hasExtra()) {
+            if(potion.key.key == "sylphia") {
                 player.removePotionEffect(potion.type)
             }
         }

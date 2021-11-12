@@ -1,7 +1,9 @@
 package me.racci.sylphia.data
 
+import me.racci.sylphia.Sylphia
 import me.racci.sylphia.enums.Special
-import java.util.*
+import java.util.EnumMap
+import java.util.UUID
 
 data class PlayerData(val uuid: UUID) {
 
@@ -16,6 +18,10 @@ data class PlayerData(val uuid: UUID) {
         originSettings.getOrDefault(special, 1)
     operator fun set(special: Special, value: Int) {
         originSettings[special] = value.coerceIn(0..special.max)}
+
+    fun save() {
+        Sylphia.storageManager.save(this.uuid)
+    }
 
 }
 
