@@ -1,21 +1,21 @@
 package me.racci.sylphia.listeners
 
 import me.racci.raccicore.skedule.skeduleAsync
-import me.racci.sylphia.originManager
-import me.racci.sylphia.plugin
+import me.racci.raccicore.utils.extensions.KotlinListener
+import me.racci.sylphia.Sylphia
+import me.racci.sylphia.origins.OriginManager
 import org.bukkit.event.EventHandler
 import org.bukkit.event.EventPriority
-import org.bukkit.event.Listener
 import org.bukkit.event.player.PlayerRespawnEvent
 
-class PlayerRespawnListener : Listener {
+class PlayerRespawnListener : KotlinListener {
 
     @EventHandler(priority = EventPriority.NORMAL)
     fun onRespawn(event: PlayerRespawnEvent) {
-        if(originManager.getOrigin(event.player.uniqueId) == null) return
-        skeduleAsync(plugin) {
+        if(OriginManager.getOrigin(event.player.uniqueId) == null) return
+        skeduleAsync(Sylphia.instance) {
             waitFor(10)
-            originManager.removeAll(event.player)
+            OriginManager.removeAll(event.player)
         }
     }
 

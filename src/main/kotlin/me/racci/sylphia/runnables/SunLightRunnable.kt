@@ -1,12 +1,13 @@
 package me.racci.sylphia.runnables
 
+import me.racci.raccicore.runnables.KotlinRunnable
 import me.racci.raccicore.utils.pm
+import me.racci.sylphia.Sylphia
 import me.racci.sylphia.extensions.PlayerExtension.currentOrigin
 import me.racci.sylphia.extensions.PlayerExtension.isDay
-import me.racci.sylphia.plugin
 import org.bukkit.entity.Player
 
-class SunLightRunnable : org.bukkit.scheduler.BukkitRunnable() {
+class SunLightRunnable(plugin: Sylphia) : KotlinRunnable(plugin, true) {
 
     companion object {
         val burnablePlayers = HashSet<Player>()

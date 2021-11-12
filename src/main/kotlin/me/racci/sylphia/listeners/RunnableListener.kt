@@ -1,8 +1,9 @@
 package me.racci.sylphia.listeners
 
+import me.racci.raccicore.utils.extensions.KotlinListener
 import org.bukkit.event.EventHandler
 
-class RunnableListener : org.bukkit.event.Listener {
+class RunnableListener : KotlinListener {
 
     @EventHandler
     fun onBurnInSunlight(event: me.racci.sylphia.events.BurnInSunLightEvent) {

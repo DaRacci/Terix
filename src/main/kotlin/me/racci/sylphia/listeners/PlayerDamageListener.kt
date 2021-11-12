@@ -1,17 +1,17 @@
 package me.racci.sylphia.listeners
 
+import me.racci.raccicore.utils.extensions.KotlinListener
 import me.racci.sylphia.extensions.PlayerExtension.currentOrigin
-import me.racci.sylphia.originManager
+import me.racci.sylphia.origins.OriginManager
 import org.bukkit.Sound
 import org.bukkit.entity.Player
 import org.bukkit.event.EventHandler
 import org.bukkit.event.EventPriority
-import org.bukkit.event.Listener
 import org.bukkit.event.entity.EntityCombustEvent
 import org.bukkit.event.entity.EntityDamageEvent
 import org.bukkit.event.entity.PlayerDeathEvent
 
-class PlayerDamageListener : Listener {
+class PlayerDamageListener : KotlinListener {
 
     @EventHandler(priority = EventPriority.LOWEST)
     fun onOriginDamageChange(event: EntityDamageEvent) {
@@ -55,7 +55,7 @@ class PlayerDamageListener : Listener {
         if(event.isCancelled || event.finalDamage == 0.0) return
         if(event.entity is Player) {
             val player = event.entity as Player
-            player.world.playSound(player.location, originManager.getOrigin(player.uniqueId)?.sound?.hurtSound?:Sound.ENTITY_PLAYER_HURT, 1f, 1f)
+            player.world.playSound(player.location, OriginManager.getOrigin(player.uniqueId)?.sound?.hurtSound?:Sound.ENTITY_PLAYER_HURT, 1f, 1f)
         }
     }
 
@@ -64,7 +64,7 @@ class PlayerDamageListener : Listener {
         if(event.isCancelled) return
         val player = event.entity
 //        player.world.playSound(player.location, originManager.getOrigin(player.uniqueId)?.deathSound?:_Sound.ENTITY_PLAYER_DEATH, 1f, 1f)
-        event.deathSound = originManager.getOrigin(player.uniqueId)?.sound?.hurtSound ?: Sound.ENTITY_PLAYER_DEATH
+        event.deathSound = OriginManager.getOrigin(player.uniqueId)?.sound?.hurtSound ?: Sound.ENTITY_PLAYER_DEATH
     }
 
 }

@@ -9,7 +9,7 @@ import me.racci.sylphia.enums.Special
 import me.racci.sylphia.events.DataLoadEvent
 import org.bukkit.configuration.file.YamlConfiguration
 import java.io.File
-import java.util.*
+import java.util.UUID
 
 class YamlStorageProvider(val plugin: Sylphia) : StorageProvider() {
 
@@ -19,7 +19,7 @@ class YamlStorageProvider(val plugin: Sylphia) : StorageProvider() {
             val config = YamlConfiguration.loadConfiguration(file)
             val playerData = PlayerData(uuid)
             catch<Exception>({
-                Sylphia.log.error("There was an error loading player data for the player with the UUID $uuid, see below for details.")
+                plugin.log.error("There was an error loading player data for the player with the UUID $uuid, see below for details.")
                 it.printStackTrace()
                 val data = createNewPlayer(uuid)
                 data.shouldSave = false
@@ -32,7 +32,6 @@ class YamlStorageProvider(val plugin: Sylphia) : StorageProvider() {
                 pm.callEvent(DataLoadEvent(playerData))
             }
         } else createNewPlayer(uuid)
-
     }
 
     override fun save(uuid: UUID, removeFromMemory: Boolean) {

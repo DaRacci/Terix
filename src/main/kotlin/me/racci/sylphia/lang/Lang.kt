@@ -1,167 +1,101 @@
 package me.racci.sylphia.lang
 
 import co.aikar.commands.MessageKeys
-import co.aikar.commands.MinecraftMessageKeys
-import co.aikar.commands.PaperCommandManager
-import me.racci.raccicore.Level
-import me.racci.raccicore.log
 import me.racci.raccicore.utils.LangDefaultFileException
 import me.racci.raccicore.utils.LangLoadException
 import me.racci.raccicore.utils.LangNoVersionException
 import me.racci.raccicore.utils.LangUpdateFileException
-import me.racci.raccicore.utils.strings.colour
-import me.racci.raccicore.utils.strings.replace
+import me.racci.raccicore.utils.catch
 import me.racci.sylphia.Sylphia
-import me.racci.sylphia.data.configuration.Option
-import me.racci.sylphia.data.configuration.OptionL
-import me.racci.sylphia.lang.Lang.Messages.messagesMap
-import org.bukkit.configuration.ConfigurationSection
+import net.kyori.adventure.text.Component
+import net.kyori.adventure.text.minimessage.MiniMessage
+import net.kyori.adventure.text.serializer.legacy.LegacyComponentSerializer
 import org.bukkit.configuration.file.YamlConfiguration
-import org.bukkit.event.Listener
 import java.io.File
 import java.io.InputStreamReader
 import java.nio.charset.StandardCharsets
-import java.util.*
+import java.util.Locale
 
-class Lang(private val plugin: Sylphia): Listener {
+object Lang {
 
-    object Messages {
-        internal val messagesMap: LinkedHashMap<MessageKey, String> = LinkedHashMap()
-        fun get(key: MessageKey): String {
-            return messagesMap[key] ?: ""
-        }
+    private val messageMap  = HashMap<MessageKey, String>()
+    private val prefixes    = HashMap<MessageKey, Component>()
+    operator fun get(key: MessageKey) = messageMap[key]!!
+    operator fun get(key: MessageKey, unit: String.() -> Unit = {}) {
+        MiniMessage.builder().placeholderResolver {
+            unit(it)
+            prefixes[MessageKey.valueOf(it.lowercase())]
+        }.build().parse(messageMap[key]!!)
     }
 
-    companion object {
-        fun get(key: MessageKey) : String {
-            return messagesMap[key] ?: ""
-        }
-    }
+    fun init() {
+        val startTime   = System.currentTimeMillis()
+        val plugin      = Sylphia.instance
 
-    private val lang: String = "lang.yml"
-    private val fileVersion: String = "File_Version"
-
-    /**
-     * Well... I mean it's in the name
-     */
-    fun loadLang(commandManager: PaperCommandManager) {
-        val startTime = System.currentTimeMillis()
-        checkExistingFile()
-        val defaultFile: YamlConfiguration = loadDefaultFile()
-        loadLangFile(commandManager, defaultFile)
-        val endTime = System.currentTimeMillis()
-        log(Level.INFO, "Loaded lang in " + (endTime - startTime) + "ms")
-    }
-    /**
-     * Checks if the Lang file exists and if not adds a new one
-     * @throws [LangLoadException] If an error occurs
-     */
-    private fun checkExistingFile() {
-        try {
-            if (!File(plugin.dataFolder, lang).exists()) {
-                plugin.saveResource(lang, false)
+        catch<Exception>({throw LangLoadException("There was an error adding the default Lang file. $it")}) {
+            if (!File("${plugin.dataFolder}/lang.yaml").exists()) {
+                plugin.saveResource("lang.yaml", false)
             }
-        } catch (e: Exception) {
-            throw LangLoadException("There was an error adding the default Lang file.")
         }
-    }
-    /**
-     *  Loads the default lang configuration
-     *  @throws [LangDefaultFileException] if an error occurs
-     */
-    private fun loadDefaultFile(): YamlConfiguration {
-        try {
-            return YamlConfiguration.loadConfiguration(
+
+        var defaultConfig = YamlConfiguration()
+        catch<Exception>({throw LangDefaultFileException("There was an error loading the default lang configuration. $it")}) {
+            defaultConfig = YamlConfiguration.loadConfiguration(
                 InputStreamReader(
-                plugin.getResource(lang)!!,
-                StandardCharsets.UTF_8)
+                    plugin.getResource("lang.yaml")!!,
+                    StandardCharsets.UTF_8)
             )
-        } catch (e: Exception) {
-            throw LangDefaultFileException("There was an error loading the default lang configuration." +
-                    "Please report this to Racci" + e.printStackTrace())
         }
-    }
-    /**
-     * @param [commandManager] AikarCommandManager for changing the default messages.
-     * @param [defaultFile] Default lang file configuration.
-     * @throws [LangNoVersionException] if "File_Version" is not found.
-     */
-    private fun loadLangFile(commandManager: PaperCommandManager, defaultFile: YamlConfiguration) {
-        val file = File(plugin.dataFolder, lang)
-        val config: YamlConfiguration = updateLangFile(file, defaultFile, YamlConfiguration.loadConfiguration(file))
-        if (config.contains(fileVersion)) {
-            val prefixes: HashMap<MessageKey, String> = HashMap()
-            Prefix.values().forEach { key: Prefix -> prefixes[key] = colour(config.getString(key.path), true)!! }
-            val messages: HashMap<MessageKey, String> = messagesMap
-            for (path: String in config.getKeys(true)) {
-                if (!config.isConfigurationSection(path)) {
-                    var key: MessageKey = Empty.EMPTY
-                    MessageKey.values().forEach {
-                        messageKey: MessageKey -> if(messageKey.path == path) { key = messageKey }
-                    }
-                    if(key == Empty.EMPTY) { key = CustomMessageKey(path) }
-                    val message: String = config.getString(path) ?: ""
-                    messages[key] = colour(replace(message,
-                        "{Origins}", prefixes[Prefix.ORIGINS] ?: "",
-                        "{Sylphia}", prefixes[Prefix.SYLPHIA] ?: "",
-                        "{Error}", prefixes[Prefix.ERROR] ?: "",
-                        "{token}", OptionL.getString(Option.ORIGIN_TOKEN_NAME)), true) ?: ""
-                }
-            }
-            MessageKey.values().forEach { key: MessageKey -> if(config.getString(key.path) == null) log(Level.WARNING,
-                "Message with path " + key.path + " wasn't found!") }
-            ACFCoreMessage.values().forEach { message: ACFCoreMessage ->
-                commandManager.locales.addMessage(Locale.ENGLISH,
-                    MessageKeys.valueOf(message.name),
-                    colour(replace(
-                        config.getString(message.path) ?: MessageKeys.valueOf(message.name).messageKey.key,
-                        "{Origins}", prefixes[Prefix.ORIGINS] ?: "",
-                        "{Sylphia}", prefixes[Prefix.SYLPHIA] ?: "",
-                        "{Error}", prefixes[Prefix.ERROR] ?: ""), true)
-                )
-            }
-            ACFMinecraftMessage.values().forEach { message: ACFMinecraftMessage ->
-                commandManager.locales.addMessage(Locale.ENGLISH, MinecraftMessageKeys.valueOf(message.name), colour(replace(
-                    config.getString(message.path) ?: MessageKeys.valueOf(message.name).messageKey.key,
-                    "{Origins}", prefixes[Prefix.ORIGINS] ?: "",
-                    "{Sylphia}", prefixes[Prefix.SYLPHIA] ?: "",
-                    "{Error}", prefixes[Prefix.ERROR] ?: ""), true)
-                )
-            }
-            messagesMap.putAll(messages)
-        } else {
-            throw LangNoVersionException("Couldn't find the [File_Version] in lang file, please make sure it is present")
-        }
-    }
-    /**
-     * @param [file] The lang file path.
-     * @param [defaultFile] The default Lang config.
-     * @param [config] The current lang config.
-     * @return [YamlConfiguration] The updated lang file.
-     * @throws [LangUpdateFileException] if an error occurs.
-     */
-    private fun updateLangFile(file: File, defaultFile: YamlConfiguration, config: YamlConfiguration): YamlConfiguration {
-        if(config.contains(fileVersion)) {
-            val newestVersion: Int = defaultFile.getInt(fileVersion)
-            if(config.getInt(fileVersion) != newestVersion) {
-                try {
-                    val configSection: ConfigurationSection = defaultFile.getConfigurationSection("")!!
-                    var keysAdded = 0
-                    for(key: String in configSection.getKeys(true)) {
-                        if(!configSection.isConfigurationSection(key) && !config.contains(key)) {
-                            config.set(key, defaultFile.get(key))
-                            keysAdded++
-                        }
-                    }
-                    config.set(fileVersion, newestVersion)
+        val file = File("${plugin.dataFolder}/lang.yaml")
+        val config = YamlConfiguration.loadConfiguration(file)
+        if(config.contains("File_Version")) {
+            val newestVersion = defaultConfig.getInt("File_Version")
+            if(config.getInt("File_Version") < newestVersion) {
+                catch<Exception>({throw LangUpdateFileException("There was an error updating your lang file to the latest configuration. $it")}) {
+                    val section = defaultConfig.getConfigurationSection("")!!
+                    var added = 0
+                    section.getKeys(true).filterNot{section.isConfigurationSection(it) && config.contains(it)}
+                        .forEach{config[it] = defaultConfig[it] ; added++}
+                    config["File_Version"] = newestVersion
                     config.save(file)
-                    log(Level.INFO, "$lang was updated to a new file version and had $keysAdded new keys added.")
-                } catch (e: Exception) {
-                    e.printStackTrace()
-                    throw LangUpdateFileException("There was an error updating your lang file to the latest configuration" + e.printStackTrace())
+                    plugin.log.info("Your Lang file was updated to a new version and had $added new keys added.")
                 }
             }
-        }
-        return YamlConfiguration.loadConfiguration(file)
+            Prefix.values().forEach{prefixes[it] = MiniMessage.get().parse(config.getString(it.path) ?: defaultConfig.getString(it.path)!!)}
+            config.getKeys(true).filterNot(config::isConfigurationSection)
+                    .forEach { p ->
+                        var key: MessageKey = Empty.EMPTY
+                        MessageKey.values.forEach { if (it.path == p) key = it }
+                        if (key == Empty.EMPTY) key = CustomMessageKey(p)
+                        messageMap[key] = config.getString(p) ?: defaultConfig.getString(p)!!
+                    }
+            MessageKey.values.filter{config.getString(it.path) == null}.forEach{plugin.log.warning("Message with path ${it.path} wasn't found!")}
+            ACFCoreMessage.values().forEach{ acm ->
+                plugin.commandManager.locales.addMessage(
+                Locale.ENGLISH,
+                MessageKeys.valueOf(acm.name),
+                LegacyComponentSerializer.legacyAmpersand().serialize(MiniMessage.builder().placeholderResolver {
+                    prefixes[MessageKey.valueOf(it)]
+                }.build().parse(config.getString(acm.path) ?: defaultConfig.getString(acm.path)!!))
+            )}
+            ACFMinecraftMessage.values().forEach{ amm ->
+                plugin.commandManager.locales.addMessage(
+                    Locale.ENGLISH,
+                    MessageKeys.valueOf(amm.name),
+                    LegacyComponentSerializer.legacyAmpersand().serialize(MiniMessage.builder().placeholderResolver {
+                        prefixes[MessageKey.valueOf(it)]
+                    }.build().parse(config.getString(amm.path) ?: defaultConfig.getString(amm.path)!!))
+                )}
+
+        } else throw LangNoVersionException("Couldn't find the [File_Version] in lang file, please make sure it is present")
+
+
+        val endTime = System.currentTimeMillis()
+        plugin.log.success("Loaded lang in ${(endTime - startTime)}ms")
+    }
+
+    fun close() {
+        messageMap.clear()
+        prefixes.clear()
     }
 }

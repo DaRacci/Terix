@@ -1,21 +1,25 @@
 package me.racci.sylphia.lang
 
-import java.util.*
+import java.util.Objects
 
 interface MessageKey {
 
     val path: String
 
     companion object {
-        fun values(): Set<MessageKey> {
-            val keys: MutableSet<MessageKey> = HashSet()
-            keys.addAll(listOf(*Empty.values()))
-            keys.addAll(listOf(*Command.values()))
-            keys.addAll(listOf(*GUI.values()))
-            keys.addAll(listOf(*Prefix.values()))
-            keys.addAll(listOf(*Origins.values()))
-            return keys
+
+        private val valueMap= HashMap<String, MessageKey>()
+        val values          = valueMap.values
+        init {
+            GUI.values()    .forEach{valueMap[it.name] = it}
+            Empty.values()  .forEach{valueMap[it.name] = it}
+            Prefix.values() .forEach{valueMap[it.name] = it}
+            Command.values().forEach{valueMap[it.name] = it}
+            Origins.values().forEach{valueMap[it.name] = it}
         }
+        fun valueOf(string: String) =
+            valueMap[string]
+
     }
 }
 

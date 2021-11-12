@@ -1,49 +1,50 @@
 package me.racci.sylphia.origins.abilityevents
 
+import com.github.shynixn.mccoroutine.minecraftDispatcher
+import kotlinx.coroutines.withContext
 import me.racci.raccicore.events.PlayerDoubleOffhandEvent
 import me.racci.raccicore.events.PlayerOffhandEvent
-import me.racci.raccicore.skedule.skeduleSync
+import me.racci.raccicore.utils.extensions.KotlinListener
 import me.racci.raccicore.utils.strings.colour
 import me.racci.raccicore.utils.strings.textOf
+import me.racci.sylphia.Sylphia
 import me.racci.sylphia.extensions.PlayerExtension.currentOrigin
 import me.racci.sylphia.extensions.PlayerExtension.hasOrigin
+import me.racci.sylphia.factories.PotionFactory
+import me.racci.sylphia.factories.SoundFactory
 import me.racci.sylphia.lang.Lang
 import me.racci.sylphia.lang.Prefix
-import me.racci.sylphia.plugin
-import me.racci.sylphia.potionFactory
-import me.racci.sylphia.soundFactory
 import org.bukkit.FluidCollisionMode
 import org.bukkit.block.Block
 import org.bukkit.event.EventHandler
-import org.bukkit.event.Listener
 import org.bukkit.metadata.FixedMetadataValue
 import org.bukkit.potion.PotionEffectType
 import org.bukkit.util.BlockIterator
 import org.bukkit.util.Vector
 
 
-class OffhandListener : Listener {
+class OffhandListener(private val plugin: Sylphia) : KotlinListener {
 
     @EventHandler
-    fun onDoubleOffhand(event: PlayerDoubleOffhandEvent) {
+    suspend fun onDoubleOffhand(event: PlayerDoubleOffhandEvent) {
         val player = event.player
         if(!player.hasOrigin) return
         when(player.currentOrigin!!.identity.name.uppercase()) {
             "ANGEL", "SKVADER" -> {
                 if(player.hasMetadata("Levitating")) {
-                    skeduleSync(plugin) {
+                    withContext(plugin.minecraftDispatcher) {
                         player.removePotionEffect(PotionEffectType.LEVITATION)
-                        player.removeMetadata("Levitating", me.racci.sylphia.plugin)
+                        player.removeMetadata("Levitating", plugin)
                     }
                 } else if(player.foodLevel > 0.5) {
-                    skeduleSync(plugin) {
+                    withContext(plugin.minecraftDispatcher) {
                         player.foodLevel.minus(0.5)
-                        player.addPotionEffect(potionFactory.levitationPotion)
-                        player.setMetadata("Levitating", FixedMetadataValue(me.racci.sylphia.plugin, true))
+                        player.addPotionEffect(PotionFactory.levitationPotion)
+                        player.setMetadata("Levitating", FixedMetadataValue(plugin, true))
                     }
                 } else {
-                    player.sendMessage(colour("${Lang.Messages.get(Prefix.ERROR)} &cYou don't have enough hunger to use this!")!!)
-                    player.playSound(soundFactory.errorSound)
+                    player.sendMessage(colour("${Lang[Prefix.ERROR]} &cYou don't have enough hunger to use this!"))
+                    player.playSound(SoundFactory.errorSound)
 
                 }
             }
@@ -52,7 +53,7 @@ class OffhandListener : Listener {
     }
 
     @EventHandler
-    fun onOffhand(event: PlayerOffhandEvent) {
+    suspend fun onOffhand(event: PlayerOffhandEvent) {
         val player = event.player
         if(!player.hasOrigin) return
         when(player.currentOrigin!!.identity.name.uppercase()) {
@@ -60,8 +61,8 @@ class OffhandListener : Listener {
                 if(!player.hasMetadata("TeleportCooldown") || ((System.currentTimeMillis() - player.getMetadata("TeleportCooldown")[0].asLong()) >= 3000)) {
                     val rayTrace = player.rayTraceBlocks(64.0, FluidCollisionMode.NEVER)
                     if(rayTrace == null) {
-                        player.sendMessage(colour("${Lang.Messages.get(Prefix.ERROR)} &cThe target location is too far away!")!!)
-                        player.playSound(soundFactory.errorSound)
+                        player.sendMessage(colour("${Lang[Prefix.ERROR]} &cThe target location is too far away!"))
+                        player.playSound(SoundFactory.errorSound)
                         return
                     }
                     val loc = rayTrace.hitPosition.toLocation(player.world)
@@ -78,7 +79,7 @@ class OffhandListener : Listener {
                     loc.y = (block?.y?.plus(1))?.toDouble() ?: return
                     loc.direction = player.location.direction
                     player.setMetadata("TeleportCooldown", FixedMetadataValue(plugin, System.currentTimeMillis()))
-                    skeduleSync(plugin) {
+                    withContext(plugin.minecraftDispatcher) {
                         player.teleportAsync(loc)
                         player.sendActionBar(textOf("&5~Vwoop"))
                     }
