@@ -1,0 +1,40 @@
+pre_bump_hooks = [
+    """
+        bash -c "if ! ./gradlew test --info; then exit 1; fi"
+    """,
+    "echo 'Bumping from v{{latest}} to v{{version}}!'",
+]
+post_bump_hooks = [
+    # Update the version in gradle properties and amend last commit
+    "sed -i 's/version=.*/version=v{{version}}/' ./gradle.properties",
+    "git add ./gradle.properties",
+    "git commit --amend -C HEAD",
+    # Push to github with new tag
+    "git push",
+    "git push origin v{{version}}",
+    # Build gradle
+    "./gradlew clean build -Pversion=\"v{{version}}\"",
+    # Create changelog and make new release
+    "bash -c \"cog changelog -a v{{version}} -t default >> ./.templog.md\"",
+    "gh release create \"v{{version}}\" -F ./.templog.md -t 'Minix release v{{version}}' build/libs/Minix-v{{version}}.jar Minix-API/build/libs/Minix-API-v{{version}}-sources.jar Minix-Core/build/libs/Minix-Core-v{{version}}-sources.jar",
+    "rm ./.templog.md",
+    # Trigger the docs workflow
+    "gh workflow run docs.yml",
+    # Publish to repo
+    "./gradlew publish -Pversion=\"v{{version}}\"",
+    # Update tags
+    "git fetch --tags origin",
+]
+
+tag_prefix = "v"
+
+[changelog]
+path = "CHANGELOG.md"
+template = "remote"
+remote = "github.com"
+repository = "Sylphia"
+owner = "Da_Racci"
+authors = [
+    { signature = "Racci", username = "Da_Racci" },
+    { signature = "Da_Racci", username = "Da_Racci" }
+]
