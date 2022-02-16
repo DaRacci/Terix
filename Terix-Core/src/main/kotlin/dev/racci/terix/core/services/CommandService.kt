@@ -10,6 +10,7 @@ import dev.racci.terix.api.Terix
 import dev.racci.terix.api.events.PlayerOriginChangeEvent
 import dev.racci.terix.core.extension.command
 import dev.racci.terix.core.extension.execute
+import dev.racci.terix.core.extension.executePlayer
 import dev.racci.terix.core.extension.getCast
 import dev.racci.terix.core.extension.origin
 import dev.racci.terix.core.extension.subcommand
@@ -20,6 +21,7 @@ import org.koin.core.component.get
 import org.koin.core.component.inject
 
 class CommandService(override val plugin: Terix) : Extension<Terix>() {
+    private val guiService by inject<GUIService>()
     private val langService by inject<LangService>()
     private val originService by inject<OriginService>()
 
@@ -51,6 +53,12 @@ class CommandService(override val plugin: Terix) : Extension<Terix>() {
                 execute { sender, args ->
                     setOrigin(sender, args.getCast(0)!!, args.getCast(1)!!)
                 }
+            }
+
+            subcommand("menu") {
+                permission = CommandPermission.fromString("terix.origin.menu")
+
+                executePlayer { player, _ -> guiService.baseGui.value.show(player) }
             }
         }
     }

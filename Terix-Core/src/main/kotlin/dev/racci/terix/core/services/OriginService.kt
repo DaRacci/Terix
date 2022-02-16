@@ -20,7 +20,7 @@ class OriginService(override val plugin: Terix) : Extension<Terix>() {
     operator fun get(origin: String, ignoreCase: Boolean = false) = registry[if (ignoreCase) origin.lowercase() else origin]
 
     private val registryModifier = RegistryModifier()
-    private val registry: ObservableMap<String, AbstractOrigin> = observableMapOf()
+    val registry: ObservableMap<String, AbstractOrigin> = observableMapOf()
 
     val registeredOrigins by lazy { registry.keys.map { it.replaceFirstChar { c -> c.titlecase() } }.toMutableList() }
     val defaultOrigin: AbstractOrigin get() = this["human"]!!

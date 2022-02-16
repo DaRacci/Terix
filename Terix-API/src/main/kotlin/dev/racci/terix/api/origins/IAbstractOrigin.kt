@@ -43,7 +43,6 @@ import org.bukkit.event.player.PlayerFishEvent
 import org.bukkit.event.player.PlayerItemDamageEvent
 import org.bukkit.event.player.PlayerRespawnEvent
 import org.bukkit.event.player.PlayerRiptideEvent
-import org.bukkit.inventory.ItemStack
 import org.spigotmc.event.entity.EntityDismountEvent
 import org.spigotmc.event.entity.EntityMountEvent
 
@@ -58,7 +57,7 @@ sealed interface IAbstractOrigin {
     val nightVision: Boolean
     val waterBreathing: Boolean
 
-    val guiItem: ItemStack
+    val becomeOriginTitle: TitleBuilder?
 
     suspend fun onRegister()
 
@@ -255,5 +254,14 @@ sealed interface IAbstractOrigin {
         infix fun Material.applies(builder: TimedAttributeBuilder.() -> Unit)
 
         infix fun Material.multiplied(value: Int)
+    }
+
+    interface ItemBuilder {
+
+        infix fun AbstractOrigin.named(component: Component)
+
+        infix fun AbstractOrigin.material(material: Material)
+
+        infix fun AbstractOrigin.lore(builder: MutableMap<Int, Component>.() -> Unit)
     }
 }
