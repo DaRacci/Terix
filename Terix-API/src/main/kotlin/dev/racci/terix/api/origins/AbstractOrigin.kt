@@ -24,6 +24,7 @@ abstract class AbstractOrigin(val plugin: MinixPlugin) : IAbstractOrigin {
     private val timeTitleBuilder by lazy(::TimeTitleBuilderImpl)
     private val damageBuilder by lazy(::DamageBuilderImpl)
     private val foodBuilder by lazy(::FoodBuilderImpl)
+    private val itemBuilder by lazy(::ItemBuilderImpl)
 
     val attributeModifiers: MultiMap<Trigger, Pair<Attribute, AttributeModifier>> by lazy(::multiMapOf)
     val attributeBase: MutableMap<Attribute, Double> by lazy(::mutableMapOf)
@@ -37,10 +38,15 @@ abstract class AbstractOrigin(val plugin: MinixPlugin) : IAbstractOrigin {
     val foodAttributes: MultiMap<Material, TimedAttributeBuilder> by lazy(::multiMapOf)
     val foodMultipliers: MutableMap<Material, Int> by lazy(::mutableMapOf)
 
+    lateinit var itemMaterial: Material
+    lateinit var itemName: Component
+    lateinit var itemLore: List<Component>
+
     override val displayName by lazy { Component.text(name).color(colour) }
 
     override val nightVision: Boolean = false
     override val waterBreathing: Boolean = false
+    override val becomeOriginTitle: TitleBuilder? = null
 
     @MinixDsl
     final override suspend fun potions(builder: suspend IAbstractOrigin.PotionsBuilder.() -> Unit) {
@@ -135,5 +141,16 @@ abstract class AbstractOrigin(val plugin: MinixPlugin) : IAbstractOrigin {
 
         @MinixDsl
         override fun Material.multiplied(value: Int) { foodMultipliers[this] = value }
+    }
+
+    inner class ItemBuilderImpl : IAbstractOrigin.ItemBuilder {
+
+        override fun AbstractOrigin.named(component: Component) { itemName = component }
+
+        override fun AbstractOrigin.material(material: Material) { itemMaterial = material }
+
+        override fun AbstractOrigin.lore(builder: MutableMap<Int, Component>.() -> Unit) {
+            itemLore = mutableMapOf<Int, Component>().apply(builder).values.toList()
+        }
     }
 }
