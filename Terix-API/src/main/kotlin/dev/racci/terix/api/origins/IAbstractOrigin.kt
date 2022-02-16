@@ -182,6 +182,8 @@ sealed interface IAbstractOrigin {
 
     suspend fun damage(builder: suspend DamageBuilder.() -> Unit) {}
 
+    suspend fun item(builder: suspend ItemBuilder.() -> Unit) {}
+
     interface PotionsBuilder {
 
         /**
