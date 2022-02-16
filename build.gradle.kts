@@ -1,8 +1,3 @@
-
-val minixConventions: String by project
-val minixVersion: String by project
-val kotlinVersion: String by project
-
 plugins {
     id("dev.racci.minix.kotlin")
     id("dev.racci.minix.copyjar")
@@ -11,16 +6,15 @@ plugins {
     kotlin("plugin.serialization")
     id("dev.racci.minix.publication")
     id("net.minecrell.plugin-yml.bukkit") version "0.5.1"
-    id("dev.racci.minix.nms")
 }
 
 bukkit {
-    name = "Origins"
-    prefix = "Origins"
+    name = project.name
+    prefix = project.name
     author = "Racci"
     apiVersion = "1.18"
     version = rootProject.version.toString()
-    main = "dev.racci.sylphia.core.Sylphia"
+    main = "dev.racci.terix.core.TerixImpl"
     load = net.minecrell.pluginyml.bukkit.BukkitPluginDescription.PluginLoadOrder.STARTUP
     depend = listOf(
         "Minix",
@@ -34,7 +28,7 @@ bukkit {
 }
 
 dependencies {
-    implementation(project(":Sylphia-Core"))
+    implementation(project(":Terix-Core"))
 }
 
 subprojects {
@@ -64,12 +58,6 @@ subprojects {
         // Extras
         compileOnly(rootProject.libs.koin.core)
     }
-
-    tasks {
-        compileKotlin {
-            kotlinOptions.freeCompilerArgs += "-opt-in=kotlin.RequiresOptIn"
-        }
-    }
 }
 
 allprojects {
@@ -94,7 +82,7 @@ allprojects {
     }
 
     tasks.shadowJar {
-        val location = "dev.racci.sylphia.libs"
+        val location = "dev.racci.terix.libs"
         dependencyFilter.exclude {
             it.moduleGroup == "org.jetbrains.kotlin" ||
                 it.moduleGroup == "org.jetbrains.intellij" ||

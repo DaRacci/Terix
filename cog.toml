@@ -32,7 +32,7 @@ tag_prefix = "v"
 path = "CHANGELOG.md"
 template = "remote"
 remote = "github.com"
-repository = "Sylphia"
+repository = "Terix"
 owner = "Da_Racci"
 authors = [
     { signature = "Racci", username = "Da_Racci" },

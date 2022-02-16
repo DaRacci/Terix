@@ -14,7 +14,15 @@ dependencies {
     compileOnly(rootProject.libs.caffeine)
     compileOnly(rootProject.libs.minecraft.api.landsAPI)
 
-    implementation(project(":Sylphia-API"))
+    implementation(project(":Terix-API"))
     implementation("dev.jorel.CommandAPI:commandapi-shade:6.5.3")
     implementation("dev.racci:Minix-NMS:$minixVersion")
+
+    testImplementation(platform("org.junit:junit-bom:5.8.2"))
+    testImplementation("org.junit.jupiter:junit-jupiter")
+    testImplementation("dev.racci:Minix:1.2.0")
+    testImplementation(rootProject.libs.koin.test)
+    testImplementation("io.strikt:strikt-core:0.34.1")
 }
+
+tasks.test.get().useJUnitPlatform()

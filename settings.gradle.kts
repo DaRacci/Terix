@@ -31,7 +31,7 @@ dependencyResolutionManagement {
     }
 }
 
-rootProject.name = "Sylphia"
+rootProject.name = "Terix"
 
-include("Sylphia-API")
-include("Sylphia-Core")
+include("Terix-API")
+include("Terix-Core")
