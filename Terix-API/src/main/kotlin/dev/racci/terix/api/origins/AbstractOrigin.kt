@@ -68,6 +68,11 @@ abstract class AbstractOrigin(val plugin: MinixPlugin) : IAbstractOrigin {
         builder(damageBuilder)
     }
 
+    @MinixDsl
+    final override suspend fun item(builder: suspend IAbstractOrigin.ItemBuilder.() -> Unit) {
+        builder(itemBuilder)
+    }
+
     inner class PotionsBuilderImpl : IAbstractOrigin.PotionsBuilder {
 
         @MinixDsl
