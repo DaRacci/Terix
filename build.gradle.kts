@@ -24,6 +24,9 @@ bukkit {
         "PlaceholderAPI",
         "Lands",
     )
+    libraries = listOf(
+        libs.kotlinx.serialization.kaml.get().toString()
+    )
     website = "https://minix.racci.dev/"
 }
 
@@ -38,24 +41,12 @@ subprojects {
     apply(plugin = "kotlinx-serialization")
 
     dependencies {
-        compileOnly("dev.racci:Minix:1.0.5")
-        compileOnly("org.purpurmc.purpur:purpur-api:1.18.1-R0.1-SNAPSHOT")
-
-        // Kotlin
-        compileOnly(rootProject.libs.kotlin.stdlib)
-        compileOnly(rootProject.libs.kotlin.reflect)
-
-        // KotlinX
-        compileOnly(rootProject.libs.kotlinx.dateTime)
-        compileOnly(rootProject.libs.kotlinx.coroutines)
+        compileOnly(rootProject.libs.bundles.kyori)
+        compileOnly(rootProject.libs.bundles.kotlin)
+        compileOnly(rootProject.libs.bundles.kotlinx)
+        compileOnly(rootProject.libs.bundles.exposed)
+        compileOnly(rootProject.libs.minecraft.minix)
         compileOnly(rootProject.libs.kotlinx.serialization.kaml)
-        compileOnly(rootProject.libs.kotlinx.immutableCollections)
-
-        // Minecraft Libs
-        compileOnly(rootProject.libs.adventure.kotlin)
-        compileOnly(rootProject.libs.adventure.minimessage)
-
-        // Extras
         compileOnly(rootProject.libs.koin.core)
     }
 }
@@ -73,14 +64,6 @@ allprojects {
         maven("https://repo.extendedclip.com/content/repositories/placeholderapi/")
     }
 
-    dependencies {
-        compileOnly(rootProject.libs.kotlin.stdlib)
-    }
-
-    ktlint {
-        enableExperimentalRules.set(false)
-    }
-
     tasks.shadowJar {
         val location = "dev.racci.terix.libs"
         dependencyFilter.exclude {
@@ -93,8 +76,7 @@ allprojects {
                 it.moduleName == "examination-*"
         }
         relocate("dev.jorel.commandapi", "$location.commandapi")
-        relocate("net.kyori.adventure.text.minimessage", "dev.racci.minix.libs.kyori.minimessage")
-        relocate("net.kyori.adventure.text.extra.kotlin", "dev.racci.minix.libs.kyroi.kotlin")
+        relocate("net.kyori.adventure", "dev.racci.minix.libs.adventure")
         relocate("org.valiktor", "$location.valiktor")
         relocate("dev.racci.minix.nms", "$location.minix-nms")
     }
