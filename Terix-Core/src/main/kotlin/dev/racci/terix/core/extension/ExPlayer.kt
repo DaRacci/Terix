@@ -76,4 +76,36 @@ var Player.originTime: Instant
     get() { return transaction { PlayerData[this@originTime].lastChosenTime ?: Instant.DISTANT_PAST } }
     set(instant) { transaction { PlayerData[this@originTime].lastChosenTime = instant } }
 
+var Player.wasInSunlight
+    get() = PlayerData[this].wasInSunlight
+    set(bool) { PlayerData[this].wasInSunlight = bool }
+
+var Player.wasInDarkness
+    get() = PlayerData[this].wasInDarkness
+    set(bool) { PlayerData[this].wasInDarkness = bool }
+
+var Player.wasInWater
+    get() = PlayerData[this].wasInWater
+    set(bool) { PlayerData[this].wasInWater = bool }
+
+var Player.wasInRain
+    get() = PlayerData[this].wasInRain
+    set(bool) { PlayerData[this].wasInRain = bool }
+
+var Player.inSunlight
+    get() = PlayerData[this].inSunlight
+    set(bool) { PlayerData[this].inSunlight = bool }
+
+var Player.inDarkness
+    get() = PlayerData[this].inDarkness
+    set(bool) { PlayerData[this].inDarkness = bool }
+
+var Player.inWater
+    get() = PlayerData[this].inWater
+    set(bool) { PlayerData[this].inWater = bool }
+
+var Player.inRain
+    get() = PlayerData[this].inRain
+    set(bool) { PlayerData[this].inRain = bool }
+
 infix fun Component.message(receiver: Collection<Player>) { for (audience in receiver) { audience.sendMessage(this) } }
