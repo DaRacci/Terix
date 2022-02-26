@@ -16,6 +16,8 @@ import dev.racci.minix.api.events.PlayerShiftDoubleOffhandEvent
 import dev.racci.minix.api.events.PlayerShiftLeftClickEvent
 import dev.racci.minix.api.events.PlayerShiftOffhandEvent
 import dev.racci.minix.api.events.PlayerShiftRightClickEvent
+import dev.racci.minix.api.extensions.WithPlugin
+import dev.racci.minix.api.plugin.MinixPlugin
 import dev.racci.terix.api.dsl.AttributeModifierBuilder
 import dev.racci.terix.api.dsl.PotionEffectBuilder
 import dev.racci.terix.api.dsl.TimedAttributeBuilder
@@ -27,6 +29,7 @@ import net.kyori.adventure.text.Component
 import net.kyori.adventure.text.format.TextColor
 import org.bukkit.Material
 import org.bukkit.attribute.Attribute
+import org.bukkit.entity.Player
 import org.bukkit.event.block.BlockBreakEvent
 import org.bukkit.event.block.BlockPlaceEvent
 import org.bukkit.event.entity.EntityCombustEvent
@@ -46,7 +49,7 @@ import org.bukkit.event.player.PlayerRiptideEvent
 import org.spigotmc.event.entity.EntityDismountEvent
 import org.spigotmc.event.entity.EntityMountEvent
 
-sealed interface IAbstractOrigin {
+sealed interface IAbstractOrigin : WithPlugin<MinixPlugin> {
 
     val name: String
     val colour: TextColor
@@ -182,6 +185,8 @@ sealed interface IAbstractOrigin {
 
     suspend fun damage(builder: suspend DamageBuilder.() -> Unit) {}
 
+    suspend fun food(builder: suspend FoodBuilder.() -> Unit) {}
+
     suspend fun item(builder: suspend ItemBuilder.() -> Unit) {}
 
     interface PotionsBuilder {
@@ -220,7 +225,7 @@ sealed interface IAbstractOrigin {
          * When the player is damage and one of these triggers is satisfied the
          * event will be passed to the block for modification.
          */
-        infix fun Trigger.causes(builder: EntityDamageEvent.() -> Unit)
+        infix fun Trigger.invokes(builder: suspend (Player) -> Unit)
 
         /**
          * Damages the player by this amount when this trigger happens.
@@ -240,7 +245,7 @@ sealed interface IAbstractOrigin {
          */
         infix fun Collection<EntityDamageEvent.DamageCause>.multiplied(multiplier: Double)
 
-        infix fun EntityDamageEvent.DamageCause.triggers(action: EntityDamageEvent.() -> Unit)
+        infix fun EntityDamageEvent.DamageCause.triggers(action: suspend EntityDamageEvent.() -> Unit)
     }
 
     interface FoodBuilder {

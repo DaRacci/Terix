@@ -2,7 +2,6 @@ package dev.racci.terix.api.origins
 
 import com.destroystokyo.paper.MaterialSetTag
 import dev.racci.minix.api.annotations.MinixDsl
-import dev.racci.minix.api.plugin.MinixPlugin
 import dev.racci.minix.api.utils.collections.MultiMap
 import dev.racci.minix.api.utils.collections.multiMapOf
 import dev.racci.terix.api.dsl.AttributeModifierBuilder
@@ -14,10 +13,11 @@ import net.kyori.adventure.text.Component
 import org.bukkit.Material
 import org.bukkit.attribute.Attribute
 import org.bukkit.attribute.AttributeModifier
+import org.bukkit.entity.Player
 import org.bukkit.event.entity.EntityDamageEvent
 import org.bukkit.potion.PotionEffect
 
-abstract class AbstractOrigin(val plugin: MinixPlugin) : IAbstractOrigin {
+abstract class AbstractOrigin : IAbstractOrigin {
 
     private val potionBuilder by lazy(::PotionsBuilderImpl)
     private val attributeBuilder by lazy(::AttributeBuilderImpl)
@@ -31,9 +31,9 @@ abstract class AbstractOrigin(val plugin: MinixPlugin) : IAbstractOrigin {
     val titles: MutableMap<Trigger, TitleBuilder> by lazy(::mutableMapOf)
     val potions: MultiMap<Trigger, PotionEffect> by lazy(::multiMapOf)
     val damageTicks: MutableMap<Trigger, Double> by lazy(::mutableMapOf)
-    val damageTriggers: MutableMap<Trigger, EntityDamageEvent.() -> Unit> by lazy(::mutableMapOf)
+    val triggerBlocks: MutableMap<Trigger, suspend (Player) -> Unit> by lazy(::mutableMapOf)
     val damageMultipliers: MutableMap<EntityDamageEvent.DamageCause, Double> by lazy(::mutableMapOf)
-    val damageActions: MutableMap<EntityDamageEvent.DamageCause, EntityDamageEvent.() -> Unit> by lazy(::mutableMapOf)
+    val damageActions: MutableMap<EntityDamageEvent.DamageCause, suspend EntityDamageEvent.() -> Unit> by lazy(::mutableMapOf)
     val foodPotions: MultiMap<Material, PotionEffect> by lazy(::multiMapOf)
     val foodAttributes: MultiMap<Material, TimedAttributeBuilder> by lazy(::multiMapOf)
     val foodMultipliers: MutableMap<Material, Int> by lazy(::mutableMapOf)
@@ -66,6 +66,11 @@ abstract class AbstractOrigin(val plugin: MinixPlugin) : IAbstractOrigin {
     @MinixDsl
     final override suspend fun damage(builder: suspend IAbstractOrigin.DamageBuilder.() -> Unit) {
         builder(damageBuilder)
+    }
+
+    @MinixDsl
+    final override suspend fun food(builder: suspend IAbstractOrigin.FoodBuilder.() -> Unit) {
+        builder(foodBuilder)
     }
 
     @MinixDsl
@@ -112,7 +117,7 @@ abstract class AbstractOrigin(val plugin: MinixPlugin) : IAbstractOrigin {
 
     inner class DamageBuilderImpl : IAbstractOrigin.DamageBuilder {
         @MinixDsl
-        override infix fun Trigger.causes(builder: EntityDamageEvent.() -> Unit) { damageTriggers[this] = builder }
+        override infix fun Trigger.invokes(builder: suspend (Player) -> Unit) { triggerBlocks[this] = builder }
 
         @MinixDsl
         override infix fun Trigger.ticks(damage: Double) { damageTicks[this] = damage }
@@ -124,7 +129,7 @@ abstract class AbstractOrigin(val plugin: MinixPlugin) : IAbstractOrigin {
         override fun Collection<EntityDamageEvent.DamageCause>.multiplied(multiplier: Double) { this.forEach { it.multiplied(multiplier) } }
 
         @MinixDsl
-        override fun EntityDamageEvent.DamageCause.triggers(action: EntityDamageEvent.() -> Unit) { damageActions[this] = action }
+        override fun EntityDamageEvent.DamageCause.triggers(action: suspend EntityDamageEvent.() -> Unit) { damageActions[this] = action }
     }
 
     inner class FoodBuilderImpl : IAbstractOrigin.FoodBuilder {
