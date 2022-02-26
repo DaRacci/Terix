@@ -26,19 +26,26 @@ class SoundService(override val plugin: Terix) : Extension<Terix>() {
         protocolManager.addPacketListener(
             object : PacketAdapter(plugin, ListenerPriority.NORMAL, PacketType.Play.Server.NAMED_SOUND_EFFECT) {
                 override fun onPacketSending(event: PacketEvent) {
+                    log.debug { "Listening to packet ${event.packetType} from ${event.player}" }
                     if (event.packet.soundCategories.readSafely(0) == EnumWrappers.SoundCategory.PLAYERS) {
+                        log.debug { "Sound category is PLAYERS" }
                         val effect = event.packet.soundEffects.readSafely(0)
+                        log.debug { "Sound effect is $effect" }
                         if (effect !in lazyCollection) return
+                        log.debug { "Sound effect is in lazy collection" }
                         val origin = event.player.origin()
                         val sound = when (effect) {
                             Sound.ENTITY_PLAYER_HURT -> origin.hurtSound
                             Sound.ENTITY_PLAYER_DEATH -> origin.deathSound
                             else -> return
                         }
+                        log.debug { "New sound is $sound" }
+                        log.debug { "Old sound key is ${event.packet.minecraftKeys.read(0).fullKey}" }
                         event.packet.minecraftKeys.write(
                             0,
                             MinecraftKey(sound.namespace(), sound.value())
                         )
+                        log.debug { "New sound key is ${event.packet.minecraftKeys.read(0).fullKey}" }
                     }
                 }
             }
