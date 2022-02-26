@@ -31,7 +31,7 @@ import org.koin.core.component.inject
 class GUIService(override val plugin: Terix) : Extension<Terix>() {
 
     override val name = "GUI Service"
-    override val dependencies get() = OriginService::class and LangService::class
+    override val dependencies = persistentListOf(OriginService::class, LangService::class)
 
     private val originService by inject<OriginService>()
     private val langService by inject<LangService>()

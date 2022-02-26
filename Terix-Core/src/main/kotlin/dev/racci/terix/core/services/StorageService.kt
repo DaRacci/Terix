@@ -14,8 +14,7 @@ import kotlin.properties.Delegates
 class StorageService(override val plugin: Terix) : Extension<Terix>() {
 
     override val name = "Storage Service"
-
-    override val dependencies get() = persistentListOf(OriginService::class)
+    override val dependencies = persistentListOf(OriginService::class)
 
     private var config by Delegates.notNull<HikariConfig>()
     private var dataSource by Delegates.notNull<HikariDataSource>()

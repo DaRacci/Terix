@@ -16,8 +16,8 @@ import org.bukkit.Sound
 
 class SoundService(override val plugin: Terix) : Extension<Terix>() {
 
-    override val name get() = "Sound Service"
-    override val dependencies get() = persistentListOf(OriginService::class)
+    override val name = "Sound Service"
+    override val dependencies = persistentListOf(OriginService::class)
 
     private val protocolManager by lazy(ProtocolLibrary::getProtocolManager)
     private val lazyCollection by lazy { Sound.ENTITY_PLAYER_HURT and Sound.ENTITY_PLAYER_DEATH }

@@ -26,7 +26,7 @@ class CommandService(override val plugin: Terix) : Extension<Terix>() {
     private val originService by inject<OriginService>()
 
     override val name = "Command Service"
-    override val dependencies = persistentListOf(LangService::class, OriginService::class)
+    override val dependencies = persistentListOf(LangService::class, OriginService::class, GUIService::class, SpecialService::class)
 
     override suspend fun handleEnable() {
 

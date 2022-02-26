@@ -43,7 +43,7 @@ import org.spigotmc.event.entity.EntityMountEvent
 class EventForwarderService(override val plugin: Terix) : Extension<Terix>() {
 
     override val name = "Event Forward Service"
-    override val dependencies get() = persistentListOf(OriginService::class)
+    override val dependencies = persistentListOf(OriginService::class)
 
     override suspend fun handleEnable() {
         event<PlayerOriginChangeEvent> { player.origin().onChange(this) }
