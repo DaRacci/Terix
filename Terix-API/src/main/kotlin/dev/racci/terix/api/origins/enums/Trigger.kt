@@ -59,6 +59,8 @@ enum class Trigger {
 
     companion object {
 
+        val values: Array<out String> by lazy { values().map { trigger -> trigger.name.lowercase().replaceFirstChar { char -> char.titlecase() } }.toTypedArray() }
+
         fun fromOrdinal(ordinal: Int): Trigger =
             values()[ordinal]
 
