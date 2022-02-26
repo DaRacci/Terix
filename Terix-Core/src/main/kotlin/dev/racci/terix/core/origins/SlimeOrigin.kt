@@ -2,12 +2,12 @@ package dev.racci.terix.core.origins
 
 import com.github.benmanes.caffeine.cache.Caffeine
 import com.github.benmanes.caffeine.cache.RemovalCause
-import dev.racci.minix.api.builders.ItemBuilderDSL
 import dev.racci.minix.api.events.LiquidType
 import dev.racci.minix.api.events.PlayerEnterLiquidEvent
 import dev.racci.minix.api.events.PlayerExitLiquidEvent
 import dev.racci.minix.api.extensions.cancel
-import dev.racci.minix.api.plugin.MinixPlugin
+import dev.racci.minix.api.extensions.parse
+import dev.racci.terix.api.Terix
 import dev.racci.terix.api.origins.AbstractOrigin
 import dev.racci.terix.api.origins.enums.Trigger
 import kotlinx.coroutines.delay
@@ -24,13 +24,12 @@ import java.util.UUID
 import kotlin.random.Random
 import kotlin.time.Duration.Companion.seconds
 
-class SlimeOrigin(plugin: MinixPlugin) : AbstractOrigin(plugin) {
+class SlimeOrigin(override val plugin: Terix) : AbstractOrigin() {
 
     override val name = "Slime"
     override val colour: NamedTextColor = NamedTextColor.LIGHT_PURPLE
     override val hurtSound = Key.key("minecraft", "entity.slime.hurt")
     override val deathSound = Key.key("minecraft", "entity.slime.death")
-    override val guiItem = ItemBuilderDSL.from(Material.SLIME_BALL)
 
     private val playerHealthCache = Caffeine.newBuilder()
         .expireAfterAccess(Duration.ofSeconds(15))
@@ -69,6 +68,13 @@ class SlimeOrigin(plugin: MinixPlugin) : AbstractOrigin(plugin) {
         }
         damage {
             EntityDamageEvent.DamageCause.FALL triggers { if (Random.nextBoolean()) { cancel() } }
+        }
+        item {
+            named(displayName)
+            material(Material.SLIME_BALL)
+            lore {
+                this[1] = "<green>Slime lol".parse()
+            }
         }
     }
 
