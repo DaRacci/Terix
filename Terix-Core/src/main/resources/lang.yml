@@ -1,0 +1,16 @@
+prefix:
+  "terix": "<light_purple>Terix</light_purple> » <aqua>"
+  "server": "<light_purple>Elixir</light_purple> » <aqua>"
+  "origins": "<gold>Origins</gold> » <aqua>"
+generic:
+  "error": "<dark_red>Error <white>» <red><message>"
+  "reload.lang": "<prefix_terix>Reloaded Language file."
+origins:
+  "broadcast": "<prefix_server><player> has become the <new_origin> origin!"
+  "set.self": "<prefix_origins>You set your origin to <new_origin>."
+  "set.other": "<prefix_origins>Set <target>'s origin to <new_origin>."
+  "get.self": "<prefix_origins>Your origin is <origin>."
+  "get.other": "<prefix_origins><target>'s origin is <origin>."
+  "nightvision.self": "<prefix_origins>Your night vision now triggers on: <new_nightvision>."
+  "nightvision.other": "<prefix_origins>Set <target>'s night vision trigger to <new_nightvision> from <old_nightvision>."
+lang_version: 2
