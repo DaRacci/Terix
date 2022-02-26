@@ -3,9 +3,11 @@ package dev.racci.terix.core.origins
 import dev.racci.minix.api.extensions.parse
 import dev.racci.terix.api.Terix
 import dev.racci.terix.api.origins.AbstractOrigin
+import dev.racci.terix.api.origins.enums.Trigger
 import net.kyori.adventure.key.Key
 import net.kyori.adventure.text.format.NamedTextColor
 import org.bukkit.Material
+import org.bukkit.potion.PotionEffectType
 
 class VampireOrigin(override val plugin: Terix) : AbstractOrigin() {
 
@@ -15,6 +17,18 @@ class VampireOrigin(override val plugin: Terix) : AbstractOrigin() {
     override val deathSound by lazy { Key.key("minecraft", "entity.bat.death") }
 
     override suspend fun onRegister() {
+        damage {
+            Trigger.SUNLIGHT ticks 100.0
+        }
+        potions {
+            Trigger.SUNLIGHT causes {
+                type = PotionEffectType.WEAKNESS
+                ambient = true
+                particles = false
+                icon = false
+                originKey(this@VampireOrigin.name)
+            }
+        }
         item {
             named(displayName)
             material(Material.BEETROOT_SOUP)
