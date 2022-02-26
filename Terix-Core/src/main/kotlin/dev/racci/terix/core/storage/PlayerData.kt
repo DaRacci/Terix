@@ -40,4 +40,18 @@ class PlayerData(private val uuid: EntityID<UUID>) : UUIDEntity(uuid) {
     var nightVision: Trigger by User.nightVision
     var jumpBoost: Trigger by User.jumpBoost
     var slowFalling: Trigger by User.slowFall
+
+    var wasInSunlight: Boolean = false
+    var wasInDarkness: Boolean = false
+    var wasInWater: Boolean = false
+    var wasInRain: Boolean = false
+    var inSunlight: Boolean = false
+    var inDarkness: Boolean = false
+    var inWater: Boolean = false
+    var inRain: Boolean = false
+
+    var sunlightTask: Boolean = false
+    var darknessTask: Boolean = false
+    var waterTask: Boolean = false
+    var rainTask: Boolean = false
 }
