@@ -6,6 +6,6 @@ import org.bukkit.entity.Player
 
 class PlayerOriginChangeEvent(
     player: Player,
-    val preOrigin: AbstractOrigin?,
+    val preOrigin: AbstractOrigin,
     val newOrigin: AbstractOrigin
 ) : KPlayerEvent(player, true)
