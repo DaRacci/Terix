@@ -7,7 +7,11 @@ import org.bukkit.potion.PotionEffectType
 import kotlin.properties.Delegates
 import kotlin.time.Duration
 
-class PotionEffectBuilder {
+class PotionEffectBuilder() {
+
+    constructor(builder: PotionEffectBuilder.() -> Unit) : this() {
+        builder()
+    }
 
     var amplifier by Delegates.notNull<Int>()
     var duration by Delegates.notNull<Duration>()
