@@ -4,6 +4,7 @@ import com.github.benmanes.caffeine.cache.Caffeine
 import dev.racci.terix.api.origins.AbstractOrigin
 import dev.racci.terix.api.origins.enums.Trigger
 import dev.racci.terix.core.services.OriginService
+import kotlinx.datetime.Instant
 import org.bukkit.entity.Player
 import org.jetbrains.exposed.dao.UUIDEntity
 import org.jetbrains.exposed.dao.UUIDEntityClass
@@ -33,6 +34,8 @@ class PlayerData(private val uuid: EntityID<UUID>) : UUIDEntity(uuid) {
             _origin = value.name.lowercase()
             originCache.put(uuid.value, value)
         }
+
+    var lastChosenTime: Instant? by User.lastChosenTime
 
     var nightVision: Trigger by User.nightVision
     var jumpBoost: Trigger by User.jumpBoost
