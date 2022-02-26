@@ -18,7 +18,7 @@ import java.util.logging.Level
 class TerixImpl : Terix() {
 
     override val bindToKClass = Terix::class
-    override val bStatsId = 1
+    override val bStatsId = 14443
 
     override suspend fun handleLoad() {
         if (!dataFolder.exists()) {
