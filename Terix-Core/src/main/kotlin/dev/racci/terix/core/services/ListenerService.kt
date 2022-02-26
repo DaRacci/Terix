@@ -56,6 +56,7 @@ import kotlin.time.ExperimentalTime
 class ListenerService(override val plugin: Terix) : Extension<Terix>() {
 
     override val name = "Listener Service"
+    override val dependencies = persistentListOf(HookService::class, LangService::class)
 
     override suspend fun handleEnable() {
         event<BeaconEffectEvent> {

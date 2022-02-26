@@ -24,7 +24,7 @@ import java.util.UUID
 class RunnableService(override val plugin: Terix) : Extension<Terix>() {
 
     override val name = "Runnable Service"
-    override val dependencies get() = persistentListOf(OriginService::class)
+    override val dependencies = persistentListOf(OriginService::class)
 
     private val cache = Caffeine.newBuilder()
         .expireAfterWrite(Duration.ofMinutes(1))
