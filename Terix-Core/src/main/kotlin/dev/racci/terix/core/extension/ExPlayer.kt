@@ -7,6 +7,8 @@ import dev.racci.terix.api.Terix
 import dev.racci.terix.api.origins.AbstractOrigin
 import dev.racci.terix.api.origins.enums.Trigger
 import dev.racci.terix.core.storage.PlayerData
+import kotlinx.datetime.Instant
+import net.kyori.adventure.text.Component
 import net.minecraft.core.BlockPos
 import org.bukkit.entity.Player
 import org.bukkit.potion.PotionEffect
@@ -69,3 +71,9 @@ fun Player.canSeeSky(): Boolean {
 
 fun Player.getLightOrDarkTrigger(): Trigger? =
     if (canSeeSky()) Trigger.SUNLIGHT else if (inDarkness()) Trigger.DARKNESS else null
+
+var Player.originTime: Instant
+    get() { return transaction { PlayerData[this@originTime].lastChosenTime ?: Instant.DISTANT_PAST } }
+    set(instant) { transaction { PlayerData[this@originTime].lastChosenTime = instant } }
+
+infix fun Component.message(receiver: Collection<Player>) { for (audience in receiver) { audience.sendMessage(this) } }

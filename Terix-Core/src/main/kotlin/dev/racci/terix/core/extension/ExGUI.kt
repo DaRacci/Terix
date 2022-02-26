@@ -8,8 +8,6 @@ import com.github.stefvanschie.inventoryframework.pane.util.Mask
 import org.bukkit.event.inventory.InventoryClickEvent
 import org.bukkit.inventory.ItemStack
 
-typealias ClickEvent = InventoryClickEvent.() -> Unit
-
 fun <T : Gui> T.dsl(block: T.() -> Unit): T {
     block(this)
     return this
@@ -27,7 +25,7 @@ fun <T : Mask> T.dsl(block: T.() -> Unit): T {
 
 var OutlinePane.repeat: Boolean get() = doesRepeat(); set(bool) { setRepeat(bool) }
 
-fun ItemStack.asGuiItem(action: ClickEvent? = null): GuiItem = GuiItem(this, action)
+fun ItemStack.asGuiItem(action: (InventoryClickEvent.() -> Unit)? = null): GuiItem = GuiItem(this, action)
 
 class OutlinePane(
     x: Int,
