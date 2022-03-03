@@ -1,29 +1,38 @@
 package dev.racci.terix.core.services
 
+import dev.jorel.commandapi.CommandAPICommand
 import dev.jorel.commandapi.CommandPermission
 import dev.jorel.commandapi.arguments.EntitySelectorArgument
 import dev.jorel.commandapi.arguments.StringArgument
+import dev.racci.minix.api.coroutine.launch
+import dev.racci.minix.api.coroutine.launchAsync
 import dev.racci.minix.api.extension.Extension
 import dev.racci.minix.api.extensions.message
-import dev.racci.minix.api.utils.clone
+import dev.racci.minix.api.utils.kotlin.ifTrue
 import dev.racci.terix.api.Terix
+import dev.racci.terix.api.dsl.PotionEffectBuilder
 import dev.racci.terix.api.events.PlayerOriginChangeEvent
 import dev.racci.terix.core.extension.command
 import dev.racci.terix.core.extension.execute
 import dev.racci.terix.core.extension.executePlayer
+import dev.racci.terix.core.extension.formatted
+import dev.racci.terix.core.extension.fulfilled
 import dev.racci.terix.core.extension.getCast
 import dev.racci.terix.core.extension.origin
 import dev.racci.terix.core.extension.subcommand
+import dev.racci.terix.core.storage.PlayerData
 import kotlinx.collections.immutable.persistentListOf
 import org.bukkit.command.CommandSender
 import org.bukkit.entity.Player
-import org.koin.core.component.get
+import org.bukkit.potion.PotionEffectType
+import org.jetbrains.exposed.sql.transactions.transaction
 import org.koin.core.component.inject
 
 class CommandService(override val plugin: Terix) : Extension<Terix>() {
     private val guiService by inject<GUIService>()
     private val langService by inject<LangService>()
     private val originService by inject<OriginService>()
+    private val specialService by inject<SpecialService>()
 
     override val name = "Command Service"
     override val dependencies = persistentListOf(LangService::class, OriginService::class, GUIService::class, SpecialService::class)
@@ -34,32 +43,106 @@ class CommandService(override val plugin: Terix) : Extension<Terix>() {
             aliases += "origins"
             permission = CommandPermission.fromString("terix.origin")
 
-            subcommand("get") {
-                permission = CommandPermission.fromString("terix.origin.get")
-                withArguments(EntitySelectorArgument("target", EntitySelectorArgument.EntitySelector.ONE_PLAYER))
+            addGetCommands()
+            addSetCommands()
+            addMenuCommands()
+            addToggleCommands()
+        }
 
-                execute { sender, args ->
-                    getOrigin(sender, args.getCast(0))
-                }
-            }.clone().apply { arguments.clear() ; subcommands.add(this) } // Super scuffed lmao
+        command("terix") {
+            permission = CommandPermission.fromString("terix.admin")
 
-            subcommand("set") {
-                permission = CommandPermission.fromString("terix.origin.set")
-                withArguments(
-                    EntitySelectorArgument("target", EntitySelectorArgument.EntitySelector.ONE_PLAYER),
-                    StringArgument("origin").replaceSuggestions { originService.registeredOrigins.toTypedArray() }
-                )
+            subcommand("reload") {
+                permission = CommandPermission.fromString("terix.admin.reload")
 
-                execute { sender, args ->
-                    setOrigin(sender, args.getCast(0)!!, args.getCast(1)!!)
+                execute { sender, _ ->
+                    langService.handleReload()
+                    langService[
+                        "generic.reload.lang",
+                    ] message sender
                 }
             }
+        }
+    }
 
-            subcommand("menu") {
-                permission = CommandPermission.fromString("terix.origin.menu")
+    private fun CommandAPICommand.addGetCommands() {
+        subcommand("get") {
+            permission = CommandPermission.fromString("terix.origin.get")
+            withArguments(EntitySelectorArgument("target", EntitySelectorArgument.EntitySelector.ONE_PLAYER))
 
-                executePlayer { player, _ -> guiService.baseGui.value.show(player) }
-            }
+            execute { sender, args -> plugin.launchAsync { getOrigin(sender, args.getCast(0)!!) } }
+        }
+
+        subcommand("get") {
+            permission = CommandPermission.fromString("terix.origin.get")
+
+            executePlayer { player, _ -> plugin.launchAsync { getOrigin(player, player) } }
+        }
+    }
+
+    private fun CommandAPICommand.addSetCommands() {
+        subcommand("set") {
+            permission = CommandPermission.fromString("terix.origin.set")
+            withArguments(
+                EntitySelectorArgument("target", EntitySelectorArgument.EntitySelector.ONE_PLAYER),
+                StringArgument("origin").replaceSuggestions { originService.registeredOrigins.toTypedArray() }
+            )
+
+            execute { sender, args -> plugin.launchAsync { setOrigin(sender, args.getCast(0), args.getCast(1)!!) } }
+        }
+
+        subcommand("set") {
+            permission = CommandPermission.fromString("terix.origin.set")
+            withArguments(StringArgument("origin").replaceSuggestions { originService.registeredOrigins.toTypedArray() })
+
+            executePlayer { player, args -> plugin.launchAsync { setOrigin(player, player, args.getCast(0)!!) } }
+        }
+    }
+
+    private fun CommandAPICommand.addMenuCommands() {
+        subcommand("menu") {
+            permission = CommandPermission.fromString("terix.origin.menu")
+
+            executePlayer { player, _ -> guiService.baseGui.value.show(player) }
+        }
+
+        subcommand("menu") {
+            permission = CommandPermission.fromString("terix.origin.menu.others")
+            withArguments(EntitySelectorArgument("target", EntitySelectorArgument.EntitySelector.ONE_PLAYER))
+
+            // TODO: Message response
+            execute { _, args -> guiService.baseGui.value.show(args.getCast(0)!!) }
+        }
+    }
+
+    private fun CommandAPICommand.addToggleCommands() {
+        subcommand("toggle") {
+            permission = CommandPermission.fromString("terix.origin.toggle")
+
+            addSpecialCommand(
+                "nightvision",
+                { it.origin().nightVision },
+                { sender, args -> plugin.launchAsync { nightvision(sender, args.getCast(0)) } }
+            )
+        }
+    }
+
+    private fun CommandAPICommand.addSpecialCommand(
+        name: String,
+        requirements: (Player) -> Boolean,
+        execute: (Player, Array<out Any>) -> Unit
+    ) {
+        subcommand(name) {
+            withArguments(StringArgument("trigger").replaceSuggestions { specialService.specialStatesFormatted })
+            setRequirements { sender -> sender is Player && requirements(sender) }
+
+            executePlayer(execute)
+        }
+
+        subcommand(name) {
+            setRequirements { sender -> sender is Player && requirements(sender) }
+
+            executePlayer(execute)
         }
     }
 
@@ -69,8 +152,8 @@ class CommandService(override val plugin: Terix) : Extension<Terix>() {
     ) {
         val origin = (target)?.origin() ?: run {
             langService[
-                "lang.error",
-                "message" to { "This command must have a target or be send by a Player." }
+                "generic.error",
+                "message" to { "This command must have a target or be sent by a Player." }
             ] message sender
             return
         }
@@ -83,13 +166,28 @@ class CommandService(override val plugin: Terix) : Extension<Terix>() {
 
     private fun setOrigin(
         sender: CommandSender,
-        target: Player,
+        target: Player? = sender as? Player,
         originString: String
     ) {
-        val origin = get<OriginService>()[originString, true] ?: run {
+        target ?: run {
             langService[
-                "lang.error",
+                "generic.error",
+                "message" to { "This command must have a target or be sent by a Player." }
+            ] message sender
+            return
+        }
+        val origin = originService[originString, true] ?: run {
+            langService[
+                "generic.error",
                 "message" to { "Invalid origin: $originString." },
+            ] message sender
+            return
+        }
+        if (origin == target.origin()) {
+            langService[
+                "origin.set.same.${if (target == sender) "self" else "other"}",
+                "origin" to { origin.displayName },
+                "target" to { target.displayName() },
             ] message sender
             return
         }
@@ -100,5 +198,44 @@ class CommandService(override val plugin: Terix) : Extension<Terix>() {
             "target" to { target.displayName() },
         ] message sender
         PlayerOriginChangeEvent(target, target.origin(), origin).callEvent()
+    }
+
+    private fun nightvision(
+        player: Player,
+        nightVisionString: String? = null
+    ) {
+        val nightVision = nightVisionString?.let {
+            val ordinal = specialService.specialStatesFormatted.indexOf(it)
+            specialService.specialStates.value.getOrNull(ordinal)
+        }
+        val playerData = transaction { PlayerData[player] }
+        if (nightVision != null && !specialService.isValidTrigger(nightVision)) {
+            langService[
+                "generic.error",
+                "message" to { "Invalid trigger: $nightVision." },
+            ] message player
+            return
+        }
+        val current = transaction { playerData.nightVision }
+        val new = nightVision ?: specialService.getToggle(player, current)
+        transaction { playerData.nightVision = new }
+        log.debug { new.fulfilled(player) }
+        new.fulfilled(player).ifTrue {
+            PotionEffectBuilder {
+                type = PotionEffectType.NIGHT_VISION
+                durationInt = Int.MAX_VALUE
+                amplifier = 0
+                particles = false
+                ambient = false
+                particles = false
+                icon = false
+                originKey(new.name)
+            }.build().apply { plugin.launch { player.addPotionEffect(this@apply) } }
+        }
+        langService[
+            "origin.nightvision",
+            "old_nightvision" to { new.formatted() },
+            "new_nightvision" to { new.formatted() },
+        ] message player
     }
 }

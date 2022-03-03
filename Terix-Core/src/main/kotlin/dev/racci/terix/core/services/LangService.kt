@@ -30,7 +30,7 @@ class LangService(override val plugin: Terix) : Extension<Terix>() {
 
     override val name = "Lang Service"
 
-    private val file by lazy { plugin.dataFolder.resolve("lang.yml") }
+    private val file by lazy { plugin.dataFolder.resolve("Lang.yml") }
 
     private val yaml by lazy {
         Yaml(
