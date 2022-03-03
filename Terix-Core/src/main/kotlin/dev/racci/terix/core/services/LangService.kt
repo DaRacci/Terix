@@ -9,6 +9,9 @@ import dev.racci.minix.api.utils.collections.ObservableAction
 import dev.racci.minix.api.utils.collections.observableMapOf
 import dev.racci.terix.api.Terix
 import kotlinx.collections.immutable.persistentListOf
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.withContext
+import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
 import kotlinx.serialization.modules.SerializersModule
 import net.kyori.adventure.text.Component
@@ -18,6 +21,8 @@ import net.kyori.adventure.text.minimessage.tag.PreProcess
 import net.kyori.adventure.text.minimessage.tag.Tag
 import net.kyori.adventure.text.minimessage.tag.resolver.TagResolver
 import kotlin.properties.Delegates
+import kotlin.reflect.full.memberFunctions
+import kotlin.reflect.jvm.isAccessible
 
 const val LANG_DELIMITER = "."
 
@@ -36,7 +41,7 @@ class LangService(override val plugin: Terix) : Extension<Terix>() {
                 polymorphismStyle = PolymorphismStyle.Tag,
                 polymorphismPropertyName = "type",
                 encodingIndentationSize = 4,
-                breakScalarsAt = 80,
+                breakScalarsAt = 160,
                 sequenceStyle = SequenceStyle.Flow
             )
         )
@@ -45,14 +50,45 @@ class LangService(override val plugin: Terix) : Extension<Terix>() {
     var lang by Delegates.notNull<Lang>(); private set
 
     override suspend fun handleEnable() {
-        if (!file.exists()) {
-            file.createNewFile()
-            plugin.javaClass.getResourceAsStream("lang.yml")?.use { input ->
-                file.outputStream().use(input::copyTo)
+        withContext(Dispatchers.IO) {
+            val clf = plugin::class.memberFunctions.first { it.name == "getClassLoader" }
+            clf.isAccessible = true
+            val cl = clf.call(plugin) as ClassLoader
+            val defaultResource = cl.getResource("lang.yml")!!
+            val defaultInput = defaultResource.openStream().use { it.readBytes() }
+            if (!file.exists()) {
+                log.info { "Creating new lang file." }
+                file.createNewFile()
+                file.outputStream().use { it.write(defaultInput) }
+                lang = yaml.decodeFromString(Lang.serializer(), defaultInput.decodeToString())
+                return@withContext
             }
-        }
-        lang = file.inputStream().use { input ->
-            yaml.decodeFromStream(Lang.serializer(), input)
+            val defaultLang = yaml.decodeFromString(Lang.serializer(), defaultInput.decodeToString())
+            val presentLang = file.inputStream().use { yaml.decodeFromStream(Lang.serializer(), it) }
+
+            lang = if (presentLang.version != defaultLang.version) {
+                log.info { "Lang file is outdated. Updating from ${presentLang.version} to ${defaultLang.version}." }
+                for ((key, value) in presentLang.generic.entries) {
+                    if (defaultLang.generic[key] != null) {
+                        log.debug { "Updating value from existing lang file: $key." }
+                        defaultLang.generic[key] = value
+                    } else log.debug { "Dropping value as it is no longer used: $key." }
+                }
+                for ((key, value) in presentLang.origins.entries) {
+                    if (defaultLang.origins[key] != null) {
+                        log.debug { "Updating value from existing lang file: $key." }
+                        defaultLang.origins[key] = value
+                    } else log.debug { "Dropping value as it is no longer used: $key." }
+                }
+                for ((key, value) in presentLang.prefix) {
+                    log.debug { "Updating value from existing lang file: $key." }
+                    defaultLang.prefix[key] = value
+                }
+                withContext(Dispatchers.IO) {
+                    file.outputStream().use { yaml.encodeToStream(Lang.serializer(), defaultLang, it) }
+                }
+                defaultLang
+            } else presentLang
         }
     }
 
@@ -62,31 +98,38 @@ class LangService(override val plugin: Terix) : Extension<Terix>() {
         }
     }
 
+    fun handleReload() {
+        lang = file.inputStream().use { yaml.decodeFromStream(Lang.serializer(), it) }
+    }
+
     operator fun get(key: String, vararg template: Pair<String, () -> Any>) = lang[key, template]
 
     @Serializable
     data class Lang(
-        val prefixes: MutableMap<String, String>,
-        val lang: MutableMap<String, String>,
-        val originLang: MutableMap<String, String>,
+        val prefix: MutableMap<String, String>,
+        val generic: MutableMap<String, String>,
+        val origins: MutableMap<String, String>,
+        @SerialName("lang_version") val version: Int,
     ) {
 
         val messageMap by lazy {
             val map = observableMapOf<String, String>()
-            val prefixPlaceholders = persistentListOf<Pair<String, String>>()
-            prefixes.forEach { (key, value) ->
-                prefixPlaceholders.add("<prefix_$key>" to value)
+            val prefixPlaceholders = mutableMapOf<String, String>()
+            prefix.forEach { (key, value) ->
+                prefixPlaceholders["<prefix_$key>"] = value
             }
-            lang.forEach { (key, value) ->
-                map["lang$LANG_DELIMITER$key"] = value
+            generic.forEach { (key, value) ->
+                map["generic$LANG_DELIMITER$key"] = value
             }
-            originLang.forEach { (key, value) ->
+            origins.forEach { (key, value) ->
                 map["origin$LANG_DELIMITER$key"] = value
             }
             map.replaceAll { _, value ->
-                prefixPlaceholders.fold(value) { acc, (placeholder, prefix) ->
-                    acc.replace(placeholder, prefix, true)
+                var string = value
+                prefixPlaceholders.forEach { (placeholder, prefix) ->
+                    string = string.replace(placeholder, prefix)
                 }
+                string
             }
             map
         }
@@ -100,9 +143,9 @@ class LangService(override val plugin: Terix) : Extension<Terix>() {
             messageMap.observe(ObservableAction.REPLACE) { entry, _ ->
                 val split = entry.first.split(LANG_DELIMITER)
                 when (split[0]) {
-                    "lang" -> lang[split[1]] = entry.second
-                    "origin" -> originLang[split[1]] = entry.second
-                    "prefix" -> prefixes[split[1]] = entry.second
+                    "generic" -> generic[split[1]] = entry.second
+                    "origin" -> origins[split[1]] = entry.second
+                    "prefix" -> prefix[split[1]] = entry.second
                 }
             }
         }
@@ -110,7 +153,9 @@ class LangService(override val plugin: Terix) : Extension<Terix>() {
 
     companion object {
         private val components by lazy {
-            val path = "net.kyori.adventure.text"
+            // This is so we don't have to worry about shading etc.
+            val parent = Component::class.qualifiedName!!.split(".").dropLast(1).joinToString(".")
+            val path = "() -> $parent"
             persistentListOf(
                 "$path.Component",
                 "$path.MiniMessage",
