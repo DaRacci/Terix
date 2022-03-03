@@ -26,7 +26,6 @@ class SoundService(override val plugin: Terix) : Extension<Terix>() {
         protocolManager.addPacketListener(
             object : PacketAdapter(plugin, ListenerPriority.NORMAL, PacketType.Play.Server.NAMED_SOUND_EFFECT) {
                 override fun onPacketSending(event: PacketEvent) {
-                    log.debug { "Listening to packet ${event.packetType} from ${event.player}" }
                     if (event.packet.soundCategories.readSafely(0) == EnumWrappers.SoundCategory.PLAYERS) {
                         log.debug { "Sound category is PLAYERS" }
                         val effect = event.packet.soundEffects.readSafely(0)
