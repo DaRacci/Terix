@@ -1,0 +1,120 @@
+Prefixes:
+  Terix: "#ffaa00&lS#ffbf15&ly#ffd52b&ll#ffea40&lp#ffff55&lh &f&l»"
+  Error: "#aa0000&lE#bd0000&lr#d00000&lr#e30000&lo#f60000&lr &f&l»"
+  Origins: "#ffff55&lO#ffea40&lr#ffd52b&li#ffbf15&lg#ffaa00&li#ffbf15&ln#ffd52b&ls &f&l»"
+Colours:
+  Item: "#f0e171"
+  Player: "#DCDCDC"
+  Missing: "#2AE7DC"
+Powers:
+  General:
+    Ready: "{Origins} &bPower restored!"
+    NotReady: "{Error} &cPower drained! &4{var}"
+  Vampire:
+    Darkshadow:
+      Name: "Dark Shadow"
+      Desc: "Teleports you behind your enemies shadow for a dark surprise."
+      Info: "30 Seconds"
+      Use: "Shift + LeftClick"
+    Darkflight:
+      Name: "Dark Flight"
+      Desc: "Sacrifice your blood for unparalleled speed"
+      Info: "None"
+      Use: "Offhand x 2"
+    Darkconversion:
+      Name: "Dark Conversion"
+      Desc: "Free an aly from a deadly curse"
+      Info: 'Shift + Offhand'
+      Use: ''
+Messages:
+  Core:
+    permission_denied: "{Error} &cYou don't have access to this command!"
+    permission_denied_parameter: "{Error} &cYou don't have access to this sub-command!"
+    error_generic_logged: "&cAn error occurred. This problem has been logged. Sorry for the inconvenience."
+    unknown_command: "{Error} &cUnknown Command, please type &6/origin &fhelp"
+    invalid_syntax: "{Error} &eUsage: &f&l{command} &f{syntax}"
+    error_prefix: "{Error} &c{message}"
+    error_performing_command: "&cThere was an error performing this command."
+    info_message: '{message}'
+    please_specify_one_of: '&cError: Please specify one of (&e{valid}&c)'
+    must_be_a_number: '&cError: {num} must be a number.'
+    must_be_min_length: '&cError: Must be at least {min} characters long.'
+    must_be_max_length: '&cError: Must be at most {max} characters long.'
+    please_specify_at_most: '&cError: Please specify a value at most {max}.'
+    please_specify_at_least: '&cError: Please specify a value at least {min}.'
+    not_allowed_on_console: '&cError: Console may not execute this command.'
+    could_not_find_player: '&cError: Could not find a player by the name: &e{search}'
+    no_command_matched_search: '&cNo command matched &e{search}.'
+    help_page_information: '&b - Showing page &a{page} &bof &a{totalpages} &b(&e{results}&b results).'
+    help_no_results: '&bError: No more results.'
+    help_header: '&e=== &bShowing help for &a{commandprefix}{command}&e ==='
+    help_format: '&b{commandprefix}{command} &a{parameters} &e{separator} {description}'
+    help_detailed_header: '&e=== &bShowing detailed help for &a{commandprefix}{command}&e ==='
+    help_detailed_command_format: '&b{command} &a{parameters} &e{separator} {description}'
+    help_detailed_parameter_format: '&a{syntaxorname}: &e{description}'
+    help_search_header: '&e=== &bSearch results for &a{commandprefix}{command} {search}&e ==='
+  Minecraft:
+    invalid_world: '&cError: That world does not exist.'
+    you_must_be_holding_item: '&cError: You must be holding an item in your main hand.'
+    player_is_vanish_confirm: '&eWarning: &a{vanished} &eis vanished. Do not blow their cover!\n&eTo confirm your action add &a:confirm &eto the end of their name.\n&eEx: {vanished}:confirm'
+    username_too_short: '&cError: Username too short, must be at least three characters.'
+    is_not_a_valid_name: '&cError: &e{name} &cis not a valid username.'
+    multiple_players_match: '&cError: Multiple players matched &b{search} &e({all})&c, please be more specific.'
+    no_player_found_server: '&cNo player matching &e{search} &cis connected to this server.'
+    no_player_found_offline: '&cNo player matching &e{search}&c could be found.'
+    no_player_found: '&cNo player matching &e{search}&c could be found.'
+    location_please_specify_world: '&cError: Please specify world. Example: &eworld:x,y,z.'
+    location_please_specify_xyz: '&cError: Please specify the coordinates x, y, and z. Example: &eworld:x,y,z.'
+    location_console_not_relative: '&cError: Console may not use relative coordinates for location.'
+  Commands:
+    Reload: "{Terix} &aReloaded sucessfully"
+    Saved: "{Terix} &aAll Players have been saved!"
+    Toggle:
+      Enabled: "{Origins} &bYou have enabled {special}"
+      Disabled: "{Origins} &cYou have disabled {special}"
+      Specific: "{Origins} &bYou have turned {special} &bto {option}"
+      Current: "{Error} &cYou already have this setting enabled!"
+      NoPermission: "{Error} &cYour origin doesn't have access to &4{special}!"
+GUI:
+  Common:
+    Accept: "&2Accept"
+    Deny: "&cDeny"
+    Close: "&cClose"
+    Back: "&cBack"
+    NextPage: "&8Next Page"
+    PreviousPage: "&8Previous Page"
+  Selection:
+    Title: "&6&lOrigin &eSelection Menu"
+    Custom_Title: "&eCustom &6&lOrigins"
+    Confirm_Title: "&eConfirm selection"
+  Info:
+    Title: "&6&lOrigin &eInfo Menu"
+    Powers: "Placeholder"
+    Passives: "Placeholder"
+    Debuffs: "Placeholder"
+Origins:
+  Command:
+    Get:
+      HasOrigin: "{Origins} &7{PlayerDisplayName}'s &borigin is the {origin} &bOrigin"
+      NoOrigin: "{Error} &7{PlayerDisplayName} &cdoesn't have an &4Origin"
+    Set:
+      Success: "{Origins} &bYou have set &7{PlayerDisplayName}'s &borigin to {var}"
+      Current: "{Error} &7{PlayerDisplayName} &cis already the {origin} &cOrigin!"
+    Reset:
+      Sender: "{Origins} &cYou have removed &7{PlayerDisplayName}'s &cOrigin"
+      Target: "{Origins} &cYour origin has been removed by &7{SenderDisplayName}"
+    Token:
+      Sender: "{Origins} &bYou have given &7{PlayerDisplayName} &b{amount} {token}&b!"
+      Target: "{Origins} &bYou have been given {amount} {token}&b!"
+  Select:
+    Broadcast: "{Origins} &7{PlayerDisplayName} &ehas selected the {var} &6Origin!"
+    Locked: "{Error} &cYou don't have access to the {var} &cOrigin!"
+    Current: "{Error} &cYou are already the {var} &cOrigin!"
+  Lore:
+    Centered: false
+    Indent: "&f&l»"
+    Passives: "&6&lPassives"
+    Abilities: "&2&lAbilities"
+    Debuffs: "&4&Debuffs"
+    Select: "&f&l» &bClick &f&l« &eto change to the {var} &eorigin."
+File_Version: 4

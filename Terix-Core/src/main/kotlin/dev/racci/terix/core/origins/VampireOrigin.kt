@@ -8,6 +8,7 @@ import net.kyori.adventure.key.Key
 import net.kyori.adventure.text.format.NamedTextColor
 import org.bukkit.Material
 import org.bukkit.potion.PotionEffectType
+import kotlin.time.Duration
 
 class VampireOrigin(override val plugin: Terix) : AbstractOrigin() {
 
@@ -16,17 +17,27 @@ class VampireOrigin(override val plugin: Terix) : AbstractOrigin() {
     override val hurtSound by lazy { Key.key("minecraft", "entity.bat.hurt") }
     override val deathSound by lazy { Key.key("minecraft", "entity.bat.death") }
 
+    override val nightVision = true
+
     override suspend fun onRegister() {
         damage {
             Trigger.SUNLIGHT ticks 100.0
         }
+        title {
+            Trigger.SUNLIGHT causes {
+                title = "<red>You feel week.".parse()
+                subtitle = "<red>Return to the dark to regain your strength.".parse()
+                sound = Key.key("minecraft", "entity.bat.hurt")
+            }
+        }
         potions {
             Trigger.SUNLIGHT causes {
                 type = PotionEffectType.WEAKNESS
+                duration = Duration.INFINITE
                 ambient = true
                 particles = false
                 icon = false
-                originKey(this@VampireOrigin.name)
+                originKey(this@VampireOrigin.name, "ON")
             }
         }
         item {

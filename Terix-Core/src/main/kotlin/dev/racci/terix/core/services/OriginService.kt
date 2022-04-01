@@ -7,15 +7,20 @@ import dev.racci.minix.api.utils.collections.ObservableMap
 import dev.racci.minix.api.utils.collections.observableMapOf
 import dev.racci.terix.api.Terix
 import dev.racci.terix.api.origins.AbstractOrigin
+import dev.racci.terix.core.origins.AngelOrigin
+import dev.racci.terix.core.origins.BeeOrigin
+import dev.racci.terix.core.origins.BlizzOrigin
+import dev.racci.terix.core.origins.DragonOrigin
+import dev.racci.terix.core.origins.FairyOrigin
 import dev.racci.terix.core.origins.HumanOrigin
+import dev.racci.terix.core.origins.MerlingOrigin
 import dev.racci.terix.core.origins.SlimeOrigin
-import kotlinx.collections.immutable.persistentListOf
+import dev.racci.terix.core.origins.VampireOrigin
 import kotlin.collections.set
 
 class OriginService(override val plugin: Terix) : Extension<Terix>() {
 
     override val name = "Origin Service"
-    override val dependencies = persistentListOf(StorageService::class)
 
     operator fun get(origin: String, ignoreCase: Boolean = false) = registry[if (ignoreCase) origin.lowercase() else origin]
 
@@ -56,6 +61,13 @@ class OriginService(override val plugin: Terix) : Extension<Terix>() {
         registry {
             add(::HumanOrigin)
             add(::SlimeOrigin)
+            add(::AngelOrigin)
+            add(::BeeOrigin)
+            add(::DragonOrigin)
+            add(::FairyOrigin)
+            add(::MerlingOrigin)
+            add(::VampireOrigin)
+            add(::BlizzOrigin)
         }
     }
 

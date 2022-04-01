@@ -59,6 +59,7 @@ sealed interface IAbstractOrigin : WithPlugin<MinixPlugin> {
 
     val nightVision: Boolean
     val waterBreathing: Boolean
+    val fireImmune: Boolean
 
     val becomeOriginTitle: TitleBuilder?
 
@@ -177,18 +178,6 @@ sealed interface IAbstractOrigin : WithPlugin<MinixPlugin> {
 
     suspend fun onShiftRightClick(event: PlayerShiftRightClickEvent) {}
 
-    suspend fun potions(builder: suspend PotionsBuilder.() -> Unit) {}
-
-    suspend fun attributes(builder: suspend AttributeBuilder.() -> Unit) {}
-
-    suspend fun title(builder: suspend TimeTitleBuilder.() -> Unit) {}
-
-    suspend fun damage(builder: suspend DamageBuilder.() -> Unit) {}
-
-    suspend fun food(builder: suspend FoodBuilder.() -> Unit) {}
-
-    suspend fun item(builder: suspend ItemBuilder.() -> Unit) {}
-
     interface PotionsBuilder {
 
         /**
@@ -203,7 +192,7 @@ sealed interface IAbstractOrigin : WithPlugin<MinixPlugin> {
         /**
          * Sets the base values of this origins attributes
          */
-        infix fun Attribute.setBase(double: Double)
+        infix fun Attribute.setBase(builder: AttributeModifierBuilder.() -> Unit)
 
         /**
          * Adds an attributeModifier to this trigger.
