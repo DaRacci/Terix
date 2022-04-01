@@ -32,7 +32,7 @@ class SpecialService(override val plugin: Terix) : Extension<Terix>() {
 
     override suspend fun handleEnable() { }
 
-    override suspend fun doUnload() {
+    override suspend fun handleUnload() {
         specialStates.ifInitialized { clear() }
     }
 

@@ -8,8 +8,8 @@ import dev.racci.minix.api.extensions.pm
 import dev.racci.minix.api.plugin.MinixLogger
 import dev.racci.minix.api.utils.collections.CollectionUtils.clear
 import dev.racci.terix.api.Terix
+import dev.racci.terix.core.enchantments.SunResistance
 import me.angeschossen.lands.api.integration.LandsIntegration
-import me.clip.placeholderapi.PlaceholderAPIPlugin
 import me.clip.placeholderapi.expansion.PlaceholderExpansion
 import org.bukkit.event.server.PluginDisableEvent
 import org.bukkit.event.server.PluginEnableEvent
@@ -18,6 +18,7 @@ import org.koin.core.component.KoinComponent
 import org.koin.core.component.get
 import java.time.Duration
 import kotlin.reflect.KClass
+import kotlin.reflect.full.createInstance
 
 typealias HookInvoker = () -> HookService.HookService
 
@@ -41,14 +42,12 @@ class HookService(override val plugin: Terix) : Extension<Terix>() {
             }
         }
 
-    @Suppress("UNCHECKED_CAST") // Because its the only way to get this class, Yes it is quite unsafe if the dev changes anything
     override suspend fun handleEnable() {
-        unregisteredHooks.putAll(
-            listOf(
-                PlaceholderAPIPlugin::class to { PlaceholderAPIHook() },
-                Class.forName("me.angeschossen.lands.Lands").kotlin as KClass<out Plugin> to { LandsHook() }
-            )
-        )
+        listOfNotNull(
+            hookPair<LandsHook>("me.angeschossen.lands.Lands"),
+            hookPair<PlaceholderAPIHook>("me.clip.placeholderapi.PlaceholderAPIPlugin"),
+            hookPair<EcoEnchantsHook>("com.willfp.ecoenchants.EcoEnchantsPlugin")
+        ).let(unregisteredHooks::putAll)
 
         pm.plugins.forEach {
             if (it.isEnabled) {
@@ -94,6 +93,14 @@ class HookService(override val plugin: Terix) : Extension<Terix>() {
         hooks.invalidate(hook::class)
     }
 
+    @Suppress("UNCHECKED_CAST")
+    private inline fun <reified H : HookService> hookPair(className: String): Pair<KClass<out Plugin>, HookInvoker>? =
+        try {
+            Class.forName(className).kotlin as KClass<out Plugin> to { H::class.createInstance() }
+        } catch (e: ClassNotFoundException) {
+            null
+        } catch (e: ClassCastException) { log.error(e) { "Failed to cast class $className to Plugin" }; null }
+
     interface HookService : KoinComponent {
 
         val plugin: Terix get() = get()
@@ -137,6 +144,15 @@ class HookService(override val plugin: Terix) : Extension<Terix>() {
                 it.disable()
                 integration = null
             }
+        }
+    }
+
+    class EcoEnchantsHook : HookService {
+
+        val sunResistance: SunResistance? get() = SunResistance.instance
+
+        override suspend fun doSetup() {
+            log.info { "Registering EcoEnchants Hook" }
         }
     }
 }

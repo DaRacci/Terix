@@ -11,14 +11,14 @@ class AttributeModifierBuilder {
 
     var attribute by Delegates.notNull<Attribute>()
     var name by Delegates.notNull<String>()
-    var amount by Delegates.notNull<Double>()
+    var amount by Delegates.notNull<Number>()
     var operation by Delegates.notNull<AttributeModifier.Operation>()
 
     fun build(): AttributeModifier =
         AttributeModifier(
             uuid,
             name,
-            amount,
+            amount.toDouble(),
             operation
         )
 }

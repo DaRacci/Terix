@@ -1,5 +1,9 @@
 package dev.racci.terix.core.services
 
+import cloud.commandframework.execution.AsynchronousCommandExecutionCoordinator
+import cloud.commandframework.kotlin.extension.commandBuilder
+import cloud.commandframework.minecraft.extras.MinecraftExceptionHandler
+import cloud.commandframework.paper.PaperCommandManager
 import dev.jorel.commandapi.CommandAPICommand
 import dev.jorel.commandapi.CommandPermission
 import dev.jorel.commandapi.arguments.EntitySelectorArgument
@@ -8,7 +12,9 @@ import dev.racci.minix.api.coroutine.launch
 import dev.racci.minix.api.coroutine.launchAsync
 import dev.racci.minix.api.extension.Extension
 import dev.racci.minix.api.extensions.message
+import dev.racci.minix.api.extensions.msg
 import dev.racci.minix.api.utils.kotlin.ifTrue
+import dev.racci.minix.nms.aliases.toNMS
 import dev.racci.terix.api.Terix
 import dev.racci.terix.api.dsl.PotionEffectBuilder
 import dev.racci.terix.api.events.PlayerOriginChangeEvent
@@ -20,10 +26,12 @@ import dev.racci.terix.core.extension.fulfilled
 import dev.racci.terix.core.extension.getCast
 import dev.racci.terix.core.extension.origin
 import dev.racci.terix.core.extension.subcommand
-import dev.racci.terix.core.storage.PlayerData
+import dev.racci.terix.core.data.PlayerData
 import kotlinx.collections.immutable.persistentListOf
+import org.bukkit.attribute.Attribute
 import org.bukkit.command.CommandSender
 import org.bukkit.entity.Player
+import org.bukkit.event.entity.EntityCombustEvent
 import org.bukkit.potion.PotionEffectType
 import org.jetbrains.exposed.sql.transactions.transaction
 import org.koin.core.component.inject
@@ -33,11 +41,34 @@ class CommandService(override val plugin: Terix) : Extension<Terix>() {
     private val langService by inject<LangService>()
     private val originService by inject<OriginService>()
     private val specialService by inject<SpecialService>()
+    private val commandCoordinator by lazy {
+        AsynchronousCommandExecutionCoordinator
+            .newBuilder<CommandSender>()
+            .withAsynchronousParsing()
+            .build()
+    }
+    private val commandManager by lazy { PaperCommandManager.createNative(plugin, commandCoordinator) }
+    private val exceptionHandler by lazy {
+        MinecraftExceptionHandler<CommandSender>()
+            .withArgumentParsingHandler()
+            .withInvalidSenderHandler()
+            .withInvalidSyntaxHandler()
+            .withNoPermissionHandler()
+            .withCommandExecutionHandler()
+            .withDecorator {
+
+            }
+    }
 
     override val name = "Command Service"
     override val dependencies = persistentListOf(LangService::class, OriginService::class, GUIService::class, SpecialService::class)
 
     override suspend fun handleEnable() {
+
+        commandManager.commandBuilder("origin") {
+            permission = "terix.origin"
+
+        }
 
         command("origin") {
             aliases += "origins"
@@ -47,6 +78,56 @@ class CommandService(override val plugin: Terix) : Extension<Terix>() {
             addSetCommands()
             addMenuCommands()
             addToggleCommands()
+        }
+
+        command("testing") {
+
+            subcommand("fire") {
+                withArguments(StringArgument("arg"))
+                executePlayer { player, args ->
+                    when (args.getCast<String>(0)) {
+                        "0" -> { { player.fireTicks = 20 }.runSync() }
+                        "1" -> { try { { player.fireTicks = 20 }.runAsync() } catch (e: Exception) { e.printStackTrace() } }
+                        "3" -> { try { { EntityCombustEvent(player, 20) }.runAsync() } catch (e: Exception) { e.printStackTrace() } }
+                        "4" -> { { player.toNMS().setSecondsOnFire(1, true) }.runSync() }
+                        "6" -> { { player.toNMS().setSecondsOnFire(1, false) }.runSync() }
+                        "7" -> { try { { player.toNMS().setSecondsOnFire(1, false) }.runAsync() } catch (e: Exception) { e.printStackTrace() } }
+                    }
+                }
+            }
+
+            subcommand("potions") {
+                executePlayer { player, _ ->
+                    player.activePotionEffects.forEach {
+                        player.msg("${it.type.name} : ${it.key}")
+                    }
+                }
+            }
+
+            subcommand("attributes") {
+                executePlayer { player, _ ->
+                    Attribute.values().forEach {
+                        player.getAttribute(it)?.let { inst ->
+                            inst.modifiers.forEach { modi ->
+                                player.msg("${it.name} : ${modi.name} : ${modi.amount} : ${modi.operation.name}")
+                            }
+                        }
+                    }
+                }
+            }
+
+            subcommand("remove") {
+                executePlayer { player, _ ->
+                    PotionEffectType.values().forEach {
+                        player.removePotionEffect(it)
+                    }
+                    Attribute.values().forEach {
+                        player.getAttribute(it)?.let { inst ->
+                            inst.modifiers.forEach(inst::removeModifier)
+                        }
+                    }
+                }
+            }
         }
 
         command("terix") {
@@ -229,7 +310,7 @@ class CommandService(override val plugin: Terix) : Extension<Terix>() {
                 ambient = false
                 particles = false
                 icon = false
-                originKey(new.name)
+                originKey(player.origin(), new)
             }.build().apply { plugin.launch { player.addPotionEffect(this@apply) } }
         }
         langService[

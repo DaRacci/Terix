@@ -7,6 +7,7 @@ import net.kyori.adventure.key.Key
 import net.kyori.adventure.text.format.TextColor
 import org.bukkit.Material
 import org.bukkit.attribute.Attribute
+import org.bukkit.attribute.AttributeModifier
 import org.bukkit.event.entity.EntityDamageEvent
 
 class AngelOrigin(override val plugin: Terix) : AbstractOrigin() {
@@ -18,7 +19,10 @@ class AngelOrigin(override val plugin: Terix) : AbstractOrigin() {
 
     override suspend fun onRegister() {
         attributes {
-            Attribute.GENERIC_MAX_HEALTH setBase 16.0
+            Attribute.GENERIC_MAX_HEALTH setBase {
+                operation = AttributeModifier.Operation.ADD_SCALAR
+                amount = 0.85
+            }
         }
         damage {
             EntityDamageEvent.DamageCause.FALL multiplied 0.0

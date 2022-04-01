@@ -27,7 +27,6 @@ abstract class AbstractOrigin : IAbstractOrigin {
     private val itemBuilder by lazy(::ItemBuilderImpl)
 
     val attributeModifiers: MultiMap<Trigger, Pair<Attribute, AttributeModifier>> by lazy(::multiMapOf)
-    val attributeBase: MutableMap<Attribute, Double> by lazy(::mutableMapOf)
     val titles: MutableMap<Trigger, TitleBuilder> by lazy(::mutableMapOf)
     val potions: MultiMap<Trigger, PotionEffect> by lazy(::multiMapOf)
     val damageTicks: MutableMap<Trigger, Double> by lazy(::mutableMapOf)
@@ -46,46 +45,46 @@ abstract class AbstractOrigin : IAbstractOrigin {
 
     override val nightVision: Boolean = false
     override val waterBreathing: Boolean = false
+    override val fireImmune: Boolean = false
     override val becomeOriginTitle: TitleBuilder? = null
 
     @MinixDsl
-    final override suspend fun potions(builder: suspend IAbstractOrigin.PotionsBuilder.() -> Unit) {
+    protected suspend fun potions(builder: suspend IAbstractOrigin.PotionsBuilder.() -> Unit) {
         builder(potionBuilder)
     }
 
     @MinixDsl
-    final override suspend fun attributes(builder: suspend IAbstractOrigin.AttributeBuilder.() -> Unit) {
+    protected suspend fun attributes(builder: suspend IAbstractOrigin.AttributeBuilder.() -> Unit) {
         builder(attributeBuilder)
     }
 
     @MinixDsl
-    final override suspend fun title(builder: suspend IAbstractOrigin.TimeTitleBuilder.() -> Unit) {
+    protected suspend fun title(builder: suspend IAbstractOrigin.TimeTitleBuilder.() -> Unit) {
         builder(timeTitleBuilder)
     }
 
     @MinixDsl
-    final override suspend fun damage(builder: suspend IAbstractOrigin.DamageBuilder.() -> Unit) {
+    protected suspend fun damage(builder: suspend IAbstractOrigin.DamageBuilder.() -> Unit) {
         builder(damageBuilder)
     }
 
     @MinixDsl
-    final override suspend fun food(builder: suspend IAbstractOrigin.FoodBuilder.() -> Unit) {
+    protected suspend fun food(builder: suspend IAbstractOrigin.FoodBuilder.() -> Unit) {
         builder(foodBuilder)
     }
 
     @MinixDsl
-    final override suspend fun item(builder: suspend IAbstractOrigin.ItemBuilder.() -> Unit) {
+    protected suspend fun item(builder: suspend IAbstractOrigin.ItemBuilder.() -> Unit) {
         builder(itemBuilder)
     }
 
     inner class PotionsBuilderImpl : IAbstractOrigin.PotionsBuilder {
 
         @MinixDsl
-        @Suppress("DEPRECATION")
         override infix fun Trigger.causes(builder: PotionEffectBuilder.() -> Unit) {
             val potionEffectBuilder = PotionEffectBuilder()
             potionEffectBuilder.builder()
-            potionEffectBuilder.originKey(name.lowercase())
+            potionEffectBuilder.originKey(this@AbstractOrigin, this)
             potions.put(this, potionEffectBuilder.build())
         }
     }
@@ -93,14 +92,19 @@ abstract class AbstractOrigin : IAbstractOrigin {
     inner class AttributeBuilderImpl : IAbstractOrigin.AttributeBuilder {
 
         @MinixDsl
-        override fun Attribute.setBase(double: Double) {
-            attributeBase[this] = double
+        override fun Attribute.setBase(builder: AttributeModifierBuilder.() -> Unit) {
+            val modifierBuilder = AttributeModifierBuilder()
+            modifierBuilder.builder()
+            modifierBuilder.attribute = this
+            modifierBuilder.name = "origin_modifier_${this@AbstractOrigin.name.lowercase()}_${Trigger.ON.name.lowercase()}" // Use Enum incase of changes of name or something.
+            attributeModifiers.put(Trigger.ON, this to modifierBuilder.build())
         }
 
         @MinixDsl
         override infix fun Trigger.causes(builder: AttributeModifierBuilder.() -> Unit) {
             val attributeModifierBuilder = AttributeModifierBuilder()
             attributeModifierBuilder.builder()
+            attributeModifierBuilder.name = "origin_modifier_${this@AbstractOrigin.name.lowercase()}_${this@causes.name.lowercase()}"
             attributeModifiers.put(this, attributeModifierBuilder.attribute to attributeModifierBuilder.build())
         }
     }
@@ -138,7 +142,7 @@ abstract class AbstractOrigin : IAbstractOrigin {
         override fun MaterialSetTag.effects(builder: PotionEffectBuilder.() -> Unit) { values.forEach { it.effects(builder) } }
 
         @MinixDsl
-        override fun Material.effects(builder: PotionEffectBuilder.() -> Unit) { foodPotions.put(this, PotionEffectBuilder().apply { builder(); originKey(name.lowercase()) }.build()) }
+        override fun Material.effects(builder: PotionEffectBuilder.() -> Unit) { foodPotions.put(this, PotionEffectBuilder().apply { builder(); originKey(this@AbstractOrigin.name, "name") }.build()) }
 
         @MinixDsl
         override fun MaterialSetTag.applies(builder: TimedAttributeBuilder.() -> Unit) { values.forEach { it.applies(builder) } }

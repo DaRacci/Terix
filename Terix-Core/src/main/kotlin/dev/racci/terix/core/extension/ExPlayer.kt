@@ -6,7 +6,7 @@ import dev.racci.minix.nms.aliases.toNMS
 import dev.racci.terix.api.Terix
 import dev.racci.terix.api.origins.AbstractOrigin
 import dev.racci.terix.api.origins.enums.Trigger
-import dev.racci.terix.core.storage.PlayerData
+import dev.racci.terix.core.data.PlayerData
 import kotlinx.datetime.Instant
 import net.kyori.adventure.text.Component
 import net.minecraft.core.BlockPos
@@ -17,7 +17,7 @@ import org.jetbrains.exposed.sql.transactions.transaction
 
 private val terix by getKoin().inject<Terix>()
 
-fun Player.origin(): AbstractOrigin = transaction { PlayerData[this@origin].origin }
+fun Player.origin(): AbstractOrigin = PlayerData.originCache[uniqueId]
 
 fun Player.lastOrigin(): String? = transaction { PlayerData[this@lastOrigin].lastOrigin }
 
@@ -41,6 +41,18 @@ fun Player.safelyRemovePotions(potionTypes: Collection<PotionEffectType>) {
     }
 }
 
+fun Player.safelyAddPotion(potion: PotionEffect) {
+    terix.launch {
+        addPotionEffect(potion)
+    }
+}
+
+fun Player.safelyRemovePotion(potionType: PotionEffectType) {
+    terix.launch {
+        removePotionEffect(potionType)
+    }
+}
+
 fun Player.safelySwapPotions(
     oldPotionTypes: Collection<PotionEffectType>?,
     newPotions: Collection<PotionEffect>?
@@ -59,7 +71,7 @@ fun Player.safelySwapPotions(
     }
 }
 
-fun Player.validToBurn(): Boolean = with(toNMS()) { isInWaterRainOrBubble || isInPowderSnow || wasInPowderSnow }
+fun Player.validToBurn(): Boolean = !with(toNMS()) { isInWaterRainOrBubble || isInPowderSnow || wasInPowderSnow }
 
 fun Player.inDarkness(): Boolean = eyeLocation.block.lightLevel <= 4
 
@@ -76,36 +88,38 @@ var Player.originTime: Instant
     get() { return transaction { PlayerData[this@originTime].lastChosenTime ?: Instant.DISTANT_PAST } }
     set(instant) { transaction { PlayerData[this@originTime].lastChosenTime = instant } }
 
+val Player.tickCache: PlayerData.Companion.PlayerTickCache get() = PlayerData.tickCache(this)
+
 var Player.wasInSunlight
-    get() = PlayerData[this].wasInSunlight
-    set(bool) { PlayerData[this].wasInSunlight = bool }
+    get() = tickCache.wasInSunlight
+    set(bool) { tickCache.wasInSunlight = bool }
 
 var Player.wasInDarkness
-    get() = PlayerData[this].wasInDarkness
-    set(bool) { PlayerData[this].wasInDarkness = bool }
+    get() = tickCache.wasInDarkness
+    set(bool) { tickCache.wasInDarkness = bool }
 
 var Player.wasInWater
-    get() = PlayerData[this].wasInWater
-    set(bool) { PlayerData[this].wasInWater = bool }
+    get() = tickCache.wasInWater
+    set(bool) { tickCache.wasInWater = bool }
 
 var Player.wasInRain
-    get() = PlayerData[this].wasInRain
-    set(bool) { PlayerData[this].wasInRain = bool }
+    get() = tickCache.wasInRain
+    set(bool) { tickCache.wasInRain = bool }
 
 var Player.inSunlight
-    get() = PlayerData[this].inSunlight
-    set(bool) { PlayerData[this].inSunlight = bool }
+    get() = tickCache.inSunlight
+    set(bool) { tickCache.inSunlight = bool }
 
 var Player.inDarkness
-    get() = PlayerData[this].inDarkness
-    set(bool) { PlayerData[this].inDarkness = bool }
+    get() = tickCache.inDarkness
+    set(bool) { tickCache.inDarkness = bool }
 
 var Player.inWater
-    get() = PlayerData[this].inWater
-    set(bool) { PlayerData[this].inWater = bool }
+    get() = tickCache.inWater
+    set(bool) { tickCache.inWater = bool }
 
 var Player.inRain
-    get() = PlayerData[this].inRain
-    set(bool) { PlayerData[this].inRain = bool }
+    get() = tickCache.inRain
+    set(bool) { tickCache.inRain = bool }
 
 infix fun Component.message(receiver: Collection<Player>) { for (audience in receiver) { audience.sendMessage(this) } }

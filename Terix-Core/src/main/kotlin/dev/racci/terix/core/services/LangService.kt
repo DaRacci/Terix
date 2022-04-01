@@ -54,7 +54,7 @@ class LangService(override val plugin: Terix) : Extension<Terix>() {
             val clf = plugin::class.memberFunctions.first { it.name == "getClassLoader" }
             clf.isAccessible = true
             val cl = clf.call(plugin) as ClassLoader
-            val defaultResource = cl.getResource("lang.yml")!!
+            val defaultResource = cl.getResource("Lang.yml")!!
             val defaultInput = defaultResource.openStream().use { it.readBytes() }
             if (!file.exists()) {
                 log.info { "Creating new lang file." }

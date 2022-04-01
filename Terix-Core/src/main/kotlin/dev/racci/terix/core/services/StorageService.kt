@@ -5,7 +5,7 @@ import com.zaxxer.hikari.HikariDataSource
 import dev.racci.minix.api.extension.Extension
 import dev.racci.minix.api.utils.kotlin.ifInitialized
 import dev.racci.terix.api.Terix
-import dev.racci.terix.core.storage.User
+import dev.racci.terix.core.data.User
 import kotlinx.collections.immutable.persistentListOf
 import org.jetbrains.exposed.sql.Database
 import org.jetbrains.exposed.sql.SchemaUtils
@@ -36,6 +36,6 @@ class StorageService(override val plugin: Terix) : Extension<Terix>() {
     }
 
     override suspend fun handleUnload() {
-        dataSource.ifInitialized { close() }
+        dataSource.ifInitialized(HikariDataSource::close)
     }
 }

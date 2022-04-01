@@ -64,7 +64,10 @@ class SlimeOrigin(override val plugin: Terix) : AbstractOrigin() {
             }
         }
         attributes {
-            Attribute.GENERIC_MAX_HEALTH setBase 16.0
+            Attribute.GENERIC_MAX_HEALTH setBase {
+                operation = AttributeModifier.Operation.ADD_SCALAR
+                amount = 0.8
+            }
         }
         damage {
             EntityDamageEvent.DamageCause.FALL triggers { if (Random.nextBoolean()) { cancel() } }

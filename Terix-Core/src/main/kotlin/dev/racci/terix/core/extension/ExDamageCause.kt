@@ -4,7 +4,7 @@ import dev.racci.terix.api.origins.AbstractOrigin
 import org.bukkit.entity.Player
 import org.bukkit.event.entity.EntityDamageEvent
 
-fun EntityDamageEvent.DamageCause?.invokeIfPresent(
+suspend fun EntityDamageEvent.DamageCause?.invokeIfPresent(
     event: EntityDamageEvent,
     player: Player,
     action: (AbstractOrigin, Double) -> Unit
