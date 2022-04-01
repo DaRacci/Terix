@@ -3,26 +3,31 @@ plugins {
 }
 
 val minixVersion: String by rootProject
+val minixAPIVersion: String by rootProject
+val serverVersion: String by rootProject
 
 dependencies {
-    compileOnly(rootProject.libs.exposed.core)
-    compileOnly(rootProject.libs.exposed.dao)
-    compileOnly(rootProject.libs.exposed.jdbc)
-    compileOnly(rootProject.libs.hikariCP)
     compileOnly(rootProject.libs.minecraft.api.placeholderAPI)
     compileOnly(rootProject.libs.minecraft.api.protoclLib)
-    compileOnly(rootProject.libs.caffeine)
     compileOnly(rootProject.libs.minecraft.api.landsAPI)
+    compileOnly(rootProject.libs.minecraft.api.ecoEnchants)
+    compileOnly(rootProject.libs.minecraft.api.eco)
 
-    implementation(project(":Terix-API"))
-    implementation("dev.jorel.CommandAPI:commandapi-shade:6.5.3")
-    implementation("dev.racci:Minix-NMS:$minixVersion")
+    compileOnly(project(":Terix-API"))
+    compileOnly(rootProject.libs.minecraft.inventoryFramework)
+    compileOnly(rootProject.libs.minecraft.commandAPI)
+    compileOnly("dev.racci:Minix-NMS:$minixVersion")
 
-    testImplementation(platform("org.junit:junit-bom:5.8.2"))
-    testImplementation("org.junit.jupiter:junit-jupiter")
-    testImplementation("dev.racci:Minix:1.2.0")
-    testImplementation(rootProject.libs.koin.test)
-    testImplementation("io.strikt:strikt-core:0.34.1")
+    testImplementation("org.jetbrains.kotlin:kotlin-test-junit:1.6.10") {
+        because("For some reason the koin dep breaks this one in the bundle.")
+    }
+    testImplementation(rootProject.libs.bundles.testing) {
+        exclude("org.jetbrains.kotlin", "kotlin-test-junit")
+    }
+    testImplementation(rootProject.libs.bundles.kotlin)
+    testImplementation(rootProject.libs.bundles.kotlinx)
+    testImplementation(rootProject.libs.minecraft.minix)
+    testImplementation("dev.racci.tentacles:tentacles-api:$serverVersion")
 }
 
 tasks.test.get().useJUnitPlatform()
