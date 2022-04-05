@@ -2,10 +2,10 @@ package dev.racci.terix.core.data
 
 import dev.racci.minix.api.annotations.MappedConfig
 import dev.racci.terix.api.Terix
-import kotlin.time.Duration
-import kotlin.time.Duration.Companion.minutes
 import org.spongepowered.configurate.objectmapping.ConfigSerializable
 import org.spongepowered.configurate.objectmapping.meta.Comment
+import kotlin.time.Duration
+import kotlin.time.Duration.Companion.minutes
 
 @ConfigSerializable
 @MappedConfig(Terix::class, "Config.conf")

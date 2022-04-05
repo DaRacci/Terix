@@ -1,55 +1,13 @@
 package dev.racci.terix.core.services
-
-import com.charleskorn.kaml.PolymorphismStyle
-import com.charleskorn.kaml.SequenceStyle
-import com.charleskorn.kaml.Yaml
-import com.charleskorn.kaml.YamlConfiguration
-import dev.racci.minix.api.extension.Extension
-import dev.racci.minix.api.utils.collections.ObservableAction
-import dev.racci.minix.api.utils.collections.observableMapOf
-import dev.racci.terix.api.Terix
-import kotlinx.collections.immutable.persistentListOf
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.withContext
-import kotlinx.serialization.SerialName
-import kotlinx.serialization.Serializable
-import kotlinx.serialization.modules.SerializersModule
-import net.kyori.adventure.text.Component
-import net.kyori.adventure.text.minimessage.MiniMessage
-import net.kyori.adventure.text.minimessage.tag.Inserting
-import net.kyori.adventure.text.minimessage.tag.PreProcess
-import net.kyori.adventure.text.minimessage.tag.Tag
-import net.kyori.adventure.text.minimessage.tag.resolver.TagResolver
-import kotlin.properties.Delegates
-import kotlin.reflect.full.memberFunctions
-import kotlin.reflect.jvm.isAccessible
-
-const val LANG_DELIMITER = "."
+/*const val LANG_DELIMITER = "."
 
 class LangService(override val plugin: Terix) : Extension<Terix>() {
 
     override val name = "Lang Service"
+    private val lang by get<DataService>().inject<Lang>()
 
-    private val file by lazy { plugin.dataFolder.resolve("Lang.yml") }
-
-    private val yaml by lazy {
-        Yaml(
-            SerializersModule {},
-            YamlConfiguration(
-                encodeDefaults = true,
-                strictMode = false,
-                polymorphismStyle = PolymorphismStyle.Tag,
-                polymorphismPropertyName = "type",
-                encodingIndentationSize = 4,
-                breakScalarsAt = 160,
-                sequenceStyle = SequenceStyle.Flow
-            )
-        )
-    }
-
-    var lang by Delegates.notNull<Lang>(); private set
-
-    override suspend fun handleEnable() {
+    // TODO: Make sure the data service covers everything here!
+    /*override suspend fun handleEnable() {
         withContext(Dispatchers.IO) {
             val clf = plugin::class.memberFunctions.first { it.name == "getClassLoader" }
             clf.isAccessible = true
@@ -90,17 +48,17 @@ class LangService(override val plugin: Terix) : Extension<Terix>() {
                 defaultLang
             } else presentLang
         }
-    }
+    }*/
 
-    override suspend fun handleUnload() {
+    /*override suspend fun handleUnload() {
         file.outputStream().use { output ->
             yaml.encodeToStream(Lang.serializer(), lang, output)
         }
-    }
+    }*/
 
-    fun handleReload() {
+    /*fun handleReload() {
         lang = file.inputStream().use { yaml.decodeFromStream(Lang.serializer(), it) }
-    }
+    }*/
 
     operator fun get(key: String, vararg template: Pair<String, () -> Any>) = lang[key, template]
 
@@ -151,7 +109,8 @@ class LangService(override val plugin: Terix) : Extension<Terix>() {
         }
     }
 
-    companion object {
+    companion object : KoinComponent {
+
         private val components by lazy {
             // This is so we don't have to worry about shading etc.
             val parent = Component::class.qualifiedName!!.split(".").dropLast(1).joinToString(".")
@@ -190,4 +149,4 @@ class LangService(override val plugin: Terix) : Extension<Terix>() {
             override fun value() = value.invoke()
         }
     }
-}
+}*/
