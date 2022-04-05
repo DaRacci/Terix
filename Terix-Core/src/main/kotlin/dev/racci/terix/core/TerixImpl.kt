@@ -3,30 +3,29 @@ package dev.racci.terix.core
 import dev.jorel.commandapi.CommandAPI
 import dev.jorel.commandapi.CommandAPIConfig
 import dev.racci.minix.api.annotations.MappedPlugin
+import dev.racci.minix.api.services.DataService
 import dev.racci.minix.api.utils.exists
 import dev.racci.terix.api.Terix
+import dev.racci.terix.core.data.Config
 import dev.racci.terix.core.enchantments.SunResistance
 import dev.racci.terix.core.services.CommandService
-import dev.racci.terix.core.services.DataService
 import dev.racci.terix.core.services.EventForwarderService
 import dev.racci.terix.core.services.GUIService
 import dev.racci.terix.core.services.HookService
-import dev.racci.terix.core.services.LangService
 import dev.racci.terix.core.services.ListenerService
 import dev.racci.terix.core.services.OriginService
 import dev.racci.terix.core.services.RunnableService
 import dev.racci.terix.core.services.SoundService
 import dev.racci.terix.core.services.SpecialService
 import dev.racci.terix.core.services.StorageService
-import org.spigotmc.SpigotConfig
 import java.util.logging.Level
+import org.koin.core.component.get
 
 @MappedPlugin(
     14443,
     Terix::class,
     [
         CommandService::class,
-        DataService::class,
         EventForwarderService::class,
         GUIService::class,
         HookService::class,
