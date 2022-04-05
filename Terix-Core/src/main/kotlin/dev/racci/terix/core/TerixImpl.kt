@@ -18,8 +18,8 @@ import dev.racci.terix.core.services.RunnableService
 import dev.racci.terix.core.services.SoundService
 import dev.racci.terix.core.services.SpecialService
 import dev.racci.terix.core.services.StorageService
-import java.util.logging.Level
 import org.koin.core.component.get
+import java.util.logging.Level
 
 @MappedPlugin(
     14443,
@@ -29,7 +29,6 @@ import org.koin.core.component.get
         EventForwarderService::class,
         GUIService::class,
         HookService::class,
-        LangService::class,
         ListenerService::class,
         OriginService::class,
         RunnableService::class,
@@ -47,7 +46,7 @@ class TerixImpl : Terix() {
         if (!dataFolder.exists()) {
             dataFolder.mkdir()
         }
-        logger.level = if (SpigotConfig.debug) Level.ALL else Level.INFO
+        logger.level = if (get<DataService>().get<Config>().debug) Level.ALL else Level.INFO
         CommandAPI.onLoad(
             CommandAPIConfig()
                 .silentLogs(!log.infoEnabled)
