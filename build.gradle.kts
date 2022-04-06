@@ -34,6 +34,7 @@ dependencies {
     implementation(project(":Terix-Core"))
     implementation(project(":Terix-API"))
     implementation(libs.minecraft.inventoryFramework)
+    implementation(libs.minecraft.commandAPI)
     implementation("dev.racci:Minix-NMS:$minixVersion")
 }
 
