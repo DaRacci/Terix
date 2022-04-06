@@ -24,4 +24,7 @@ class MerlingOrigin(override val plugin: Terix) : AbstractOrigin() {
             }
         }
     }
+
+    override suspend fun onEnterLiquid() {
+    }
 }

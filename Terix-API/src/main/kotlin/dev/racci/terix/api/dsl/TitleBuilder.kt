@@ -6,8 +6,6 @@ import net.kyori.adventure.sound.Sound
 import net.kyori.adventure.text.Component
 import net.kyori.adventure.title.Title
 import org.bukkit.entity.Player
-import org.valiktor.functions.isNotNull
-import org.valiktor.validate
 
 @Serializable
 class TitleBuilder(
@@ -19,13 +17,9 @@ class TitleBuilder(
     private var cachedTitle: Title? = null
 
     fun build(): Title {
-        validate(this) {
-            validate(TitleBuilder::title).isNotNull()
-            validate(TitleBuilder::subtitle).isNotNull()
-        }
         cachedTitle = Title.title(
-            title!!,
-            subtitle!!,
+            title ?: error("Title cannot be null in title builder!"),
+            subtitle ?: Component.empty(),
             times ?: Title.DEFAULT_TIMES
         )
         return cachedTitle!!
