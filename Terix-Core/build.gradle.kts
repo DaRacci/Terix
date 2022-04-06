@@ -18,9 +18,6 @@ dependencies {
     compileOnly(rootProject.libs.minecraft.commandAPI)
     compileOnly("dev.racci:Minix-NMS:$minixVersion")
 
-    testImplementation("org.jetbrains.kotlin:kotlin-test-junit:1.6.10") {
-        because("For some reason the koin dep breaks this one in the bundle.")
-    }
     testImplementation(rootProject.libs.bundles.testing) {
         exclude("org.jetbrains.kotlin", "kotlin-test-junit")
     }
