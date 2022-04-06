@@ -72,7 +72,7 @@ class GUIService(override val plugin: Terix) : Extension<Terix>() {
             var y = 0
             originService.registry.values.forEachIndexed { index, origin ->
                 addItem(origin.createItem(this, x, y), x, y)
-                if (index % 7 == 0) {
+                if (index / 7 < 1) {
                     x++
                 } else {
                     x = 0

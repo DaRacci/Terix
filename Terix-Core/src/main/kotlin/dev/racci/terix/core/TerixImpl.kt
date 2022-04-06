@@ -39,9 +39,6 @@ import java.util.logging.Level
 )
 class TerixImpl : Terix() {
 
-    override val bindToKClass = Terix::class
-    override val bStatsId = 14443
-
     override suspend fun handleLoad() {
         if (!dataFolder.exists()) {
             dataFolder.mkdir()
@@ -52,7 +49,11 @@ class TerixImpl : Terix() {
                 .silentLogs(!log.infoEnabled)
                 .verboseOutput(log.debugEnabled)
         )
-        if (exists("com.willfp.ecoenchants.EcoEnchantsPlugin")) SunResistance()
+        try {
+            if (exists("com.willfp.ecoenchants.EcoEnchantsPlugin")) SunResistance()
+        } catch (e: NullPointerException) {
+            log.error(e) { "Failed to load EcoEnchants" }
+        }
     }
 
     override suspend fun handleEnable() {
