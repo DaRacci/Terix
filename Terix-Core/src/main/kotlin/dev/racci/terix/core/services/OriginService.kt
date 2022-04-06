@@ -1,5 +1,6 @@
 package dev.racci.terix.core.services
 
+import dev.racci.minix.api.annotations.MappedExtension
 import dev.racci.minix.api.annotations.MinixDsl
 import dev.racci.minix.api.extension.Extension
 import dev.racci.minix.api.utils.collections.ObservableAction
@@ -18,9 +19,8 @@ import dev.racci.terix.core.origins.SlimeOrigin
 import dev.racci.terix.core.origins.VampireOrigin
 import kotlin.collections.set
 
+@MappedExtension("Origin Service")
 class OriginService(override val plugin: Terix) : Extension<Terix>() {
-
-    override val name = "Origin Service"
 
     operator fun get(origin: String, ignoreCase: Boolean = false) = registry[if (ignoreCase) origin.lowercase() else origin]
 

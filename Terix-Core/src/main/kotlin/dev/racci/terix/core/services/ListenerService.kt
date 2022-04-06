@@ -2,6 +2,7 @@ package dev.racci.terix.core.services
 
 import com.destroystokyo.paper.event.block.BeaconEffectEvent
 import com.destroystokyo.paper.event.player.PlayerPostRespawnEvent
+import dev.racci.minix.api.annotations.MappedExtension
 import dev.racci.minix.api.events.PlayerEnterLiquidEvent
 import dev.racci.minix.api.events.PlayerExitLiquidEvent
 import dev.racci.minix.api.events.WorldDayEvent
@@ -11,11 +12,14 @@ import dev.racci.minix.api.extensions.cancel
 import dev.racci.minix.api.extensions.event
 import dev.racci.minix.api.extensions.inOverworld
 import dev.racci.minix.api.extensions.onlinePlayers
+import dev.racci.minix.api.services.DataService
 import dev.racci.minix.api.utils.kotlin.invokeIfNotNull
 import dev.racci.terix.api.Terix
 import dev.racci.terix.api.events.PlayerOriginChangeEvent
 import dev.racci.terix.api.origins.enums.Trigger
 import dev.racci.terix.api.origins.enums.Trigger.Companion.getTrigger
+import dev.racci.terix.core.data.Lang
+import dev.racci.terix.core.data.PlayerData
 import dev.racci.terix.core.extension.fromOrigin
 import dev.racci.terix.core.extension.invokeIfPresent
 import dev.racci.terix.core.extension.message
@@ -27,8 +31,6 @@ import dev.racci.terix.core.origins.invokeReload
 import dev.racci.terix.core.origins.invokeRemovalFor
 import dev.racci.terix.core.origins.invokeRemove
 import dev.racci.terix.core.origins.invokeSwap
-import dev.racci.terix.core.data.PlayerData
-import kotlinx.collections.immutable.persistentListOf
 import org.bukkit.entity.Player
 import org.bukkit.event.EventPriority
 import org.bukkit.event.entity.EntityCombustEvent
@@ -41,16 +43,12 @@ import org.bukkit.event.player.PlayerJoinEvent
 import org.bukkit.potion.PotionEffect
 import org.jetbrains.exposed.sql.transactions.experimental.newSuspendedTransaction
 import org.jetbrains.exposed.sql.transactions.transaction
-import org.koin.core.component.inject
-import kotlin.time.ExperimentalTime
+import org.koin.core.component.get
 
 // Check for button presses to invoke actions in the test chambers
-@OptIn(ExperimentalTime::class)
+@MappedExtension("Listener Service")
 class ListenerService(override val plugin: Terix) : Extension<Terix>() {
-    private val langService by inject<LangService>()
-
-    override val name = "Listener Service"
-    override val dependencies = persistentListOf(LangService::class)
+    private val lang by get<DataService>().inject<Lang>()
 
     override suspend fun handleEnable() {
         event<BeaconEffectEvent> {
@@ -171,9 +169,7 @@ class ListenerService(override val plugin: Terix) : Extension<Terix>() {
             }
             Trigger.invokeReload(player)
 
-            langService[
-                "origin.broadcast",
-                "player" to { player.displayName() },
+            lang.origin.broadcast[
                 "new_origin" to { newOrigin.displayName },
                 "old_origin" to { preOrigin.displayName }
             ] message onlinePlayers

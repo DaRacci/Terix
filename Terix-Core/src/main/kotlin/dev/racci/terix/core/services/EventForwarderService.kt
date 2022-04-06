@@ -8,6 +8,7 @@ import com.destroystokyo.paper.event.player.PlayerElytraBoostEvent
 import com.destroystokyo.paper.event.player.PlayerJumpEvent
 import com.destroystokyo.paper.event.player.PlayerLaunchProjectileEvent
 import com.destroystokyo.paper.event.player.PlayerPostRespawnEvent
+import dev.racci.minix.api.annotations.MappedExtension
 import dev.racci.minix.api.events.PlayerDoubleOffhandEvent
 import dev.racci.minix.api.events.PlayerEnterLiquidEvent
 import dev.racci.minix.api.events.PlayerExitLiquidEvent
@@ -19,7 +20,6 @@ import dev.racci.minix.api.extensions.event
 import dev.racci.terix.api.Terix
 import dev.racci.terix.api.events.PlayerOriginChangeEvent
 import dev.racci.terix.core.extension.origin
-import kotlinx.collections.immutable.persistentListOf
 import org.bukkit.entity.Player
 import org.bukkit.event.block.BlockBreakEvent
 import org.bukkit.event.block.BlockPlaceEvent
@@ -40,10 +40,8 @@ import org.bukkit.event.player.PlayerRiptideEvent
 import org.spigotmc.event.entity.EntityDismountEvent
 import org.spigotmc.event.entity.EntityMountEvent
 
+@MappedExtension("Event Forwarder Service", [OriginService::class])
 class EventForwarderService(override val plugin: Terix) : Extension<Terix>() {
-
-    override val name = "Event Forward Service"
-    override val dependencies = persistentListOf(OriginService::class)
 
     override suspend fun handleEnable() {
         event<PlayerOriginChangeEvent> { player.origin().onChange(this) }

@@ -2,19 +2,17 @@ package dev.racci.terix.core.services
 
 import com.zaxxer.hikari.HikariConfig
 import com.zaxxer.hikari.HikariDataSource
+import dev.racci.minix.api.annotations.MappedExtension
 import dev.racci.minix.api.extension.Extension
 import dev.racci.minix.api.utils.kotlin.ifInitialized
 import dev.racci.terix.api.Terix
 import dev.racci.terix.core.data.User
-import kotlinx.collections.immutable.persistentListOf
 import org.jetbrains.exposed.sql.Database
 import org.jetbrains.exposed.sql.SchemaUtils
 import org.jetbrains.exposed.sql.transactions.transaction
 
+@MappedExtension("Storage Service", [OriginService::class])
 class StorageService(override val plugin: Terix) : Extension<Terix>() {
-
-    override val name = "Storage Service"
-    override val dependencies = persistentListOf(OriginService::class)
 
     private var config = lazy {
         val config = HikariConfig()

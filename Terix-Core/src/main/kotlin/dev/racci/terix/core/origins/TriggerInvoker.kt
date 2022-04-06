@@ -6,12 +6,12 @@ import dev.racci.minix.api.utils.kotlin.ifTrue
 import dev.racci.terix.api.dsl.PotionEffectBuilder
 import dev.racci.terix.api.origins.AbstractOrigin
 import dev.racci.terix.api.origins.enums.Trigger
+import dev.racci.terix.core.data.PlayerData
 import dev.racci.terix.core.extension.getLightOrDarkTrigger
 import dev.racci.terix.core.extension.origin
 import dev.racci.terix.core.extension.safelyAddPotions
 import dev.racci.terix.core.extension.safelyRemovePotions
 import dev.racci.terix.core.extension.safelySwapPotions
-import dev.racci.terix.core.data.PlayerData
 import org.bukkit.attribute.Attribute
 import org.bukkit.attribute.AttributeModifier
 import org.bukkit.entity.Player

@@ -1,6 +1,7 @@
 package dev.racci.terix.core.services
 
 import com.github.benmanes.caffeine.cache.Caffeine
+import dev.racci.minix.api.annotations.MappedExtension
 import dev.racci.minix.api.coroutine.launch
 import dev.racci.minix.api.events.LiquidType
 import dev.racci.minix.api.events.LiquidType.Companion.liquidType
@@ -29,7 +30,6 @@ import dev.racci.terix.core.extension.wasInSunlight
 import dev.racci.terix.core.extension.wasInWater
 import dev.racci.terix.core.origins.invokeAdd
 import dev.racci.terix.core.origins.invokeRemove
-import kotlinx.collections.immutable.persistentListOf
 import kotlinx.coroutines.Dispatchers
 import net.kyori.adventure.key.Key
 import net.kyori.adventure.sound.Sound
@@ -41,11 +41,9 @@ import org.koin.core.component.inject
 import java.util.UUID
 import kotlin.math.roundToInt
 
+@MappedExtension("Runnable Service", [OriginService::class, HookService::class])
 class RunnableService(override val plugin: Terix) : Extension<Terix>() {
     private val hookService by inject<HookService>()
-
-    override val name = "Runnable Service"
-    override val dependencies = persistentListOf(OriginService::class, HookService::class)
 
     private val tasks = mutableMapOf<UUID, MutableList<suspend (Player, AbstractOrigin) -> Unit>>()
 
