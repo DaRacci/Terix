@@ -1,5 +1,6 @@
 package dev.racci.terix.core.services
 
+import dev.racci.minix.api.annotations.MappedExtension
 import dev.racci.minix.api.extension.Extension
 import dev.racci.minix.api.extensions.inEnd
 import dev.racci.minix.api.extensions.inNether
@@ -13,10 +14,8 @@ import dev.racci.terix.core.extension.formatted
 import kotlinx.collections.immutable.persistentListOf
 import org.bukkit.entity.Player
 
+@MappedExtension("Special Service", [OriginService::class])
 class SpecialService(override val plugin: Terix) : Extension<Terix>() {
-
-    override val name = "Special Service"
-    override val dependencies = persistentListOf(OriginService::class)
 
     val specialStates = lazy {
         persistentListOf(

@@ -1,23 +1,26 @@
 package dev.racci.terix.core.services
 
 import cloud.commandframework.execution.AsynchronousCommandExecutionCoordinator
-import cloud.commandframework.kotlin.extension.commandBuilder
 import cloud.commandframework.minecraft.extras.MinecraftExceptionHandler
 import cloud.commandframework.paper.PaperCommandManager
 import dev.jorel.commandapi.CommandAPICommand
 import dev.jorel.commandapi.CommandPermission
 import dev.jorel.commandapi.arguments.EntitySelectorArgument
 import dev.jorel.commandapi.arguments.StringArgument
+import dev.racci.minix.api.annotations.MappedExtension
 import dev.racci.minix.api.coroutine.launch
 import dev.racci.minix.api.coroutine.launchAsync
 import dev.racci.minix.api.extension.Extension
 import dev.racci.minix.api.extensions.message
 import dev.racci.minix.api.extensions.msg
+import dev.racci.minix.api.services.DataService
 import dev.racci.minix.api.utils.kotlin.ifTrue
 import dev.racci.minix.nms.aliases.toNMS
 import dev.racci.terix.api.Terix
 import dev.racci.terix.api.dsl.PotionEffectBuilder
 import dev.racci.terix.api.events.PlayerOriginChangeEvent
+import dev.racci.terix.core.data.Lang
+import dev.racci.terix.core.data.PlayerData
 import dev.racci.terix.core.extension.command
 import dev.racci.terix.core.extension.execute
 import dev.racci.terix.core.extension.executePlayer
@@ -26,49 +29,50 @@ import dev.racci.terix.core.extension.fulfilled
 import dev.racci.terix.core.extension.getCast
 import dev.racci.terix.core.extension.origin
 import dev.racci.terix.core.extension.subcommand
-import dev.racci.terix.core.data.PlayerData
-import kotlinx.collections.immutable.persistentListOf
 import org.bukkit.attribute.Attribute
 import org.bukkit.command.CommandSender
 import org.bukkit.entity.Player
 import org.bukkit.event.entity.EntityCombustEvent
 import org.bukkit.potion.PotionEffectType
 import org.jetbrains.exposed.sql.transactions.transaction
+import org.koin.core.component.get
 import org.koin.core.component.inject
 
+@MappedExtension(
+    "Command Service",
+    [OriginService::class, GUIService::class, SpecialService::class]
+)
 class CommandService(override val plugin: Terix) : Extension<Terix>() {
     private val guiService by inject<GUIService>()
-    private val langService by inject<LangService>()
     private val originService by inject<OriginService>()
     private val specialService by inject<SpecialService>()
+    private val lang by get<DataService>().inject<Lang>()
     private val commandCoordinator by lazy {
         AsynchronousCommandExecutionCoordinator
             .newBuilder<CommandSender>()
             .withAsynchronousParsing()
             .build()
     }
-    private val commandManager by lazy { PaperCommandManager.createNative(plugin, commandCoordinator) }
-    private val exceptionHandler by lazy {
-        MinecraftExceptionHandler<CommandSender>()
-            .withArgumentParsingHandler()
-            .withInvalidSenderHandler()
-            .withInvalidSyntaxHandler()
-            .withNoPermissionHandler()
-            .withCommandExecutionHandler()
-            .withDecorator {
-
-            }
+    private val commandManager by lazy {
+        PaperCommandManager.createNative(plugin, commandCoordinator).also { manager ->
+            MinecraftExceptionHandler<CommandSender>()
+                .withArgumentParsingHandler()
+                .withInvalidSenderHandler()
+                .withInvalidSyntaxHandler()
+                .withNoPermissionHandler()
+                .withCommandExecutionHandler()
+                .withDecorator(lang.generic.error.value::append)
+                .apply(manager) { it }
+        }
     }
-
-    override val name = "Command Service"
-    override val dependencies = persistentListOf(LangService::class, OriginService::class, GUIService::class, SpecialService::class)
 
     override suspend fun handleEnable() {
 
-        commandManager.commandBuilder("origin") {
-            permission = "terix.origin"
-
-        }
+//        commandManager.("origin") {
+//            permission = "terix.origin"
+//
+//            this.
+//        }
 
         command("origin") {
             aliases += "origins"
@@ -86,12 +90,12 @@ class CommandService(override val plugin: Terix) : Extension<Terix>() {
                 withArguments(StringArgument("arg"))
                 executePlayer { player, args ->
                     when (args.getCast<String>(0)) {
-                        "0" -> { { player.fireTicks = 20 }.runSync() }
-                        "1" -> { try { { player.fireTicks = 20 }.runAsync() } catch (e: Exception) { e.printStackTrace() } }
-                        "3" -> { try { { EntityCombustEvent(player, 20) }.runAsync() } catch (e: Exception) { e.printStackTrace() } }
-                        "4" -> { { player.toNMS().setSecondsOnFire(1, true) }.runSync() }
-                        "6" -> { { player.toNMS().setSecondsOnFire(1, false) }.runSync() }
-                        "7" -> { try { { player.toNMS().setSecondsOnFire(1, false) }.runAsync() } catch (e: Exception) { e.printStackTrace() } }
+                        "0" -> { { player.fireTicks = 20 }.sync() }
+                        "1" -> { try { { player.fireTicks = 20 }.async() } catch (e: Exception) { e.printStackTrace() } }
+                        "3" -> { try { { EntityCombustEvent(player, 20) }.async() } catch (e: Exception) { e.printStackTrace() } }
+                        "4" -> { { player.toNMS().setSecondsOnFire(1, true) }.sync() }
+                        "6" -> { { player.toNMS().setSecondsOnFire(1, false) }.sync() }
+                        "7" -> { try { { player.toNMS().setSecondsOnFire(1, false) }.async() } catch (e: Exception) { e.printStackTrace() } }
                     }
                 }
             }
@@ -137,10 +141,8 @@ class CommandService(override val plugin: Terix) : Extension<Terix>() {
                 permission = CommandPermission.fromString("terix.admin.reload")
 
                 execute { sender, _ ->
-                    langService.handleReload()
-                    langService[
-                        "generic.reload.lang",
-                    ] message sender
+                    get<dev.racci.minix.api.services.DataService>().configurations.refresh(Lang::class)
+                    lang.generic.reloadLang.value message sender
                 }
             }
         }
@@ -232,13 +234,12 @@ class CommandService(override val plugin: Terix) : Extension<Terix>() {
         target: Player? = sender as? Player
     ) {
         val origin = (target)?.origin() ?: run {
-            langService[
-                "generic.error",
+            lang.generic.error[
                 "message" to { "This command must have a target or be sent by a Player." }
             ] message sender
             return
         }
-        langService[
+        lang[
             "origin.get.${if (target == sender) "self" else "other"}",
             "origin" to { origin.displayName },
             "target" to { target.displayName() },
@@ -251,28 +252,26 @@ class CommandService(override val plugin: Terix) : Extension<Terix>() {
         originString: String
     ) {
         target ?: run {
-            langService[
-                "generic.error",
+            lang.generic.error[
                 "message" to { "This command must have a target or be sent by a Player." }
             ] message sender
             return
         }
         val origin = originService[originString, true] ?: run {
-            langService[
-                "generic.error",
+            lang.generic.error[
                 "message" to { "Invalid origin: $originString." },
             ] message sender
             return
         }
         if (origin == target.origin()) {
-            langService[
+            lang[
                 "origin.set.same.${if (target == sender) "self" else "other"}",
                 "origin" to { origin.displayName },
                 "target" to { target.displayName() },
             ] message sender
             return
         }
-        langService[
+        lang[
             "origin.set.${if (target == sender) "self" else "other"}",
             "old_origin" to { target.origin().displayName },
             "new_origin" to { origin.displayName },
@@ -291,8 +290,7 @@ class CommandService(override val plugin: Terix) : Extension<Terix>() {
         }
         val playerData = transaction { PlayerData[player] }
         if (nightVision != null && !specialService.isValidTrigger(nightVision)) {
-            langService[
-                "generic.error",
+            lang.generic.error[
                 "message" to { "Invalid trigger: $nightVision." },
             ] message player
             return
@@ -313,8 +311,7 @@ class CommandService(override val plugin: Terix) : Extension<Terix>() {
                 originKey(player.origin(), new)
             }.build().apply { plugin.launch { player.addPotionEffect(this@apply) } }
         }
-        langService[
-            "origin.nightvision",
+        lang.origin.nightVision[
             "old_nightvision" to { new.formatted() },
             "new_nightvision" to { new.formatted() },
         ] message player

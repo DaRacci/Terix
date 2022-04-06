@@ -5,6 +5,7 @@ import com.github.stefvanschie.inventoryframework.gui.GuiItem
 import com.github.stefvanschie.inventoryframework.gui.type.ChestGui
 import com.github.stefvanschie.inventoryframework.pane.Pane
 import com.github.stefvanschie.inventoryframework.pane.StaticPane
+import dev.racci.minix.api.annotations.MappedExtension
 import dev.racci.minix.api.builders.ItemBuilderDSL
 import dev.racci.minix.api.extension.Extension
 import dev.racci.minix.api.extensions.cancel
@@ -22,7 +23,6 @@ import dev.racci.terix.core.extension.asGuiItem
 import dev.racci.terix.core.extension.dsl
 import dev.racci.terix.core.extension.origin
 import dev.racci.terix.core.extension.originTime
-import kotlinx.collections.immutable.persistentListOf
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.runBlocking
 import kotlinx.datetime.DateTimeUnit
@@ -40,11 +40,8 @@ import java.time.Duration
 import kotlin.math.ceil
 import kotlin.time.Duration.Companion.seconds
 
+@MappedExtension("GUI Service", [OriginService::class])
 class GUIService(override val plugin: Terix) : Extension<Terix>() {
-
-    override val name = "GUI Service"
-    override val dependencies = persistentListOf(OriginService::class, LangService::class)
-
     private val originService by inject<OriginService>()
 
     private val selectedOrigin = Caffeine.newBuilder()
@@ -66,10 +63,7 @@ class GUIService(override val plugin: Terix) : Extension<Terix>() {
             }
     }
 
-    val baseGui = lazy { baseGUI() }
-
-    override suspend fun handleEnable() {
-    }
+    val baseGui = lazy(::baseGUI)
 
     private fun baseGUI(): ChestGui {
         val guiRows = ceil(originService.registeredOrigins.size.toDouble() / 9).coerceAtLeast(1.0).toInt()
@@ -149,7 +143,7 @@ class GUIService(override val plugin: Terix) : Extension<Terix>() {
                             player.closeInventory(InventoryCloseEvent.Reason.PLAYER)
                             player.playSound(Sound.sound(Key.key("block.chest.unlock"), Sound.Source.PLAYER, 1.0f, 1.0f))
                         }
-                    }.runAsync()
+                    }.async()
                 }
             }
         }

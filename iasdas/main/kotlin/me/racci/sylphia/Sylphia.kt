@@ -131,7 +131,7 @@ class Terix : RacciPlugin(
             OriginManager.valueOf(it.popFirstArg())
         }
         commandManager.commandCompletions.registerAsyncCompletion("origins") {
-            OriginManager.values().map {} 
+            OriginManager.values().map {}
         }
     }
 

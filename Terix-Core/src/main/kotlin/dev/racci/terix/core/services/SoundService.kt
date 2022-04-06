@@ -7,17 +7,15 @@ import com.comphenix.protocol.events.PacketAdapter
 import com.comphenix.protocol.events.PacketEvent
 import com.comphenix.protocol.wrappers.EnumWrappers
 import com.comphenix.protocol.wrappers.MinecraftKey
+import dev.racci.minix.api.annotations.MappedExtension
 import dev.racci.minix.api.extension.Extension
 import dev.racci.minix.api.utils.kotlin.and
 import dev.racci.terix.api.Terix
 import dev.racci.terix.core.extension.origin
-import kotlinx.collections.immutable.persistentListOf
 import org.bukkit.Sound
 
+@MappedExtension("Sound Service", [OriginService::class])
 class SoundService(override val plugin: Terix) : Extension<Terix>() {
-
-    override val name = "Sound Service"
-    override val dependencies = persistentListOf(OriginService::class)
 
     private val protocolManager by lazy(ProtocolLibrary::getProtocolManager)
     private val lazyCollection by lazy { Sound.ENTITY_PLAYER_HURT and Sound.ENTITY_PLAYER_DEATH }

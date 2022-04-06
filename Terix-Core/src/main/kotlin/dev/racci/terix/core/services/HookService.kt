@@ -2,6 +2,7 @@ package dev.racci.terix.core.services
 
 import com.github.benmanes.caffeine.cache.Caffeine
 import com.github.benmanes.caffeine.cache.LoadingCache
+import dev.racci.minix.api.annotations.MappedExtension
 import dev.racci.minix.api.extension.Extension
 import dev.racci.minix.api.extensions.event
 import dev.racci.minix.api.extensions.pm
@@ -22,9 +23,8 @@ import kotlin.reflect.full.createInstance
 
 typealias HookInvoker = () -> HookService.HookService
 
+@MappedExtension("Hook Service")
 class HookService(override val plugin: Terix) : Extension<Terix>() {
-
-    override val name = "Hook Service"
 
     private val loadedHooks by lazy { mutableMapOf<KClass<out Plugin>, HookService>() }
     private val unloadedHooks by lazy { mutableMapOf<KClass<out Plugin>, HookService>() }
