@@ -7,6 +7,8 @@ import dev.racci.minix.api.events.PlayerEnterLiquidEvent
 import dev.racci.minix.api.events.PlayerExitLiquidEvent
 import dev.racci.minix.api.extensions.cancel
 import dev.racci.minix.api.extensions.parse
+import dev.racci.minix.api.utils.unsafeCast
+import dev.racci.minix.nms.aliases.toNMS
 import dev.racci.terix.api.Terix
 import dev.racci.terix.api.origins.AbstractOrigin
 import dev.racci.terix.api.origins.enums.Trigger
@@ -21,7 +23,6 @@ import org.bukkit.event.entity.EntityDamageEvent
 import org.bukkit.potion.PotionEffectType
 import java.time.Duration
 import java.util.UUID
-import kotlin.random.Random
 import kotlin.time.Duration.Companion.seconds
 
 class SlimeOrigin(override val plugin: Terix) : AbstractOrigin() {
@@ -70,7 +71,9 @@ class SlimeOrigin(override val plugin: Terix) : AbstractOrigin() {
             }
         }
         damage {
-            EntityDamageEvent.DamageCause.FALL triggers { if (Random.nextBoolean()) { cancel() } }
+            EntityDamageEvent.DamageCause.FALL triggers {
+                if (entity.unsafeCast<Player>().toNMS().random.nextBoolean()) { cancel() }
+            }
         }
         item {
             named(displayName)
