@@ -3,8 +3,11 @@ package dev.racci.terix.core.services
 import cloud.commandframework.execution.AsynchronousCommandExecutionCoordinator
 import cloud.commandframework.minecraft.extras.MinecraftExceptionHandler
 import cloud.commandframework.paper.PaperCommandManager
+import com.mojang.brigadier.suggestion.Suggestions
+import com.mojang.brigadier.suggestion.SuggestionsBuilder
 import dev.jorel.commandapi.CommandAPICommand
 import dev.jorel.commandapi.CommandPermission
+import dev.jorel.commandapi.SuggestionInfo
 import dev.jorel.commandapi.arguments.EntitySelectorArgument
 import dev.jorel.commandapi.arguments.StringArgument
 import dev.racci.minix.api.annotations.MappedExtension
@@ -14,6 +17,7 @@ import dev.racci.minix.api.extension.Extension
 import dev.racci.minix.api.extensions.message
 import dev.racci.minix.api.extensions.msg
 import dev.racci.minix.api.services.DataService
+import dev.racci.minix.api.services.DataService.Companion.inject
 import dev.racci.minix.api.utils.kotlin.ifTrue
 import dev.racci.minix.nms.aliases.toNMS
 import dev.racci.terix.api.Terix
@@ -21,6 +25,7 @@ import dev.racci.terix.api.dsl.PotionEffectBuilder
 import dev.racci.terix.api.events.PlayerOriginChangeEvent
 import dev.racci.terix.core.data.Lang
 import dev.racci.terix.core.data.PlayerData
+import dev.racci.terix.core.extension.arguments
 import dev.racci.terix.core.extension.command
 import dev.racci.terix.core.extension.execute
 import dev.racci.terix.core.extension.executePlayer
@@ -37,16 +42,14 @@ import org.bukkit.potion.PotionEffectType
 import org.jetbrains.exposed.sql.transactions.transaction
 import org.koin.core.component.get
 import org.koin.core.component.inject
+import java.util.concurrent.CompletableFuture
 
-@MappedExtension(
-    "Command Service",
-    [OriginService::class, GUIService::class, SpecialService::class]
-)
+@MappedExtension(Terix::class, "Command Service", [OriginService::class, GUIService::class, SpecialService::class])
 class CommandService(override val plugin: Terix) : Extension<Terix>() {
     private val guiService by inject<GUIService>()
     private val originService by inject<OriginService>()
     private val specialService by inject<SpecialService>()
-    private val lang by get<DataService>().inject<Lang>()
+    private val lang by inject<DataService>().inject<Lang>()
     private val commandCoordinator by lazy {
         AsynchronousCommandExecutionCoordinator
             .newBuilder<CommandSender>()
@@ -67,12 +70,6 @@ class CommandService(override val plugin: Terix) : Extension<Terix>() {
     }
 
     override suspend fun handleEnable() {
-
-//        commandManager.("origin") {
-//            permission = "terix.origin"
-//
-//            this.
-//        }
 
         command("origin") {
             aliases += "origins"
@@ -141,7 +138,7 @@ class CommandService(override val plugin: Terix) : Extension<Terix>() {
                 permission = CommandPermission.fromString("terix.admin.reload")
 
                 execute { sender, _ ->
-                    get<dev.racci.minix.api.services.DataService>().configurations.refresh(Lang::class)
+                    get<DataService>().configurations.refresh(Lang::class)
                     lang.generic.reloadLang.value message sender
                 }
             }
@@ -151,7 +148,9 @@ class CommandService(override val plugin: Terix) : Extension<Terix>() {
     private fun CommandAPICommand.addGetCommands() {
         subcommand("get") {
             permission = CommandPermission.fromString("terix.origin.get")
-            withArguments(EntitySelectorArgument("target", EntitySelectorArgument.EntitySelector.ONE_PLAYER))
+            arguments {
+                arg<EntitySelectorArgument>("target", EntitySelectorArgument.EntitySelector.ONE_PLAYER)
+            }
 
             execute { sender, args -> plugin.launchAsync { getOrigin(sender, args.getCast(0)!!) } }
         }
@@ -164,19 +163,31 @@ class CommandService(override val plugin: Terix) : Extension<Terix>() {
     }
 
     private fun CommandAPICommand.addSetCommands() {
+        fun suggestions(suggestionInfo: SuggestionInfo, suggestionsBuilder: SuggestionsBuilder): CompletableFuture<Suggestions> {
+            val target = suggestionInfo.previousArgs.getCast<Player>(0)
+                ?: return suggestionsBuilder.buildFuture()
+
+            for ((key, origin) in originService.registry.entries) {
+                if (!origin.hasPermission(target)) continue
+                suggestionsBuilder.suggest(key)
+            }
+            return suggestionsBuilder.buildFuture()
+        }
+
         subcommand("set") {
             permission = CommandPermission.fromString("terix.origin.set")
-            withArguments(
-                EntitySelectorArgument("target", EntitySelectorArgument.EntitySelector.ONE_PLAYER),
-                StringArgument("origin").replaceSuggestions { originService.registeredOrigins.toTypedArray() }
-            )
+
+            arguments {
+                arg<EntitySelectorArgument>("target", EntitySelectorArgument.EntitySelector.ONE_PLAYER)
+                arg<StringArgument>("origin").replaceSuggestions(::suggestions)
+            }
 
             execute { sender, args -> plugin.launchAsync { setOrigin(sender, args.getCast(0), args.getCast(1)!!) } }
         }
 
         subcommand("set") {
             permission = CommandPermission.fromString("terix.origin.set")
-            withArguments(StringArgument("origin").replaceSuggestions { originService.registeredOrigins.toTypedArray() })
+            withArguments(StringArgument("origin").replaceSuggestions(::suggestions))
 
             executePlayer { player, args -> plugin.launchAsync { setOrigin(player, player, args.getCast(0)!!) } }
         }
@@ -216,7 +227,12 @@ class CommandService(override val plugin: Terix) : Extension<Terix>() {
         execute: (Player, Array<out Any>) -> Unit
     ) {
         subcommand(name) {
-            withArguments(StringArgument("trigger").replaceSuggestions { specialService.specialStatesFormatted })
+            arguments {
+                arg<StringArgument>("trigger").replaceSuggestions { _, suggestionsBuilder ->
+                    specialService.specialStatesFormatted.forEach(suggestionsBuilder::suggest)
+                    suggestionsBuilder.buildFuture()
+                }
+            }
             setRequirements { sender -> sender is Player && requirements(sender) }
 
             executePlayer(execute)
