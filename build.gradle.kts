@@ -26,6 +26,9 @@ bukkit {
         "EcoEnchants",
         "ProtocolLib"
     )
+    libraries = listOf(
+        libs.minecraft.commandAPI.get().toString()
+    )
     website = "https://terix.racci.dev/"
 }
 
@@ -89,7 +92,6 @@ tasks {
     withType<ShadowJar> {
         val location = "dev.racci.terix.libs"
         relocate("com.github.stefvanschie.inventoryframework", "$location.inventoryframework")
-        relocate("dev.jorel.commandapi", "$location.commandapi")
         relocate("dev.racci.minix.nms", "$location.minix-nms")
     }
 
