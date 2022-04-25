@@ -14,7 +14,7 @@ import dev.racci.terix.api.Terix
 import dev.racci.terix.core.extension.origin
 import org.bukkit.Sound
 
-@MappedExtension("Sound Service", [OriginService::class])
+@MappedExtension(Terix::class, "Sound Service", [OriginService::class])
 class SoundService(override val plugin: Terix) : Extension<Terix>() {
 
     private val protocolManager by lazy(ProtocolLibrary::getProtocolManager)
