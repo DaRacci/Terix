@@ -11,7 +11,7 @@ import org.jetbrains.exposed.sql.Database
 import org.jetbrains.exposed.sql.SchemaUtils
 import org.jetbrains.exposed.sql.transactions.transaction
 
-@MappedExtension("Storage Service", [OriginService::class])
+@MappedExtension(Terix::class, "Storage Service", [OriginService::class])
 class StorageService(override val plugin: Terix) : Extension<Terix>() {
 
     private var config = lazy {

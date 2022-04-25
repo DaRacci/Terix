@@ -19,7 +19,7 @@ import dev.racci.terix.core.origins.SlimeOrigin
 import dev.racci.terix.core.origins.VampireOrigin
 import kotlin.collections.set
 
-@MappedExtension("Origin Service")
+@MappedExtension(Terix::class, "Origin Service")
 class OriginService(override val plugin: Terix) : Extension<Terix>() {
 
     operator fun get(origin: String, ignoreCase: Boolean = false) = registry[if (ignoreCase) origin.lowercase() else origin]

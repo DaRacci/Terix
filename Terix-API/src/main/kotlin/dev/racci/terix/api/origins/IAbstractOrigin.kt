@@ -56,12 +56,21 @@ sealed interface IAbstractOrigin : WithPlugin<MinixPlugin> {
     val displayName: Component
     val hurtSound: Key
     val deathSound: Key
+    val permission: String?
 
     val nightVision: Boolean
     val waterBreathing: Boolean
     val fireImmune: Boolean
 
     val becomeOriginTitle: TitleBuilder?
+
+    /**
+     * Checks if the player has permission for this origin.
+     *
+     * @param player The player to check.
+     * @return True if the player has permission, false otherwise.
+     */
+    fun hasPermission(player: Player): Boolean
 
     suspend fun onRegister()
 
