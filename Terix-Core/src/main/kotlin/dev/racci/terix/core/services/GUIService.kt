@@ -40,7 +40,7 @@ import java.time.Duration
 import kotlin.math.ceil
 import kotlin.time.Duration.Companion.seconds
 
-@MappedExtension("GUI Service", [OriginService::class])
+@MappedExtension(Terix::class, "GUI Service", [OriginService::class])
 class GUIService(override val plugin: Terix) : Extension<Terix>() {
     private val originService by inject<OriginService>()
 

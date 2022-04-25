@@ -40,7 +40,7 @@ import org.bukkit.event.player.PlayerRiptideEvent
 import org.spigotmc.event.entity.EntityDismountEvent
 import org.spigotmc.event.entity.EntityMountEvent
 
-@MappedExtension("Event Forwarder Service", [OriginService::class])
+@MappedExtension(Terix::class, "Event Forwarder Service", [OriginService::class])
 class EventForwarderService(override val plugin: Terix) : Extension<Terix>() {
 
     override suspend fun handleEnable() {

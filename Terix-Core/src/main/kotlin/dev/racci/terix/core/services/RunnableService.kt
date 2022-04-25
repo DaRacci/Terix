@@ -41,7 +41,7 @@ import org.koin.core.component.inject
 import java.util.UUID
 import kotlin.math.roundToInt
 
-@MappedExtension("Runnable Service", [OriginService::class, HookService::class])
+@MappedExtension(Terix::class, "Runnable Service", [OriginService::class, HookService::class])
 class RunnableService(override val plugin: Terix) : Extension<Terix>() {
     private val hookService by inject<HookService>()
 

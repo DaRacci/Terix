@@ -14,7 +14,7 @@ import dev.racci.terix.core.extension.formatted
 import kotlinx.collections.immutable.persistentListOf
 import org.bukkit.entity.Player
 
-@MappedExtension("Special Service", [OriginService::class])
+@MappedExtension(Terix::class, "Special Service", [OriginService::class])
 class SpecialService(override val plugin: Terix) : Extension<Terix>() {
 
     val specialStates = lazy {

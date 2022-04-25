@@ -23,7 +23,7 @@ import kotlin.reflect.full.createInstance
 
 typealias HookInvoker = () -> HookService.HookService
 
-@MappedExtension("Hook Service")
+@MappedExtension(Terix::class, "Hook Service")
 class HookService(override val plugin: Terix) : Extension<Terix>() {
 
     private val loadedHooks by lazy { mutableMapOf<KClass<out Plugin>, HookService>() }

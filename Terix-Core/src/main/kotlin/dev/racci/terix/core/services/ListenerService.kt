@@ -46,7 +46,7 @@ import org.jetbrains.exposed.sql.transactions.transaction
 import org.koin.core.component.get
 
 // Check for button presses to invoke actions in the test chambers
-@MappedExtension("Listener Service")
+@MappedExtension(Terix::class, "Listener Service")
 class ListenerService(override val plugin: Terix) : Extension<Terix>() {
     private val lang by get<DataService>().inject<Lang>()
 
