@@ -40,13 +40,16 @@ abstract class AbstractOrigin : IAbstractOrigin {
     lateinit var itemMaterial: Material
     lateinit var itemName: Component
     lateinit var itemLore: List<Component>
-
+    override val name: String by lazy { this::class.simpleName!! }
     override val displayName by lazy { Component.text(name).color(colour) }
+    override val permission: String? = null
 
     override val nightVision: Boolean = false
     override val waterBreathing: Boolean = false
     override val fireImmune: Boolean = false
     override val becomeOriginTitle: TitleBuilder? = null
+
+    override fun hasPermission(player: Player) = permission?.let(player::hasPermission) ?: true
 
     @MinixDsl
     protected suspend fun potions(builder: suspend IAbstractOrigin.PotionsBuilder.() -> Unit) {
