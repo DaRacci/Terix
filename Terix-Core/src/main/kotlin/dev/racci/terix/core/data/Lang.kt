@@ -1,7 +1,9 @@
 package dev.racci.terix.core.data
 
 import dev.racci.minix.api.annotations.MappedConfig
+import dev.racci.minix.api.data.IConfig
 import dev.racci.minix.api.utils.safeCast
+import dev.racci.minix.api.utils.unsafeCast
 import dev.racci.terix.api.Terix
 import kotlinx.collections.immutable.PersistentMap
 import kotlinx.collections.immutable.persistentListOf
@@ -18,7 +20,6 @@ import org.spongepowered.configurate.objectmapping.ConfigSerializable
 import org.spongepowered.configurate.serialize.SerializationException
 import org.spongepowered.configurate.serialize.TypeSerializer
 import java.lang.reflect.Type
-import kotlin.properties.Delegates
 import kotlin.reflect.KProperty1
 import kotlin.reflect.full.memberProperties
 
@@ -27,16 +28,10 @@ import kotlin.reflect.full.memberProperties
     Terix::class, "Lang.conf",
     [Lang.PartialComponent::class, Lang.PartialComponent.Serializer::class]
 )
-class Lang {
+class Lang : IConfig() {
 
-    var prefixes: PersistentMap<String, String> by Delegates.observable(
-        persistentMapOf(
-            "<prefix_terix>" to "<light_purple>Terix</light_purple> » <aqua>",
-            "<prefix_server>" to "<light_purple>Elixir</light_purple> » <aqua>",
-            "<prefix_origins>" to "<gold>Origins</gold> » <aqua>",
-        )
-    ) { _, _, new ->
-        val map = new.mapKeys {
+    @Transient override val loadCallback = {
+        val map = prefixes.mapKeys {
             if (!it.key.matches(prefixRegex)) "<prefix_${it.key}" else it.key
         }
         generic::class.memberProperties
@@ -45,6 +40,12 @@ class Lang {
                 it.formatRaw(map)
             }
     }
+
+    val prefixes: PersistentMap<String, String> = persistentMapOf(
+        "<prefix_terix>" to "<light_purple>Terix</light_purple> » <aqua>",
+        "<prefix_server>" to "<light_purple>Elixir</light_purple> » <aqua>",
+        "<prefix_origins>" to "<gold>Origins</gold> » <aqua>",
+    )
 
     var generic: Generic = Generic()
 
@@ -60,6 +61,7 @@ class Lang {
     }
 
     sealed class PropertyFinder <C : PropertyFinder<C, R>, R : Any?> {
+        @Transient
         private val map: PersistentMap<String, KProperty1<C, R>> = persistentMapOf(
             *Lang::class.memberProperties
                 .filterIsInstance<KProperty1<C, R>>()
@@ -76,16 +78,18 @@ class Lang {
                 }.toTypedArray()
         )
 
-        fun get(key: String): R = map[key]?.get(this@PropertyFinder as C) ?: throw IllegalArgumentException("No property found for $key")
+        fun get(key: String): R = map[key]?.get(this@PropertyFinder.unsafeCast()) ?: throw IllegalArgumentException("No property found for $key")
     }
 
+    @ConfigSerializable
     class Generic : PropertyFinder<Generic, PartialComponent>() {
 
-        var error: PartialComponent = (PartialComponent.of("<dark_red>Error <white>» <red><message>"))
+        var error: PartialComponent = PartialComponent.of("<dark_red>Error <white>» <red><message>")
 
         var reloadLang: PartialComponent = PartialComponent.of("<prefix_terix>Reloaded Language file.")
     }
 
+    @ConfigSerializable
     class Origin : PropertyFinder<Generic, PartialComponent>() {
 
         var broadcast: PartialComponent = PartialComponent.of("<prefix_server><player> has become the <new_origin> origin!")
@@ -107,8 +111,17 @@ class Lang {
 
     class PartialComponent private constructor(private var raw: String) {
         private var _value = raw
+        private var dirty = true
+        private var cache: Component? = null
 
-        val value: Component get() = MiniMessage.miniMessage().deserialize(_value)
+        val value: Component
+            get() {
+                if (dirty) {
+                    cache = MiniMessage.miniMessage().deserialize(_value)
+                    dirty = false
+                }
+                return cache!!
+            }
 
         operator fun get(vararg placeholder: Pair<String, () -> Any>): Component = if (placeholder.isEmpty()) {
             value
@@ -118,6 +131,8 @@ class Lang {
             placeholders.forEach { (placeholder, prefix) ->
                 _value = raw.replace(placeholder, prefix) // We use raw incase a prefix was removed.
             }
+            dirty = true
+            cache = null
         }
 
         companion object {
