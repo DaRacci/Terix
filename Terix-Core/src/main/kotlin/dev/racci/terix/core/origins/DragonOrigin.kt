@@ -10,10 +10,10 @@ import org.bukkit.Material
 
 class DragonOrigin(override val plugin: Terix) : AbstractOrigin() {
 
-    override val name by lazy { "Dragon" }
-    override val colour by lazy { NamedTextColor.LIGHT_PURPLE!! }
-    override val hurtSound by lazy { Key.key("entity.enderman.hurt") }
-    override val deathSound by lazy { Key.key("entity.enderman.death") }
+    override val name = "Dragon"
+    override val colour = NamedTextColor.LIGHT_PURPLE!!
+    override val hurtSound = Key.key("entity.enderman.hurt")
+    override val deathSound = Key.key("entity.enderman.death")
 
     override suspend fun onRegister() {
         damage {

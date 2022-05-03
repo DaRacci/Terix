@@ -28,7 +28,7 @@ import kotlin.time.Duration.Companion.seconds
 class SlimeOrigin(override val plugin: Terix) : AbstractOrigin() {
 
     override val name = "Slime"
-    override val colour: NamedTextColor = NamedTextColor.LIGHT_PURPLE
+    override val colour = NamedTextColor.LIGHT_PURPLE!!
     override val hurtSound = Key.key("minecraft", "entity.slime.hurt")
     override val deathSound = Key.key("minecraft", "entity.slime.death")
 

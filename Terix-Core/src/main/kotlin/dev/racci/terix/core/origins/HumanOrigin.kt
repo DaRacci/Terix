@@ -11,10 +11,10 @@ import org.bukkit.potion.PotionEffectType
 
 class HumanOrigin(override val plugin: Terix) : AbstractOrigin() {
 
-    override val name by lazy { "Human" }
-    override val colour by lazy { NamedTextColor.GRAY!! }
-    override val hurtSound by lazy { Key.key("minecraft", "entity.player.hurt") }
-    override val deathSound by lazy { Key.key("minecraft", "entity.player.death") }
+    override val name = "Human"
+    override val colour = NamedTextColor.GRAY!!
+    override val hurtSound = Key.key("minecraft", "entity.player.hurt")
+    override val deathSound = Key.key("minecraft", "entity.player.death")
 
     override suspend fun onRegister() {
         potions {

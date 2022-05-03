@@ -9,10 +9,10 @@ import org.bukkit.Material
 
 class AxolotlOrigin(override val plugin: Terix) : AbstractOrigin() {
 
-    override val name by lazy { "Axolotl" }
-    override val colour by lazy { NamedTextColor.WHITE!! }
-    override val hurtSound by lazy { Key.key("entity.axolotl.hurt") }
-    override val deathSound by lazy { Key.key("entity.axolotl.death") }
+    override val name = "Axolotl"
+    override val colour = NamedTextColor.WHITE!!
+    override val hurtSound = Key.key("entity.axolotl.hurt")
+    override val deathSound = Key.key("entity.axolotl.death")
 
     override val waterBreathing by lazy { true }
 

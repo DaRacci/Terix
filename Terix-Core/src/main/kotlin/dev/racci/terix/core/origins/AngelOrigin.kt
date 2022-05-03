@@ -12,10 +12,10 @@ import org.bukkit.event.entity.EntityDamageEvent
 
 class AngelOrigin(override val plugin: Terix) : AbstractOrigin() {
 
-    override val name by lazy { "Angel" }
-    override val colour by lazy { TextColor.fromHexString("#fff6cc")!! }
-    override val hurtSound by lazy { Key.key("entity.bat.hurt") }
-    override val deathSound by lazy { Key.key("entity.bat.death") }
+    override val name = "Angel"
+    override val colour = TextColor.fromHexString("#fff6cc")!!
+    override val hurtSound = Key.key("entity.bat.hurt")
+    override val deathSound = Key.key("entity.bat.death")
 
     override suspend fun onRegister() {
         attributes {

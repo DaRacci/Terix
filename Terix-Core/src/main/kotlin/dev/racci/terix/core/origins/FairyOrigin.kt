@@ -9,10 +9,10 @@ import org.bukkit.Material
 
 class FairyOrigin(override val plugin: Terix) : AbstractOrigin() {
 
-    override val name by lazy { "Fairy" }
-    override val colour by lazy { NamedTextColor.YELLOW!! }
-    override val hurtSound by lazy { Key.key("entity.blaze.hurt") }
-    override val deathSound by lazy { Key.key("entity.blaze.death") }
+    override val name = "Fairy"
+    override val colour = NamedTextColor.YELLOW!!
+    override val hurtSound = Key.key("entity.blaze.hurt")
+    override val deathSound = Key.key("entity.blaze.death")
 
     override suspend fun onRegister() {
         item {
