@@ -2,15 +2,16 @@ package dev.racci.terix.core.services
 
 import dev.racci.minix.api.annotations.MappedExtension
 import dev.racci.minix.api.extension.Extension
+import dev.racci.minix.api.extensions.formatted
 import dev.racci.minix.api.extensions.inEnd
 import dev.racci.minix.api.extensions.inNether
 import dev.racci.minix.api.extensions.inOverworld
 import dev.racci.minix.api.extensions.isDay
 import dev.racci.minix.api.extensions.isNight
 import dev.racci.minix.api.utils.kotlin.ifInitialized
+import dev.racci.terix.api.OriginService
 import dev.racci.terix.api.Terix
 import dev.racci.terix.api.origins.enums.Trigger
-import dev.racci.terix.core.extension.formatted
 import kotlinx.collections.immutable.persistentListOf
 import org.bukkit.entity.Player
 
@@ -28,8 +29,6 @@ class SpecialService(override val plugin: Terix) : Extension<Terix>() {
         )
     }
     val specialStatesFormatted by lazy { specialStates.value.map { it.formatted("_", false) }.toTypedArray() }
-
-    override suspend fun handleEnable() { }
 
     override suspend fun handleUnload() {
         specialStates.ifInitialized { clear() }
