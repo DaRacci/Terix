@@ -37,7 +37,6 @@ dependencies {
     implementation(project(":Terix-Core"))
     implementation(project(":Terix-API"))
     implementation(libs.minecraft.inventoryFramework)
-    implementation(libs.minecraft.commandAPI)
     implementation("dev.racci:Minix-NMS:$minixVersion")
 }
 
@@ -52,14 +51,14 @@ subprojects {
         mavenCentral()
         maven("https://jitpack.io")
         maven("https://repo.racci.dev/releases")
-//        maven("https://repo.codemc.org/repository/maven-public/")
-//        maven("https://oss.sonatype.org/content/repositories/snapshots/")
+        maven("https://repo.racci.dev/snapshots/")
         maven("https://repo.extendedclip.com/content/repositories/placeholderapi/")
     }
 
     dependencies {
-        compileOnly(rootProject.libs.minecraft.minix)
-        compileOnly(rootProject.libs.minecraft.minix.core)
+//        compileOnly("com.github.retrooper.packetevents:spigot:2.0-SNAPSHOT")
+        compileOnly("dev.racci:Minix:2.9.1-SNAPSHOT")
+        compileOnly("dev.racci:Minix-Core:2.9.1-SNAPSHOT")
     }
 
     tasks {
@@ -91,6 +90,7 @@ tasks {
 
     withType<ShadowJar> {
         val location = "dev.racci.terix.libs"
+        relocate("com.github.retrooper", "$location.packetevents")
         relocate("com.github.stefvanschie.inventoryframework", "$location.inventoryframework")
         relocate("dev.racci.minix.nms", "$location.minix-nms")
     }
