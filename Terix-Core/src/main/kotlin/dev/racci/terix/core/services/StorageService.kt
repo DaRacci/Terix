@@ -5,6 +5,7 @@ import com.zaxxer.hikari.HikariDataSource
 import dev.racci.minix.api.annotations.MappedExtension
 import dev.racci.minix.api.extension.Extension
 import dev.racci.minix.api.utils.kotlin.ifInitialized
+import dev.racci.terix.api.OriginService
 import dev.racci.terix.api.Terix
 import dev.racci.terix.core.data.User
 import org.jetbrains.exposed.sql.Database
