@@ -9,13 +9,10 @@ import org.bukkit.Material
 
 class BlizzOrigin(override val plugin: Terix) : AbstractOrigin() {
 
-    override val name by lazy { "Blizz" }
-
-    override val colour by lazy { NamedTextColor.GOLD!! }
-
-    override val hurtSound by lazy { Key.key("minecraft", "entity.snowgolem.hurt") } // TODO: Look at
-
-    override val deathSound by lazy { Key.key("minecraft", "entity.snowgolem.death") } // TODO: Look at
+    override val name = "Blizz"
+    override val colour = NamedTextColor.GOLD!!
+    override val hurtSound = Key.key("minecraft", "entity.snowgolem.hurt")
+    override val deathSound = Key.key("minecraft", "entity.snowgolem.death")
 
     override suspend fun onRegister() {
         item {

@@ -9,10 +9,10 @@ import org.bukkit.Material
 
 class MerlingOrigin(override val plugin: Terix) : AbstractOrigin() {
 
-    override val name by lazy { "Merling" }
-    override val colour by lazy { NamedTextColor.AQUA!! }
-    override val hurtSound by lazy { Key.key("entity.salmon.hurt") }
-    override val deathSound by lazy { Key.key("entity.salmon.death") }
+    override val name = "Merling"
+    override val colour = NamedTextColor.AQUA!!
+    override val hurtSound = Key.key("entity.salmon.hurt")
+    override val deathSound = Key.key("entity.salmon.death")
 
     override suspend fun onRegister() {
         item {
@@ -23,8 +23,5 @@ class MerlingOrigin(override val plugin: Terix) : AbstractOrigin() {
                 this[1] = "<aqua>It's not clear what it is.".parse()
             }
         }
-    }
-
-    override suspend fun onEnterLiquid() {
     }
 }

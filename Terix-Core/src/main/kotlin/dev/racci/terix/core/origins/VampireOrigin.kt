@@ -12,10 +12,10 @@ import kotlin.time.Duration
 
 class VampireOrigin(override val plugin: Terix) : AbstractOrigin() {
 
-    override val name by lazy { "Vampire" }
-    override val colour by lazy { NamedTextColor.DARK_RED!! }
-    override val hurtSound by lazy { Key.key("minecraft", "entity.bat.hurt") }
-    override val deathSound by lazy { Key.key("minecraft", "entity.bat.death") }
+    override val name = "Vampire"
+    override val colour = NamedTextColor.DARK_RED!!
+    override val hurtSound = Key.key("minecraft", "entity.bat.hurt")
+    override val deathSound = Key.key("minecraft", "entity.bat.death")
 
     override val nightVision = true
 
@@ -37,7 +37,6 @@ class VampireOrigin(override val plugin: Terix) : AbstractOrigin() {
                 ambient = true
                 particles = false
                 icon = false
-                originKey(this@VampireOrigin.name, "ON")
             }
         }
         item {

@@ -9,10 +9,10 @@ import org.bukkit.Material
 
 class BeeOrigin(override val plugin: Terix) : AbstractOrigin() {
 
-    override val name by lazy { "Bee" }
-    override val colour by lazy { NamedTextColor.GOLD!! }
-    override val hurtSound by lazy { Key.key("entity.bee.hurt") }
-    override val deathSound by lazy { Key.key("entity.bee.death") }
+    override val name = "Bee"
+    override val colour = NamedTextColor.GOLD!!
+    override val hurtSound = Key.key("entity.bee.hurt")
+    override val deathSound = Key.key("entity.bee.death")
 
     override suspend fun onRegister() {
         item {
