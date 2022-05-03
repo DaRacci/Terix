@@ -20,8 +20,9 @@ import org.spongepowered.configurate.objectmapping.ConfigSerializable
 import org.spongepowered.configurate.serialize.SerializationException
 import org.spongepowered.configurate.serialize.TypeSerializer
 import java.lang.reflect.Type
+import kotlin.reflect.KClass
 import kotlin.reflect.KProperty1
-import kotlin.reflect.full.memberProperties
+import kotlin.reflect.full.declaredMemberProperties
 
 @ConfigSerializable
 @MappedConfig(
@@ -30,18 +31,27 @@ import kotlin.reflect.full.memberProperties
 )
 class Lang : IConfig() {
 
-    @Transient override val loadCallback = {
+    override fun loadCallback() {
         val map = prefixes.mapKeys {
             if (!it.key.matches(prefixRegex)) "<prefix_${it.key}" else it.key
         }
-        generic::class.memberProperties
-            .filterIsInstance<PartialComponent>()
-            .forEach {
-                it.formatRaw(map)
+        println(map.keys.joinToString(", "))
+        Lang::class.declaredMemberProperties
+            .filterIsInstance<KProperty1<Lang, PropertyFinder<*, PartialComponent>>>()
+            .forEach { prop ->
+                val inst = try {
+                    prop.get(this)
+                } catch (e: ClassCastException) { return@forEach }
+
+                inst::class.declaredMemberProperties
+                    .filterIsInstance<KProperty1<PropertyFinder<*, PartialComponent>, PartialComponent>>()
+                    .forEach {
+                        it.get(inst).formatRaw(map)
+                    }
             }
     }
 
-    val prefixes: PersistentMap<String, String> = persistentMapOf(
+    val prefixes: Map<String, String> = mapOf(
         "<prefix_terix>" to "<light_purple>Terix</light_purple> » <aqua>",
         "<prefix_server>" to "<light_purple>Elixir</light_purple> » <aqua>",
         "<prefix_origins>" to "<gold>Origins</gold> » <aqua>",
@@ -51,19 +61,22 @@ class Lang : IConfig() {
 
     var origin: Origin = Origin()
 
+    var database: Database = Database()
+
     operator fun get(key: String, vararg placeholder: Pair<String, () -> Any>): Component {
         val keys = key.split(".")
         if (keys.size <= 1) return MiniMessage.miniMessage().deserialize("Invalid key: $key")
 
-        val prop = Lang::class.memberProperties.find { it.name == keys[0] } ?: return MiniMessage.miniMessage().deserialize("No Property found for $key")
+        val prop = Lang::class.declaredMemberProperties.find { it.name == keys[0] } ?: return MiniMessage.miniMessage().deserialize("No Property found for $key")
         val value = prop.get(this).safeCast<PropertyFinder<*, PartialComponent>>() ?: return MiniMessage.miniMessage().deserialize("$key's return type is not a property finder class.")
+
         return value.get(key.substringAfter('.')).get(*placeholder)
     }
 
-    sealed class PropertyFinder <C : PropertyFinder<C, R>, R : Any?> {
+    sealed class PropertyFinder <C : PropertyFinder<C, R>, R : Any?>(clazz: KClass<C>) {
         @Transient
         private val map: PersistentMap<String, KProperty1<C, R>> = persistentMapOf(
-            *Lang::class.memberProperties
+            *clazz.declaredMemberProperties
                 .filterIsInstance<KProperty1<C, R>>()
                 .map {
                     val builder = StringBuilder()
@@ -78,11 +91,12 @@ class Lang : IConfig() {
                 }.toTypedArray()
         )
 
-        fun get(key: String): R = map[key]?.get(this@PropertyFinder.unsafeCast()) ?: throw IllegalArgumentException("No property found for $key")
+        fun get(key: String): R =
+            map[key]?.get(this@PropertyFinder.unsafeCast()) ?: throw IllegalArgumentException("No property found for $key")
     }
 
     @ConfigSerializable
-    class Generic : PropertyFinder<Generic, PartialComponent>() {
+    class Generic : PropertyFinder<Generic, PartialComponent>(Generic::class) {
 
         var error: PartialComponent = PartialComponent.of("<dark_red>Error <white>» <red><message>")
 
@@ -90,13 +104,13 @@ class Lang : IConfig() {
     }
 
     @ConfigSerializable
-    class Origin : PropertyFinder<Generic, PartialComponent>() {
+    class Origin : PropertyFinder<Origin, PartialComponent>(Origin::class) {
 
         var broadcast: PartialComponent = PartialComponent.of("<prefix_server><player> has become the <new_origin> origin!")
 
         var setSelf: PartialComponent = PartialComponent.of("<prefix_origins>You set your origin to <new_origin>.")
 
-        var setOther: PartialComponent = PartialComponent.of("<prefix_origins>Set <target>'s origin to <new_origin>.")
+        var setOther: PartialComponent = PartialComponent.of("<prefix_origins>Set <player>'s origin to <new_origin>.")
 
         var setSameSelf: PartialComponent = PartialComponent.of("<prefix_origins>You are already the <origin> origin!")
 
@@ -104,9 +118,17 @@ class Lang : IConfig() {
 
         var getSelf: PartialComponent = PartialComponent.of("<prefix_origins>Your origin is <origin>.")
 
-        var getOther: PartialComponent = PartialComponent.of("<prefix_origins><target>'s origin is <origin>.")
+        var getOther: PartialComponent = PartialComponent.of("<prefix_origins><player>'s origin is <origin>.")
 
         var nightVision: PartialComponent = PartialComponent.of("<prefix_origins>Your night vision now triggers on: <new_nightvision>.")
+    }
+
+    @ConfigSerializable
+    class Database : PropertyFinder<Database, PartialComponent>(Database::class) {
+
+        var choicesSelf: PartialComponent = PartialComponent.of("<prefix_origins>You <changed> have <choices> remaining choices.")
+
+        var choicesOther: PartialComponent = PartialComponent.of("<prefix_origins><player><changed> has <choices> remaining choices.")
     }
 
     class PartialComponent private constructor(private var raw: String) {
@@ -128,9 +150,11 @@ class Lang : IConfig() {
         } else MiniMessage.miniMessage().lazyPlaceholder(_value, placeholder)
 
         fun formatRaw(placeholders: Map<String, String>) {
+            var tmp = raw
             placeholders.forEach { (placeholder, prefix) ->
-                _value = raw.replace(placeholder, prefix) // We use raw incase a prefix was removed.
+                tmp = tmp.replaceFirst(placeholder, prefix)
             }
+            _value = tmp
             dirty = true
             cache = null
         }
@@ -183,11 +207,13 @@ class Lang : IConfig() {
             input,
             TagResolver.resolver(
                 template.map {
+                    val str = it.second.toString()
                     TagResolver.resolver(
                         it.first,
-                        if (it.second.toString() in components) {
-                            LazyComponentReplacement { it.second() as Component }
-                        } else LazyStringReplacement { it.second().toString() }
+                        when (str) {
+                            in components -> LazyComponentReplacement { it.second().unsafeCast() }
+                            else -> LazyStringReplacement { it.second().toString() }
+                        }
                     )
                 }
             )
