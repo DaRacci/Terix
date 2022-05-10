@@ -9,14 +9,23 @@ import com.destroystokyo.paper.event.player.PlayerJumpEvent
 import com.destroystokyo.paper.event.player.PlayerLaunchProjectileEvent
 import com.destroystokyo.paper.event.player.PlayerPostRespawnEvent
 import dev.racci.minix.api.annotations.MappedExtension
+import dev.racci.minix.api.events.PlayerDoubleLeftClickEvent
 import dev.racci.minix.api.events.PlayerDoubleOffhandEvent
+import dev.racci.minix.api.events.PlayerDoubleRightClickEvent
 import dev.racci.minix.api.events.PlayerEnterLiquidEvent
 import dev.racci.minix.api.events.PlayerExitLiquidEvent
+import dev.racci.minix.api.events.PlayerLeftClickEvent
+import dev.racci.minix.api.events.PlayerOffhandEvent
+import dev.racci.minix.api.events.PlayerRightClickEvent
+import dev.racci.minix.api.events.PlayerShiftDoubleLeftClickEvent
+import dev.racci.minix.api.events.PlayerShiftDoubleOffhandEvent
+import dev.racci.minix.api.events.PlayerShiftDoubleRightClickEvent
 import dev.racci.minix.api.events.PlayerShiftLeftClickEvent
 import dev.racci.minix.api.events.PlayerShiftOffhandEvent
 import dev.racci.minix.api.events.PlayerShiftRightClickEvent
 import dev.racci.minix.api.extension.Extension
 import dev.racci.minix.api.extensions.event
+import dev.racci.terix.api.OriginService
 import dev.racci.terix.api.Terix
 import dev.racci.terix.api.events.PlayerOriginChangeEvent
 import dev.racci.terix.core.extension.origin
@@ -74,10 +83,19 @@ class EventForwarderService(override val plugin: Terix) : Extension<Terix>() {
         event<PlayerElytraBoostEvent> { player.origin().onElytraBoost(this) }
         event<EntityMountEvent> { (entity as? Player)?.origin()?.onEntityMount(this) }
         event<EntityDismountEvent> { (entity as? Player)?.origin()?.onEntityDismount(this) }
+
+        // Combo Events
+        event<PlayerLeftClickEvent> { player.origin().onLeftClick(this) }
+        event<PlayerRightClickEvent> { player.origin().onRightClick(this) }
+        event<PlayerOffhandEvent> { player.origin().onOffhand(this) }
+        event<PlayerDoubleLeftClickEvent> { player.origin().onDoubleLeftClick(this) }
+        event<PlayerDoubleRightClickEvent> { player.origin().onDoubleRightClick(this) }
         event<PlayerDoubleOffhandEvent> { player.origin().onDoubleOffhand(this) }
-        event<PlayerShiftOffhandEvent> { player.origin().onShiftOffhand(this) }
-        event<PlayerShiftLeftClickEvent> { player.origin().onShiftLeftClick(this) }
-        event<PlayerShiftRightClickEvent> { player.origin().onShiftRightClick(this) }
-        event<PlayerShiftOffhandEvent> { player.origin().onShiftOffhand(this) }
+        event<PlayerShiftLeftClickEvent> { player.origin().onSneakLeftClick(this) }
+        event<PlayerShiftRightClickEvent> { player.origin().onSneakRightClick(this) }
+        event<PlayerShiftOffhandEvent> { player.origin().onSneakOffhand(this) }
+        event<PlayerShiftDoubleLeftClickEvent> { player.origin().onSneakDoubleLeftClick(this) }
+        event<PlayerShiftDoubleRightClickEvent> { player.origin().onSneakDoubleRightClick(this) }
+        event<PlayerShiftDoubleOffhandEvent> { player.origin().onSneakDoubleOffhand(this) }
     }
 }
