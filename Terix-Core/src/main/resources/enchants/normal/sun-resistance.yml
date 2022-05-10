@@ -1,0 +1,21 @@
+name: "Sun Resistance"
+description: Grants protection from the sunlight at the cost of durability.
+enabled: true
+
+obtaining:
+  table: true
+  villager: true
+  loot: true
+  rarity: legendary
+
+general-config:
+  flags: []
+  targets:
+    - helmet
+  grindstoneable: true
+  disabled-in-worlds: [ ]
+  requirements:
+    list: []
+    not-met-lore: []
+  conflicts: [ ]
+  maximum-level: 1
