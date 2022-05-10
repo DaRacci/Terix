@@ -26,7 +26,7 @@ class TitleBuilder(
     }
 
     fun invoke(player: Player) {
-        player.showTitle(cachedTitle ?: build())
+        player.showTitle(build())
         sound?.let { player.playSound(Sound.sound(it, Sound.Source.AMBIENT, 1f, 1f)) }
     }
 }
