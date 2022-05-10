@@ -5,6 +5,7 @@ import com.github.stefvanschie.inventoryframework.gui.type.util.Gui
 import com.github.stefvanschie.inventoryframework.pane.OutlinePane
 import com.github.stefvanschie.inventoryframework.pane.Pane
 import com.github.stefvanschie.inventoryframework.pane.util.Mask
+import dev.racci.minix.api.extensions.asInt
 import org.bukkit.event.inventory.InventoryClickEvent
 import org.bukkit.inventory.ItemStack
 
