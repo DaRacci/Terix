@@ -1,4 +1,4 @@
-package dev.racci.terix.core.origins.abilities
+package dev.racci.terix.api.origins.abilities
 
 import dev.racci.terix.api.origins.AbstractAbility
 
