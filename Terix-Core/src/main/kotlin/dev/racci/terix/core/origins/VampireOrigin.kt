@@ -21,31 +21,38 @@ class VampireOrigin(override val plugin: Terix) : AbstractOrigin() {
 
     override suspend fun onRegister() {
         damage {
-            Trigger.SUNLIGHT ticks 100.0
+            Trigger.SUNLIGHT += 100.0
         }
         title {
-            Trigger.SUNLIGHT causes {
+            Trigger.SUNLIGHT += {
                 title = "<red>You feel week.".parse()
                 subtitle = "<red>Return to the dark to regain your strength.".parse()
                 sound = Key.key("minecraft", "entity.bat.hurt")
             }
+            Trigger.DARKNESS += {
+                title = "<green>You feel stronger.".parse()
+                subtitle = "<green>You feel the power of the sun.".parse()
+                sound = Key.key("minecraft", "item.shield.break")
+            }
         }
         potions {
-            Trigger.SUNLIGHT causes {
+            Trigger.SUNLIGHT += {
                 type = PotionEffectType.WEAKNESS
                 duration = Duration.INFINITE
                 ambient = true
-                particles = false
-                icon = false
+            }
+            Trigger.DARKNESS += {
+                type = PotionEffectType.INCREASE_DAMAGE
+                duration = Duration.INFINITE
+                ambient = true
             }
         }
         item {
-            named(displayName)
-            material(Material.BEETROOT_SOUP)
-            lore {
-                this[0] = "<dark_red>The Vampire is a type of vampire that is able to turn into a bat.".parse()
-                this[1] = "<dark_red>This is a powerful ability that can be used to kill any player.".parse()
-            }
+            material = Material.BEETROOT_SOUP
+            lore = """
+                <dark_red>The Vampire is a type of vampire that is able to turn into a bat.
+                <dark_red>This is a powerful ability that can be used to kill any player.
+            """.trimIndent()
         }
     }
 }

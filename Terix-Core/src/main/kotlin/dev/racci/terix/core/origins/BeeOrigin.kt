@@ -1,6 +1,5 @@
 package dev.racci.terix.core.origins
 
-import dev.racci.minix.api.extensions.parse
 import dev.racci.terix.api.Terix
 import dev.racci.terix.api.origins.AbstractOrigin
 import net.kyori.adventure.key.Key
@@ -16,12 +15,11 @@ class BeeOrigin(override val plugin: Terix) : AbstractOrigin() {
 
     override suspend fun onRegister() {
         item {
-            named(displayName)
-            material(Material.HONEYCOMB)
-            lore {
-                this[0] = "<gold>A bee is a type of Animal".parse()
-                this[1] = "<gold>and is the only type of bee that can fly.".parse()
-            }
+            material = Material.HONEYCOMB
+            lore = """
+                <gold>A bee is a type of bee.
+                <gold>It is a type of bee.
+            """.trimIndent()
         }
     }
 }

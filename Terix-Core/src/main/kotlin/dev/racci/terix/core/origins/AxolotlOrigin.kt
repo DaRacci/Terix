@@ -1,6 +1,5 @@
 package dev.racci.terix.core.origins
 
-import dev.racci.minix.api.extensions.parse
 import dev.racci.terix.api.Terix
 import dev.racci.terix.api.origins.AbstractOrigin
 import net.kyori.adventure.key.Key
@@ -18,11 +17,8 @@ class AxolotlOrigin(override val plugin: Terix) : AbstractOrigin() {
 
     override suspend fun onRegister() {
         item {
-            named(displayName)
-            material(Material.AXOLOTL_BUCKET)
-            lore {
-                this[0] = "<white>Axolotl is a creature.".parse()
-            }
+            material = Material.AXOLOTL_BUCKET
+            lore = "<white>Little shit."
         }
     }
 }

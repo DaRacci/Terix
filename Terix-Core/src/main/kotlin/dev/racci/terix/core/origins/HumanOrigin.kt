@@ -18,7 +18,7 @@ class HumanOrigin(override val plugin: Terix) : AbstractOrigin() {
 
     override suspend fun onRegister() {
         potions {
-            Trigger.ON causes {
+            Trigger.ON += {
                 type = PotionEffectType.DAMAGE_RESISTANCE
                 durationInt = Int.MAX_VALUE
                 amplifier = 1
@@ -26,17 +26,14 @@ class HumanOrigin(override val plugin: Terix) : AbstractOrigin() {
             }
         }
         title {
-            Trigger.DAY causes {
+            Trigger.DAY += {
                 title = "<blue>Day".parse()
                 subtitle = "<aqua>haha its bright blue now".parse()
             }
         }
         item {
-            named(displayName)
-            material(Material.APPLE)
-            lore {
-                this[0] = "<gray>This is a human origin".parse()
-            }
+            material = Material.APPLE
+            lore = "This is a <blue>blue"
         }
     }
 }

@@ -1,6 +1,5 @@
 package dev.racci.terix.core.origins
 
-import dev.racci.minix.api.extensions.parse
 import dev.racci.terix.api.Terix
 import dev.racci.terix.api.origins.AbstractOrigin
 import dev.racci.terix.api.origins.enums.Trigger
@@ -17,14 +16,11 @@ class DragonOrigin(override val plugin: Terix) : AbstractOrigin() {
 
     override suspend fun onRegister() {
         damage {
-            Trigger.WET ticks 2.0
+            Trigger.WET += 2.0
         }
         item {
-            named(displayName)
-            material(Material.DRAGON_BREATH)
-            lore {
-                this[0] = "<light_purple>A breath of fire that can be used to summon a dragon.".parse()
-            }
+            material = Material.DRAGON_BREATH
+            lore = "<light_purple>A breath of fire that can be used to summon a dragon."
         }
     }
 }
