@@ -1,13 +1,14 @@
 package dev.racci.terix.core.services
 
-import com.github.benmanes.caffeine.cache.Caffeine
-import com.github.benmanes.caffeine.cache.LoadingCache
+import com.comphenix.protocol.ProtocolLibrary
+import com.comphenix.protocol.ProtocolManager
 import dev.racci.minix.api.annotations.MappedExtension
 import dev.racci.minix.api.extension.Extension
 import dev.racci.minix.api.extensions.event
 import dev.racci.minix.api.extensions.pm
 import dev.racci.minix.api.plugin.MinixLogger
 import dev.racci.minix.api.utils.collections.CollectionUtils.clear
+import dev.racci.minix.api.utils.collections.CollectionUtils.getCast
 import dev.racci.terix.api.Terix
 import dev.racci.terix.core.enchantments.SunResistance
 import me.angeschossen.lands.api.integration.LandsIntegration
@@ -17,7 +18,6 @@ import org.bukkit.event.server.PluginEnableEvent
 import org.bukkit.plugin.Plugin
 import org.koin.core.component.KoinComponent
 import org.koin.core.component.get
-import java.time.Duration
 import kotlin.reflect.KClass
 import kotlin.reflect.full.createInstance
 
@@ -26,21 +26,12 @@ typealias HookInvoker = () -> HookService.HookService
 @MappedExtension(Terix::class, "Hook Service")
 class HookService(override val plugin: Terix) : Extension<Terix>() {
 
-    private val loadedHooks by lazy { mutableMapOf<KClass<out Plugin>, HookService>() }
+    val protocolManager: ProtocolManager by lazy(ProtocolLibrary::getProtocolManager)
+    val loadedHooks by lazy { mutableMapOf<KClass<out Plugin>, HookService>() }
     private val unloadedHooks by lazy { mutableMapOf<KClass<out Plugin>, HookService>() }
     private val unregisteredHooks by lazy { mutableMapOf<KClass<out Plugin>, HookInvoker>() }
 
-    inline operator fun <reified T : HookService> get(kClass: KClass<T> = T::class): T? = hooks[kClass] as? T
-
-    val hooks: LoadingCache<KClass<out HookService>, HookService> = Caffeine.newBuilder()
-        .expireAfterWrite(Duration.ofSeconds(30))
-        .build { kClass: KClass<out HookService> ->
-            log.debug { "Looking for hook $kClass" }
-            loadedHooks.values.find {
-                log.debug { "Checking if ${it::class} is $kClass" }
-                it::class == kClass
-            }
-        }
+    inline operator fun <reified T : HookService> get(kClass: KClass<T> = T::class): T? = loadedHooks.getCast(kClass)
 
     override suspend fun handleEnable() {
         listOfNotNull(
@@ -49,15 +40,11 @@ class HookService(override val plugin: Terix) : Extension<Terix>() {
             hookPair<EcoEnchantsHook>("com.willfp.ecoenchants.EcoEnchantsPlugin")
         ).let(unregisteredHooks::putAll)
 
-        pm.plugins.forEach {
-            if (it.isEnabled) {
-                val pluginKClass = it::class
-                unloadedHooks.remove(pluginKClass)?.let { hook ->
-                    hook.doSetup()
-                    loadedHooks += pluginKClass to hook
-                    hooks.put(hook::class, hook)
-                }
-            }
+        for (plugin in pm.plugins) {
+            if (!plugin.isEnabled) continue
+
+            val pluginKClass = plugin::class
+            loadHook(pluginKClass, unloadedHooks.remove(pluginKClass), unregisteredHooks.remove(pluginKClass))
         }
 
         event<PluginEnableEvent> {
@@ -79,18 +66,20 @@ class HookService(override val plugin: Terix) : Extension<Terix>() {
         }
     }
 
-    private suspend fun loadHook(plugin: KClass<out Plugin>, hookService: HookService? = null, hookInvoker: HookInvoker? = null) {
+    private suspend fun loadHook(
+        plugin: KClass<out Plugin>,
+        hookService: HookService? = null,
+        hookInvoker: HookInvoker? = null
+    ) {
         (hookService ?: hookInvoker?.invoke())?.let { hook ->
             hook.doSetup()
             loadedHooks += plugin to hook
-            hooks.put(hook::class, hook)
         }
     }
 
     private suspend fun unloadHook(plugin: KClass<out Plugin>, hook: HookService) {
         hook.doUnload()
         unloadedHooks += plugin to hook
-        hooks.invalidate(hook::class)
     }
 
     @Suppress("UNCHECKED_CAST")
@@ -141,7 +130,6 @@ class HookService(override val plugin: Terix) : Extension<Terix>() {
         override suspend fun doUnload() {
             integration?.let {
                 log.info { "Unregistering Lands Hook" }
-                it.disable()
                 integration = null
             }
         }
@@ -155,4 +143,6 @@ class HookService(override val plugin: Terix) : Extension<Terix>() {
             log.info { "Registering EcoEnchants Hook" }
         }
     }
+
+    companion object : ExtensionCompanion<dev.racci.terix.core.services.HookService>()
 }
