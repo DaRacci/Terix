@@ -5,13 +5,12 @@ import com.github.benmanes.caffeine.cache.RemovalCause
 import dev.racci.minix.api.events.LiquidType
 import dev.racci.minix.api.events.PlayerEnterLiquidEvent
 import dev.racci.minix.api.events.PlayerExitLiquidEvent
-import dev.racci.minix.api.extensions.cancel
-import dev.racci.minix.api.extensions.parse
 import dev.racci.minix.api.utils.unsafeCast
 import dev.racci.minix.nms.aliases.toNMS
 import dev.racci.terix.api.Terix
 import dev.racci.terix.api.origins.AbstractOrigin
 import dev.racci.terix.api.origins.enums.Trigger
+import kotlinx.coroutines.NonCancellable.cancel
 import kotlinx.coroutines.delay
 import net.kyori.adventure.key.Key
 import net.kyori.adventure.text.format.NamedTextColor
@@ -57,7 +56,7 @@ class SlimeOrigin(override val plugin: Terix) : AbstractOrigin() {
 
     override suspend fun onRegister() {
         potions {
-            Trigger.ON causes {
+            Trigger.ON += {
                 type = PotionEffectType.JUMP
                 amplifier = 4
                 durationInt = Int.MAX_VALUE
@@ -65,22 +64,17 @@ class SlimeOrigin(override val plugin: Terix) : AbstractOrigin() {
             }
         }
         attributes {
-            Attribute.GENERIC_MAX_HEALTH setBase {
-                operation = AttributeModifier.Operation.ADD_SCALAR
-                amount = 0.8
-            }
+            Attribute.GENERIC_MAX_HEALTH *= 0.8
         }
         damage {
-            EntityDamageEvent.DamageCause.FALL triggers {
-                if (entity.unsafeCast<Player>().toNMS().random.nextBoolean()) { cancel() }
+            EntityDamageEvent.DamageCause.FALL
+            EntityDamageEvent.DamageCause.FALL += { cause ->
+                if (cause.entity.unsafeCast<Player>().toNMS().random.nextBoolean()) { cancel() }
             }
         }
         item {
-            named(displayName)
-            material(Material.SLIME_BALL)
-            lore {
-                this[1] = "<green>Slime lol".parse()
-            }
+            material = Material.SLIME_BALL
+            lore = "<green>Slime lol"
         }
     }
 
