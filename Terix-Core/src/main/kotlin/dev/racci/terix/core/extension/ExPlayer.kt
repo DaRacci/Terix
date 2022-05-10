@@ -88,6 +88,10 @@ var Player.originTime: Instant
     get() { return transaction { PlayerData[this@originTime].lastChosenTime ?: Instant.DISTANT_PAST } }
     set(instant) { transaction { PlayerData[this@originTime].lastChosenTime = instant } }
 
+var Player.usedChoices: Int
+    get() { return transaction { PlayerData[this@usedChoices].usedChoices } }
+    set(value) { transaction { PlayerData[this@usedChoices].usedChoices = value } }
+
 val Player.tickCache: PlayerData.Companion.PlayerTickCache get() = PlayerData.tickCache(this)
 
 var Player.wasInSunlight

@@ -47,4 +47,6 @@ class SpecialService(override val plugin: Terix) : Extension<Terix>() {
         Trigger.THE_END -> if (player.inEnd()) Trigger.OFF else Trigger.ON
         else -> error { "Unknown special trigger: $trigger" }
     }
+
+    companion object : ExtensionCompanion<SpecialService>()
 }
