@@ -10,7 +10,11 @@ import java.util.UUID
 import kotlin.properties.Delegates
 import kotlin.time.Duration
 
-class TimedAttributeBuilder {
+class TimedAttributeBuilder() {
+
+    constructor(builder: TimedAttributeBuilder.() -> Unit) : this() {
+        builder(this)
+    }
 
     var uuid: UUID? = null
     var attribute by Delegates.notNull<Attribute>()
