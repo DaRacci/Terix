@@ -55,13 +55,13 @@ abstract class AbstractAbility : WithPlugin<Terix>, KoinComponent {
     protected open fun isAble(player: Player): Boolean = true
 
     /* Called when the ability is activated the given player. */
-    open fun onActivate(player: Player) {}
+    open suspend fun onActivate(player: Player) {}
 
     /* Called when the ability is deactivated the given player. */
-    open fun onDeactivate(player: Player) {}
+    open suspend fun onDeactivate(player: Player) {}
 
     /** Returns true if the player had their ability activated, false otherwise. */
-    fun toggle(player: Player): Boolean = if (isActivated(player.uniqueId)) {
+    suspend fun toggle(player: Player): Boolean = if (isActivated(player.uniqueId)) {
         deactivate(player)
         false
     } else {
@@ -69,7 +69,7 @@ abstract class AbstractAbility : WithPlugin<Terix>, KoinComponent {
     }
 
     /** Returns true if the player has their ability activated, false otherwise. */
-    fun activate(player: Player): Boolean {
+    suspend fun activate(player: Player): Boolean {
         if (!isAble(player) || isOnCooldown(player.uniqueId)) return false
 
         abilityCache += player.uniqueId
@@ -78,7 +78,7 @@ abstract class AbstractAbility : WithPlugin<Terix>, KoinComponent {
     }
 
     /** Returns true if the player has their ability deactivated, false otherwise. */
-    fun deactivate(player: Player): Boolean {
+    suspend fun deactivate(player: Player): Boolean {
         if (!isActivated(player.uniqueId)) return false
 
         abilityCache -= player.uniqueId
