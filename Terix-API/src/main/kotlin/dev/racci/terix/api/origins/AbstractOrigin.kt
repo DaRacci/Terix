@@ -11,20 +11,29 @@ import com.destroystokyo.paper.event.player.PlayerLaunchProjectileEvent
 import com.destroystokyo.paper.event.player.PlayerPostRespawnEvent
 import com.github.benmanes.caffeine.cache.Caffeine
 import dev.racci.minix.api.annotations.MinixDsl
+import dev.racci.minix.api.events.PlayerDoubleLeftClickEvent
 import dev.racci.minix.api.events.PlayerDoubleOffhandEvent
+import dev.racci.minix.api.events.PlayerDoubleRightClickEvent
 import dev.racci.minix.api.events.PlayerEnterLiquidEvent
 import dev.racci.minix.api.events.PlayerExitLiquidEvent
+import dev.racci.minix.api.events.PlayerLeftClickEvent
+import dev.racci.minix.api.events.PlayerOffhandEvent
+import dev.racci.minix.api.events.PlayerRightClickEvent
+import dev.racci.minix.api.events.PlayerShiftDoubleLeftClickEvent
 import dev.racci.minix.api.events.PlayerShiftDoubleOffhandEvent
+import dev.racci.minix.api.events.PlayerShiftDoubleRightClickEvent
 import dev.racci.minix.api.events.PlayerShiftLeftClickEvent
 import dev.racci.minix.api.events.PlayerShiftOffhandEvent
 import dev.racci.minix.api.events.PlayerShiftRightClickEvent
 import dev.racci.minix.api.extensions.WithPlugin
+import dev.racci.minix.api.extensions.parse
 import dev.racci.minix.api.plugin.MinixPlugin
 import dev.racci.minix.api.utils.collections.MultiMap
 import dev.racci.minix.api.utils.collections.multiMapOf
 import dev.racci.minix.api.utils.getKoin
 import dev.racci.minix.api.utils.unsafeCast
 import dev.racci.terix.api.OriginService
+import dev.racci.terix.api.Terix
 import dev.racci.terix.api.dsl.AttributeModifierBuilder
 import dev.racci.terix.api.dsl.PotionEffectBuilder
 import dev.racci.terix.api.dsl.TimedAttributeBuilder
@@ -36,6 +45,7 @@ import net.kyori.adventure.key.Key
 import net.kyori.adventure.text.Component
 import net.kyori.adventure.text.format.NamedTextColor
 import net.kyori.adventure.text.format.TextColor
+import net.kyori.adventure.text.minimessage.MiniMessage
 import org.bukkit.Material
 import org.bukkit.attribute.Attribute
 import org.bukkit.attribute.AttributeModifier
@@ -59,6 +69,7 @@ import org.bukkit.event.player.PlayerRiptideEvent
 import org.bukkit.potion.PotionEffect
 import org.spigotmc.event.entity.EntityDismountEvent
 import org.spigotmc.event.entity.EntityMountEvent
+import sun.jvm.hotspot.oops.CellTypeState.value
 import java.time.Duration
 import kotlin.reflect.KClass
 
@@ -69,23 +80,6 @@ abstract class AbstractOrigin : WithPlugin<MinixPlugin> {
         .expireAfterAccess(Duration.ofMinutes(1))
         .build<KClass<*>, Any>() { kClass -> kClass.constructors.first().call(this) }
     private inline fun <reified T> builder(): T = builderCache[T::class].unsafeCast()
-
-    // TODO: Combined all modifiers into one map
-    val attributeModifiers: MultiMap<Trigger, Pair<Attribute, AttributeModifier>> by lazy(::multiMapOf)
-    val titles: MutableMap<Trigger, TitleBuilder> by lazy(::mutableMapOf)
-    val potions: MultiMap<Trigger, PotionEffect> by lazy(::multiMapOf)
-    val damageTicks: MutableMap<Trigger, Double> by lazy(::mutableMapOf)
-    val triggerBlocks: MutableMap<Trigger, suspend (Player) -> Unit> by lazy(::mutableMapOf)
-    val damageMultipliers: MutableMap<EntityDamageEvent.DamageCause, Double> by lazy(::mutableMapOf)
-    val damageActions: MutableMap<EntityDamageEvent.DamageCause, suspend EntityDamageEvent.() -> Unit> by lazy(::mutableMapOf)
-    val foodPotions: MultiMap<Material, PotionEffect> by lazy(::multiMapOf)
-    val foodAttributes: MultiMap<Material, TimedAttributeBuilder> by lazy(::multiMapOf)
-    val foodMultipliers: MutableMap<Material, Int> by lazy(::mutableMapOf)
-    val abilities: MultiMap<KeyBinding, AbstractAbility> by lazy(::multiMapOf)
-
-    lateinit var itemMaterial: Material
-    lateinit var itemName: Component
-    lateinit var itemLore: List<Component>
 
     open val name: String = this::class.simpleName ?: "Unknown"
     open val colour: TextColor = NamedTextColor.WHITE
@@ -101,6 +95,25 @@ abstract class AbstractOrigin : WithPlugin<MinixPlugin> {
     open val permission: String? = null
     open val becomeOriginTitle: TitleBuilder? = null
 
+    // TODO: Combined all modifiers into one map or something like that
+    val attributeModifiers: MultiMap<Trigger, Pair<Attribute, AttributeModifier>> by lazy(::multiMapOf)
+    val titles: MutableMap<Trigger, TitleBuilder> by lazy(::mutableMapOf)
+    val potions: MultiMap<Trigger, PotionEffect> by lazy(::multiMapOf)
+    val damageTicks: MutableMap<Trigger, Double> by lazy(::mutableMapOf)
+    val triggerBlocks: MutableMap<Trigger, suspend (Player) -> Unit> by lazy(::mutableMapOf)
+
+    val damageMultipliers: MutableMap<EntityDamageEvent.DamageCause, Double> by lazy(::mutableMapOf)
+    val damageActions: MutableMap<EntityDamageEvent.DamageCause, suspend EntityDamageEvent.() -> Unit> by lazy(::mutableMapOf)
+
+    val foodBlocks: MutableMap<Material, suspend (Player) -> Unit> by lazy(::mutableMapOf)
+    val foodPotions: MultiMap<Material, PotionEffect> by lazy(::multiMapOf)
+    val foodAttributes: MultiMap<Material, TimedAttributeBuilder> by lazy(::multiMapOf)
+    val foodMultipliers: MutableMap<Material, Double> by lazy(::mutableMapOf)
+
+    val abilities: MutableMap<KeyBinding, AbstractAbility> by lazy(::mutableMapOf)
+
+    val item: OriginItem by lazy(::OriginItem)
+
     /**
      * Checks if the player has permission for this origin.
      *
@@ -109,6 +122,7 @@ abstract class AbstractOrigin : WithPlugin<MinixPlugin> {
      */
     open fun hasPermission(player: Player) = permission?.let(player::hasPermission) ?: true
 
+    /** Called when the origin is first registered with Terix. */
     open suspend fun onRegister() {}
 
     /**
@@ -182,47 +196,89 @@ abstract class AbstractOrigin : WithPlugin<MinixPlugin> {
      */
     open suspend fun onProjectileLand(event: ProjectileHitEvent) {}
 
+    /** Called when the players projectile collides with another entity. */
     open suspend fun onProjectileCollide(event: ProjectileCollideEvent) {}
 
+    /** Called when the player changes their equipped armour. */
     open suspend fun onArmourChange(event: PlayerArmorChangeEvent) {}
 
+    /** Called when the player changes world. */
     open suspend fun onChangeWorld(event: PlayerChangedWorldEvent) {}
 
+    /** Called when the player attempts to catch a fish. */
     open suspend fun onFish(event: PlayerFishEvent) {}
 
+    /** Called when the player's item obtains an extra point of damage / durability. */
     open suspend fun onItemDamage(event: PlayerItemDamageEvent) {}
 
+    /** Called when the player uses riptide on a trident. */
     open suspend fun onRiptide(event: PlayerRiptideEvent) {}
 
+    /** Called when the player combusts into flames. */
     open suspend fun onCombust(event: EntityCombustEvent) {}
 
+    /** Called when the player is revived by a totem of undying. */
     open suspend fun onResurrect(event: EntityResurrectEvent) {}
 
+    /** Called when the player toggles the swimming mode inside water. */
     open suspend fun onToggleSwim(event: EntityToggleSwimEvent) {}
 
+    /** Called when the player toggles gliding on an elytra. */
     open suspend fun onToggleGlide(event: EntityToggleGlideEvent) {}
 
+    /** Called when the player jumps. */
     open suspend fun onJump(event: PlayerJumpEvent) {}
 
+    /** Called when the player receives knockback from an entity. */
     open suspend fun onKnockback(event: EntityKnockbackByEntityEvent) {}
 
+    /** Called when a phantom spawns due to a players insomnia. */
     open suspend fun onPhantomSpawn(event: PhantomPreSpawnEvent) {}
 
+    /** Called when the player uses fireworks to boost their speed. */
     open suspend fun onElytraBoost(event: PlayerElytraBoostEvent) {}
 
+    /** Called when the player mounts a vehicle. */
     open suspend fun onEntityMount(event: EntityMountEvent) {}
 
+    /** Called when the player dismounts a vehicle. */
     open suspend fun onEntityDismount(event: EntityDismountEvent) {}
 
+    /** Called when the player left clicks. */
+    open suspend fun onLeftClick(event: PlayerLeftClickEvent) {}
+
+    /** Called when the player right clicks. */
+    open suspend fun onRightClick(event: PlayerRightClickEvent) {}
+
+    /** Called when the player uses the offhand bind. */
+    open suspend fun onOffhand(event: PlayerOffhandEvent) {}
+
+    /** Called when the player left clicks twice in quick succession. */
+    open suspend fun onDoubleLeftClick(event: PlayerDoubleLeftClickEvent) {}
+
+    /** Called when the player right clicks twice in quick succession. */
+    open suspend fun onDoubleRightClick(event: PlayerDoubleRightClickEvent) {}
+
+    /** Called when the player uses their offhand bind twice in quick succession. */
     open suspend fun onDoubleOffhand(event: PlayerDoubleOffhandEvent) {}
 
-    open suspend fun onShiftDoubleOffhand(event: PlayerShiftDoubleOffhandEvent) {}
+    /** Called when the player uses sneaks and left clicks. */
+    open suspend fun onSneakLeftClick(event: PlayerShiftLeftClickEvent) {}
 
-    open suspend fun onShiftOffhand(event: PlayerShiftOffhandEvent) {}
+    /** Called when the player uses sneaks and right clicks. */
+    open suspend fun onSneakRightClick(event: PlayerShiftRightClickEvent) {}
 
-    open suspend fun onShiftLeftClick(event: PlayerShiftLeftClickEvent) {}
+    /** Called when the player uses sneaks and uses their offhand bind. */
+    open suspend fun onSneakOffhand(event: PlayerShiftOffhandEvent) {}
 
-    open suspend fun onShiftRightClick(event: PlayerShiftRightClickEvent) {}
+    /** Called when the player uses sneaks and left clicks twice in quick succession. */
+    open suspend fun onSneakDoubleLeftClick(event: PlayerShiftDoubleLeftClickEvent) {}
+
+    /** Called when the player uses sneaks and right clicks twice in quick succession. */
+    open suspend fun onSneakDoubleRightClick(event: PlayerShiftDoubleRightClickEvent) {}
+
+    /** Called when the player uses sneaks and uses their offhand bind twice in quick succession. */
+    open suspend fun onSneakDoubleOffhand(event: PlayerShiftDoubleOffhandEvent) {}
 
     @MinixDsl
     protected suspend fun potions(builder: suspend AbstractOrigin.PotionsBuilder.() -> Unit) {
@@ -250,133 +306,359 @@ abstract class AbstractOrigin : WithPlugin<MinixPlugin> {
     }
 
     @MinixDsl
-    protected suspend fun item(builder: suspend AbstractOrigin.ItemBuilder.() -> Unit) {
+    protected suspend fun item(builder: suspend OriginItem.() -> Unit) {
+        builder(builder())
+    }
+
+    @MinixDsl
+    protected suspend fun abilities(builder: suspend AbstractOrigin.AbilityBuilder.() -> Unit) {
         builder(builder())
     }
 
     protected inner class PotionsBuilder {
 
         /**
-         * Adds a potion effect to this trigger.
-         * ## Note: The key of the potion effect will always be overridden.
+         * Adds a potion to the player while this trigger is active.
+         * ### Note: The potion key will always be overwritten.
          */
-        @MinixDsl
-        infix fun Trigger.causes(builder: PotionEffectBuilder.() -> Unit) {
-            val potionEffectBuilder = PotionEffectBuilder()
-            potionEffectBuilder.builder()
-            potionEffectBuilder.originKey(this@AbstractOrigin, this)
-            potions.put(this, potionEffectBuilder.build())
+        operator fun Trigger.plusAssign(builder: PotionEffectBuilder.() -> Unit) {
+            val pot = PotionEffectBuilder(builder).originKey(this@AbstractOrigin, this)
+            potions.put(this, pot.build())
         }
     }
 
     protected inner class AttributeBuilder {
 
-        /* Sets the base values of this origins attributes. */
-        @MinixDsl
-        infix fun Attribute.setBase(builder: AttributeModifierBuilder.() -> Unit) {
-            val modifierBuilder = AttributeModifierBuilder()
-            modifierBuilder.builder()
-            modifierBuilder.attribute = this
-            modifierBuilder.name = "origin_modifier_${this@AbstractOrigin.name.lowercase()}_${Trigger.ON.name.lowercase()}" // Use Enum incase of changes of name or something.
-            attributeModifiers.put(Trigger.ON, this to modifierBuilder.build())
-        }
+        /**
+         * Removes this number from the players base attributes.
+         *
+         * @param value The amount to remove.
+         * @receiver The attribute to remove from.
+         */
+        operator fun Attribute.minusAssign(value: Number) = addAttribute(this, AttributeModifier.Operation.ADD_NUMBER, value, Trigger.ON)
 
-        /* Adds an attributeModifier to this trigger. */
-        @MinixDsl
-        infix fun Trigger.causes(builder: AttributeModifierBuilder.() -> Unit) {
-            val attributeModifierBuilder = AttributeModifierBuilder()
-            attributeModifierBuilder.builder()
-            attributeModifierBuilder.name = "origin_modifier_${this@AbstractOrigin.name.lowercase()}_${this@causes.name.lowercase()}"
-            attributeModifiers.put(this, attributeModifierBuilder.attribute to attributeModifierBuilder.build())
+        /**
+         * Adds this number to the players base attributes.
+         *
+         * @param value The amount to add.
+         * @receiver The attribute to add to.
+         */
+        operator fun Attribute.plusAssign(value: Number) = addAttribute(this, AttributeModifier.Operation.ADD_NUMBER, value, Trigger.ON)
+
+        /**
+         * Multiplies the players base attribute by this number.
+         *
+         * @param value The amount to multiply by.
+         * @receiver The attribute to multiply.
+         */
+        operator fun Attribute.timesAssign(value: Number) = addAttribute(this, AttributeModifier.Operation.MULTIPLY_SCALAR_1, value, Trigger.ON)
+
+        /**
+         * Divides the players base attribute by this number.
+         *
+         * @param value The amount to divide by.
+         * @receiver The attribute to divide.
+         */
+        operator fun Attribute.divAssign(value: Number) = addAttribute(this, AttributeModifier.Operation.MULTIPLY_SCALAR_1, 1.0 / value.toDouble(), Trigger.ON)
+
+        /**
+         * Removes this number from the players attribute when this trigger is active.
+         *
+         * @param value The amount to remove.
+         * @receiver The Trigger and Attribute to remove from.
+         */
+        operator fun Pair<Trigger, Attribute>.minusAssign(value: Number) = addAttribute(this.second, AttributeModifier.Operation.ADD_NUMBER, value, this.first)
+
+        /**
+         * Adds this number to the players attribute when this trigger is active.
+         *
+         * @param value The amount to add.
+         * @receiver The Trigger and Attribute to add to.
+         */
+        operator fun Pair<Trigger, Attribute>.plusAssign(value: Number) = addAttribute(this.second, AttributeModifier.Operation.ADD_NUMBER, value, this.first)
+
+        /**
+         * Multiplies the players attribute by this number when this trigger is active.
+         *
+         * @param value The amount to multiply by.
+         * @receiver The Trigger and Attribute to multiply.
+         */
+        operator fun Pair<Trigger, Attribute>.timesAssign(value: Number) = addAttribute(this.second, AttributeModifier.Operation.MULTIPLY_SCALAR_1, value, this.first)
+
+        /**
+         * Divides the players attribute by this number when this trigger is active.
+         *
+         * @param value The amount to divide by.
+         * @receiver The Trigger and Attribute to divide.
+         */
+        operator fun Pair<Trigger, Attribute>.divAssign(value: Number) = addAttribute(this.second, AttributeModifier.Operation.MULTIPLY_SCALAR_1, 1.0 / value.toDouble(), this.first)
+
+        private fun addAttribute(
+            attribute: Attribute,
+            operation: AttributeModifier.Operation,
+            amount: Number,
+            trigger: Trigger
+        ) {
+            attributeModifiers.put(
+                trigger,
+                attribute to AttributeModifierBuilder {
+                    originName(this@AbstractOrigin, trigger)
+                    this.attribute = attribute
+                    this.operation = operation
+                    this.amount = amount
+                }.build()
+            )
         }
     }
 
     protected inner class TimeTitleBuilder {
 
         /**
-         * Triggers a title when this trigger is activated.
+         * Displays this title to the player when then given trigger is activated.
+         *
+         * @param builder The title builder to use.
+         * @receiver The trigger to activate the title.
          */
-        @MinixDsl
-        infix fun Trigger.causes(builder: TitleBuilder.() -> Unit) {
-            val titleBuilder = TitleBuilder()
-            titleBuilder.builder()
-            titles[this] = titleBuilder
+        operator fun Trigger.plusAssign(builder: TitleBuilder.() -> Unit) {
+            val title = TitleBuilder()
+            builder(title)
+            titles[this] = title
         }
+
+        // TODO: Title on deactivation of trigger.
     }
 
     protected inner class DamageBuilder {
 
         /**
-         * When the player is damage and one of these triggers is satisfied the
-         * event will be passed to the block for modification.
+         * Triggers this lambda when the player takes damage and this Trigger is active.
+         *
+         * @param builder The damage builder to use.
+         * @receiver The trigger to activate the damage.
          */
-        @MinixDsl
-        infix fun Trigger.invokes(builder: suspend (Player) -> Unit) { triggerBlocks[this] = builder }
+        operator fun Trigger.plusAssign(builder: suspend (Player) -> Unit) { triggerBlocks[this] = builder }
 
         /**
-         * Damages the player by this amount when this trigger happens.
-         * Most useful for triggers such as water, sunlight and darkness which
-         * are called once per second.
+         * Deals the number of damage to the player when the given trigger is activated.
+         *
+         * @param number The amount of damage to deal.
+         * @receiver The trigger to activate the damage.
          */
-        @MinixDsl
-        infix fun Trigger.ticks(damage: Double) { damageTicks[this] = damage }
+        operator fun Trigger.plusAssign(number: Number) { damageTicks[this] = number.toDouble() }
 
         /**
-         * Multiply the damage dealt to the player with this multiplier.
-         * Setting this to 0 will cancel the event.
+         * Adds this amount of damage to the player when the player's damage cause is this.
+         *
+         * @param number The amount of damage to add.
+         * @receiver The damage cause that is affected.
          */
-        @MinixDsl
-        infix fun EntityDamageEvent.DamageCause.multiplied(multiplier: Double) { damageMultipliers[this] = multiplier }
+        operator fun EntityDamageEvent.DamageCause.plusAssign(number: Number) { damageActions[this] = { this.damage += number.toDouble() } }
 
         /**
-         * The same as [multiplied] but sets it for all items within the collection.
+         * Minuses this amount of damage to the player when the player's damage cause is this.
+         *
+         * @param number The amount of damage to minus.
+         * @receiver The damage cause that is affected.
          */
-        @MinixDsl
-        infix fun Collection<EntityDamageEvent.DamageCause>.multiplied(multiplier: Double) { this.forEach { it.multiplied(multiplier) } }
+        operator fun EntityDamageEvent.DamageCause.minusAssign(number: Number) { damageActions[this] = { this.damage -= number.toDouble() } }
 
-        @MinixDsl
-        infix fun EntityDamageEvent.DamageCause.triggers(action: suspend EntityDamageEvent.() -> Unit) { damageActions[this] = action }
+        /**
+         * Multiplies this amount of damage to the player when the player's damage cause is this.
+         *
+         * @param number The amount of damage to multiply.
+         * @receiver The damage cause that is affected.
+         */
+        operator fun EntityDamageEvent.DamageCause.timesAssign(number: Number) { damageActions[this] = { this.damage *= number.toDouble() } }
+
+        /**
+         * Divides this amount of damage to the player when the player's damage cause is this.
+         *
+         * @param number The amount of damage to divide.
+         * @receiver The damage cause that is affected.
+         */
+        operator fun EntityDamageEvent.DamageCause.divAssign(number: Number) { damageActions[this] = { this.damage /= number.toDouble() } }
+
+        /**
+         * Runs this lambda async when the player takes damage from this causes.
+         *
+         * @param block The lambda to run.
+         * @receiver The damage cause that is affected.
+         */
+        operator fun EntityDamageEvent.DamageCause.plusAssign(block: suspend (EntityDamageEvent) -> Unit) { damageActions[this] = block }
+
+        /**
+         * Adds all elements for [Trigger.plusAssign]
+         *
+         * @param builder The damage builder to use.
+         * @receiver The triggers that activate the damage.
+         */
+        @JvmName("plusAssignTrigger")
+        operator fun Collection<Trigger>.plusAssign(builder: suspend (Player) -> Unit) = forEach { it += builder }
+
+        /**
+         * Adds all elements to [Trigger.plusAssign]
+         *
+         * @param number The amount of damage to deal.
+         * @receiver The triggers that activate the damage.
+         */
+        operator fun Collection<Trigger>.plusAssign(number: Number) = forEach { it += number }
+
+        /**
+         * Adds all elements to [EntityDamageEvent.DamageCause.plusAssign]
+         */
+        operator fun Collection<EntityDamageEvent.DamageCause>.plusAssign(block: suspend (EntityDamageEvent) -> Unit) = forEach { it += block }
+
+        /**
+         * Adds all elements to [EntityDamageEvent.DamageCause.plusAssign]
+         * * @param number The amount of damage to deal.
+         * @receiver The causes that are affected.
+         */
+        @JvmName("plusAssignCause")
+        operator fun Collection<EntityDamageEvent.DamageCause>.plusAssign(number: Number) = forEach { it += number }
+
+        /**
+         * Adds all elements to [EntityDamageEvent.DamageCause.minusAssign]
+         */
+        operator fun Collection<EntityDamageEvent.DamageCause>.minusAssign(number: Number) = forEach { it -= number }
+
+        /**
+         * Adds all elements to [EntityDamageEvent.DamageCause.timesAssign]
+         *
+         * @param number The amount of damage to multiply.
+         * @receiver The triggers that activate the damage.
+         */
+        operator fun Collection<EntityDamageEvent.DamageCause>.timesAssign(number: Number) = forEach { it *= number }
+
+        /**
+         * Adds all elements to [EntityDamageEvent.DamageCause.divAssign]
+         *
+         * @param number The amount of damage to divide.
+         * @receiver The triggers that activate the damage.
+         */
+        operator fun Collection<EntityDamageEvent.DamageCause>.divAssign(number: Number) = forEach { it /= number }
     }
 
+    /** A Utility class for creating food related triggers. */
     protected inner class FoodBuilder {
 
-        @MinixDsl
-        infix fun MaterialSetTag.effects(builder: PotionEffectBuilder.() -> Unit) { values.forEach { it.effects(builder) } }
+        /**
+         * When the player consumes an item in this collection, the food level will be multiplied by this value.
+         *
+         * @param value The value to multiply the food level by.
+         * @receiver The collection of foods.
+         */
+        operator fun MaterialSetTag.timesAssign(value: Number) = values.forEach { it *= value }
 
-        @MinixDsl
-        infix fun Material.effects(builder: PotionEffectBuilder.() -> Unit) { foodPotions.put(this, PotionEffectBuilder().apply { builder(); originKey(this@AbstractOrigin.name, "name") }.build()) }
+        /**
+         * When the player consumes an item in this collection, the food level will be divided by this value.
+         *
+         * @param value The value to divide the food level by.
+         * @receiver The collection of foods.
+         */
+        operator fun MaterialSetTag.divAssign(value: Number) = values.forEach { it /= value }
 
-        @MinixDsl
-        infix fun MaterialSetTag.applies(builder: TimedAttributeBuilder.() -> Unit) { values.forEach { it.applies(builder) } }
+        /**
+         * When the player consumes an item in this collection, this lambda will be run async.
+         *
+         * @param builder The lambda to run.
+         * @receiver The collection of foods.
+         */
+        operator fun MaterialSetTag.plusAssign(builder: suspend (Player) -> Unit) = values.forEach { it += builder }
 
-        @MinixDsl
-        infix fun Material.applies(builder: TimedAttributeBuilder.() -> Unit) { foodAttributes.put(this, TimedAttributeBuilder().apply(builder)) }
+        /**
+         * When the player consumes an item in this collection, this potion will be applied.
+         * #Note: The potions key will be overwritten.
+         *
+         * @param builder The builder to apply the potion.
+         * @receiver The collection of foods.
+         */
+        operator fun MaterialSetTag.plusAssign(builder: (PotionEffectBuilder) -> Unit) = values.forEach { it += builder }
 
-        @MinixDsl
-        infix fun MaterialSetTag.multiplied(multiplier: Int) { values.forEach { it.multiplied(multiplier) } }
+        /**
+         * When the player consumes an item in this collection, this Timed Attribute will be applied.
+         *
+         * @param builder The builder to apply the Timed Attribute.
+         * @receiver The collection of foods.
+         */
+        @JvmName("plusAssignTimedAttributeBuilder")
+        operator fun MaterialSetTag.plusAssign(builder: (TimedAttributeBuilder) -> Unit) = values.forEach { it += builder }
 
-        @MinixDsl
-        infix fun Material.multiplied(value: Int) { foodMultipliers[this] = value }
+        /**
+         * When the player consumes this food, the granted food level will be multiplied by this value.
+         * ### Note: If the food is not [Material.isEdible], this will do nothing.
+         *
+         * @param value The value to multiply the food level by.
+         * @receiver The food.
+         */
+        operator fun Material.timesAssign(value: Number) { if (checkEdible()) foodMultipliers[this] = value.toDouble() }
+
+        /**
+         * When the player consumes this food, the granted food level will be divided by this value.
+         * ### Note: If the food is not [Material.isEdible], this will do nothing.
+         *
+         * @param value The value to divide the food level by.
+         * @receiver The food.
+         */
+        operator fun Material.divAssign(value: Number) { if (checkEdible()) foodMultipliers[this] = 1 / value.toDouble() }
+
+        /**
+         * When the player consumes this food, this lambda will be run async.
+         * ### Note: If the food is not [Material.isEdible], this will do nothing.
+         *
+         * @param builder The lambda to run.
+         * @receiver The food.
+         */
+        operator fun Material.plusAssign(builder: suspend (Player) -> Unit) { if (checkEdible()) foodBlocks[this] = builder }
+
+        /**
+         * When the player consumes this food, this potion will be applied.
+         * ### Note: If the food is not [Material.isEdible], this will do nothing.
+         *
+         * @param builder The builder to apply the potion.
+         * @receiver The food.
+         */
+        operator fun Material.plusAssign(builder: (PotionEffectBuilder) -> Unit) { if (checkEdible()) foodPotions.put(this, PotionEffectBuilder(builder).apply { foodKey(this@plusAssign) }.build()) }
+
+        /**
+         * When the player consumes this food, this Timed Attribute will be applied.
+         * ### Note: If the food is not [Material.isEdible], this will do nothing.
+         *
+         * @param builder The builder to apply the Timed Attribute.
+         * @receiver The food.
+         */
+        @JvmName("plusAssignTimedAttributeBuilder")
+        operator fun Material.plusAssign(builder: (TimedAttributeBuilder) -> Unit) { if (checkEdible()) foodAttributes.put(this, TimedAttributeBuilder(builder)) }
+
+        private fun Material.checkEdible(): Boolean {
+            if (!isEdible) getKoin().get<Terix>().log.warn { "Trying to add a non-edible material to the food builder: $name" }
+            return isEdible
+        }
     }
 
-    protected inner class ItemBuilder {
+    inner class OriginItem {
 
-        infix fun AbstractOrigin.named(component: Component) { itemName = component }
+        var loreComponent: List<Component> = emptyList()
+        var name: Component = displayName
+        var material: Material = Material.AIR
 
-        infix fun AbstractOrigin.material(material: Material) { itemMaterial = material }
-
-        infix fun AbstractOrigin.lore(builder: MutableMap<Int, Component>.() -> Unit) {
-            itemLore = mutableMapOf<Int, Component>().apply(builder).values.toList()
-        }
+        /**
+         * Sets the lore of this item, meant to be used with a multiline String surrounded by `"""`.
+         * Each line will need styling as they are parsed individually as [Component]s.
+         */
+        var lore: String
+            get() = loreComponent.joinToString("\n") { MiniMessage.miniMessage().serialize(it) }
+            set(value) { loreComponent = value.split('\n').map(String::parse) }
     }
 
     protected inner class AbilityBuilder {
 
-        inline fun <reified T : AbstractAbility> KeyBinding.add() = getKoin().get<OriginService>()
+        fun <T : AbstractAbility> KeyBinding.add(clazz: KClass<out T>) = abilities.put(this, OriginService.getService().getAbility(clazz))
+
+        inline fun <reified T : AbstractAbility> KeyBinding.add() = add(T::class)
     }
 
     override fun toString(): String {
-        return "Origin(name='$name', itemName=$itemName, itemMaterial=$itemMaterial, itemLore=$itemLore, " +
+        return "Origin(name='$name', item=$item, " +
             "abilities=$abilities, triggerBlocks=$triggerBlocks, damageTicks=$damageTicks, damageMultipliers=$damageMultipliers, " +
             "damageActions=$damageActions, foodPotions=$foodPotions, foodAttributes=$foodAttributes, foodMultipliers=$foodMultipliers)"
     }
