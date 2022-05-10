@@ -1,11 +1,17 @@
 package dev.racci.terix.api.dsl
 
+import dev.racci.terix.api.origins.AbstractOrigin
+import dev.racci.terix.api.origins.enums.Trigger
 import org.bukkit.attribute.Attribute
 import org.bukkit.attribute.AttributeModifier
 import java.util.UUID
 import kotlin.properties.Delegates
 
-class AttributeModifierBuilder {
+class AttributeModifierBuilder() {
+
+    constructor(builder: AttributeModifierBuilder.() -> Unit) : this() {
+        builder()
+    }
 
     private val uuid by lazy(UUID::randomUUID)
 
@@ -13,6 +19,19 @@ class AttributeModifierBuilder {
     var name by Delegates.notNull<String>()
     var amount by Delegates.notNull<Number>()
     var operation by Delegates.notNull<AttributeModifier.Operation>()
+
+    fun originName(
+        origin: AbstractOrigin,
+        trigger: Trigger
+    ) = originName(origin.name, trigger.name)
+
+    fun originName(
+        origin: String,
+        trigger: String
+    ): AttributeModifierBuilder {
+        name = "origin_modifier_${origin.lowercase()}_${trigger.lowercase()}"
+        return this
+    }
 
     fun build(): AttributeModifier =
         AttributeModifier(
