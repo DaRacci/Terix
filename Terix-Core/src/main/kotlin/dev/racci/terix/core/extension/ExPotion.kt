@@ -1,11 +1,17 @@
 package dev.racci.terix.core.extension
 
-import dev.racci.minix.api.utils.getKoin
-import dev.racci.terix.core.services.OriginServiceImpl
+import dev.racci.terix.api.OriginService
+import dev.racci.terix.api.dsl.PotionEffectBuilder
+import dev.racci.terix.api.origins.AbstractOrigin
 import org.bukkit.potion.PotionEffect
 
-private val originService by getKoin().inject<OriginServiceImpl>()
+fun PotionEffect?.fromOrigin(): Boolean {
+    if (this == null) return false
+    return PotionEffectBuilder.regex.matches(type.name)
+}
 
-fun PotionEffect?.fromOrigin() = this?.key?.namespace == "origin"
-
-fun PotionEffect.origin() = if (this.fromOrigin()) originService.getOrigin(this.key!!.key) else null
+fun PotionEffect.origin(): AbstractOrigin? {
+    val key = this.key ?: return null
+    val match = PotionEffectBuilder.regex.find(key.key)?.groups ?: return null
+    return OriginService.getService().getOriginOrNull(match["origin"]?.value)
+}
