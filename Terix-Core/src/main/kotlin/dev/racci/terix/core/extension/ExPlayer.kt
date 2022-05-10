@@ -10,6 +10,7 @@ import dev.racci.terix.core.data.PlayerData
 import kotlinx.datetime.Instant
 import net.kyori.adventure.text.Component
 import net.minecraft.core.BlockPos
+import org.bukkit.Material
 import org.bukkit.entity.Player
 import org.bukkit.potion.PotionEffect
 import org.bukkit.potion.PotionEffectType
@@ -71,9 +72,15 @@ fun Player.safelySwapPotions(
     }
 }
 
-fun Player.validToBurn(): Boolean = !with(toNMS()) { isInWaterRainOrBubble || isInPowderSnow || wasInPowderSnow }
+fun Player.validToBurn(): Boolean = !with(toNMS()) { isInWaterRainOrBubble || isInPowderSnow || wasInPowderSnow && random.nextFloat() * 30.0f < (brightness - 0.4f) * 2.0f } // Random magic numbers are bad but it works
 
-fun Player.inDarkness(): Boolean = eyeLocation.block.lightLevel <= 4
+fun Player.inDarkness(): Boolean = inventory.itemInMainHand.type != Material.TORCH ||
+    inventory.itemInOffHand.type != Material.TORCH &&
+    location.block.lightLevel < 5
+
+var Player.nightVision: Trigger
+    get() = transaction { PlayerData[this@nightVision].nightVision }
+    set(value) { transaction { PlayerData[this@nightVision].nightVision = value } }
 
 fun Player.canSeeSky(): Boolean {
     val nms = toNMS()
