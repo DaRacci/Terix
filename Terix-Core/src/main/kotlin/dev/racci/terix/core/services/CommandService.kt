@@ -1,73 +1,52 @@
 package dev.racci.terix.core.services
 
-import cloud.commandframework.execution.AsynchronousCommandExecutionCoordinator
-import cloud.commandframework.minecraft.extras.MinecraftExceptionHandler
-import cloud.commandframework.paper.PaperCommandManager
-import com.mojang.brigadier.suggestion.Suggestions
-import com.mojang.brigadier.suggestion.SuggestionsBuilder
 import dev.jorel.commandapi.CommandAPICommand
 import dev.jorel.commandapi.CommandPermission
-import dev.jorel.commandapi.SuggestionInfo
+import dev.jorel.commandapi.arguments.ArgumentSuggestions
 import dev.jorel.commandapi.arguments.EntitySelectorArgument
 import dev.jorel.commandapi.arguments.StringArgument
 import dev.racci.minix.api.annotations.MappedExtension
-import dev.racci.minix.api.coroutine.launch
 import dev.racci.minix.api.coroutine.launchAsync
 import dev.racci.minix.api.extension.Extension
+import dev.racci.minix.api.extensions.formatted
 import dev.racci.minix.api.extensions.message
 import dev.racci.minix.api.extensions.msg
 import dev.racci.minix.api.services.DataService
 import dev.racci.minix.api.services.DataService.Companion.inject
-import dev.racci.minix.api.utils.kotlin.ifTrue
-import dev.racci.minix.nms.aliases.toNMS
+import dev.racci.minix.api.utils.collections.CollectionUtils.getCast
+import dev.racci.terix.api.OriginService
 import dev.racci.terix.api.Terix
 import dev.racci.terix.api.dsl.PotionEffectBuilder
 import dev.racci.terix.api.events.PlayerOriginChangeEvent
+import dev.racci.terix.core.data.Config
 import dev.racci.terix.core.data.Lang
-import dev.racci.terix.core.data.PlayerData
 import dev.racci.terix.core.extension.arguments
 import dev.racci.terix.core.extension.command
 import dev.racci.terix.core.extension.execute
 import dev.racci.terix.core.extension.executePlayer
-import dev.racci.terix.core.extension.formatted
 import dev.racci.terix.core.extension.fulfilled
-import dev.racci.terix.core.extension.getCast
+import dev.racci.terix.core.extension.nightVision
 import dev.racci.terix.core.extension.origin
+import dev.racci.terix.core.extension.safelyAddPotion
+import dev.racci.terix.core.extension.safelyRemovePotion
 import dev.racci.terix.core.extension.subcommand
+import dev.racci.terix.core.extension.usedChoices
+import org.bukkit.Material
 import org.bukkit.attribute.Attribute
 import org.bukkit.command.CommandSender
 import org.bukkit.entity.Player
-import org.bukkit.event.entity.EntityCombustEvent
 import org.bukkit.potion.PotionEffectType
-import org.jetbrains.exposed.sql.transactions.transaction
 import org.koin.core.component.get
 import org.koin.core.component.inject
-import java.util.concurrent.CompletableFuture
+import kotlin.time.Duration
 
 @MappedExtension(Terix::class, "Command Service", [OriginService::class, GUIService::class, SpecialService::class])
 class CommandService(override val plugin: Terix) : Extension<Terix>() {
     private val guiService by inject<GUIService>()
-    private val originService by inject<OriginService>()
+    private val originService by inject<OriginServiceImpl>()
     private val specialService by inject<SpecialService>()
+    private val config by inject<DataService>().inject<Config>()
     private val lang by inject<DataService>().inject<Lang>()
-    private val commandCoordinator by lazy {
-        AsynchronousCommandExecutionCoordinator
-            .newBuilder<CommandSender>()
-            .withAsynchronousParsing()
-            .build()
-    }
-    private val commandManager by lazy {
-        PaperCommandManager.createNative(plugin, commandCoordinator).also { manager ->
-            MinecraftExceptionHandler<CommandSender>()
-                .withArgumentParsingHandler()
-                .withInvalidSenderHandler()
-                .withInvalidSyntaxHandler()
-                .withNoPermissionHandler()
-                .withCommandExecutionHandler()
-                .withDecorator(lang.generic.error.value::append)
-                .apply(manager) { it }
-        }
-    }
 
     override suspend fun handleEnable() {
 
@@ -79,21 +58,24 @@ class CommandService(override val plugin: Terix) : Extension<Terix>() {
             addSetCommands()
             addMenuCommands()
             addToggleCommands()
+            addDatabaseCommands()
         }
 
         command("testing") {
 
-            subcommand("fire") {
-                withArguments(StringArgument("arg"))
-                executePlayer { player, args ->
-                    when (args.getCast<String>(0)) {
-                        "0" -> { { player.fireTicks = 20 }.sync() }
-                        "1" -> { try { { player.fireTicks = 20 }.async() } catch (e: Exception) { e.printStackTrace() } }
-                        "3" -> { try { { EntityCombustEvent(player, 20) }.async() } catch (e: Exception) { e.printStackTrace() } }
-                        "4" -> { { player.toNMS().setSecondsOnFire(1, true) }.sync() }
-                        "6" -> { { player.toNMS().setSecondsOnFire(1, false) }.sync() }
-                        "7" -> { try { { player.toNMS().setSecondsOnFire(1, false) }.async() } catch (e: Exception) { e.printStackTrace() } }
-                    }
+            subcommand("origin") {
+                executePlayer { player, _ ->
+                    player.origin().toString() message player
+                }
+            }
+
+            subcommand("darkness") {
+                executePlayer { player, _ ->
+                    val a = player.inventory.itemInMainHand.type != Material.TORCH
+                    val b = player.inventory.itemInOffHand.type != Material.TORCH
+                    val c = player.location.block.lightLevel < 7
+
+                    log.debug { "a: $a, b: $b, c: $c" }
                 }
             }
 
@@ -147,7 +129,7 @@ class CommandService(override val plugin: Terix) : Extension<Terix>() {
 
     private fun CommandAPICommand.addGetCommands() {
         subcommand("get") {
-            permission = CommandPermission.fromString("terix.origin.get")
+            permission = CommandPermission.fromString("terix.origin.getOriginFromName")
             arguments {
                 arg<EntitySelectorArgument>("target", EntitySelectorArgument.EntitySelector.ONE_PLAYER)
             }
@@ -156,40 +138,23 @@ class CommandService(override val plugin: Terix) : Extension<Terix>() {
         }
 
         subcommand("get") {
-            permission = CommandPermission.fromString("terix.origin.get")
+            permission = CommandPermission.fromString("terix.origin.getOriginFromName")
 
             executePlayer { player, _ -> plugin.launchAsync { getOrigin(player, player) } }
         }
     }
 
     private fun CommandAPICommand.addSetCommands() {
-        fun suggestions(suggestionInfo: SuggestionInfo, suggestionsBuilder: SuggestionsBuilder): CompletableFuture<Suggestions> {
-            val target = suggestionInfo.previousArgs.getCast<Player>(0)
-                ?: return suggestionsBuilder.buildFuture()
-
-            for ((key, origin) in originService.registry.entries) {
-                if (!origin.hasPermission(target)) continue
-                suggestionsBuilder.suggest(key)
-            }
-            return suggestionsBuilder.buildFuture()
-        }
-
+        val suggestions = ArgumentSuggestions.strings { originService.registeredOrigins }
         subcommand("set") {
             permission = CommandPermission.fromString("terix.origin.set")
 
             arguments {
                 arg<EntitySelectorArgument>("target", EntitySelectorArgument.EntitySelector.ONE_PLAYER)
-                arg<StringArgument>("origin").replaceSuggestions(::suggestions)
+                arg<StringArgument>("origin").replaceSuggestions(suggestions)
             }
 
             execute { sender, args -> plugin.launchAsync { setOrigin(sender, args.getCast(0), args.getCast(1)!!) } }
-        }
-
-        subcommand("set") {
-            permission = CommandPermission.fromString("terix.origin.set")
-            withArguments(StringArgument("origin").replaceSuggestions(::suggestions))
-
-            executePlayer { player, args -> plugin.launchAsync { setOrigin(player, player, args.getCast(0)!!) } }
         }
     }
 
@@ -228,10 +193,7 @@ class CommandService(override val plugin: Terix) : Extension<Terix>() {
     ) {
         subcommand(name) {
             arguments {
-                arg<StringArgument>("trigger").replaceSuggestions { _, suggestionsBuilder ->
-                    specialService.specialStatesFormatted.forEach(suggestionsBuilder::suggest)
-                    suggestionsBuilder.buildFuture()
-                }
+                arg<StringArgument>("trigger").replaceSuggestions(ArgumentSuggestions.strings { specialService.specialStatesFormatted })
             }
             setRequirements { sender -> sender is Player && requirements(sender) }
 
@@ -245,20 +207,85 @@ class CommandService(override val plugin: Terix) : Extension<Terix>() {
         }
     }
 
+    private fun CommandAPICommand.addDatabaseCommands() {
+        subcommand("database") {
+            permission = CommandPermission.fromString("terix.origin.database")
+
+            subcommand("choice") {
+                arguments {
+                    arg<StringArgument>("type").replaceSuggestions(ArgumentSuggestions.strings("add, remove, clear"))
+                }
+
+                fun message(sender: CommandSender, target: Player, changed: String) {
+                    lang[
+                        "database.choices.${if (target == sender) "self" else "other"}",
+                        "changed" to { changed },
+                        "player" to { target.displayName() },
+                        "choices" to { config.freeChanges - target.usedChoices }
+                    ] message sender
+                }
+
+                subcommand("add") {
+                    permission = CommandPermission.fromString("terix.origin.database.choice")
+                    arguments { arg<EntitySelectorArgument>("target", EntitySelectorArgument.EntitySelector.ONE_PLAYER) }
+
+                    execute { commandSender, anies ->
+                        val target = anies.getCast<Player>(0)!!
+                        target.usedChoices--
+                        message(commandSender, target, "now ")
+                    }
+                }
+
+                subcommand("remove") {
+                    permission = CommandPermission.fromString("terix.origin.database.choice")
+                    arguments { arg<EntitySelectorArgument>("target", EntitySelectorArgument.EntitySelector.ONE_PLAYER) }
+
+                    execute { commandSender, anies ->
+                        val target = anies.getCast<Player>(0)!!
+                        target.usedChoices++
+                        message(commandSender, target, "now ")
+                    }
+                }
+
+                subcommand("reset") {
+                    permission = CommandPermission.fromString("terix.origin.database.choice")
+                    arguments { arg<EntitySelectorArgument>("target", EntitySelectorArgument.EntitySelector.ONE_PLAYER) }
+
+                    execute { commandSender, anies ->
+                        val target = anies.getCast<Player>(0)!!
+                        target.usedChoices = 0
+                        message(commandSender, target, "now ")
+                    }
+                }
+
+                subcommand("get") {
+                    permission = CommandPermission.fromString("terix.origin.database.choice")
+                    arguments { arg<EntitySelectorArgument>("target", EntitySelectorArgument.EntitySelector.ONE_PLAYER) }
+
+                    execute { commandSender, anies ->
+                        val target = anies.getCast<Player>(0)!!
+                        target.usedChoices = config.freeChanges
+                        message(commandSender, target, "")
+                    }
+                }
+            }
+        }
+    }
+
     private fun getOrigin(
         sender: CommandSender,
         target: Player? = sender as? Player
     ) {
         val origin = (target)?.origin() ?: run {
-            lang.generic.error[
+            return lang.generic.error[
                 "message" to { "This command must have a target or be sent by a Player." }
             ] message sender
-            return
         }
+
         lang[
-            "origin.get.${if (target == sender) "self" else "other"}",
+            "origin.getOriginFromName.${if (target == sender) "self" else "other"}",
             "origin" to { origin.displayName },
-            "target" to { target.displayName() },
+            "player" to { target.displayName() },
         ] message sender
     }
 
@@ -268,30 +295,27 @@ class CommandService(override val plugin: Terix) : Extension<Terix>() {
         originString: String
     ) {
         target ?: run {
-            lang.generic.error[
+            return lang.generic.error[
                 "message" to { "This command must have a target or be sent by a Player." }
             ] message sender
-            return
         }
-        val origin = originService[originString, true] ?: run {
-            lang.generic.error[
+        val origin = originService.getOriginOrNull(originString.lowercase()) ?: run {
+            return lang.generic.error[
                 "message" to { "Invalid origin: $originString." },
             ] message sender
-            return
         }
         if (origin == target.origin()) {
-            lang[
+            return lang[
                 "origin.set.same.${if (target == sender) "self" else "other"}",
                 "origin" to { origin.displayName },
-                "target" to { target.displayName() },
+                "player" to { target.displayName() },
             ] message sender
-            return
         }
         lang[
             "origin.set.${if (target == sender) "self" else "other"}",
             "old_origin" to { target.origin().displayName },
             "new_origin" to { origin.displayName },
-            "target" to { target.displayName() },
+            "player" to { target.displayName() },
         ] message sender
         PlayerOriginChangeEvent(target, target.origin(), origin).callEvent()
     }
@@ -304,29 +328,33 @@ class CommandService(override val plugin: Terix) : Extension<Terix>() {
             val ordinal = specialService.specialStatesFormatted.indexOf(it)
             specialService.specialStates.value.getOrNull(ordinal)
         }
-        val playerData = transaction { PlayerData[player] }
         if (nightVision != null && !specialService.isValidTrigger(nightVision)) {
-            lang.generic.error[
+            return lang.generic.error[
                 "message" to { "Invalid trigger: $nightVision." },
             ] message player
-            return
         }
-        val current = transaction { playerData.nightVision }
+
+        val current = player.nightVision
         val new = nightVision ?: specialService.getToggle(player, current)
-        transaction { playerData.nightVision = new }
+        player.nightVision = new
         log.debug { new.fulfilled(player) }
-        new.fulfilled(player).ifTrue {
-            PotionEffectBuilder {
+
+        val shouldApply = new.fulfilled(player)
+
+        if (shouldApply) {
+            PotionEffectBuilder.build {
                 type = PotionEffectType.NIGHT_VISION
-                durationInt = Int.MAX_VALUE
+                duration = Duration.INFINITE
                 amplifier = 0
-                particles = false
-                ambient = false
-                particles = false
-                icon = false
+                ambient = true
                 originKey(player.origin(), new)
-            }.build().apply { plugin.launch { player.addPotionEffect(this@apply) } }
+            }.apply(player::safelyAddPotion)
         }
+
+        if (!shouldApply && current.fulfilled(player)) {
+            player.safelyRemovePotion(PotionEffectType.NIGHT_VISION)
+        }
+
         lang.origin.nightVision[
             "old_nightvision" to { new.formatted() },
             "new_nightvision" to { new.formatted() },
