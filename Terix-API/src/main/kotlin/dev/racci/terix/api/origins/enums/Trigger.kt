@@ -1,5 +1,7 @@
 package dev.racci.terix.api.origins.enums
 
+import dev.racci.minix.api.events.LiquidType
+import dev.racci.minix.api.events.LiquidType.Companion.liquidType
 import org.bukkit.World
 import org.bukkit.entity.Player
 
@@ -79,17 +81,15 @@ enum class Trigger {
                 null
             } else if (isDayTime) DAY else NIGHT
 
-        fun Player.getLiquidTrigger(): Collection<Trigger> {
-            val list = mutableListOf<Trigger>()
-            if (isInWaterOrBubbleColumn) {
-                list.add(WET)
-                list.add(WATER)
-                if (isInRain) list.add(RAIN)
-            } else if (isInLava) {
-                list.add(LAVA)
-                list.add(FLAMMABLE)
+        fun Player.getLiquidTrigger(): Array<Trigger> {
+            val list = arrayListOf<Trigger>()
+            if (isInRain) list += RAIN
+            when (location.block.liquidType) {
+                LiquidType.WATER -> { list += WATER; list += WET }
+                LiquidType.LAVA -> { list += LAVA; list += FLAMMABLE }
+                else -> {}
             }
-            return list
+            return list.toTypedArray()
         }
     }
 }
