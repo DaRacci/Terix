@@ -108,10 +108,10 @@ class RunnableService(override val plugin: Terix) : Extension<Terix>() {
                 origin.damageTicks[Trigger.SUNLIGHT]?.let { ticks ->
                     val helmet = player.inventory.helmet
                     if (helmet != null) {
-                        if (hookService[HookService.EcoEnchantsHook::class].let { it != null && helmet.enchants.contains(it.sunResistance) }) {
-                            log.debug { "Stage 4: $name has a helmet." }
-                            helmet.damage += nms.random.nextInt(2)
-                        }
+                        val ecoHook = get<HookService>()[HookService.EcoEnchantsHook::class]
+                        if (ecoHook?.sunResistance != null && helmet.hasEnchant(ecoHook.sunResistance!!)) return@let
+
+                        helmet.damage += nms.random.nextInt(2)
                     } else {
                         if (player.fireTicks > ticks) return@let
                         player.fireTicks = ticks.toInt()
@@ -176,12 +176,13 @@ class RunnableService(override val plugin: Terix) : Extension<Terix>() {
         }
     }
 
-    private fun Player.inSunlight() =
-        if (world.isDayTime) {
-            val nms = toNMS()
-            val brightness = nms.brightness > 0.5f
-            val wetOrCold = !(isInWaterOrRainOrBubbleColumn || isInPowderedSnow || nms.wasInPowderSnow)
-            val canSeeSky = canSeeSky()
-            brightness && wetOrCold && canSeeSky
-        } else false
+    private fun Player.inSunlight(): Boolean {
+        val nms = toNMS()
+        return world.isDayTime &&
+            nms.brightness > 0.5f &&
+            !isInWaterOrRainOrBubbleColumn &&
+            !isInPowderedSnow &&
+            !nms.wasInPowderSnow &&
+            canSeeSky()
+    }
 }
