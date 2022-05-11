@@ -33,7 +33,7 @@ class PotionEffectBuilder() {
     fun originKey(origin: AbstractOrigin, trigger: Trigger) = originKey(origin.name, trigger.name)
 
     fun originKey(origin: String, trigger: String): PotionEffectBuilder {
-        this.key = NamespacedKey("terix", "origin_potion_${origin.lowercase()}_${trigger.lowercase()}")
+        this.key = NamespacedKey("terix", "origin_potion_${origin.lowercase()}/${trigger.lowercase()}")
         return this
     }
 
@@ -60,11 +60,11 @@ class PotionEffectBuilder() {
         ambient,
         particles ?: !ambient,
         icon ?: particles ?: !ambient,
-        key.takeUnless { it == null || !it.toString().matches(regex) } ?: error("Invalid key. Was null or didn't match terix:${regex.pattern}: $key")
+        key.takeUnless { it == null || !it.toString().matches(regex) } ?: error("Invalid key. Was null or didn't match ${regex.pattern}: $key")
     )
 
     companion object {
-        val regex by lazy { Regex("terix:origin_(?<type>potion|ability)_(?<origin>[a-z\\d/_.-]+_)?(?<trigger>[a-z\\d/_.-]+)") }
+        val regex by lazy { Regex("terix:origin_(?<type>potion|ability|food)_(?<from>[a-z_-]+)?(/(?<trigger>[a-z_-]+))?") }
 
         fun build(builder: PotionEffectBuilder.() -> Unit): PotionEffect = PotionEffectBuilder(builder).build()
     }
