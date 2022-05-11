@@ -6,8 +6,10 @@ import dev.racci.minix.nms.aliases.toNMS
 import dev.racci.terix.api.Terix
 import dev.racci.terix.api.origins.AbstractOrigin
 import dev.racci.terix.api.origins.enums.Trigger
+import dev.racci.terix.api.origins.enums.Trigger.Companion.getLiquidTrigger
+import dev.racci.terix.api.origins.enums.Trigger.Companion.getTimeTrigger
+import dev.racci.terix.api.origins.enums.Trigger.Companion.getTrigger
 import dev.racci.terix.core.data.PlayerData
-import dev.racci.terix.core.services.SpecialService
 import kotlinx.datetime.Instant
 import net.kyori.adventure.text.Component
 import net.minecraft.core.BlockPos
@@ -117,4 +119,10 @@ var Player.inRain
 infix fun Component.message(receiver: Collection<Player>) { for (audience in receiver) { audience.sendMessage(this) } }
 
 // TODO: Cache this shit
-fun Player.activeTriggers(): List<Trigger> = SpecialService.getService().specialStates.filter { it.fulfilled(this) }
+fun Player.activeTriggers(): List<Trigger> = listOfNotNull(
+    Trigger.ON,
+    getLightOrDarkTrigger(),
+    *getLiquidTrigger(),
+    world.getTimeTrigger(),
+    world.environment.getTrigger(),
+)
