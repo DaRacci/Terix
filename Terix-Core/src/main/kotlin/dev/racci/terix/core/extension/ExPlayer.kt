@@ -7,6 +7,7 @@ import dev.racci.terix.api.Terix
 import dev.racci.terix.api.origins.AbstractOrigin
 import dev.racci.terix.api.origins.enums.Trigger
 import dev.racci.terix.core.data.PlayerData
+import dev.racci.terix.core.services.SpecialService
 import kotlinx.datetime.Instant
 import net.kyori.adventure.text.Component
 import net.minecraft.core.BlockPos
@@ -27,31 +28,19 @@ fun Player.shouldBeEffected(): Boolean =
         gameMode.ordinal != 3
 
 fun Player.safelyAddPotions(potions: Collection<PotionEffect>) {
-    terix.launch {
-        for (potion in potions) {
-            addPotionEffect(potion)
-        }
-    }
+    terix.launch { addPotionEffects(potions) }
 }
 
 fun Player.safelyRemovePotions(potionTypes: Collection<PotionEffectType>) {
-    terix.launch {
-        for (type in potionTypes) {
-            removePotionEffect(type)
-        }
-    }
+    terix.launch { potionTypes.forEach(::removePotionEffect) }
 }
 
 fun Player.safelyAddPotion(potion: PotionEffect) {
-    terix.launch {
-        addPotionEffect(potion)
-    }
+    terix.launch { addPotionEffect(potion) }
 }
 
 fun Player.safelyRemovePotion(potionType: PotionEffectType) {
-    terix.launch {
-        removePotionEffect(potionType)
-    }
+    terix.launch { removePotionEffect(potionType) }
 }
 
 fun Player.safelySwapPotions(
@@ -59,16 +48,8 @@ fun Player.safelySwapPotions(
     newPotions: Collection<PotionEffect>?
 ) {
     terix.launch {
-        oldPotionTypes?.let {
-            for (type in it) {
-                removePotionEffect(type)
-            }
-        }
-        newPotions?.let {
-            for (potion in it) {
-                addPotionEffect(potion)
-            }
-        }
+        oldPotionTypes?.forEach(::removePotionEffect)
+        newPotions?.forEach(::addPotionEffect)
     }
 }
 
@@ -134,3 +115,6 @@ var Player.inRain
     set(bool) { tickCache.inRain = bool }
 
 infix fun Component.message(receiver: Collection<Player>) { for (audience in receiver) { audience.sendMessage(this) } }
+
+// TODO: Cache this shit
+fun Player.activeTriggers(): List<Trigger> = SpecialService.getService().specialStates.filter { it.fulfilled(this) }
