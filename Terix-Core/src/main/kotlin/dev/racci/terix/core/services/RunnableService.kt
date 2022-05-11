@@ -13,6 +13,7 @@ import dev.racci.minix.api.extensions.ticks
 import dev.racci.minix.api.scheduler.CoroutineTask
 import dev.racci.minix.api.utils.kotlin.and
 import dev.racci.minix.nms.aliases.toNMS
+import dev.racci.terix.api.OriginService
 import dev.racci.terix.api.Terix
 import dev.racci.terix.api.events.PlayerOriginChangeEvent
 import dev.racci.terix.api.origins.AbstractOrigin
@@ -37,14 +38,11 @@ import org.bukkit.entity.Player
 import org.bukkit.event.EventPriority
 import org.bukkit.event.player.PlayerJoinEvent
 import org.bukkit.event.player.PlayerQuitEvent
-import org.koin.core.component.inject
+import org.koin.core.component.get
 import java.util.UUID
-import kotlin.math.roundToInt
 
 @MappedExtension(Terix::class, "Runnable Service", [OriginService::class, HookService::class])
 class RunnableService(override val plugin: Terix) : Extension<Terix>() {
-    private val hookService by inject<HookService>()
-
     private val tasks = mutableMapOf<UUID, MutableList<suspend (Player, AbstractOrigin) -> Unit>>()
 
     private val schedules = Caffeine.newBuilder()
@@ -79,26 +77,11 @@ class RunnableService(override val plugin: Terix) : Extension<Terix>() {
         for (trigger in listOf(Trigger.SUNLIGHT, Trigger.WATER, Trigger.RAIN, Trigger.WET, Trigger.DARKNESS)) {
             if (origin.attributeModifiers[trigger] != null || origin.titles[trigger] != null || origin.potions[trigger] != null || origin.damageTicks[trigger] != null || origin.triggerBlocks[trigger] != null) {
                 when (trigger) {
-                    Trigger.SUNLIGHT -> {
-                        log.debug { "Adding sunlight task for $name." }
-                        taskList.add(sunlightTick)
-                    }
-                    Trigger.WATER -> {
-                        log.debug { "Adding water task for $name." }
-                        taskList.add(waterTask)
-                    }
-                    Trigger.RAIN -> {
-                        log.debug { "Adding rain task for $name." }
-                        taskList.add(rainTask)
-                    }
-                    Trigger.DARKNESS -> {
-                        log.debug { "Adding darkness task for $name." }
-                        taskList.add(darknessTask)
-                    }
-                    else -> {
-                        log.debug { "Adding water and rain task for $name." }
-                        taskList.addAll(waterTask and rainTask)
-                    }
+                    Trigger.SUNLIGHT -> taskList.add(sunlightTick)
+                    Trigger.WATER -> taskList.add(waterTask)
+                    Trigger.RAIN -> taskList.add(rainTask)
+                    Trigger.DARKNESS -> taskList.add(darknessTask)
+                    else -> taskList.addAll(waterTask and rainTask)
                 }
             }
         }
@@ -121,11 +104,8 @@ class RunnableService(override val plugin: Terix) : Extension<Terix>() {
 
         if (player.inSunlight()) {
             player.inSunlight = true
-            log.debug { "Stage 1: $name is in sunlight." }
             if (player.validToBurn()) {
-                log.debug { "Stage 2: $name is valid to burn." }
                 origin.damageTicks[Trigger.SUNLIGHT]?.let { ticks ->
-                    log.debug { "Stage 3: $name has ticks." }
                     val helmet = player.inventory.helmet
                     if (helmet != null) {
                         if (hookService[HookService.EcoEnchantsHook::class].let { it != null && helmet.enchants.contains(it.sunResistance) }) {
@@ -133,11 +113,8 @@ class RunnableService(override val plugin: Terix) : Extension<Terix>() {
                             helmet.damage += nms.random.nextInt(2)
                         }
                     } else {
-                        log.debug { "Stage 5: $name does not have a helmet." }
                         if (player.fireTicks > ticks) return@let
-                        log.debug { "Stage 6: fire ticks for $name are now ${ticks.roundToInt()}." }
                         player.fireTicks = ticks.toInt()
-                        // runSync { player.toNMS().setSecondsOnFire(ticks.toInt() / 20) }
                     }
                 }
             } else if (player.fireTicks == 0) { player.playSound(Sound.sound(Key.key("entity.player.extinguish"), Sound.Source.PLAYER, 1f, 1f)) }
@@ -189,7 +166,7 @@ class RunnableService(override val plugin: Terix) : Extension<Terix>() {
         if (player.inDarkness()) {
             player.inDarkness = true
             origin.damageTicks[Trigger.DARKNESS]?.let { player.commitDamage(it) }
-        } else { player.inDarkness = false; log.debug { "${player.name} is not in darkness." } }
+        } else { player.inDarkness = false }
 
         if (player.wasInDarkness != player.inDarkness) {
             when {
