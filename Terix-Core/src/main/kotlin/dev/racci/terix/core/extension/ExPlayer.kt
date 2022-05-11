@@ -55,7 +55,7 @@ fun Player.safelySwapPotions(
 
 fun Player.validToBurn(): Boolean = !with(toNMS()) { isInWaterRainOrBubble || isInPowderSnow || wasInPowderSnow && random.nextFloat() * 30.0f < (brightness - 0.4f) * 2.0f } // Random magic numbers are bad but it works
 
-fun Player.inDarkness(): Boolean = inventory.itemInMainHand.type != Material.TORCH ||
+fun Player.inDarkness(): Boolean = inventory.itemInMainHand.type != Material.TORCH &&
     inventory.itemInOffHand.type != Material.TORCH &&
     location.block.lightLevel < 5
 
