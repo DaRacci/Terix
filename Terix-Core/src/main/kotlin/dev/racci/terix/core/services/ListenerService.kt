@@ -68,22 +68,40 @@ class ListenerService(override val plugin: Terix) : Extension<Terix>() {
         }
 
         event<PlayerJoinEvent>(forceAsync = true) {
-            Trigger.invokeCompleteClean(player)
-            Trigger.invokeBase(player)
-            player.world.environment.getTrigger().invokeAdd(player)
+
+            val origin = player.origin()
+            val activeTriggers = player.activeTriggers().map { it.name.lowercase() }
+
+            val potions = mutableListOf<PotionEffectType>()
+            if (origin.nightVision && player.nightVision.name.lowercase() !in activeTriggers) potions.add(PotionEffectType.NIGHT_VISION)
+            for (potion in player.activePotionEffects) {
+                val key = potion.key?.asString() ?: continue
+                val match = PotionEffectBuilder.regex.find(key)?.groups?.get("trigger") ?: continue
+                if (match.value in activeTriggers) continue
+
+                potions += potion.type
+            }
+            ensureMainThread { potions.forEach(player::removePotionEffect) }
+            removeUnfulfilledAttributes(player, activeTriggers)
+
+            // Trigger.invokeBase(player) // I don't think this is needed anymore
+            // player.world.environment.getTrigger().invokeAdd(player) // Also may not be needed
+            delay(0.5.seconds)
+            player.sendHealthUpdate()
         }
 
         event<PlayerPostRespawnEvent>(forceAsync = true) {
-            Trigger.invokeCompleteClean(player)
+            removeUnfulfilledAttributes(player)
             Trigger.invokeBase(player)
             player.world.environment.getTrigger().invokeAdd(player)
+            player.health = player.maxHealth
         }
 
         event<EntityPotionEffectEvent> {
             if (entity is Player &&
                 cause == EntityPotionEffectEvent.Cause.MILK &&
                 oldEffect != null && oldEffect!!.hasKey() &&
-                oldEffect!!.key!!.namespace == "origin"
+                oldEffect!!.key!!.asString().matches(PotionEffectBuilder.regex)
             ) {
                 log.debug { "Canceling milk potion removal for ${entity.name}." }
                 cancel()
