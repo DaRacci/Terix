@@ -5,10 +5,8 @@ import dev.jorel.commandapi.CommandAPIConfig
 import dev.racci.minix.api.annotations.MappedPlugin
 import dev.racci.minix.api.services.DataService
 import dev.racci.minix.api.updater.Version
-import dev.racci.minix.api.utils.exists
 import dev.racci.terix.api.Terix
 import dev.racci.terix.core.data.Config
-import dev.racci.terix.core.enchantments.SunResistance
 import org.koin.core.component.get
 import java.util.logging.Level
 
@@ -25,11 +23,12 @@ class TerixImpl : Terix() {
                 .silentLogs(!log.infoEnabled)
                 .verboseOutput(log.debugEnabled)
         )
-        try {
-            if (exists("com.willfp.ecoenchants.EcoEnchantsPlugin")) SunResistance()
-        } catch (e: NullPointerException) {
-            log.error(e) { "Failed to load EcoEnchants" }
-        }
+        // TODO: Fix this
+//        try {
+//            if (exists("com.willfp.ecoenchants.EcoEnchantsPlugin")) SunResistance()
+//        } catch (e: NullPointerException) {
+//            log.error(e) { "Failed to load EcoEnchants" }
+//        }
     }
 
     override suspend fun handleEnable() {
