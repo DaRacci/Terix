@@ -225,6 +225,8 @@ class Lang : IConfig() {
 
         class LazyComponentReplacement(private val value: () -> Component) : Tag, Inserting {
             override fun value() = value.invoke()
+
+            override fun allowsChildren() = false
         }
     }
 }
