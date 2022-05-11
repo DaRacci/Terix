@@ -88,7 +88,10 @@ class OriginServiceImpl(override val plugin: Terix) : OriginService() {
 
     override fun getOrigin(name: String): AbstractOrigin = registry[name] ?: error("No origin registered for $name")
 
-    override fun getOriginOrNull(name: String): AbstractOrigin? = registry[name]
+    override fun getOriginOrNull(name: String?): AbstractOrigin? {
+        if (name.isNullOrBlank()) return null
+        return registry[name]
+    }
 
     @MinixDsl
     suspend fun registry(block: suspend RegistryModifier.() -> Unit) { block(modifierCache.get(RegistryModifier::class).unsafeCast()) }

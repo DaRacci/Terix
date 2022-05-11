@@ -22,7 +22,7 @@ abstract class OriginService : Extension<Terix>() {
 
     abstract fun getOrigin(name: String): AbstractOrigin
 
-    abstract fun getOriginOrNull(name: String): AbstractOrigin?
+    abstract fun getOriginOrNull(name: String?): AbstractOrigin?
 
     companion object : ExtensionCompanion<OriginService>()
 }
