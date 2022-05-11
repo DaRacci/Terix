@@ -170,6 +170,7 @@ class ListenerService(override val plugin: Terix) : Extension<Terix>() {
             Trigger.invokeReload(player)
 
             lang.origin.broadcast[
+                "player" to { player.displayName() },
                 "new_origin" to { newOrigin.displayName },
                 "old_origin" to { preOrigin.displayName }
             ] message onlinePlayers
