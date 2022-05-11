@@ -326,7 +326,7 @@ class CommandService(override val plugin: Terix) : Extension<Terix>() {
     ) {
         val nightVision = nightVisionString?.let {
             val ordinal = specialService.specialStatesFormatted.indexOf(it)
-            specialService.specialStates.value.getOrNull(ordinal)
+            specialService.specialStates.getOrNull(ordinal)
         }
         if (nightVision != null && !specialService.isValidTrigger(nightVision)) {
             return lang.generic.error[

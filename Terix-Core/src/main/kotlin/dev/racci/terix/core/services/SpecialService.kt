@@ -8,7 +8,6 @@ import dev.racci.minix.api.extensions.inNether
 import dev.racci.minix.api.extensions.inOverworld
 import dev.racci.minix.api.extensions.isDay
 import dev.racci.minix.api.extensions.isNight
-import dev.racci.minix.api.utils.kotlin.ifInitialized
 import dev.racci.terix.api.OriginService
 import dev.racci.terix.api.Terix
 import dev.racci.terix.api.origins.enums.Trigger
@@ -18,7 +17,7 @@ import org.bukkit.entity.Player
 @MappedExtension(Terix::class, "Special Service", [OriginService::class])
 class SpecialService(override val plugin: Terix) : Extension<Terix>() {
 
-    val specialStates = lazy {
+    val specialStates by lazy {
         persistentListOf(
             Trigger.ON,
             Trigger.OFF,
@@ -28,15 +27,20 @@ class SpecialService(override val plugin: Terix) : Extension<Terix>() {
             Trigger.OVERWORLD,
         )
     }
-    val specialStatesFormatted by lazy { specialStates.value.map { it.formatted("_", false) }.toTypedArray() }
+    val specialStatesFormatted by lazy { specialStates.map { it.formatted("_", false) }.toTypedArray() }
 
-    override suspend fun handleUnload() {
-        specialStates.ifInitialized { clear() }
-    }
+    fun isValidTrigger(trigger: Trigger) = specialStates.contains(trigger)
 
-    fun isValidTrigger(trigger: Trigger) = specialStates.value.contains(trigger)
-
-    fun getToggle(player: Player, trigger: Trigger) = when (trigger) {
+    /**
+     * Gets the opposite of the given trigger in the form of on or off.
+     *
+     * @param player The player to get the opposite trigger for.
+     * @param trigger The trigger to get the opposite of.
+     */
+    fun getToggle(
+        player: Player,
+        trigger: Trigger
+    ) = when (trigger) {
         Trigger.ON -> Trigger.OFF
         Trigger.OFF -> Trigger.ON
         Trigger.NIGHT -> if (player.isNight()) Trigger.ON else Trigger.OFF
