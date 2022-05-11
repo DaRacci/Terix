@@ -42,10 +42,6 @@ import kotlin.time.Duration
 
 @MappedExtension(Terix::class, "Command Service", [OriginService::class, GUIService::class, SpecialService::class])
 class CommandService(override val plugin: Terix) : Extension<Terix>() {
-    private val guiService by inject<GUIService>()
-    private val originService by inject<OriginServiceImpl>()
-    private val specialService by inject<SpecialService>()
-    private val config by inject<DataService>().inject<Config>()
     private val lang by inject<DataService>().inject<Lang>()
 
     override suspend fun handleEnable() {
@@ -134,7 +130,7 @@ class CommandService(override val plugin: Terix) : Extension<Terix>() {
                 arg<EntitySelectorArgument>("target", EntitySelectorArgument.EntitySelector.ONE_PLAYER)
             }
 
-            execute { sender, args -> plugin.launchAsync { getOrigin(sender, args.getCast(0)!!) } }
+            execute { sender, args -> plugin.launchAsync { getOrigin(sender, args.getCast(0)) } }
         }
 
         subcommand("get") {
@@ -145,7 +141,7 @@ class CommandService(override val plugin: Terix) : Extension<Terix>() {
     }
 
     private fun CommandAPICommand.addSetCommands() {
-        val suggestions = ArgumentSuggestions.strings { originService.registeredOrigins }
+        val suggestions = ArgumentSuggestions.strings { OriginServiceImpl.getService().registeredOrigins }
         subcommand("set") {
             permission = CommandPermission.fromString("terix.origin.set")
 
@@ -162,7 +158,7 @@ class CommandService(override val plugin: Terix) : Extension<Terix>() {
         subcommand("menu") {
             permission = CommandPermission.fromString("terix.origin.menu")
 
-            executePlayer { player, _ -> guiService.baseGui.value.show(player) }
+            executePlayer { player, _ -> GUIService.getService().baseGui.value.show(player) }
         }
 
         subcommand("menu") {
@@ -170,7 +166,7 @@ class CommandService(override val plugin: Terix) : Extension<Terix>() {
             withArguments(EntitySelectorArgument("target", EntitySelectorArgument.EntitySelector.ONE_PLAYER))
 
             // TODO: Message response
-            execute { _, args -> guiService.baseGui.value.show(args.getCast(0)!!) }
+            execute { _, args -> GUIService.getService().baseGui.value.show(args.getCast(0)) }
         }
     }
 
@@ -193,7 +189,7 @@ class CommandService(override val plugin: Terix) : Extension<Terix>() {
     ) {
         subcommand(name) {
             arguments {
-                arg<StringArgument>("trigger").replaceSuggestions(ArgumentSuggestions.strings { specialService.specialStatesFormatted })
+                arg<StringArgument>("trigger").replaceSuggestions(ArgumentSuggestions.strings { SpecialService.getService().specialStatesFormatted })
             }
             setRequirements { sender -> sender is Player && requirements(sender) }
 
@@ -221,7 +217,7 @@ class CommandService(override val plugin: Terix) : Extension<Terix>() {
                         "database.choices.${if (target == sender) "self" else "other"}",
                         "changed" to { changed },
                         "player" to { target.displayName() },
-                        "choices" to { config.freeChanges - target.usedChoices }
+                        "choices" to { DataService.getService().get<Config>().freeChanges - target.usedChoices }
                     ] message sender
                 }
 
@@ -230,7 +226,7 @@ class CommandService(override val plugin: Terix) : Extension<Terix>() {
                     arguments { arg<EntitySelectorArgument>("target", EntitySelectorArgument.EntitySelector.ONE_PLAYER) }
 
                     execute { commandSender, anies ->
-                        val target = anies.getCast<Player>(0)!!
+                        val target = anies.getCast<Player>(0)
                         target.usedChoices--
                         message(commandSender, target, "now ")
                     }
@@ -241,7 +237,7 @@ class CommandService(override val plugin: Terix) : Extension<Terix>() {
                     arguments { arg<EntitySelectorArgument>("target", EntitySelectorArgument.EntitySelector.ONE_PLAYER) }
 
                     execute { commandSender, anies ->
-                        val target = anies.getCast<Player>(0)!!
+                        val target = anies.getCast<Player>(0)
                         target.usedChoices++
                         message(commandSender, target, "now ")
                     }
@@ -252,7 +248,7 @@ class CommandService(override val plugin: Terix) : Extension<Terix>() {
                     arguments { arg<EntitySelectorArgument>("target", EntitySelectorArgument.EntitySelector.ONE_PLAYER) }
 
                     execute { commandSender, anies ->
-                        val target = anies.getCast<Player>(0)!!
+                        val target = anies.getCast<Player>(0)
                         target.usedChoices = 0
                         message(commandSender, target, "now ")
                     }
@@ -263,8 +259,8 @@ class CommandService(override val plugin: Terix) : Extension<Terix>() {
                     arguments { arg<EntitySelectorArgument>("target", EntitySelectorArgument.EntitySelector.ONE_PLAYER) }
 
                     execute { commandSender, anies ->
-                        val target = anies.getCast<Player>(0)!!
-                        target.usedChoices = config.freeChanges
+                        val target = anies.getCast<Player>(0)
+                        target.usedChoices = DataService.getService().get<Config>().freeChanges
                         message(commandSender, target, "")
                     }
                 }
@@ -283,7 +279,7 @@ class CommandService(override val plugin: Terix) : Extension<Terix>() {
         }
 
         lang[
-            "origin.getOriginFromName.${if (target == sender) "self" else "other"}",
+            "origin.get.${if (target == sender) "self" else "other"}",
             "origin" to { origin.displayName },
             "player" to { target.displayName() },
         ] message sender
@@ -299,7 +295,7 @@ class CommandService(override val plugin: Terix) : Extension<Terix>() {
                 "message" to { "This command must have a target or be sent by a Player." }
             ] message sender
         }
-        val origin = originService.getOriginOrNull(originString.lowercase()) ?: run {
+        val origin = OriginServiceImpl.getService().getOriginOrNull(originString.lowercase()) ?: run {
             return lang.generic.error[
                 "message" to { "Invalid origin: $originString." },
             ] message sender
@@ -325,17 +321,17 @@ class CommandService(override val plugin: Terix) : Extension<Terix>() {
         nightVisionString: String? = null
     ) {
         val nightVision = nightVisionString?.let {
-            val ordinal = specialService.specialStatesFormatted.indexOf(it)
-            specialService.specialStates.getOrNull(ordinal)
+            val ordinal = SpecialService.getService().specialStatesFormatted.indexOf(it)
+            SpecialService.getService().specialStates.getOrNull(ordinal)
         }
-        if (nightVision != null && !specialService.isValidTrigger(nightVision)) {
+        if (nightVision != null && !SpecialService.getService().isValidTrigger(nightVision)) {
             return lang.generic.error[
                 "message" to { "Invalid trigger: $nightVision." },
             ] message player
         }
 
         val current = player.nightVision
-        val new = nightVision ?: specialService.getToggle(player, current)
+        val new = nightVision ?: SpecialService.getService().getToggle(player, current)
         player.nightVision = new
         log.debug { new.fulfilled(player) }
 
