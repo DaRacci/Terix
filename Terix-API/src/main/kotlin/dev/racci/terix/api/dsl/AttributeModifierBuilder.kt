@@ -36,8 +36,12 @@ class AttributeModifierBuilder() {
     fun build(): AttributeModifier =
         AttributeModifier(
             uuid,
-            name,
+            name.takeUnless { it.isBlank() || !it.matches(regex) } ?: error("Invalid name. Was blank or didn't match ${regex.pattern}: $name"),
             amount.toDouble(),
             operation
         )
+
+    companion object {
+        val regex = Regex("origin_modifier_(?<origin>[a-z]+)_(?<trigger>[a-z]+)")
+    }
 }
