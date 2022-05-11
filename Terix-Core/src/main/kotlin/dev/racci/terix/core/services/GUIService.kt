@@ -261,4 +261,6 @@ class GUIService(override val plugin: Terix) : Extension<Terix>() {
     private fun HumanEntity.shieldSound() {
         playSound(Sound.sound(Key.key("item.shield.break"), Sound.Source.MASTER, 1f, 0.5f))
     }
+
+    companion object : ExtensionCompanion<GUIService>()
 }
