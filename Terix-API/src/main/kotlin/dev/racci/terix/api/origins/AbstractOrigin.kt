@@ -69,7 +69,6 @@ import org.bukkit.event.player.PlayerRiptideEvent
 import org.bukkit.potion.PotionEffect
 import org.spigotmc.event.entity.EntityDismountEvent
 import org.spigotmc.event.entity.EntityMountEvent
-import sun.jvm.hotspot.oops.CellTypeState.value
 import java.time.Duration
 import kotlin.reflect.KClass
 
@@ -102,7 +101,6 @@ abstract class AbstractOrigin : WithPlugin<MinixPlugin> {
     val damageTicks: MutableMap<Trigger, Double> by lazy(::mutableMapOf)
     val triggerBlocks: MutableMap<Trigger, suspend (Player) -> Unit> by lazy(::mutableMapOf)
 
-    val damageMultipliers: MutableMap<EntityDamageEvent.DamageCause, Double> by lazy(::mutableMapOf)
     val damageActions: MutableMap<EntityDamageEvent.DamageCause, suspend EntityDamageEvent.() -> Unit> by lazy(::mutableMapOf)
 
     val foodBlocks: MutableMap<Material, suspend (Player) -> Unit> by lazy(::mutableMapOf)
@@ -112,7 +110,7 @@ abstract class AbstractOrigin : WithPlugin<MinixPlugin> {
 
     val abilities: MutableMap<KeyBinding, AbstractAbility> by lazy(::mutableMapOf)
 
-    val item: OriginItem by lazy(::OriginItem)
+    val item: OriginItem = OriginItem()
 
     /**
      * Checks if the player has permission for this origin.
@@ -307,7 +305,7 @@ abstract class AbstractOrigin : WithPlugin<MinixPlugin> {
 
     @MinixDsl
     protected suspend fun item(builder: suspend OriginItem.() -> Unit) {
-        builder(builder())
+        builder(item)
     }
 
     @MinixDsl
@@ -638,7 +636,8 @@ abstract class AbstractOrigin : WithPlugin<MinixPlugin> {
     inner class OriginItem {
 
         var loreComponent: List<Component> = emptyList()
-        var name: Component = displayName
+        var name: Component? = null
+            get() = field ?: displayName
         var material: Material = Material.AIR
 
         /**
@@ -659,7 +658,7 @@ abstract class AbstractOrigin : WithPlugin<MinixPlugin> {
 
     override fun toString(): String {
         return "Origin(name='$name', item=$item, " +
-            "abilities=$abilities, triggerBlocks=$triggerBlocks, damageTicks=$damageTicks, damageMultipliers=$damageMultipliers, " +
+            "abilities=$abilities, triggerBlocks=$triggerBlocks, damageTicks=$damageTicks, " +
             "damageActions=$damageActions, foodPotions=$foodPotions, foodAttributes=$foodAttributes, foodMultipliers=$foodMultipliers)"
     }
 }
