@@ -42,6 +42,8 @@ dependencies {
 
 subprojects {
 
+    val serverVersion: String by rootProject
+
     apply(plugin = "dev.racci.minix.kotlin")
     apply(plugin = "dev.racci.minix.purpurmc")
     apply(plugin = "org.jetbrains.kotlin.plugin.serialization")
@@ -56,12 +58,22 @@ subprojects {
     }
 
     dependencies {
-//        compileOnly("com.github.retrooper.packetevents:spigot:2.0-SNAPSHOT")
-        compileOnly("dev.racci:Minix:2.9.1-SNAPSHOT")
-        compileOnly("dev.racci:Minix-Core:2.9.1-SNAPSHOT")
+        compileOnly("dev.racci:Minix:2.10.1")
+        compileOnly("dev.racci:Minix-Core:2.10.1")
+
+        testImplementation(platform(kotlin("bom")))
+        testImplementation(rootProject.libs.minecraft.minix)
+        testImplementation(rootProject.libs.bundles.kotlin)
+        testImplementation(rootProject.libs.bundles.kotlinx)
+//        testImplementation(rootProject.libs.bundles.testing) {
+//            exclude(group = "org.jetbrains.kotlin", module = "kotlin-test-junit5")
+//        }
+        testImplementation("dev.racci.tentacles:tentacles-api:$serverVersion")
     }
 
     tasks {
+
+        test.get().useJUnitPlatform()
 
         dokkaHtml.get().dokkaSourceSets.configureEach {
             includeNonPublic.set(false)

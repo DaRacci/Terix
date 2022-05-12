@@ -10,6 +10,7 @@ import java.util.UUID
 import kotlin.properties.Delegates
 import kotlin.time.Duration
 
+// TODO: Test but like this requires being able to use the scheduler so i can't test it
 class TimedAttributeBuilder() {
 
     constructor(builder: TimedAttributeBuilder.() -> Unit) : this() {
