@@ -3,8 +3,6 @@ plugins {
 }
 
 val minixVersion: String by rootProject
-val minixAPIVersion: String by rootProject
-val serverVersion: String by rootProject
 
 dependencies {
     compileOnly(rootProject.libs.minecraft.api.placeholderAPI)
@@ -17,14 +15,4 @@ dependencies {
     compileOnly(rootProject.libs.minecraft.inventoryFramework)
     compileOnly(rootProject.libs.minecraft.commandAPI)
     compileOnly("dev.racci:Minix-NMS:$minixVersion")
-
-    testImplementation(rootProject.libs.bundles.testing) {
-        exclude("org.jetbrains.kotlin", "kotlin-test-junit")
-    }
-    testImplementation(rootProject.libs.bundles.kotlin)
-    testImplementation(rootProject.libs.bundles.kotlinx)
-    testImplementation(rootProject.libs.minecraft.minix)
-    testImplementation("dev.racci.tentacles:tentacles-api:$serverVersion")
 }
-
-tasks.test.get().useJUnitPlatform()

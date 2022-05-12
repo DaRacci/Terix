@@ -64,7 +64,7 @@ class PotionEffectBuilder() {
     )
 
     companion object {
-        val regex by lazy { Regex("terix:origin_(?<type>potion|ability|food)_(?<from>[a-z_-]+)?(/(?<trigger>[a-z_-]+))?") }
+        val regex by lazy { Regex("^terix:origin_(?<type>potion|ability|food)_(?<from>[a-z_-]+)?(/(?<trigger>[a-z_-]+))?$") }
 
         fun build(builder: PotionEffectBuilder.() -> Unit): PotionEffect = PotionEffectBuilder(builder).build()
     }

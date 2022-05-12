@@ -10,11 +10,10 @@ import kotlin.properties.Delegates
 class AttributeModifierBuilder() {
 
     constructor(builder: AttributeModifierBuilder.() -> Unit) : this() {
-        builder()
+        builder(this)
     }
 
-    private val uuid by lazy(UUID::randomUUID)
-
+    var uuid: UUID? = null
     var attribute by Delegates.notNull<Attribute>()
     var name by Delegates.notNull<String>()
     var amount by Delegates.notNull<Number>()
@@ -29,13 +28,13 @@ class AttributeModifierBuilder() {
         origin: String,
         trigger: String
     ): AttributeModifierBuilder {
-        name = "origin_modifier_${origin.lowercase()}_${trigger.lowercase()}"
+        name = Companion.originName(origin, trigger)
         return this
     }
 
     fun build(): AttributeModifier =
         AttributeModifier(
-            uuid,
+            uuid ?: UUID.randomUUID(),
             name.takeUnless { it.isBlank() || !it.matches(regex) } ?: error("Invalid name. Was blank or didn't match ${regex.pattern}: $name"),
             amount.toDouble(),
             operation
@@ -43,5 +42,15 @@ class AttributeModifierBuilder() {
 
     companion object {
         val regex = Regex("origin_modifier_(?<origin>[a-z]+)_(?<trigger>[a-z]+)")
+
+        fun originName(
+            origin: AbstractOrigin,
+            trigger: Trigger
+        ) = originName(origin.name, trigger.name)
+
+        fun originName(
+            origin: String,
+            trigger: String
+        ) = "origin_modifier_${origin.lowercase()}_${trigger.lowercase()}"
     }
 }
