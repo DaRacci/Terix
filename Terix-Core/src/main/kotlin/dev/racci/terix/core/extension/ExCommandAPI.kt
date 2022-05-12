@@ -25,9 +25,9 @@ fun CommandAPICommand.subcommand(name: String, block: CommandAPICommand.() -> Un
 }
 
 class ArgBuilder {
-    val args by lazy { mutableListOf<Argument>() }
+    val args by lazy { mutableListOf<Argument<*>>() }
 
-    inline fun <reified A : Argument> arg(name: String, vararg data: Any?): A {
+    inline fun <reified A : Argument<*>> arg(name: String, vararg data: Any?): A {
         val arg = try {
             A::class.constructors.first { it.parameters.size == (data.size + 1) }.call(name, *data)
         } catch (e: Exception) {

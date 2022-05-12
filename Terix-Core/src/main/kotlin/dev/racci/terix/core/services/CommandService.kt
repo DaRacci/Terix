@@ -127,7 +127,7 @@ class CommandService(override val plugin: Terix) : Extension<Terix>() {
         subcommand("get") {
             permission = CommandPermission.fromString("terix.origin.getOriginFromName")
             arguments {
-                arg<EntitySelectorArgument>("target", EntitySelectorArgument.EntitySelector.ONE_PLAYER)
+                arg<EntitySelectorArgument<Player>>("target", EntitySelectorArgument.EntitySelector.ONE_PLAYER)
             }
 
             execute { sender, args -> plugin.launchAsync { getOrigin(sender, args.getCast(0)) } }
@@ -146,11 +146,11 @@ class CommandService(override val plugin: Terix) : Extension<Terix>() {
             permission = CommandPermission.fromString("terix.origin.set")
 
             arguments {
-                arg<EntitySelectorArgument>("target", EntitySelectorArgument.EntitySelector.ONE_PLAYER)
+                arg<EntitySelectorArgument<Player>>("target", EntitySelectorArgument.EntitySelector.ONE_PLAYER)
                 arg<StringArgument>("origin").replaceSuggestions(suggestions)
             }
 
-            execute { sender, args -> plugin.launchAsync { setOrigin(sender, args.getCast(0), args.getCast(1)!!) } }
+            execute { sender, args -> plugin.launchAsync { setOrigin(sender, args.getCast(0), args.getCast(1)) } }
         }
     }
 
@@ -163,7 +163,9 @@ class CommandService(override val plugin: Terix) : Extension<Terix>() {
 
         subcommand("menu") {
             permission = CommandPermission.fromString("terix.origin.menu.others")
-            withArguments(EntitySelectorArgument("target", EntitySelectorArgument.EntitySelector.ONE_PLAYER))
+            arguments {
+                arg<EntitySelectorArgument<Player>>("target", EntitySelectorArgument.EntitySelector.ONE_PLAYER)
+            }
 
             // TODO: Message response
             execute { _, args -> GUIService.getService().baseGui.value.show(args.getCast(0)) }
@@ -223,7 +225,7 @@ class CommandService(override val plugin: Terix) : Extension<Terix>() {
 
                 subcommand("add") {
                     permission = CommandPermission.fromString("terix.origin.database.choice")
-                    arguments { arg<EntitySelectorArgument>("target", EntitySelectorArgument.EntitySelector.ONE_PLAYER) }
+                    arguments { arg<EntitySelectorArgument<Player>>("target", EntitySelectorArgument.EntitySelector.ONE_PLAYER) }
 
                     execute { commandSender, anies ->
                         val target = anies.getCast<Player>(0)
@@ -234,7 +236,7 @@ class CommandService(override val plugin: Terix) : Extension<Terix>() {
 
                 subcommand("remove") {
                     permission = CommandPermission.fromString("terix.origin.database.choice")
-                    arguments { arg<EntitySelectorArgument>("target", EntitySelectorArgument.EntitySelector.ONE_PLAYER) }
+                    arguments { arg<EntitySelectorArgument<Player>>("target", EntitySelectorArgument.EntitySelector.ONE_PLAYER) }
 
                     execute { commandSender, anies ->
                         val target = anies.getCast<Player>(0)
@@ -245,7 +247,7 @@ class CommandService(override val plugin: Terix) : Extension<Terix>() {
 
                 subcommand("reset") {
                     permission = CommandPermission.fromString("terix.origin.database.choice")
-                    arguments { arg<EntitySelectorArgument>("target", EntitySelectorArgument.EntitySelector.ONE_PLAYER) }
+                    arguments { arg<EntitySelectorArgument<Player>>("target", EntitySelectorArgument.EntitySelector.ONE_PLAYER) }
 
                     execute { commandSender, anies ->
                         val target = anies.getCast<Player>(0)
@@ -256,7 +258,7 @@ class CommandService(override val plugin: Terix) : Extension<Terix>() {
 
                 subcommand("get") {
                     permission = CommandPermission.fromString("terix.origin.database.choice")
-                    arguments { arg<EntitySelectorArgument>("target", EntitySelectorArgument.EntitySelector.ONE_PLAYER) }
+                    arguments { arg<EntitySelectorArgument<Player>>("target", EntitySelectorArgument.EntitySelector.ONE_PLAYER) }
 
                     execute { commandSender, anies ->
                         val target = anies.getCast<Player>(0)
@@ -313,7 +315,7 @@ class CommandService(override val plugin: Terix) : Extension<Terix>() {
             "new_origin" to { origin.displayName },
             "player" to { target.displayName() },
         ] message sender
-        PlayerOriginChangeEvent(target, target.origin(), origin).callEvent()
+        PlayerOriginChangeEvent(target, target.origin(), origin, true).callEvent()
     }
 
     private fun nightvision(
