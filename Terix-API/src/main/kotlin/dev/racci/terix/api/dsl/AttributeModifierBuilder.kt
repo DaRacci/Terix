@@ -36,7 +36,7 @@ class AttributeModifierBuilder() {
         AttributeModifier(
             uuid ?: UUID.randomUUID(),
             name.takeUnless { it.isBlank() || !it.matches(regex) } ?: error("Invalid name. Was blank or didn't match ${regex.pattern}: $name"),
-            amount.toDouble(),
+            amount as? Double ?: amount.toDouble(),
             operation
         )
 
