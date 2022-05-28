@@ -26,20 +26,20 @@ import dev.racci.terix.api.dsl.AttributeModifierBuilder
 import dev.racci.terix.api.dsl.PotionEffectBuilder
 import dev.racci.terix.api.ensureMainThread
 import dev.racci.terix.api.events.PlayerOriginChangeEvent
+import dev.racci.terix.api.extensions.playSound
 import dev.racci.terix.api.origins.enums.Trigger
 import dev.racci.terix.api.origins.enums.Trigger.Companion.getTrigger
 import dev.racci.terix.core.data.Config
 import dev.racci.terix.core.data.Lang
 import dev.racci.terix.core.data.PlayerData
-import dev.racci.terix.core.extension.activeTriggers
-import dev.racci.terix.core.extension.message
-import dev.racci.terix.core.extension.nightVision
-import dev.racci.terix.core.extension.origin
-import dev.racci.terix.core.extension.originTime
+import dev.racci.terix.core.extensions.activeTriggers
+import dev.racci.terix.core.extensions.message
+import dev.racci.terix.core.extensions.nightVision
+import dev.racci.terix.core.extensions.origin
+import dev.racci.terix.core.extensions.originTime
 import dev.racci.terix.core.origins.invokeAdd
 import dev.racci.terix.core.origins.invokeBase
 import dev.racci.terix.core.origins.invokeReload
-import dev.racci.terix.core.origins.invokeRemovalFor
 import dev.racci.terix.core.origins.invokeRemove
 import dev.racci.terix.core.origins.invokeSwap
 import kotlinx.coroutines.delay
@@ -71,6 +71,7 @@ class ListenerService(override val plugin: Terix) : Extension<Terix>() {
     private val config by inject<DataService>().inject<Config>()
     private val lang by inject<DataService>().inject<Lang>()
 
+    @Suppress("kotlin:S3776")
     override suspend fun handleEnable() {
         event<BeaconEffectEvent>(priority = EventPriority.LOWEST) {
             val potion = player.getPotionEffect(effect.type) ?: return@event
@@ -101,19 +102,20 @@ class ListenerService(override val plugin: Terix) : Extension<Terix>() {
         event<PlayerJoinEvent>(forceAsync = true) {
 
             val origin = player.origin()
-            val activeTriggers = player.activeTriggers().map { it.name.lowercase() }
+            val activeTriggers = player.activeTriggers()
+            val activeTriggersStr = activeTriggers.map { it.name.lowercase() }
 
             val potions = mutableListOf<PotionEffectType>()
-            if (origin.nightVision && player.nightVision.name.lowercase() !in activeTriggers) potions.add(PotionEffectType.NIGHT_VISION)
+            if (origin.nightVision && player.nightVision.name.lowercase() !in activeTriggersStr) potions.add(PotionEffectType.NIGHT_VISION)
             for (potion in player.activePotionEffects) {
                 val key = potion.key?.asString() ?: continue
                 val match = PotionEffectBuilder.regex.find(key)?.groups?.get("trigger") ?: continue
-                if (match.value in activeTriggers) continue
+                if (match.value in activeTriggersStr) continue
 
                 potions += potion.type
             }
             ensureMainThread { potions.forEach(player::removePotionEffect) }
-            removeUnfulfilledAttributes(player, activeTriggers)
+            removeUnfulfilledOrInvalidAttributes(player, activeTriggers)
 
             // Trigger.invokeBase(player) // I don't think this is needed anymore
             // player.world.environment.getTrigger().invokeAdd(player) // Also may not be needed
@@ -122,7 +124,7 @@ class ListenerService(override val plugin: Terix) : Extension<Terix>() {
         }
 
         event<PlayerPostRespawnEvent>(forceAsync = true) {
-            removeUnfulfilledAttributes(player)
+            removeUnfulfilledOrInvalidAttributes(player)
             Trigger.invokeBase(player)
             player.world.environment.getTrigger().invokeAdd(player)
             player.health = player.maxHealth
@@ -142,15 +144,21 @@ class ListenerService(override val plugin: Terix) : Extension<Terix>() {
         event<PlayerEnterLiquidEvent> { Trigger.values().find { it.name == newType.name }?.invokeAdd(player) }
         event<PlayerExitLiquidEvent> { Trigger.values().find { it.name == previousType.name }?.invokeRemove(player) }
 
-        event<WorldNightEvent>(forceAsync = true) { timeTrigger(Trigger.NIGHT) }
-        event<WorldDayEvent>(forceAsync = true) { timeTrigger(Trigger.DAY) }
+        event<WorldNightEvent>(forceAsync = true) {
+            log.debug { "Night event triggered." }
+            timeTrigger(Trigger.NIGHT)
+        }
+        event<WorldDayEvent>(forceAsync = true) {
+            log.debug { "Day event triggered." }
+            timeTrigger(Trigger.DAY)
+        }
 
         event<PlayerChangedWorldEvent>(forceAsync = true) {
             val fromTrigger = from.environment.getTrigger()
             val toTrigger = player.world.environment.getTrigger()
             if (fromTrigger == toTrigger) return@event
             if (fromTrigger.ordinal == 4 && toTrigger.ordinal != 4) {
-                Trigger.invokeRemovalFor(player, Trigger.DAY, Trigger.NIGHT)
+                (if (from.isDayTime) Trigger.DAY else Trigger.NIGHT).invokeRemove(player)
             }
             toTrigger.invokeSwap(fromTrigger, player)
             player.origin().titles[toTrigger]?.invoke(player)
@@ -160,9 +168,11 @@ class ListenerService(override val plugin: Terix) : Extension<Terix>() {
             ignoreCancelled = true,
             priority = EventPriority.LOWEST
         ) {
-            if (entity !is Player) return@event
+            val player = entity as? Player ?: return@event
             if (entity.unsafeCast<Player>().origin().damageActions[cause]?.invoke(this) != null && damage == 0.0) return@event cancel()
 
+            val sound = player.origin().hurtSound
+            player.location.playSound(sound.asString(), source = player)
             sound(entity as Player, false)
         }
 
@@ -196,15 +206,14 @@ class ListenerService(override val plugin: Terix) : Extension<Terix>() {
             ignoreCancelled = true,
             priority = EventPriority.LOWEST
         ) {
+            val now = now()
             if (!bypassCooldown &&
-                now() - player.originTime < config.intervalBeforeChange
+                player.originTime + config.intervalBeforeChange > now
             ) return@event cancel()
 
-            player.originTime = now()
-            newSuspendedTransaction {
-                PlayerData[player.uniqueId].origin = newOrigin
-            }
-            Trigger.invokeReload(player)
+            if (!bypassCooldown) player.originTime = now
+            newSuspendedTransaction { PlayerData[player.uniqueId].origin = newOrigin }
+            Trigger.invokeReload(player, preOrigin, newOrigin) // TODO: This should cover the removeUnfulfilled method
 
             lang.origin.broadcast[
                 "player" to { player.displayName() },
@@ -213,21 +222,36 @@ class ListenerService(override val plugin: Terix) : Extension<Terix>() {
             ] message onlinePlayers
 
             if (config.showTitleOnChange) newOrigin.becomeOriginTitle?.invoke(player)
+            removeUnfulfilledOrInvalidAttributes(player)
         }
     }
 
-    private fun removeUnfulfilledAttributes(
+    private fun removeUnfulfilledOrInvalidAttributes(
         player: Player,
-        activeTriggers: List<String> = player.activeTriggers().map { it.name.lowercase() }
+        activeTriggers: List<Trigger> = player.activeTriggers()
     ) {
         for (attribute in Attribute.values()) {
             val inst = player.getAttribute(attribute) ?: continue
 
             for (modifier in inst.modifiers) {
-                val match = AttributeModifierBuilder.regex.find(modifier.name)?.groups?.get("trigger") ?: continue
-                if (match.value in activeTriggers) continue
+                val match = AttributeModifierBuilder.regex.find(modifier.name)?.groups ?: continue
+                val trigger = Trigger.valueOf(match["trigger"]!!.value.uppercase())
 
-                inst.removeModifier(modifier)
+                if (trigger !in activeTriggers ||
+                    match["origin"]!!.value != player.origin().name.lowercase()
+                ) {
+                    inst.removeModifier(modifier)
+                    continue
+                }
+
+                // Make sure the attribute is unchanged
+                player.origin().attributeModifiers[trigger]?.firstOrNull {
+                    it.first == attribute &&
+                        it.second.name == modifier.name &&
+                        it.second.amount == modifier.amount &&
+                        it.second.operation == modifier.operation &&
+                        it.second.slot == modifier.slot
+                } ?: inst.removeModifier(modifier)
             }
         }
     }
@@ -248,23 +272,7 @@ class ListenerService(override val plugin: Terix) : Extension<Terix>() {
         player: Player,
         death: Boolean
     ) {
-        val (x, y, z) = player.location
-        val world = player.world.toNMS()
         val sound = if (death) player.origin().deathSound else player.origin().hurtSound
-
-        world.server.playerList
-            .broadcast(
-                player.toNMS(),
-                x, y, z,
-                16.0,
-                world.dimension(),
-                ClientboundCustomSoundPacket(
-                    ResourceLocation(sound.asString()),
-                    SoundSource.PLAYERS,
-                    Vec3(x, y, z),
-                    1.0f,
-                    1.0f
-                )
-            )
+        player.location.playSound(sound.asString(), source = player)
     }
 }
