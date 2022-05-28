@@ -43,12 +43,12 @@ class SpecialService(override val plugin: Terix) : Extension<Terix>() {
     ) = when (trigger) {
         Trigger.ON -> Trigger.OFF
         Trigger.OFF -> Trigger.ON
-        Trigger.NIGHT -> if (player.isNight()) Trigger.ON else Trigger.OFF
-        Trigger.DAY -> if (player.isDay()) Trigger.ON else Trigger.OFF
+        Trigger.NIGHT -> if (player.isNight) Trigger.ON else Trigger.OFF
+        Trigger.DAY -> if (player.isDay) Trigger.ON else Trigger.OFF
         Trigger.DARKNESS -> if (player.location.block.lightLevel > 8) Trigger.ON else Trigger.OFF
-        Trigger.NETHER -> if (player.inNether()) Trigger.OFF else Trigger.ON
-        Trigger.OVERWORLD -> if (player.inOverworld()) Trigger.OFF else Trigger.ON
-        Trigger.THE_END -> if (player.inEnd()) Trigger.OFF else Trigger.ON
+        Trigger.NETHER -> if (player.inNether) Trigger.OFF else Trigger.ON
+        Trigger.OVERWORLD -> if (player.inOverworld) Trigger.OFF else Trigger.ON
+        Trigger.THE_END -> if (player.inEnd) Trigger.OFF else Trigger.ON
         else -> error { "Unknown special trigger: $trigger" }
     }
 
