@@ -25,7 +25,10 @@ class SoundService(override val plugin: Terix) : Extension<Terix>() {
                 override fun onPacketSending(event: PacketEvent) {
                     if (event.packet.soundCategories.read(0) == EnumWrappers.SoundCategory.PLAYERS &&
                         event.packet.soundEffects.read(0) in lazyCollection
-                    ) event.cancel()
+                    ) {
+                        log.debug { "Cancelling sound packet from ${event.player.name}" }
+                        event.cancel()
+                    }
                 }
             }
         )

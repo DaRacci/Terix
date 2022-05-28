@@ -4,7 +4,7 @@ import dev.racci.minix.api.extensions.parse
 import dev.racci.terix.api.Terix
 import dev.racci.terix.api.origins.AbstractOrigin
 import dev.racci.terix.api.origins.enums.Trigger
-import net.kyori.adventure.key.Key
+import dev.racci.terix.api.origins.sounds.SoundEffect
 import net.kyori.adventure.text.format.NamedTextColor
 import org.bukkit.Material
 import org.bukkit.potion.PotionEffectType
@@ -13,10 +13,12 @@ class HumanOrigin(override val plugin: Terix) : AbstractOrigin() {
 
     override val name = "Human"
     override val colour = NamedTextColor.GRAY!!
-    override val hurtSound = Key.key("minecraft", "entity.player.hurt")
-    override val deathSound = Key.key("minecraft", "entity.player.death")
 
     override suspend fun onRegister() {
+        sounds.hurtSound = SoundEffect("entity.player.hurt")
+        sounds.deathSound = SoundEffect("entity.player.death")
+        sounds.ambientSound = SoundEffect("entity.player.burp")
+
         potions {
             Trigger.ON += {
                 type = PotionEffectType.DAMAGE_RESISTANCE

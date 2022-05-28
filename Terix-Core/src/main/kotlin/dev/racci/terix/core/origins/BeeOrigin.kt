@@ -10,10 +10,12 @@ class BeeOrigin(override val plugin: Terix) : AbstractOrigin() {
 
     override val name = "Bee"
     override val colour = NamedTextColor.GOLD!!
-    override val hurtSound = Key.key("entity.bee.hurt")
-    override val deathSound = Key.key("entity.bee.death")
 
     override suspend fun onRegister() {
+        sounds.hurtSound = SoundEffect("entity.bee.hurt")
+        sounds.deathSound = SoundEffect("entity.bee.death")
+        sounds.ambientSound = SoundEffect("entity.bee.ambient")
+
         item {
             material = Material.HONEYCOMB
             lore = """

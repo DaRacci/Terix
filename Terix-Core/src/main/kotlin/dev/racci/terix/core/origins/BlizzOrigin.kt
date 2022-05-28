@@ -2,7 +2,7 @@ package dev.racci.terix.core.origins
 
 import dev.racci.terix.api.Terix
 import dev.racci.terix.api.origins.AbstractOrigin
-import net.kyori.adventure.key.Key
+import dev.racci.terix.api.origins.sounds.SoundEffect
 import net.kyori.adventure.text.format.NamedTextColor
 import org.bukkit.Material
 
@@ -10,10 +10,12 @@ class BlizzOrigin(override val plugin: Terix) : AbstractOrigin() {
 
     override val name = "Blizz"
     override val colour = NamedTextColor.GOLD!!
-    override val hurtSound = Key.key("minecraft", "entity.snowgolem.hurt")
-    override val deathSound = Key.key("minecraft", "entity.snowgolem.death")
 
     override suspend fun onRegister() {
+        sounds.hurtSound = SoundEffect("entity.panda.bite")
+        sounds.deathSound = SoundEffect("entity.squid.death")
+        sounds.ambientSound = SoundEffect("entity.skeleton_horse.ambient")
+
         item {
             material = Material.SNOWBALL
             lore = """

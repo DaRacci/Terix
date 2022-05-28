@@ -10,6 +10,7 @@ import dev.racci.minix.nms.aliases.toNMS
 import dev.racci.terix.api.Terix
 import dev.racci.terix.api.origins.AbstractOrigin
 import dev.racci.terix.api.origins.enums.Trigger
+import dev.racci.terix.api.origins.sounds.SoundEffect
 import kotlinx.coroutines.NonCancellable.cancel
 import kotlinx.coroutines.delay
 import net.kyori.adventure.key.Key
@@ -28,8 +29,6 @@ class SlimeOrigin(override val plugin: Terix) : AbstractOrigin() {
 
     override val name = "Slime"
     override val colour = NamedTextColor.LIGHT_PURPLE!!
-    override val hurtSound = Key.key("minecraft", "entity.slime.hurt")
-    override val deathSound = Key.key("minecraft", "entity.slime.death")
 
     private val playerHealthCache = Caffeine.newBuilder()
         .expireAfterAccess(Duration.ofSeconds(15))
@@ -55,6 +54,10 @@ class SlimeOrigin(override val plugin: Terix) : AbstractOrigin() {
         }
 
     override suspend fun onRegister() {
+        sounds.hurtSound = SoundEffect("entity.slime.hurt")
+        sounds.deathSound = SoundEffect("entity.slime.death")
+        sounds.ambientSound = SoundEffect("entity.slime.ambient")
+
         potions {
             Trigger.ON += {
                 type = PotionEffectType.JUMP
