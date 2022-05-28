@@ -121,6 +121,8 @@ class Lang : IConfig() {
         var getOther: PartialComponent = PartialComponent.of("<prefix_origins><player>'s origin is <origin>.")
 
         var nightVision: PartialComponent = PartialComponent.of("<prefix_origins>Your night vision now triggers on: <new_nightvision>.")
+
+        var onChangeCooldown: PartialComponent = PartialComponent.of("<prefix_origins>You can't change your origin for another <cooldown>.")
     }
 
     @ConfigSerializable
