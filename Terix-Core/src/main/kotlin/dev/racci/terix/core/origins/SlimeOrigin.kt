@@ -13,7 +13,6 @@ import dev.racci.terix.api.origins.enums.Trigger
 import dev.racci.terix.api.origins.sounds.SoundEffect
 import kotlinx.coroutines.NonCancellable.cancel
 import kotlinx.coroutines.delay
-import net.kyori.adventure.key.Key
 import net.kyori.adventure.text.format.NamedTextColor
 import org.bukkit.Material
 import org.bukkit.attribute.Attribute
