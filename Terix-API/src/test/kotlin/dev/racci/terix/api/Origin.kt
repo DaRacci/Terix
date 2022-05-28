@@ -5,7 +5,6 @@ import dev.racci.minix.api.plugin.MinixPlugin
 import dev.racci.terix.api.dsl.TitleBuilder
 import dev.racci.terix.api.origins.AbstractOrigin
 import dev.racci.terix.api.origins.enums.Trigger
-import net.kyori.adventure.key.Key
 import net.kyori.adventure.text.format.NamedTextColor
 import org.bukkit.attribute.Attribute
 import org.bukkit.potion.PotionEffectType

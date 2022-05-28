@@ -20,7 +20,6 @@ import dev.racci.minix.api.services.DataService.Companion.inject
 import dev.racci.minix.api.utils.kotlin.invokeIfNotNull
 import dev.racci.minix.api.utils.now
 import dev.racci.minix.api.utils.unsafeCast
-import dev.racci.minix.nms.aliases.toNMS
 import dev.racci.terix.api.Terix
 import dev.racci.terix.api.dsl.AttributeModifierBuilder
 import dev.racci.terix.api.dsl.PotionEffectBuilder
@@ -43,10 +42,7 @@ import dev.racci.terix.core.origins.invokeReload
 import dev.racci.terix.core.origins.invokeRemove
 import dev.racci.terix.core.origins.invokeSwap
 import kotlinx.coroutines.delay
-import net.minecraft.network.protocol.game.ClientboundCustomSoundPacket
-import net.minecraft.resources.ResourceLocation
-import net.minecraft.sounds.SoundSource
-import net.minecraft.world.phys.Vec3
+import net.kyori.adventure.sound.Sound.sound
 import org.bukkit.attribute.Attribute
 import org.bukkit.entity.Player
 import org.bukkit.event.EventPriority
@@ -171,15 +167,17 @@ class ListenerService(override val plugin: Terix) : Extension<Terix>() {
             val player = entity as? Player ?: return@event
             if (entity.unsafeCast<Player>().origin().damageActions[cause]?.invoke(this) != null && damage == 0.0) return@event cancel()
 
-            val sound = player.origin().hurtSound
-            player.location.playSound(sound.asString(), source = player)
-            sound(entity as Player, false)
+            val sound = player.origin().sounds.hurtSound
+            player.location.playSound(sound.resourceKey.asString(), sound.volume, sound.pitch, sound.distance, player)
         }
 
         event<PlayerDeathEvent>(
             ignoreCancelled = true,
             priority = EventPriority.LOWEST
-        ) { sound(player, true) }
+        ) {
+            val sound = player.origin().sounds.deathSound
+            player.location.playSound(sound.resourceKey.asString(), sound.volume, sound.pitch, sound.distance, player)
+        }
 
         event<FoodLevelChangeEvent>(
             ignoreCancelled = true,
@@ -265,14 +263,5 @@ class ListenerService(override val plugin: Terix) : Extension<Terix>() {
                     titles[Trigger.DAY]?.invoke(player)
                 }
             }
-    }
-
-    /* True for death sound false for hurt sound */
-    private fun sound(
-        player: Player,
-        death: Boolean
-    ) {
-        val sound = if (death) player.origin().deathSound else player.origin().hurtSound
-        player.location.playSound(sound.asString(), source = player)
     }
 }
