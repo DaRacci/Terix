@@ -4,6 +4,8 @@ import dev.racci.minix.api.extensions.parse
 import dev.racci.terix.api.Terix
 import dev.racci.terix.api.origins.AbstractOrigin
 import dev.racci.terix.api.origins.enums.Trigger
+import dev.racci.terix.api.origins.sounds.SoundEffect
+import kotlinx.datetime.Instant
 import net.kyori.adventure.key.Key
 import net.kyori.adventure.text.format.NamedTextColor
 import org.bukkit.Material
@@ -14,12 +16,14 @@ class VampireOrigin(override val plugin: Terix) : AbstractOrigin() {
 
     override val name = "Vampire"
     override val colour = NamedTextColor.DARK_RED!!
-    override val hurtSound = Key.key("minecraft", "entity.bat.hurt")
-    override val deathSound = Key.key("minecraft", "entity.bat.death")
 
     override val nightVision = true
 
     override suspend fun onRegister() {
+        sounds.hurtSound = SoundEffect("entity.bat.hurt")
+        sounds.deathSound = SoundEffect("entity.bat.death")
+        sounds.ambientSound = SoundEffect("entity.bat.ambient")
+
         damage {
             Trigger.SUNLIGHT += 100.0
         }

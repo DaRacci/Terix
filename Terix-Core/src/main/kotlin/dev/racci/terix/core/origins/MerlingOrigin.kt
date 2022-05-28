@@ -6,7 +6,7 @@ import dev.racci.terix.api.Terix
 import dev.racci.terix.api.dsl.PotionEffectBuilder
 import dev.racci.terix.api.dsl.TimedAttributeBuilder
 import dev.racci.terix.api.origins.AbstractOrigin
-import net.kyori.adventure.key.Key
+import dev.racci.terix.api.origins.sounds.SoundEffect
 import net.kyori.adventure.text.format.NamedTextColor
 import org.bukkit.Material
 import org.bukkit.attribute.Attribute
@@ -23,6 +23,10 @@ class MerlingOrigin(override val plugin: Terix) : AbstractOrigin() {
     override val deathSound = Key.key("entity.salmon.death")
 
     override suspend fun onRegister() {
+        sounds.hurtSound = SoundEffect("entity.salmon.hurt")
+        sounds.deathSound = SoundEffect("entity.salmon.death")
+        sounds.ambientSound = SoundEffect("entity.salmon.ambient")
+
         item {
             material = Material.TRIDENT
             lore = """

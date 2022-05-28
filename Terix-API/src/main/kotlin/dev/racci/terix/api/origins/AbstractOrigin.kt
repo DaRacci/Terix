@@ -84,9 +84,6 @@ abstract class AbstractOrigin : WithPlugin<MinixPlugin> {
     open val colour: TextColor = NamedTextColor.WHITE
     open val displayName: Component by lazy { Component.text(name).color(colour) }
 
-    open val hurtSound: Key = Key.key("entity.player.hurt")
-    open val deathSound: Key = Key.key("entity.player.death")
-
     open val nightVision: Boolean = false
     open val waterBreathing: Boolean = false
     open val fireImmune: Boolean = false
@@ -111,6 +108,7 @@ abstract class AbstractOrigin : WithPlugin<MinixPlugin> {
     val abilities: MutableMap<KeyBinding, AbstractAbility> by lazy(::mutableMapOf)
 
     val item: OriginItem = OriginItem()
+    val sounds: SoundEffects = SoundEffects()
 
     /**
      * Checks if the player has permission for this origin.
