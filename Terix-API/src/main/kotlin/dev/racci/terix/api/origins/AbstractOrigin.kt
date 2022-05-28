@@ -26,7 +26,6 @@ import dev.racci.minix.api.events.PlayerShiftLeftClickEvent
 import dev.racci.minix.api.events.PlayerShiftOffhandEvent
 import dev.racci.minix.api.events.PlayerShiftRightClickEvent
 import dev.racci.minix.api.extensions.WithPlugin
-import dev.racci.minix.api.extensions.parse
 import dev.racci.minix.api.plugin.MinixPlugin
 import dev.racci.minix.api.utils.collections.MultiMap
 import dev.racci.minix.api.utils.collections.multiMapOf
@@ -41,14 +40,14 @@ import dev.racci.terix.api.dsl.TitleBuilder
 import dev.racci.terix.api.events.PlayerOriginChangeEvent
 import dev.racci.terix.api.origins.enums.KeyBinding
 import dev.racci.terix.api.origins.enums.Trigger
-import net.kyori.adventure.key.Key
+import dev.racci.terix.api.origins.sounds.SoundEffects
 import net.kyori.adventure.text.Component
 import net.kyori.adventure.text.format.NamedTextColor
 import net.kyori.adventure.text.format.TextColor
-import net.kyori.adventure.text.minimessage.MiniMessage
 import org.bukkit.Material
 import org.bukkit.attribute.Attribute
 import org.bukkit.attribute.AttributeModifier
+import org.bukkit.block.Biome
 import org.bukkit.entity.Player
 import org.bukkit.event.block.BlockBreakEvent
 import org.bukkit.event.block.BlockPlaceEvent
@@ -61,6 +60,7 @@ import org.bukkit.event.entity.EntityToggleGlideEvent
 import org.bukkit.event.entity.EntityToggleSwimEvent
 import org.bukkit.event.entity.PlayerDeathEvent
 import org.bukkit.event.entity.ProjectileHitEvent
+import org.bukkit.event.inventory.InventoryOpenEvent
 import org.bukkit.event.player.PlayerChangedWorldEvent
 import org.bukkit.event.player.PlayerFishEvent
 import org.bukkit.event.player.PlayerItemDamageEvent
@@ -80,7 +80,9 @@ abstract class AbstractOrigin : WithPlugin<MinixPlugin> {
         .build<KClass<*>, Any>() { kClass -> kClass.constructors.first().call(this) }
     private inline fun <reified T> builder(): T = builderCache[T::class].unsafeCast()
 
-    open val name: String = this::class.simpleName ?: "Unknown"
+    open val name: String = this::class.simpleName?.withIndex()?.takeWhile {
+        it.value.isLetter() || it.index == 0
+    }?.map(IndexedValue<Char>::value)?.toString() ?: "Unknown"
     open val colour: TextColor = NamedTextColor.WHITE
     open val displayName: Component by lazy { Component.text(name).color(colour) }
 
@@ -275,6 +277,9 @@ abstract class AbstractOrigin : WithPlugin<MinixPlugin> {
 
     /** Called when the player uses sneaks and uses their offhand bind twice in quick succession. */
     open suspend fun onSneakDoubleOffhand(event: PlayerShiftDoubleOffhandEvent) {}
+
+    /** Called when the player opens an inventory. */
+    open suspend fun onInventoryOpen(event: InventoryOpenEvent) {}
 
     @MinixDsl
     protected suspend fun potions(builder: suspend AbstractOrigin.PotionsBuilder.() -> Unit) {
@@ -631,27 +636,17 @@ abstract class AbstractOrigin : WithPlugin<MinixPlugin> {
         }
     }
 
-    inner class OriginItem {
-
-        var loreComponent: List<Component> = emptyList()
-        var name: Component? = null
-            get() = field ?: displayName
-        var material: Material = Material.AIR
-
-        /**
-         * Sets the lore of this item, meant to be used with a multiline String surrounded by `"""`.
-         * Each line will need styling as they are parsed individually as [Component]s.
-         */
-        var lore: String
-            get() = loreComponent.joinToString("\n") { MiniMessage.miniMessage().serialize(it) }
-            set(value) { loreComponent = value.split('\n').map(String::parse) }
-    }
-
     protected inner class AbilityBuilder {
 
-        fun <T : AbstractAbility> KeyBinding.add(clazz: KClass<out T>) = abilities.put(this, OriginService.getService().getAbility(clazz))
+        fun <T : AbstractAbility> KeyBinding.add(clazz: KClass<out T>) = abilities.put(this, OriginService.getAbility(clazz))
 
         inline fun <reified T : AbstractAbility> KeyBinding.add() = add(T::class)
+    }
+
+    protected inner class BiomeBuilder {
+
+        operator fun <T : AbstractAbility> Biome.plusAssign(ability: KClass<out T>) {
+        }
     }
 
     override fun toString(): String {
