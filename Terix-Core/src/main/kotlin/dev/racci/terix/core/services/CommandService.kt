@@ -3,11 +3,13 @@ package dev.racci.terix.core.services
 import dev.jorel.commandapi.CommandAPICommand
 import dev.jorel.commandapi.CommandPermission
 import dev.jorel.commandapi.arguments.ArgumentSuggestions
+import dev.jorel.commandapi.arguments.DoubleArgument
 import dev.jorel.commandapi.arguments.EntitySelectorArgument
+import dev.jorel.commandapi.arguments.IntegerArgument
 import dev.jorel.commandapi.arguments.StringArgument
 import dev.racci.minix.api.annotations.MappedExtension
-import dev.racci.minix.api.coroutine.launchAsync
 import dev.racci.minix.api.extension.Extension
+import dev.racci.minix.api.extensions.async
 import dev.racci.minix.api.extensions.formatted
 import dev.racci.minix.api.extensions.message
 import dev.racci.minix.api.extensions.msg
@@ -20,24 +22,26 @@ import dev.racci.terix.api.dsl.PotionEffectBuilder
 import dev.racci.terix.api.events.PlayerOriginChangeEvent
 import dev.racci.terix.core.data.Config
 import dev.racci.terix.core.data.Lang
-import dev.racci.terix.core.extension.arguments
-import dev.racci.terix.core.extension.command
-import dev.racci.terix.core.extension.execute
-import dev.racci.terix.core.extension.executePlayer
-import dev.racci.terix.core.extension.fulfilled
-import dev.racci.terix.core.extension.nightVision
-import dev.racci.terix.core.extension.origin
-import dev.racci.terix.core.extension.safelyAddPotion
-import dev.racci.terix.core.extension.safelyRemovePotion
-import dev.racci.terix.core.extension.subcommand
-import dev.racci.terix.core.extension.usedChoices
-import org.bukkit.Material
+import dev.racci.terix.core.extensions.arguments
+import dev.racci.terix.core.extensions.command
+import dev.racci.terix.core.extensions.execute
+import dev.racci.terix.core.extensions.executePlayer
+import dev.racci.terix.core.extensions.fulfilled
+import dev.racci.terix.core.extensions.nightVision
+import dev.racci.terix.core.extensions.origin
+import dev.racci.terix.core.extensions.safelyAddPotion
+import dev.racci.terix.core.extensions.safelyRemovePotion
+import dev.racci.terix.core.extensions.subcommand
+import dev.racci.terix.core.extensions.usedChoices
 import org.bukkit.attribute.Attribute
+import org.bukkit.attribute.AttributeModifier
 import org.bukkit.command.CommandSender
 import org.bukkit.entity.Player
+import org.bukkit.entity.Villager
 import org.bukkit.potion.PotionEffectType
 import org.koin.core.component.get
 import org.koin.core.component.inject
+import java.util.UUID
 import kotlin.time.Duration
 
 @MappedExtension(Terix::class, "Command Service", [OriginService::class, GUIService::class, SpecialService::class])
@@ -59,19 +63,87 @@ class CommandService(override val plugin: Terix) : Extension<Terix>() {
 
         command("testing") {
 
-            subcommand("origin") {
-                executePlayer { player, _ ->
-                    player.origin().toString() message player
+            command("attribute") {
+                arguments {
+                    arg<IntegerArgument>("when")
+                }
+
+                executePlayer { player, anies ->
+                    // Create a uuid from string
+                    val uuid = UUID.fromString("28fd7655-6c8a-4b66-ab59-fe27146cfa78")
+                    val `when` = anies.getCast<Int>(0)
+                    when (`when`) {
+                        0 -> player.getAttribute(Attribute.GENERIC_MAX_HEALTH)!!.addModifier(AttributeModifier(uuid, "test", 5.0, AttributeModifier.Operation.ADD_NUMBER))
+                        1 -> player.getAttribute(Attribute.GENERIC_MAX_HEALTH)!!.also {
+                            val modi = it.modifiers.find { it.uniqueId == uuid } ?: return@also
+                            it.removeModifier(modi)
+                        }
+                        2 -> player.getAttribute(Attribute.GENERIC_MAX_HEALTH)!!.addModifier(AttributeModifier(uuid, "test", 5.0, AttributeModifier.Operation.MULTIPLY_SCALAR_1))
+                        3 -> player.getAttribute(Attribute.GENERIC_MAX_HEALTH)!!.also {
+                            val modi = it.modifiers.find { it.uniqueId == uuid } ?: return@also
+                            it.removeModifier(modi)
+                        }
+                        4 -> player.getAttribute(Attribute.GENERIC_MAX_HEALTH)!!.addModifier(AttributeModifier(uuid, "test", 5.0, AttributeModifier.Operation.ADD_SCALAR))
+                        5 -> player.getAttribute(Attribute.GENERIC_MAX_HEALTH)!!.also {
+                            val modi = it.modifiers.find { it.uniqueId == uuid } ?: return@also
+                            it.removeModifier(modi)
+                        }
+                    }
                 }
             }
 
-            subcommand("darkness") {
-                executePlayer { player, _ ->
-                    val a = player.inventory.itemInMainHand.type != Material.TORCH
-                    val b = player.inventory.itemInOffHand.type != Material.TORCH
-                    val c = player.location.block.lightLevel < 7
+            command("discount") {
+                arguments {
+                    arg<EntitySelectorArgument<Villager>>("villager")
+                    arg<DoubleArgument>("value")
+                }
 
-                    log.debug { "a: $a, b: $b, c: $c" }
+                executePlayer { player, anies ->
+                    val villager = anies.getCast<Villager>(0)
+                    val amount = anies.getCast<Double>(1)
+
+                    villager.recipes.forEach {
+                    }
+                }
+            }
+
+            command("attribute") {
+                arguments {
+                    arg<StringArgument>("attribute").replaceSuggestions(ArgumentSuggestions.strings(*Attribute.values().map(Attribute::name).toTypedArray()))
+                    arg<StringArgument>("operation").replaceSuggestions(ArgumentSuggestions.strings(*AttributeModifier.Operation.values().map(AttributeModifier.Operation::name).toTypedArray()))
+                    arg<DoubleArgument>("value")
+                }
+
+                executePlayer { player, anies ->
+                    val attribute = Attribute.valueOf(anies.getCast(0))
+                    val operation = AttributeModifier.Operation.valueOf(anies.getCast(1))
+                    val value = anies.getCast<Double>(2)
+
+                    val uuid = UUID.randomUUID()
+                    val modifier = AttributeModifier(uuid, uuid.toString(), value, operation)
+                    player.getAttribute(attribute)?.addModifier(modifier)
+                }
+            }
+
+            command("clearAttributes") {
+                arguments {
+                    arg<StringArgument>("attribute").replaceSuggestions(
+                        ArgumentSuggestions.strings(
+                            *Attribute.values()
+                                .map(Attribute::name)
+                                .toTypedArray()
+                        )
+                    )
+                }
+                executePlayer { player, anies ->
+                    val inst = player.getAttribute(Attribute.valueOf(anies.getCast(0))) ?: return@executePlayer
+                    inst.modifiers.forEach(inst::removeModifier)
+                }
+            }
+
+            subcommand("origin") {
+                executePlayer { player, _ ->
+                    player.origin().toString() message player
                 }
             }
 
@@ -130,13 +202,13 @@ class CommandService(override val plugin: Terix) : Extension<Terix>() {
                 arg<EntitySelectorArgument<Player>>("target", EntitySelectorArgument.EntitySelector.ONE_PLAYER)
             }
 
-            execute { sender, args -> plugin.launchAsync { getOrigin(sender, args.getCast(0)) } }
+            execute { sender, args -> async { getOrigin(sender, args.getCast(0)) } }
         }
 
         subcommand("get") {
             permission = CommandPermission.fromString("terix.origin.getOriginFromName")
 
-            executePlayer { player, _ -> plugin.launchAsync { getOrigin(player, player) } }
+            executePlayer { player, _ -> async { getOrigin(player, player) } }
         }
     }
 
@@ -150,7 +222,7 @@ class CommandService(override val plugin: Terix) : Extension<Terix>() {
                 arg<StringArgument>("origin").replaceSuggestions(suggestions)
             }
 
-            execute { sender, args -> plugin.launchAsync { setOrigin(sender, args.getCast(0), args.getCast(1)) } }
+            execute { sender, args -> async { setOrigin(sender, args.getCast(0), args.getCast(1)) } }
         }
     }
 
@@ -179,7 +251,7 @@ class CommandService(override val plugin: Terix) : Extension<Terix>() {
             addSpecialCommand(
                 "nightvision",
                 { it.origin().nightVision },
-                { sender, args -> plugin.launchAsync { nightvision(sender, args.getCast(0)) } }
+                { sender, args -> async { nightvision(sender, args.getCast(0)) } }
             )
         }
     }
