@@ -14,5 +14,7 @@ dependencies {
     compileOnly(project(":Terix-API"))
     compileOnly(rootProject.libs.minecraft.inventoryFramework)
     compileOnly(rootProject.libs.minecraft.commandAPI)
-    compileOnly("dev.racci:Minix-NMS:$minixVersion")
+    compileOnly("xyz.xenondevs:particle:1.7.1")
+
+    testImplementation(project(":Terix-API"))
 }
