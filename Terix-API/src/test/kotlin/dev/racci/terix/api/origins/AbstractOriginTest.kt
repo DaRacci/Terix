@@ -50,12 +50,12 @@ internal class AbstractOriginTest {
 
     @Test
     fun getHurtSound() {
-        assertEquals("minecraft:entity.player.hurt", origin.hurtSound.asString())
+        assertEquals("minecraft:entity.player.hurt", origin.sounds.hurtSound.resourceKey.asString())
     }
 
     @Test
     fun getDeathSound() {
-        assertEquals("minecraft:entity.player.death", origin.deathSound.asString())
+        assertEquals("minecraft:entity.player.death", origin.sounds.deathSound.resourceKey.asString())
     }
 
     @Test

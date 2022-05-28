@@ -46,6 +46,6 @@ internal class ExPotionKtTest : KoinTest {
         }
         declareMock<OriginService>()
         every { OriginServiceImpl.getService().registry } returns persistentMapOf("angel" to mockk())
-        every { OriginService.getService().getOriginOrNull(any<String>()) } answers { callOriginal() }
+        every { OriginService.getOriginOrNull(any<String>()) } answers { callOriginal() }
     }
 }

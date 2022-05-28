@@ -172,7 +172,7 @@ class GUIService(override val plugin: Terix) : Extension<Terix>() {
     private fun AbstractOrigin.createItem(): GuiItem {
         return ItemBuilderDSL.from(item.material) {
             name = item.name ?: displayName
-            lore = item.loreComponent
+            lore = item.loreComponents
         }.asGuiItem {
             if (selectedOrigin.getIfPresent(whoClicked) == this@createItem) {
                 whoClicked.shieldSound()

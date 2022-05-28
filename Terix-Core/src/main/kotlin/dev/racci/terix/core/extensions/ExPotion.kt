@@ -13,5 +13,5 @@ fun PotionEffect?.fromOrigin(): Boolean {
 fun PotionEffect.origin(): AbstractOrigin? {
     val key = this.key ?: return null
     val match = PotionEffectBuilder.regex.matchEntire(key.key)?.groups ?: return null
-    return OriginService.getService().getOriginOrNull(match["origin"]?.value)
+    return OriginService.getOriginOrNull(match["origin"]?.value)
 }
