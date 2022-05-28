@@ -347,7 +347,7 @@ abstract class AbstractOrigin : WithPlugin<MinixPlugin> {
          * @param value The amount to multiply by.
          * @receiver The attribute to multiply.
          */
-        operator fun Attribute.timesAssign(value: Number) = addAttribute(this, AttributeModifier.Operation.MULTIPLY_SCALAR_1, value, Trigger.ON)
+        operator fun Attribute.timesAssign(value: Number) = addAttribute(this, AttributeModifier.Operation.MULTIPLY_SCALAR_1, value.toDouble() - 1, Trigger.ON)
 
         /**
          * Divides the players base attribute by this number.
@@ -355,7 +355,7 @@ abstract class AbstractOrigin : WithPlugin<MinixPlugin> {
          * @param value The amount to divide by.
          * @receiver The attribute to divide.
          */
-        operator fun Attribute.divAssign(value: Number) = addAttribute(this, AttributeModifier.Operation.MULTIPLY_SCALAR_1, 1.0 / value.toDouble(), Trigger.ON)
+        operator fun Attribute.divAssign(value: Number) = addAttribute(this, AttributeModifier.Operation.MULTIPLY_SCALAR_1, (1.0 / value.toDouble()) - 1, Trigger.ON)
 
         /**
          * Removes this number from the players attribute when this trigger is active.
