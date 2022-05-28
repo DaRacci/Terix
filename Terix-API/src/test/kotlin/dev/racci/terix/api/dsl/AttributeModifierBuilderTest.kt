@@ -1,5 +1,6 @@
 package dev.racci.terix.api.dsl
 
+import dev.racci.terix.api.Origin
 import dev.racci.terix.api.origins.enums.Trigger
 import org.bukkit.attribute.Attribute
 import org.bukkit.attribute.AttributeModifier
@@ -13,14 +14,14 @@ import kotlin.test.assertTrue
 @TestInstance(TestInstance.Lifecycle.PER_CLASS)
 internal class AttributeModifierBuilderTest {
 
-    private lateinit var angel: AngelOrigin
+    private lateinit var angel: Origin
     private lateinit var name: String
     private lateinit var originName: String
 
     @BeforeAll
     fun setUp() {
-        angel = AngelOrigin()
-        name = "origin_modifier_angel_darkness"
+        angel = Origin()
+        name = "origin_modifier_testorigin_darkness"
         originName = AttributeModifierBuilder.originName(angel, Trigger.DARKNESS)
     }
 
