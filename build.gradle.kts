@@ -27,7 +27,8 @@ bukkit {
         "ProtocolLib"
     )
     libraries = listOf(
-        libs.minecraft.commandAPI.get().toString()
+        libs.minecraft.commandAPI.get().toString(),
+        "xyz.xenondevs:particle:1.7.1"
     )
     website = "https://terix.racci.dev/"
 }
@@ -41,8 +42,6 @@ dependencies {
 }
 
 subprojects {
-
-    val serverVersion: String by rootProject
 
     apply(plugin = "dev.racci.minix.kotlin")
     apply(plugin = "dev.racci.minix.purpurmc")
@@ -58,17 +57,28 @@ subprojects {
     }
 
     dependencies {
-        compileOnly("dev.racci:Minix:2.10.1")
-        compileOnly("dev.racci:Minix-Core:2.10.1")
+        compileOnly("dev.racci:Minix-NMS:$minixVersion")
+        compileOnly("dev.racci:Minix:3.0.0-SNAPSHOT")
+        compileOnly("dev.racci:Minix-Core:3.0.0-SNAPSHOT")
 
         testImplementation(platform(kotlin("bom")))
-        testImplementation(rootProject.libs.minecraft.minix)
+        testImplementation("dev.racci:Minix-NMS:$minixVersion")
+        testImplementation("dev.racci:Minix:3.0.0-SNAPSHOT")
+        testImplementation("dev.racci:Minix-Core:3.0.0-SNAPSHOT")
         testImplementation(rootProject.libs.bundles.kotlin)
         testImplementation(rootProject.libs.bundles.kotlinx)
-//        testImplementation(rootProject.libs.bundles.testing) {
-//            exclude(group = "org.jetbrains.kotlin", module = "kotlin-test-junit5")
-//        }
-        testImplementation("dev.racci.tentacles:tentacles-api:$serverVersion")
+        testImplementation(rootProject.libs.bundles.testing)
+        testImplementation(rootProject.libs.minecraft.bstats)
+        testImplementation("io.insert-koin:koin-test:3.+")
+        testImplementation("io.insert-koin:koin-test-junit5:3.+")
+        testImplementation("io.mockk:mockk:1.12.4")
+        testImplementation("dev.racci:Minix-NMS:$minixVersion")
+        testImplementation(rootProject.libs.minecraft.api.protoclLib)
+        testImplementation(rootProject.libs.minecraft.api.placeholderAPI)
+    }
+
+    configurations {
+        testImplementation.get().exclude("org.jetbrains.kotlin", "kotlin-test-junit")
     }
 
     tasks {
