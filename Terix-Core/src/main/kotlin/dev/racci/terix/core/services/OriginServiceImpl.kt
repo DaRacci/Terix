@@ -2,6 +2,7 @@ package dev.racci.terix.core.services
 
 import dev.racci.minix.api.annotations.MappedExtension
 import dev.racci.minix.api.annotations.MinixDsl
+import dev.racci.minix.api.extension.Extension
 import dev.racci.minix.api.services.DataService
 import dev.racci.minix.api.utils.collections.CollectionUtils.cacheOf
 import dev.racci.minix.api.utils.unsafeCast
@@ -12,7 +13,7 @@ import dev.racci.terix.api.origins.AbstractOrigin
 import dev.racci.terix.api.origins.abilities.Levitate
 import dev.racci.terix.api.origins.abilities.Teleport
 import dev.racci.terix.core.data.Config
-import dev.racci.terix.core.origins.AngelOrigin
+import dev.racci.terix.core.origins.AethenOrigin
 import dev.racci.terix.core.origins.AxolotlOrigin
 import dev.racci.terix.core.origins.BeeOrigin
 import dev.racci.terix.core.origins.BlizzOrigin
@@ -20,6 +21,7 @@ import dev.racci.terix.core.origins.DragonOrigin
 import dev.racci.terix.core.origins.FairyOrigin
 import dev.racci.terix.core.origins.HumanOrigin
 import dev.racci.terix.core.origins.MerlingOrigin
+import dev.racci.terix.core.origins.NetherbornOrigin
 import dev.racci.terix.core.origins.SlimeOrigin
 import dev.racci.terix.core.origins.VampireOrigin
 import kotlinx.collections.immutable.PersistentMap
@@ -30,7 +32,7 @@ import kotlin.reflect.full.createInstance
 import kotlin.reflect.full.primaryConstructor
 
 @MappedExtension(Terix::class, "Origin Service", bindToKClass = OriginService::class)
-class OriginServiceImpl(override val plugin: Terix) : OriginService() {
+class OriginServiceImpl(override val plugin: Terix) : OriginService, Extension<Terix>() {
     private val modifierCache = cacheOf<KClass<*>, Any>({ constructors.first().call(this@OriginServiceImpl) }, { expireAfterAccess(Duration.ofMinutes(1)) })
     private val origins = mutableMapOf<KClass<out AbstractOrigin>, AbstractOrigin>()
     private var dirtyCache: Array<String>? = null
@@ -129,5 +131,5 @@ class OriginServiceImpl(override val plugin: Terix) : OriginService() {
         }
     }
 
-    companion object : ExtensionCompanion<OriginServiceImpl>()
+    companion object : Extension.ExtensionCompanion<OriginServiceImpl>()
 }
