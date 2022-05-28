@@ -12,10 +12,12 @@ import com.github.stefvanschie.inventoryframework.pane.StaticPane
 import dev.racci.minix.api.annotations.MappedExtension
 import dev.racci.minix.api.builders.ItemBuilderDSL
 import dev.racci.minix.api.extension.Extension
+import dev.racci.minix.api.extensions.async
 import dev.racci.minix.api.extensions.cancel
 import dev.racci.minix.api.extensions.message
 import dev.racci.minix.api.extensions.parse
 import dev.racci.minix.api.extensions.scheduler
+import dev.racci.minix.api.extensions.sync
 import dev.racci.minix.api.services.DataService
 import dev.racci.minix.api.services.DataService.Companion.inject
 import dev.racci.minix.api.utils.now
@@ -27,12 +29,11 @@ import dev.racci.terix.api.events.PlayerOriginChangeEvent
 import dev.racci.terix.api.origins.AbstractOrigin
 import dev.racci.terix.core.data.Config
 import dev.racci.terix.core.data.Lang
-import dev.racci.terix.core.extension.asGuiItem
-import dev.racci.terix.core.extension.dsl
-import dev.racci.terix.core.extension.origin
-import dev.racci.terix.core.extension.originTime
-import dev.racci.terix.core.extension.usedChoices
-import dev.racci.terix.core.origins.AngelOrigin
+import dev.racci.terix.core.extensions.asGuiItem
+import dev.racci.terix.core.extensions.origin
+import dev.racci.terix.core.extensions.originTime
+import dev.racci.terix.core.extensions.usedChoices
+import dev.racci.terix.core.origins.AethenOrigin
 import dev.racci.terix.core.origins.AxolotlOrigin
 import dev.racci.terix.core.origins.BeeOrigin
 import dev.racci.terix.core.origins.BlizzOrigin
@@ -40,10 +41,10 @@ import dev.racci.terix.core.origins.DragonOrigin
 import dev.racci.terix.core.origins.FairyOrigin
 import dev.racci.terix.core.origins.HumanOrigin
 import dev.racci.terix.core.origins.MerlingOrigin
+import dev.racci.terix.core.origins.NetherbornOrigin
 import dev.racci.terix.core.origins.SlimeOrigin
 import dev.racci.terix.core.origins.VampireOrigin
-import kotlinx.datetime.DateTimeUnit
-import kotlinx.datetime.until
+import kotlinx.datetime.Instant
 import net.kyori.adventure.extra.kotlin.text
 import net.kyori.adventure.key.Key
 import net.kyori.adventure.sound.Sound
@@ -57,6 +58,8 @@ import java.time.Duration
 import kotlin.math.ceil
 import kotlin.time.Duration.Companion.seconds
 
+// TODO: Send fixup packet when player clicks an item
+// TODO: When clicking on another item after the first the second doesnt flash.
 @MappedExtension(Terix::class, "GUI Service", [OriginService::class, HookService::class])
 class GUIService(override val plugin: Terix) : Extension<Terix>() {
     private val lang by inject<DataService>().inject<Lang>()
@@ -87,7 +90,7 @@ class GUIService(override val plugin: Terix) : Extension<Terix>() {
         val guiRows = ceil(originService.registeredOrigins.size.toDouble() / 9).coerceAtLeast(1.0).toInt() + 4
         val pane = StaticPane(1, 1, 7, guiRows).apply {
 
-            addItem(originService.getOrigin<AngelOrigin>().createItem(), 0, 0)
+            addItem(originService.getOrigin<AethenOrigin>().createItem(), 0, 0)
             addItem(originService.getOrigin<AxolotlOrigin>().createItem(), 1, 0)
             addItem(originService.getOrigin<BeeOrigin>().createItem(), 2, 0)
             addItem(originService.getOrigin<BlizzOrigin>().createItem(), 3, 0)
@@ -95,8 +98,10 @@ class GUIService(override val plugin: Terix) : Extension<Terix>() {
             addItem(originService.getOrigin<FairyOrigin>().createItem(), 5, 0)
             addItem(originService.getOrigin<HumanOrigin>().createItem(), 6, 0)
             addItem(originService.getOrigin<MerlingOrigin>().createItem(), 0, 1)
-            addItem(originService.getOrigin<SlimeOrigin>().createItem(), 1, 1)
-            addItem(originService.getOrigin<VampireOrigin>().createItem(), 2, 1)
+            addItem(originService.getOrigin<NetherbornOrigin>().createItem(), 1, 1)
+            addItem(originService.getOrigin<SlimeOrigin>().createItem(), 2, 1)
+//            addItem(originService.getOrigin<TankOrigin>().createItem(), 3, 1)
+            addItem(originService.getOrigin<VampireOrigin>().createItem(), 3, 1)
 
             // TODO: Fix this so its not manually placed
             /* var x = 0
@@ -126,6 +131,7 @@ class GUIService(override val plugin: Terix) : Extension<Terix>() {
         }
     }
 
+    // TODO: Sometimes glitches out.
     override suspend fun handleEnable() {
         hookService.protocolManager.addPacketListener(
             object : PacketAdapter(plugin, ListenerPriority.HIGHEST, PacketType.Play.Server.SET_SLOT, PacketType.Play.Client.WINDOW_CLICK) {
@@ -165,7 +171,7 @@ class GUIService(override val plugin: Terix) : Extension<Terix>() {
 
     private fun AbstractOrigin.createItem(): GuiItem {
         return ItemBuilderDSL.from(item.material) {
-            name = item.name
+            name = item.name ?: displayName
             lore = item.loreComponent
         }.asGuiItem {
             if (selectedOrigin.getIfPresent(whoClicked) == this@createItem) {
@@ -206,10 +212,28 @@ class GUIService(override val plugin: Terix) : Extension<Terix>() {
                     player.playSound(Sound.sound(Key.key("block.chest.unlock"), Sound.Source.PLAYER, 1.0f, 1.0f))
                 } else {
                     player.shieldSound()
-                    player.sendMessage("You must wait ${player.originTime.until(now(), DateTimeUnit.MINUTE)} minutes before changing origins.")
+                    lang.origin.onChangeCooldown["cooldown" to { player.originTime.remaining(config.intervalBeforeChange)!!.format() }] message player
                 }
             }
         }
+    }
+
+    private fun Instant.expired(cooldown: kotlin.time.Duration) = this + cooldown > now()
+
+    private fun Instant.remaining(cooldown: kotlin.time.Duration) = (this + cooldown - now()).takeUnless { it.inWholeMilliseconds <= 0 }
+
+    private fun kotlin.time.Duration.format() = toComponents { days, hours, minutes, seconds, _ ->
+        StringBuilder().apply {
+            if (days > 0) append("$days days")
+            if (hours > 0) { appendExtra(false); append("$hours hours") }
+            if (minutes > 0) { appendExtra(hours > 0 || days > 0 || seconds == 0); append("${minutes}m") }
+            if (days == 0L && hours == 0 && seconds > 0) { appendExtra(true); append(" $seconds seconds") }
+        }.toString()
+    }
+
+    private fun StringBuilder.appendExtra(last: Boolean) {
+        if (isNotEmpty()) append(", ")
+        if (last) append("and ")
     }
 
     private val closeButton = lazy {
@@ -238,7 +262,7 @@ class GUIService(override val plugin: Terix) : Extension<Terix>() {
             .build { rows: Int ->
                 if (rows < 2) return@build null // We don't want to fill it up completely
 
-                StaticPane(0, 0, 9, rows, Pane.Priority.LOWEST).dsl {
+                StaticPane(0, 0, 9, rows, Pane.Priority.LOWEST).apply {
                     for (row in rows downTo 0) {
                         val nums = when (row) {
                             rows - 1, 0 -> arrayOf(0, 1, 2, 3, 4, 5, 6, 7, 8, 8)
@@ -262,5 +286,5 @@ class GUIService(override val plugin: Terix) : Extension<Terix>() {
         playSound(Sound.sound(Key.key("item.shield.break"), Sound.Source.MASTER, 1f, 0.5f))
     }
 
-    companion object : ExtensionCompanion<GUIService>()
+    companion object : Extension.ExtensionCompanion<GUIService>()
 }
