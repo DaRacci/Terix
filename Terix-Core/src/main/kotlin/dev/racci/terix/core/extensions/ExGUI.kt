@@ -1,30 +1,11 @@
-package dev.racci.terix.core.extension
+package dev.racci.terix.core.extensions
 
 import com.github.stefvanschie.inventoryframework.gui.GuiItem
-import com.github.stefvanschie.inventoryframework.gui.type.util.Gui
 import com.github.stefvanschie.inventoryframework.pane.OutlinePane
-import com.github.stefvanschie.inventoryframework.pane.Pane
 import com.github.stefvanschie.inventoryframework.pane.util.Mask
 import dev.racci.minix.api.extensions.asInt
 import org.bukkit.event.inventory.InventoryClickEvent
 import org.bukkit.inventory.ItemStack
-
-fun <T : Gui> T.dsl(block: T.() -> Unit): T {
-    block(this)
-    return this
-}
-
-fun <T : Pane> T.dsl(block: T.() -> Unit): T {
-    block(this)
-    return this
-}
-
-fun <T : Mask> T.dsl(block: T.() -> Unit): T {
-    block(this)
-    return this
-}
-
-var OutlinePane.repeat: Boolean get() = doesRepeat(); set(bool) { setRepeat(bool) }
 
 fun ItemStack.asGuiItem(action: (InventoryClickEvent.() -> Unit)? = null): GuiItem = GuiItem(this, action)
 
@@ -34,7 +15,7 @@ class OutlinePane(
     length: Int,
     height: Int,
     priority: Priority,
-    block: (dev.racci.terix.core.extension.OutlinePane.() -> Unit)? = null,
+    block: (dev.racci.terix.core.extensions.OutlinePane.() -> Unit)? = null,
 ) : OutlinePane(x, y, length, height, priority) {
 
     fun setMask(mask: Mask) = applyMask(mask)
@@ -44,7 +25,7 @@ class OutlinePane(
     }
 }
 
-fun dev.racci.terix.core.extension.OutlinePane.borderMask() {
+fun dev.racci.terix.core.extensions.OutlinePane.borderMask() {
     val stringList = mutableListOf<String>()
     for (row in 0 until height) {
         var rowString = ""
