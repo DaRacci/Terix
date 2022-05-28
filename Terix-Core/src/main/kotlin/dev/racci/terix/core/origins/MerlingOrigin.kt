@@ -12,6 +12,7 @@ import org.bukkit.Material
 import org.bukkit.attribute.Attribute
 import org.bukkit.attribute.AttributeModifier
 import org.bukkit.entity.Player
+import org.bukkit.event.player.PlayerRiptideEvent
 import org.bukkit.potion.PotionEffectType
 import kotlin.time.Duration.Companion.seconds
 
@@ -19,8 +20,7 @@ class MerlingOrigin(override val plugin: Terix) : AbstractOrigin() {
 
     override val name = "Merling"
     override val colour = NamedTextColor.AQUA!!
-    override val hurtSound = Key.key("entity.salmon.hurt")
-    override val deathSound = Key.key("entity.salmon.death")
+    override val waterBreathing = true
 
     override suspend fun onRegister() {
         sounds.hurtSound = SoundEffect("entity.salmon.hurt")
@@ -53,5 +53,9 @@ class MerlingOrigin(override val plugin: Terix) : AbstractOrigin() {
                 builder.duration = 15.seconds
             }
         }
+    }
+
+    override suspend fun onRiptide(event: PlayerRiptideEvent) {
+        event.player.velocity = event.player.velocity.multiply(1.5)
     }
 }
