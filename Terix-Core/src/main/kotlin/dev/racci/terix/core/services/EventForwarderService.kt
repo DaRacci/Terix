@@ -28,7 +28,7 @@ import dev.racci.minix.api.extensions.event
 import dev.racci.terix.api.OriginService
 import dev.racci.terix.api.Terix
 import dev.racci.terix.api.events.PlayerOriginChangeEvent
-import dev.racci.terix.core.extension.origin
+import dev.racci.terix.core.extensions.origin
 import org.bukkit.entity.Player
 import org.bukkit.event.block.BlockBreakEvent
 import org.bukkit.event.block.BlockPlaceEvent
@@ -41,6 +41,7 @@ import org.bukkit.event.entity.EntityToggleGlideEvent
 import org.bukkit.event.entity.EntityToggleSwimEvent
 import org.bukkit.event.entity.PlayerDeathEvent
 import org.bukkit.event.entity.ProjectileHitEvent
+import org.bukkit.event.inventory.InventoryOpenEvent
 import org.bukkit.event.player.PlayerChangedWorldEvent
 import org.bukkit.event.player.PlayerFishEvent
 import org.bukkit.event.player.PlayerItemDamageEvent
@@ -83,6 +84,7 @@ class EventForwarderService(override val plugin: Terix) : Extension<Terix>() {
         event<PlayerElytraBoostEvent> { player.origin().onElytraBoost(this) }
         event<EntityMountEvent> { (entity as? Player)?.origin()?.onEntityMount(this) }
         event<EntityDismountEvent> { (entity as? Player)?.origin()?.onEntityDismount(this) }
+        event< InventoryOpenEvent> { (player as? Player)?.origin()?.onInventoryOpen(this) }
 
         // Combo Events
         event<PlayerLeftClickEvent> { player.origin().onLeftClick(this) }
