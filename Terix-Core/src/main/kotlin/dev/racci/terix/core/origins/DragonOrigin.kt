@@ -22,7 +22,7 @@ class DragonOrigin(override val plugin: Terix) : AbstractOrigin() {
             Trigger.WET += 2.0
         }
         item {
-            material = Material.DRAGON_BREATH
+            material = Material.LARGE_AMETHYST_BUD
             lore = "<light_purple>A breath of fire that can be used to summon a dragon."
         }
     }
