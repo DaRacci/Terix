@@ -11,13 +11,17 @@ import dev.racci.minix.api.utils.collections.CollectionUtils.clear
 import dev.racci.minix.api.utils.collections.CollectionUtils.getCast
 import dev.racci.terix.api.Terix
 import dev.racci.terix.core.enchantments.SunResistance
+import me.angeschossen.lands.api.flags.Flags
 import me.angeschossen.lands.api.integration.LandsIntegration
 import me.clip.placeholderapi.expansion.PlaceholderExpansion
+import org.bukkit.Location
+import org.bukkit.entity.Player
 import org.bukkit.event.server.PluginDisableEvent
 import org.bukkit.event.server.PluginEnableEvent
 import org.bukkit.plugin.Plugin
 import org.koin.core.component.KoinComponent
 import org.koin.core.component.get
+import kotlin.properties.Delegates
 import kotlin.reflect.KClass
 import kotlin.reflect.full.createInstance
 
@@ -119,20 +123,57 @@ class HookService(override val plugin: Terix) : Extension<Terix>() {
         }
     }
 
-    class LandsHook : HookService {
+    sealed interface ClaimPlugin : HookService {
 
-        var integration: LandsIntegration? = null ; private set
+        fun isClaimed(location: Location): Boolean
+
+        fun isTrusted(
+            player: Player,
+            location: Location
+        ): Boolean
+
+        fun canBuild(
+            player: Player,
+            location: Location
+        ): Boolean
+
+        fun canBreak(
+            player: Player,
+            location: Location
+        ): Boolean
+
+        fun canPvp(
+            attacker: Player,
+            target: Player,
+            location: Location
+        ): Boolean
+
+        fun canInteract(
+            player: Player,
+            location: Location
+        ): Boolean
+    }
+
+    class LandsHook : ClaimPlugin {
+
+        var integration: LandsIntegration by Delegates.notNull()
 
         override suspend fun doSetup() {
             log.info { "Registering Lands Hook" }
             integration = LandsIntegration(plugin)
         }
-        override suspend fun doUnload() {
-            integration?.let {
-                log.info { "Unregistering Lands Hook" }
-                integration = null
-            }
-        }
+
+        override fun isClaimed(location: Location): Boolean = integration.isClaimed(location)
+
+        override fun isTrusted(player: Player, location: Location) = integration.getAreaByLoc(location)?.isTrusted(player.uniqueId) ?: false
+
+        override fun canBuild(player: Player, location: Location) = integration.getAreaByLoc(location)?.hasFlag(player.uniqueId, Flags.BLOCK_PLACE) ?: false
+
+        override fun canBreak(player: Player, location: Location) = integration.getAreaByLoc(location)?.hasFlag(player.uniqueId, Flags.BLOCK_BREAK) ?: false
+
+        override fun canPvp(attacker: Player, target: Player, location: Location) = integration.canPvP(attacker, target, location, false, false)
+
+        override fun canInteract(player: Player, location: Location) = integration.getAreaByLoc(location)?.hasFlag(player.uniqueId, Flags.INTERACT_GENERAL) ?: false
     }
 
     class EcoEnchantsHook : HookService {
