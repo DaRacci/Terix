@@ -28,7 +28,7 @@ class PotionEffectBuilder() {
     var icon: Boolean? = null
     var key: NamespacedKey? = null
 
-    inline fun <reified O : AbstractOrigin> originKey(trigger: Trigger) = originKey(OriginService.getService().getOrigin(O::class), trigger)
+    inline fun <reified O : AbstractOrigin> originKey(trigger: Trigger) = originKey(OriginService.getOrigin(O::class), trigger)
 
     fun originKey(origin: AbstractOrigin, trigger: Trigger) = originKey(origin.name, trigger.name)
 

@@ -89,7 +89,7 @@ internal class RunnableServiceTest : KoinTest {
 
     @Test
     fun `player receives no tasks`() {
-        assertEquals(0, instance.getTasks(mockPlayer).size)
+        assertEquals(0, instance.getTasks(mockOrigin).size)
     }
 
     @Test
@@ -97,7 +97,7 @@ internal class RunnableServiceTest : KoinTest {
         every { mockOrigin.titles } returns mutableMapOf(Pair(Trigger.SUNLIGHT, mockk()))
         every { mockOrigin.damageTicks } returns mutableMapOf(Pair(Trigger.SUNLIGHT, mockk()))
 
-        expectThat(instance.getTasks(mockPlayer)) {
+        expectThat(instance.getTasks(mockOrigin)) {
             hasSize(1)
             first().isEqualTo(RunnableService::doSunlightTick)
         }
@@ -110,7 +110,7 @@ internal class RunnableServiceTest : KoinTest {
     fun `player receives water and rain task`() {
         every { mockOrigin.titles } returns mutableMapOf(Pair(Trigger.WET, mockk()))
 
-        expectThat(instance.getTasks(mockPlayer)) {
+        expectThat(instance.getTasks(mockOrigin)) {
             hasSize(2)
             containsExactlyInAnyOrder(RunnableService::doWaterTick, RunnableService::doRainTick)
         }
