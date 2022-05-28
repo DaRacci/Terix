@@ -2,6 +2,7 @@ package dev.racci.terix.api.origins.abilities
 
 import dev.racci.terix.api.dsl.PotionEffectBuilder
 import dev.racci.terix.api.ensureMainThread
+import dev.racci.terix.api.extensions.playSound
 import dev.racci.terix.api.origins.AbstractAbility
 import org.bukkit.NamespacedKey
 import org.bukkit.entity.Player
@@ -20,6 +21,7 @@ class Levitate : AbstractAbility() {
                     key = NamespacedKey("terix", KEY)
                 }
             )
+            player.location.playSound("entity.phantom.flap", 1f, 1f, source = player)
         }
     }
 
