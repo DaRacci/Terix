@@ -1,4 +1,4 @@
-package dev.racci.terix.core.extension
+package dev.racci.terix.core.extensions
 
 import dev.racci.minix.api.coroutine.launch
 import dev.racci.minix.api.utils.getKoin
@@ -55,7 +55,12 @@ fun Player.safelySwapPotions(
     }
 }
 
-fun Player.validToBurn(): Boolean = !with(toNMS()) { isInWaterRainOrBubble || isInPowderSnow || wasInPowderSnow && random.nextFloat() * 30.0f < (brightness - 0.4f) * 2.0f } // Random magic numbers are bad but it works
+fun Player.validToBurn(): Boolean = !with(toNMS()) {
+    isInWaterRainOrBubble ||
+        isInPowderSnow ||
+        wasInPowderSnow &&
+        random.nextFloat() * 30.0f < (brightness - 0.4f) * 2.0f
+} // Random magic numbers are bad but it works
 
 fun Player.inDarkness(): Boolean = inventory.itemInMainHand.type != Material.TORCH &&
     inventory.itemInOffHand.type != Material.TORCH &&

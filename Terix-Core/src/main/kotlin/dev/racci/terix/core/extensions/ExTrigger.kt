@@ -1,7 +1,6 @@
-package dev.racci.terix.core.extension
+package dev.racci.terix.core.extensions
 
 import dev.racci.minix.api.extensions.inEnd
-import dev.racci.minix.api.extensions.inNether
 import dev.racci.minix.api.extensions.inOverworld
 import dev.racci.minix.api.extensions.isDay
 import dev.racci.minix.api.extensions.isNight
@@ -12,11 +11,11 @@ fun Trigger.fulfilled(player: Player): Boolean {
     return when (this) {
         Trigger.ON -> true
         Trigger.OFF -> false
-        Trigger.DAY -> player.isDay()
-        Trigger.NIGHT -> player.isNight()
-        Trigger.OVERWORLD -> player.inOverworld()
-        Trigger.NETHER -> player.inNether()
-        Trigger.THE_END -> player.inEnd()
+        Trigger.DAY -> player.isDay
+        Trigger.NIGHT -> player.isNight
+        Trigger.OVERWORLD -> player.inOverworld
+        Trigger.NETHER -> player.isNight
+        Trigger.THE_END -> player.inEnd
         Trigger.WATER -> player.location.block.isLiquid
         Trigger.LAVA -> player.location.block.isLiquid
         Trigger.FLAMMABLE -> player.fireTicks > 0
