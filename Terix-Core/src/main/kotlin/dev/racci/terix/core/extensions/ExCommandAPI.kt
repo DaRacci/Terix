@@ -1,4 +1,4 @@
-package dev.racci.terix.core.extension
+package dev.racci.terix.core.extensions
 
 import dev.jorel.commandapi.CommandAPICommand
 import dev.jorel.commandapi.arguments.Argument
