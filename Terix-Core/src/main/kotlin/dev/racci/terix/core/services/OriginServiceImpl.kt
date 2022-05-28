@@ -52,7 +52,7 @@ class OriginServiceImpl(override val plugin: Terix) : OriginService() {
 
     private suspend fun populateRegistry() {
         registry {
-            add<AngelOrigin>()
+            add<AethenOrigin>()
             add<AxolotlOrigin>()
             add<BeeOrigin>()
             add<BlizzOrigin>()
@@ -60,6 +60,7 @@ class OriginServiceImpl(override val plugin: Terix) : OriginService() {
             add<FairyOrigin>()
             add<HumanOrigin>()
             add<MerlingOrigin>()
+            add<NetherbornOrigin>()
             add<SlimeOrigin>()
             add<VampireOrigin>()
         }
