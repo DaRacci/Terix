@@ -17,7 +17,7 @@ class BlizzOrigin(override val plugin: Terix) : AbstractOrigin() {
         sounds.ambientSound = SoundEffect("entity.skeleton_horse.ambient")
 
         item {
-            material = Material.SNOWBALL
+            material = Material.POWDER_SNOW_BUCKET
             lore = """
                 <gold>A magical snowball that will 
                 <green>freeze</green> any player that
