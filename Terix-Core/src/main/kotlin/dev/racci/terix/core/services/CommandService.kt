@@ -5,7 +5,7 @@ import dev.jorel.commandapi.CommandPermission
 import dev.jorel.commandapi.arguments.ArgumentSuggestions
 import dev.jorel.commandapi.arguments.DoubleArgument
 import dev.jorel.commandapi.arguments.EntitySelectorArgument
-import dev.jorel.commandapi.arguments.IntegerArgument
+import dev.jorel.commandapi.arguments.FloatArgument
 import dev.jorel.commandapi.arguments.StringArgument
 import dev.racci.minix.api.annotations.MappedExtension
 import dev.racci.minix.api.extension.Extension
@@ -63,46 +63,24 @@ class CommandService(override val plugin: Terix) : Extension<Terix>() {
 
         command("testing") {
 
-            command("attribute") {
-                arguments {
-                    arg<IntegerArgument>("when")
-                }
-
-                executePlayer { player, anies ->
-                    // Create a uuid from string
-                    val uuid = UUID.fromString("28fd7655-6c8a-4b66-ab59-fe27146cfa78")
-                    val `when` = anies.getCast<Int>(0)
-                    when (`when`) {
-                        0 -> player.getAttribute(Attribute.GENERIC_MAX_HEALTH)!!.addModifier(AttributeModifier(uuid, "test", 5.0, AttributeModifier.Operation.ADD_NUMBER))
-                        1 -> player.getAttribute(Attribute.GENERIC_MAX_HEALTH)!!.also {
-                            val modi = it.modifiers.find { it.uniqueId == uuid } ?: return@also
-                            it.removeModifier(modi)
-                        }
-                        2 -> player.getAttribute(Attribute.GENERIC_MAX_HEALTH)!!.addModifier(AttributeModifier(uuid, "test", 5.0, AttributeModifier.Operation.MULTIPLY_SCALAR_1))
-                        3 -> player.getAttribute(Attribute.GENERIC_MAX_HEALTH)!!.also {
-                            val modi = it.modifiers.find { it.uniqueId == uuid } ?: return@also
-                            it.removeModifier(modi)
-                        }
-                        4 -> player.getAttribute(Attribute.GENERIC_MAX_HEALTH)!!.addModifier(AttributeModifier(uuid, "test", 5.0, AttributeModifier.Operation.ADD_SCALAR))
-                        5 -> player.getAttribute(Attribute.GENERIC_MAX_HEALTH)!!.also {
-                            val modi = it.modifiers.find { it.uniqueId == uuid } ?: return@also
-                            it.removeModifier(modi)
-                        }
-                    }
-                }
-            }
-
             command("discount") {
                 arguments {
                     arg<EntitySelectorArgument<Villager>>("villager")
-                    arg<DoubleArgument>("value")
+                    arg<FloatArgument>("value")
                 }
 
                 executePlayer { player, anies ->
                     val villager = anies.getCast<Villager>(0)
-                    val amount = anies.getCast<Double>(1)
+                    val amount = anies.getCast<Float>(1)
 
-                    villager.recipes.forEach {
+                    if (amount == -1f) {
+                        villager.recipes.forEach {
+                            it.removePriceMultiplier(player.uniqueId)
+                        }
+                    } else {
+                        villager.recipes.forEach {
+                            it.setPriceMultiplier(player.uniqueId, amount)
+                        }
                     }
                 }
             }

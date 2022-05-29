@@ -23,7 +23,7 @@ class Origin : AbstractOrigin() {
 
     override suspend fun onRegister() {
         attributes {
-            Attribute.GENERIC_MAX_HEALTH *= 2.0
+            Attribute.GENERIC_MAX_HEALTH *= 0.5
             Attribute.GENERIC_MOVEMENT_SPEED /= 4
             Pair(Trigger.DAY, Attribute.GENERIC_ATTACK_DAMAGE) += 2.0
         }

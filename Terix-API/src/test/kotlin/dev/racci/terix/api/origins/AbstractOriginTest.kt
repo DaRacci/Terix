@@ -2,12 +2,14 @@ package dev.racci.terix.api.origins
 
 import dev.racci.terix.api.Origin
 import dev.racci.terix.api.origins.enums.Trigger
-import dev.racci.terix.core.data.User.origin
-import jdk.dynalink.linker.support.Guards.isNotNull
+import io.mockk.every
+import io.mockk.mockk
+import io.mockk.verify
 import kotlinx.coroutines.runBlocking
 import net.kyori.adventure.text.format.NamedTextColor
 import net.kyori.adventure.text.minimessage.MiniMessage
 import org.bukkit.attribute.Attribute
+import org.bukkit.attribute.AttributeInstance
 import org.bukkit.attribute.AttributeModifier
 import org.bukkit.potion.PotionEffectType
 import org.junit.jupiter.api.BeforeAll
@@ -96,13 +98,13 @@ internal class AbstractOriginTest {
 
         expectThat(origin.attributeModifiers[Trigger.ON])
             .isNotNull().elementAt(0)
-            .assert("Modifier value is 2.0", 2.0) { it.second.amount }
-            .assert("Modifier operation is ADD_SCALAR", AttributeModifier.Operation.ADD_SCALAR) { it.second.operation }
+            .assert("Modifier value is 0.5", 0.5) { it.second.amount }
+            .assert("Modifier operation is MULTIPLY_SCALAR_1", AttributeModifier.Operation.MULTIPLY_SCALAR_1) { it.second.operation }
 
         expectThat(origin.attributeModifiers[Trigger.ON]!!)
             .elementAt(1)
             .assert("Modifier value is 0.25", 0.25) { it.second.amount }
-            .assert("Modifier operation is ADD_SCALAR", AttributeModifier.Operation.ADD_SCALAR) { it.second.operation }
+            .assert("Modifier operation is MULTIPLY_SCALAR_1", AttributeModifier.Operation.MULTIPLY_SCALAR_1) { it.second.operation }
     }
 
     @Test
@@ -135,6 +137,52 @@ internal class AbstractOriginTest {
         expectThat(origin.damageTicks[Trigger.WATER])
             .isNotNull()
             .assertThat("Damage ticks is correct") { it == 2.0 }
+    }
+
+    @Test
+    fun `attribute modifiers apply correct amounts`() {
+        val list = mutableListOf<AttributeModifier>()
+        val inst = mockk<AttributeInstance>() {
+            every { value } answers {
+                var d = baseValue
+
+                for (attributeModifier in modifiers.filter { it.operation == AttributeModifier.Operation.ADD_NUMBER }) {
+                    d += attributeModifier.amount
+                }
+                var e = d
+
+                for (attributeModifier2 in modifiers.filter { it.operation == AttributeModifier.Operation.ADD_SCALAR }) {
+                    e += d * attributeModifier2.amount
+                }
+
+                for (attributeModifier3 in modifiers.filter { it.operation == AttributeModifier.Operation.MULTIPLY_SCALAR_1 }) {
+                    e *= 1.0 + attributeModifier3.amount
+                }
+
+                e
+            }
+            every { baseValue } returns 20.0
+            every { modifiers } returns list
+            every { addModifier(any()) } answers { list.add(firstArg()) }
+        }
+
+        val modi = origin.attributeModifiers[Trigger.ON]!!.first { it.first == Attribute.GENERIC_MAX_HEALTH }
+        inst.addModifier(modi.second)
+
+        expectThat(inst)
+            .assertThat("Inst has 1 modifier") { it.modifiers.size == 1 }
+            .assertThat("The new value is 20 * 0.5") { it.value == 10.0 }
+
+        inst.addModifier(AttributeModifier("test2", 10.0, AttributeModifier.Operation.ADD_NUMBER))
+
+        expectThat(inst)
+            .assertThat("Inst has 2 modifiers") { it.modifiers.size == 2 }
+            .assertThat("The new value is (20 + 10) * 0.5") { it.value == 15.0 }
+
+        verify { inst.modifiers }
+        verify { inst.value }
+        verify { inst.baseValue }
+        verify { inst.addModifier(any()) }
     }
 
     @Test

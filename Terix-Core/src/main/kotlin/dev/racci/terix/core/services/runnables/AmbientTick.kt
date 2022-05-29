@@ -5,6 +5,7 @@ import dev.racci.minix.api.utils.now
 import dev.racci.minix.nms.aliases.toNMS
 import dev.racci.terix.api.extensions.playSound
 import dev.racci.terix.api.origins.sounds.SoundEffect
+import dev.racci.terix.core.services.RunnableService
 import kotlinx.datetime.Instant
 import org.bukkit.entity.Player
 import kotlin.math.pow
@@ -12,6 +13,7 @@ import kotlin.math.pow
 class AmbientTick(
     private val player: Player,
     private val sound: SoundEffect,
+    private val service: RunnableService,
     parent: CoroutineRunnable
 ) : ChildCoroutineRunnable(parent) {
 
