@@ -1,6 +1,5 @@
 package dev.racci.terix.core.services.runnables
 
-import dev.racci.minix.api.scheduler.CoroutineRunnable
 import dev.racci.minix.api.utils.now
 import dev.racci.minix.nms.aliases.toNMS
 import dev.racci.terix.api.extensions.playSound
@@ -14,8 +13,8 @@ class AmbientTick(
     private val player: Player,
     private val sound: SoundEffect,
     private val service: RunnableService,
-    parent: CoroutineRunnable
-) : ChildCoroutineRunnable(parent) {
+    mother: MotherCoroutineRunnable
+) : ChildCoroutineRunnable(mother) {
 
     private var disabled: Boolean = false
     private var lastAmbient: Instant = Instant.DISTANT_FUTURE
