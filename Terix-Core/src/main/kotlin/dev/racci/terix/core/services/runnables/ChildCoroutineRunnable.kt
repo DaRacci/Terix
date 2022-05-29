@@ -1,8 +1,10 @@
 package dev.racci.terix.core.services.runnables
 
-import dev.racci.minix.api.scheduler.CoroutineRunnable
+abstract class ChildCoroutineRunnable(mother: MotherCoroutineRunnable) {
 
-abstract class ChildCoroutineRunnable(val mother: CoroutineRunnable) {
+    init {
+        mother.children += this
+    }
 
     var isAlive: Boolean = false
     var upForAdoption: Boolean = true
