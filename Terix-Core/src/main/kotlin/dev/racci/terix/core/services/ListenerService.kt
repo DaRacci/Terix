@@ -3,16 +3,26 @@ package dev.racci.terix.core.services
 import com.destroystokyo.paper.event.block.BeaconEffectEvent
 import com.destroystokyo.paper.event.player.PlayerPostRespawnEvent
 import dev.racci.minix.api.annotations.MappedExtension
-import dev.racci.minix.api.destructors.component1
-import dev.racci.minix.api.destructors.component2
-import dev.racci.minix.api.destructors.component3
+import dev.racci.minix.api.events.PlayerDoubleLeftClickEvent
+import dev.racci.minix.api.events.PlayerDoubleOffhandEvent
+import dev.racci.minix.api.events.PlayerDoubleRightClickEvent
 import dev.racci.minix.api.events.PlayerEnterLiquidEvent
 import dev.racci.minix.api.events.PlayerExitLiquidEvent
+import dev.racci.minix.api.events.PlayerLeftClickEvent
+import dev.racci.minix.api.events.PlayerOffhandEvent
+import dev.racci.minix.api.events.PlayerRightClickEvent
+import dev.racci.minix.api.events.PlayerShiftDoubleLeftClickEvent
+import dev.racci.minix.api.events.PlayerShiftDoubleOffhandEvent
+import dev.racci.minix.api.events.PlayerShiftDoubleRightClickEvent
+import dev.racci.minix.api.events.PlayerShiftLeftClickEvent
+import dev.racci.minix.api.events.PlayerShiftOffhandEvent
+import dev.racci.minix.api.events.PlayerShiftRightClickEvent
 import dev.racci.minix.api.events.WorldDayEvent
 import dev.racci.minix.api.events.WorldNightEvent
 import dev.racci.minix.api.extension.Extension
 import dev.racci.minix.api.extensions.cancel
 import dev.racci.minix.api.extensions.event
+import dev.racci.minix.api.extensions.events
 import dev.racci.minix.api.extensions.inOverworld
 import dev.racci.minix.api.extensions.onlinePlayers
 import dev.racci.minix.api.services.DataService
@@ -26,6 +36,7 @@ import dev.racci.terix.api.dsl.PotionEffectBuilder
 import dev.racci.terix.api.ensureMainThread
 import dev.racci.terix.api.events.PlayerOriginChangeEvent
 import dev.racci.terix.api.extensions.playSound
+import dev.racci.terix.api.origins.enums.KeyBinding
 import dev.racci.terix.api.origins.enums.Trigger
 import dev.racci.terix.api.origins.enums.Trigger.Companion.getTrigger
 import dev.racci.terix.core.data.Config
@@ -42,7 +53,6 @@ import dev.racci.terix.core.origins.invokeReload
 import dev.racci.terix.core.origins.invokeRemove
 import dev.racci.terix.core.origins.invokeSwap
 import kotlinx.coroutines.delay
-import net.kyori.adventure.sound.Sound.sound
 import org.bukkit.attribute.Attribute
 import org.bukkit.entity.Player
 import org.bukkit.event.EventPriority
@@ -220,6 +230,27 @@ class ListenerService(override val plugin: Terix) : Extension<Terix>() {
 
             if (config.showTitleOnChange) newOrigin.becomeOriginTitle?.invoke(player)
             removeUnfulfilledOrInvalidAttributes(player)
+        }
+
+        events(
+            PlayerLeftClickEvent::class,
+            PlayerRightClickEvent::class,
+            PlayerOffhandEvent::class,
+            PlayerDoubleLeftClickEvent::class,
+            PlayerDoubleRightClickEvent::class,
+            PlayerDoubleOffhandEvent::class,
+            PlayerShiftDoubleLeftClickEvent::class,
+            PlayerShiftDoubleRightClickEvent::class,
+            PlayerShiftDoubleOffhandEvent::class,
+            PlayerShiftLeftClickEvent::class,
+            PlayerShiftRightClickEvent::class,
+            PlayerShiftOffhandEvent::class,
+        ) {
+            val clazz = KeyBinding.fromEvent(this::class)
+            val origin = player.origin()
+
+            val ability = origin.abilities[clazz] ?: return@events
+            ability.toggle(player)
         }
     }
 
