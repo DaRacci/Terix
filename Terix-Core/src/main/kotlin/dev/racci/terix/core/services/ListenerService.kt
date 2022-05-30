@@ -140,14 +140,8 @@ class ListenerService(override val plugin: Terix) : Extension<Terix>() {
         event<PlayerEnterLiquidEvent> { Trigger.values().find { it.name == newType.name }?.invokeAdd(player) }
         event<PlayerExitLiquidEvent> { Trigger.values().find { it.name == previousType.name }?.invokeRemove(player) }
 
-        event<WorldNightEvent>(forceAsync = true) {
-            log.debug { "Night event triggered." }
-            timeTrigger(Trigger.NIGHT)
-        }
-        event<WorldDayEvent>(forceAsync = true) {
-            log.debug { "Day event triggered." }
-            timeTrigger(Trigger.DAY)
-        }
+        event<WorldNightEvent>(forceAsync = true) { timeTrigger(Trigger.NIGHT) }
+        event<WorldDayEvent>(forceAsync = true) { timeTrigger(Trigger.DAY) }
 
         event<PlayerChangedWorldEvent>(forceAsync = true) {
             val fromTrigger = from.environment.getTrigger()
@@ -165,18 +159,23 @@ class ListenerService(override val plugin: Terix) : Extension<Terix>() {
             priority = EventPriority.LOWEST
         ) {
             val player = entity as? Player ?: return@event
-            if (entity.unsafeCast<Player>().origin().damageActions[cause]?.invoke(this) != null && damage == 0.0) return@event cancel()
+            if (entity.unsafeCast<Player>().origin().damageActions[cause]?.invoke(this) != null && damage == 0.0) {
+                log.debug { "Canceling damage event for ${entity.name} because the action changed the damage to 0." }
+                return@event cancel()
+            }
 
+            log.debug { "Playing hurt sound for ${entity.name}." }
             val sound = player.origin().sounds.hurtSound
-            player.location.playSound(sound.resourceKey.asString(), sound.volume, sound.pitch, sound.distance, player)
+            player.playSound(sound.resourceKey.asString(), sound.volume, sound.pitch, sound.distance)
         }
 
         event<PlayerDeathEvent>(
             ignoreCancelled = true,
             priority = EventPriority.LOWEST
         ) {
+            log.debug { "Playing death sound for ${player.name}." }
             val sound = player.origin().sounds.deathSound
-            player.location.playSound(sound.resourceKey.asString(), sound.volume, sound.pitch, sound.distance, player)
+            player.playSound(sound.resourceKey.asString(), sound.volume, sound.pitch, sound.distance)
         }
 
         event<FoodLevelChangeEvent>(

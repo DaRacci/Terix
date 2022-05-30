@@ -4,20 +4,16 @@ import com.github.benmanes.caffeine.cache.Caffeine
 import dev.racci.minix.api.annotations.MappedExtension
 import dev.racci.minix.api.extension.Extension
 import dev.racci.minix.api.extensions.event
-import dev.racci.minix.api.extensions.isDay
 import dev.racci.minix.api.extensions.player
 import dev.racci.minix.api.scheduler.CoroutineScheduler
 import dev.racci.minix.api.utils.kotlin.and
 import dev.racci.minix.api.utils.unsafeCast
-import dev.racci.minix.nms.aliases.toNMS
 import dev.racci.terix.api.OriginService
 import dev.racci.terix.api.Terix
 import dev.racci.terix.api.events.PlayerOriginChangeEvent
 import dev.racci.terix.api.origins.AbstractOrigin
 import dev.racci.terix.api.origins.enums.Trigger
-import dev.racci.terix.core.extensions.inSunlight
 import dev.racci.terix.core.extensions.origin
-import dev.racci.terix.core.extensions.wasInSunlight
 import dev.racci.terix.core.origins.invokeAdd
 import dev.racci.terix.core.origins.invokeRemove
 import dev.racci.terix.core.services.runnables.AmbientTick
@@ -28,7 +24,6 @@ import dev.racci.terix.core.services.runnables.SunlightTick
 import dev.racci.terix.core.services.runnables.WaterTick
 import kotlinx.collections.immutable.PersistentList
 import kotlinx.coroutines.runBlocking
-import net.minecraft.core.BlockPos
 import org.bukkit.entity.Player
 import org.bukkit.event.EventPriority
 import org.bukkit.event.player.PlayerJoinEvent
@@ -123,21 +118,4 @@ class RunnableService(override val plugin: Terix) : Extension<Terix>() {
 
     // @Ticker(Trigger.HOT) TODO
     // @Ticker(Trigger.COLD) TODO
-
-    internal fun shouldTickSunlight(player: Player): Boolean {
-        val nms = player.toNMS()
-        val brightness = nms.brightness
-        val pos = BlockPos(nms.x, nms.eyeY, nms.z)
-
-        val presentPrevention = player.isInWaterOrRainOrBubbleColumn || player.isInPowderedSnow
-        val shouldBurn = { (nms.random.nextFloat() * 15.0f) < ((brightness - 0.4f) * 2.0f) } // Lazy evaluation
-        val actuallyInSunlight = player.isDay &&
-            !presentPrevention &&
-            brightness > 0.5f &&
-            nms.level.canSeeSky(pos)
-
-        player.wasInSunlight = player.inSunlight
-        player.inSunlight = actuallyInSunlight
-        return actuallyInSunlight && shouldBurn()
-    }
 }

@@ -21,7 +21,7 @@ class Levitate : AbstractAbility() {
                     key = NamespacedKey("terix", KEY)
                 }
             )
-            player.location.playSound("entity.phantom.flap", 1f, 1f, source = player)
+            player.playSound("minecraft:entity.phantom.flap", 1f, 1f)
         }
     }
 
