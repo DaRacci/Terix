@@ -5,7 +5,6 @@ import dev.jorel.commandapi.CommandPermission
 import dev.jorel.commandapi.arguments.ArgumentSuggestions
 import dev.jorel.commandapi.arguments.DoubleArgument
 import dev.jorel.commandapi.arguments.EntitySelectorArgument
-import dev.jorel.commandapi.arguments.FloatArgument
 import dev.jorel.commandapi.arguments.StringArgument
 import dev.racci.minix.api.annotations.MappedExtension
 import dev.racci.minix.api.extension.Extension
@@ -63,17 +62,17 @@ class CommandService(override val plugin: Terix) : Extension<Terix>() {
 
         command("testing") {
 
-            command("discount") {
+            subcommand("discount") {
                 arguments {
                     arg<EntitySelectorArgument<Villager>>("villager")
-                    arg<FloatArgument>("value")
+                    arg<DoubleArgument>("value")
                 }
 
                 executePlayer { player, anies ->
                     val villager = anies.getCast<Villager>(0)
-                    val amount = anies.getCast<Float>(1)
+                    val amount = anies.getCast<Double>(1)
 
-                    if (amount == -1f) {
+                    if (amount == -1.0) {
                         villager.recipes.forEach {
                             it.removePriceMultiplier(player.uniqueId)
                         }
@@ -85,7 +84,7 @@ class CommandService(override val plugin: Terix) : Extension<Terix>() {
                 }
             }
 
-            command("attribute") {
+            subcommand("attribute") {
                 arguments {
                     arg<StringArgument>("attribute").replaceSuggestions(ArgumentSuggestions.strings(*Attribute.values().map(Attribute::name).toTypedArray()))
                     arg<StringArgument>("operation").replaceSuggestions(ArgumentSuggestions.strings(*AttributeModifier.Operation.values().map(AttributeModifier.Operation::name).toTypedArray()))
@@ -103,7 +102,7 @@ class CommandService(override val plugin: Terix) : Extension<Terix>() {
                 }
             }
 
-            command("clearAttributes") {
+            subcommand("clearAttributes") {
                 arguments {
                     arg<StringArgument>("attribute").replaceSuggestions(
                         ArgumentSuggestions.strings(
