@@ -27,12 +27,11 @@ class AmbientTick(
         if (disabled) return
         if (!chancePass()) return
 
-        player.location.playSound(
+        player.playSound(
             sound.resourceKey.asString(),
             sound.volume,
             sound.pitch,
             sound.distance,
-            player
         )
     }
 }
