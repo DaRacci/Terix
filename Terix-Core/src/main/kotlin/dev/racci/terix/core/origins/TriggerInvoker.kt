@@ -82,6 +82,10 @@ suspend fun Trigger.Companion.invokeReload(
     newOrigin: AbstractOrigin = player.origin()
 ) {
     getKoin().get<Terix>().log.debug { "Changing origins from ${oldOrigin?.name ?: "null"} to ${newOrigin.name}" }
+
+    player.setImmuneToFire(newOrigin.fireImmune)
+    player.setCanBreathUnderwater(newOrigin.waterBreathing)
+
     val activeTriggers = player.activeTriggers()
     val removePotions = arrayListOf<PotionEffectType>()
     val curHealth = player.health
