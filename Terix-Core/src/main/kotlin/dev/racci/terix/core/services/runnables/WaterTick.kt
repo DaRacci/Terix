@@ -19,7 +19,7 @@ class WaterTick(
 
     override suspend fun run() {
         player.wasInWater = player.inWater
-        player.inWater = player.location.block.type.liquidType != LiquidType.WATER
+        player.inWater = player.location.block.liquidType == LiquidType.WATER
         service.doInvoke(player, origin, Trigger.WATER, player.wasInWater, player.inWater)
         if (!player.inWater) return
 
