@@ -4,10 +4,13 @@ import com.zaxxer.hikari.HikariConfig
 import com.zaxxer.hikari.HikariDataSource
 import dev.racci.minix.api.annotations.MappedExtension
 import dev.racci.minix.api.extension.Extension
+import dev.racci.minix.api.extensions.event
 import dev.racci.minix.api.utils.kotlin.ifInitialized
 import dev.racci.terix.api.OriginService
 import dev.racci.terix.api.Terix
+import dev.racci.terix.core.data.PlayerData
 import dev.racci.terix.core.data.User
+import org.bukkit.event.player.AsyncPlayerPreLoginEvent
 import org.jetbrains.exposed.sql.Database
 import org.jetbrains.exposed.sql.SchemaUtils
 import org.jetbrains.exposed.sql.transactions.transaction
@@ -31,6 +34,9 @@ class StorageService(override val plugin: Terix) : Extension<Terix>() {
         Database.connect(dataSource.value)
         transaction {
             SchemaUtils.createMissingTablesAndColumns(User)
+        }
+        event<AsyncPlayerPreLoginEvent> {
+            transaction { PlayerData.findById(this@event.uniqueId) ?: PlayerData.new(this@event.uniqueId) {} }
         }
     }
 
