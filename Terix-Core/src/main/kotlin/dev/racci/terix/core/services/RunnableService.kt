@@ -7,6 +7,7 @@ import dev.racci.minix.api.extensions.event
 import dev.racci.minix.api.extensions.player
 import dev.racci.minix.api.scheduler.CoroutineScheduler
 import dev.racci.minix.api.utils.kotlin.and
+import dev.racci.minix.api.utils.ticks
 import dev.racci.minix.api.utils.unsafeCast
 import dev.racci.terix.api.OriginService
 import dev.racci.terix.api.Terix
@@ -34,11 +35,17 @@ import kotlin.reflect.full.primaryConstructor
 
 @MappedExtension(Terix::class, "Runnable Service", [OriginService::class, HookService::class])
 class RunnableService(override val plugin: Terix) : Extension<Terix>() {
-    private val motherRunnables = Caffeine.newBuilder()
-        .evictionListener { uuid: UUID?, value: MotherCoroutineRunnable?, cause ->
-            log.debug { "Ordering a hitman on the mother of ${value!!.children.size} hideous children who's father was $uuid. (Reason: $cause)" }
-            runBlocking { CoroutineScheduler.shutdownTask(value!!.taskID) }
-        }.build(::getNewMother)
+    private val motherRunnables =
+        Caffeine.newBuilder()
+            .removalListener { uuid: UUID?, value: MotherCoroutineRunnable?, cause ->
+                log.debug { "Ordering a hitman on the mother of ${value!!.children.size} hideous children who's father was $uuid. (Reason: $cause)" }
+                runBlocking { CoroutineScheduler.shutdownTask(value!!.taskID) }
+            }
+            .build { uuid: UUID ->
+                val mother = getNewMother(uuid)
+                mother?.runAsyncTaskTimer(plugin, 5.ticks, 5.ticks)
+                mother
+            }
 
     override suspend fun handleEnable() {
         event<PlayerJoinEvent> { motherRunnables[player.uniqueId] }
