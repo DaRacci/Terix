@@ -3,6 +3,8 @@ package dev.racci.terix.api.dsl
 import dev.racci.minix.api.extensions.scheduler
 import dev.racci.minix.api.utils.getKoin
 import dev.racci.terix.api.Terix
+import dev.racci.terix.api.origins.AbstractOrigin
+import org.bukkit.Material
 import org.bukkit.attribute.Attribute
 import org.bukkit.attribute.AttributeModifier
 import org.bukkit.entity.Player
@@ -24,9 +26,22 @@ class TimedAttributeBuilder() {
     var amount by Delegates.notNull<Double>()
     var operation by Delegates.notNull<AttributeModifier.Operation>()
 
+    fun materialName(
+        material: Material,
+        origin: AbstractOrigin
+    ): TimedAttributeBuilder {
+        name = StringBuilder("terix:timed_attribute_")
+            .append(origin.name.lowercase())
+            .append("/")
+            .append(material.name.lowercase())
+            .toString()
+        return this
+    }
+
     fun invoke(player: Player) {
         val modifier = AttributeModifier(uuid ?: UUID.randomUUID(), name, amount, operation)
         player.getAttribute(attribute)?.addModifier(modifier)
+
         scheduler {
             player.getAttribute(attribute)?.removeModifier(modifier)
         }.runAsyncTaskLater(getKoin().get<Terix>(), duration)
