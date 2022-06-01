@@ -11,7 +11,6 @@ import dev.racci.terix.api.origins.AbstractOrigin
 import dev.racci.terix.api.origins.enums.Trigger
 import dev.racci.terix.api.origins.sounds.SoundEffect
 import kotlinx.datetime.Instant
-import net.kyori.adventure.key.Key
 import net.kyori.adventure.text.format.NamedTextColor
 import net.minecraft.world.damagesource.DamageSource
 import org.bukkit.Material
@@ -41,14 +40,7 @@ class VampireOrigin(override val plugin: Terix) : AbstractOrigin() {
         }
         title {
             Trigger.SUNLIGHT += {
-                title = "<red>You feel week.".parse()
                 subtitle = "<red>Return to the dark to regain your strength.".parse()
-                sound = Key.key("minecraft", "entity.bat.hurt")
-            }
-            Trigger.DARKNESS += {
-                title = "<green>You feel stronger.".parse()
-                subtitle = "<green>You feel the power of the sun.".parse()
-                sound = Key.key("minecraft", "item.shield.break")
             }
         }
         potions {
