@@ -18,7 +18,7 @@ class TitleBuilder(
 
     fun build(): Title {
         cachedTitle = Title.title(
-            title ?: error("Title cannot be null in title builder!"),
+            title ?: Component.empty(),
             subtitle ?: Component.empty(),
             times ?: Title.DEFAULT_TIMES
         )
