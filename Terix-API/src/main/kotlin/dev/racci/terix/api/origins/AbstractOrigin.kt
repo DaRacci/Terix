@@ -628,7 +628,9 @@ abstract class AbstractOrigin : WithPlugin<MinixPlugin> {
          * @receiver The food.
          */
         @JvmName("plusAssignTimedAttributeBuilder")
-        operator fun Material.plusAssign(builder: (TimedAttributeBuilder) -> Unit) { if (checkEdible()) foodAttributes.put(this, TimedAttributeBuilder(builder)) }
+        operator fun Material.plusAssign(builder: (TimedAttributeBuilder) -> Unit) {
+            if (checkEdible()) foodAttributes.put(this, TimedAttributeBuilder(builder).materialName(this, this@AbstractOrigin))
+        }
 
         private fun Material.checkEdible(): Boolean {
             if (!isEdible) getKoin().get<Terix>().log.warn { "Trying to add a non-edible material to the food builder: $name" }
