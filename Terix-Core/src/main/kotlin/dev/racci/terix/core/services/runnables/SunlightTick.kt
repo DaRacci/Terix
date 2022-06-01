@@ -5,11 +5,13 @@ import dev.racci.minix.api.utils.kotlin.ifTrue
 import dev.racci.minix.nms.aliases.toNMS
 import dev.racci.terix.api.origins.AbstractOrigin
 import dev.racci.terix.api.origins.enums.Trigger
-import dev.racci.terix.core.data.User.origin
 import dev.racci.terix.core.extensions.inSunlight
 import dev.racci.terix.core.extensions.wasInSunlight
 import dev.racci.terix.core.services.HookService
 import dev.racci.terix.core.services.RunnableService
+import net.kyori.adventure.extra.kotlin.text
+import net.kyori.adventure.text.Component
+import net.kyori.adventure.text.format.NamedTextColor
 import net.minecraft.core.BlockPos
 import org.bukkit.craftbukkit.v1_18_R2.inventory.CraftItemStack
 import org.bukkit.entity.Player
@@ -21,16 +23,27 @@ class SunlightTick(
     mother: MotherCoroutineRunnable,
 ) : ChildCoroutineRunnable(mother) {
 
+    private var exposedTime: Int = 0
+
     override suspend fun run() {
-        val bool = shouldTickSunlight(player)
+        val burn = shouldTickSunlight(player)
         service.doInvoke(player, origin, Trigger.SUNLIGHT, player.wasInSunlight, player.inSunlight)
 
-        if (!bool) return
+        when {
+            !player.inSunlight && exposedTime > 0 -> exposedTime -= 5
+            exposedTime < GRACE_PERIOD -> exposedTime += 5
+        }
+        showBar()
+        if (!player.inSunlight || exposedTime < GRACE_PERIOD) return
+
         val ticks = origin.damageTicks[Trigger.SUNLIGHT] ?: return
         val helmet = player.inventory.helmet
 
         if (helmet == null) {
-            if (player.fireTicks > ticks) return
+            if (player.fireTicks > ticks ||
+                player.fireTicks > 0 &&
+                !burn()
+            ) return
             player.fireTicks = ticks.toInt()
             return
         }
@@ -47,9 +60,27 @@ class SunlightTick(
         (helmet as CraftItemStack).handle.hurt(amount, nms.level.random, nms)
     }
 
-    companion object {
+    private fun showBar() {
+        if (exposedTime < 20 || exposedTime > (GRACE_PERIOD - 1)) return player.sendActionBar(Component.empty())
+        val index = (exposedTime / 20 - 1).coerceIn(cachedComponents.indices)
+        player.sendActionBar(cachedComponents[index])
+    }
 
-        fun shouldTickSunlight(player: Player): Boolean {
+    companion object {
+        const val GRACE_CHAR = "▇"
+        const val GRACE_PERIOD = 10 * 20
+        private var cachedComponents = run {
+            val multiplier = 20 / (GRACE_PERIOD / 20)
+            Array<Component>(GRACE_PERIOD / 20) {
+                text {
+                    repeat(it * multiplier) {
+                        append(Component.text(GRACE_CHAR, NamedTextColor.GOLD))
+                    }
+                }
+            }.reversedArray()
+        }
+
+        fun shouldTickSunlight(player: Player): () -> Boolean {
             val nms = player.toNMS()
             val brightness = nms.brightness
             val pos = BlockPos(nms.x, nms.eyeY, nms.z)
@@ -62,7 +93,7 @@ class SunlightTick(
 
             player.wasInSunlight = player.inSunlight
             player.inSunlight = actuallyInSunlight
-            return actuallyInSunlight && shouldBurn()
+            return shouldBurn
         }
     }
 }
