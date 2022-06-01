@@ -11,9 +11,11 @@ import dev.racci.minix.api.utils.collections.CollectionUtils.clear
 import dev.racci.minix.api.utils.collections.CollectionUtils.getCast
 import dev.racci.terix.api.Terix
 import dev.racci.terix.core.enchantments.SunResistance
+import dev.racci.terix.core.extensions.origin
 import me.angeschossen.lands.api.flags.Flags
 import me.angeschossen.lands.api.integration.LandsIntegration
 import me.clip.placeholderapi.expansion.PlaceholderExpansion
+import net.kyori.adventure.text.serializer.legacy.LegacyComponentSerializer
 import org.bukkit.Location
 import org.bukkit.entity.Player
 import org.bukkit.event.server.PluginDisableEvent
@@ -105,6 +107,7 @@ class HookService(override val plugin: Terix) : Extension<Terix>() {
     }
 
     class PlaceholderAPIHook : HookService, PlaceholderExpansion() {
+        private val serializer = LegacyComponentSerializer.builder().hexColors().build()
 
         override fun persist() = true
         override fun canRegister() = true
@@ -121,9 +124,21 @@ class HookService(override val plugin: Terix) : Extension<Terix>() {
             log.info { "Unregistering PlaceholderAPI Hook" }
             unregister()
         }
+
+        override fun onPlaceholderRequest(
+            player: Player,
+            params: String
+        ): String? {
+            return when (params) {
+                "origin_name" -> player.origin().name
+                "origin_displayName" -> serializer.serialize(player.origin().displayName)
+                "origin_colour" -> player.origin().colour.asHexString()
+                else -> null
+            }
+        }
     }
 
-    sealed interface ClaimPlugin : HookService {
+    interface ClaimPlugin : HookService {
 
         fun isClaimed(location: Location): Boolean
 
