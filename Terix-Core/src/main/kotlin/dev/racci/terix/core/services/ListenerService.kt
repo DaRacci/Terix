@@ -29,7 +29,6 @@ import dev.racci.minix.api.services.DataService
 import dev.racci.minix.api.services.DataService.Companion.inject
 import dev.racci.minix.api.utils.kotlin.invokeIfNotNull
 import dev.racci.minix.api.utils.now
-import dev.racci.minix.api.utils.unsafeCast
 import dev.racci.terix.api.Terix
 import dev.racci.terix.api.dsl.AttributeModifierBuilder
 import dev.racci.terix.api.dsl.PotionEffectBuilder
@@ -68,7 +67,6 @@ import org.bukkit.potion.PotionEffect
 import org.bukkit.potion.PotionEffectType
 import org.jetbrains.exposed.sql.transactions.experimental.newSuspendedTransaction
 import org.koin.core.component.inject
-import kotlin.math.roundToInt
 import kotlin.time.Duration.Companion.seconds
 
 // Check for button presses to invoke actions in the test chambers
@@ -185,7 +183,6 @@ class ListenerService(override val plugin: Terix) : Extension<Terix>() {
             ignoreCancelled = true,
             priority = EventPriority.LOWEST
         ) {
-            log.debug { "Playing death sound for ${player.name}." }
             val sound = player.origin().sounds.deathSound
             player.playSound(sound.resourceKey.asString(), sound.volume, sound.pitch, sound.distance)
         }
@@ -197,16 +194,14 @@ class ListenerService(override val plugin: Terix) : Extension<Terix>() {
             val player = entity as? Player ?: return@event
             val item = item ?: return@event
             val origin = player.origin()
-            // TODO: Test if this cancels the whole event of just the food change
+
+            // TODO -> Saturation
             origin.foodMultipliers[item.type]?.invokeIfNotNull {
-                if (it == 0.0) {
-                    log.debug { "Cancelling food change for ${player.name} due to multi being 0.0" }
-                    cancel()
-                }
-                val new = foodLevel * it
-                log.debug { "Food change for ${player.name} change from $foodLevel to $new due to $item" }
-                foodLevel = new.roundToInt()
+                cancel()
+                if (it == 0.0) return@invokeIfNotNull
+                player.foodLevel += ((foodLevel - player.foodLevel) * it).toInt()
             }
+            origin.foodBlocks[item.type]?.invoke(player)
             origin.foodAttributes[item.type]?.forEach { it.invoke(player) }
             origin.foodPotions[item.type]?.invokeIfNotNull(player::addPotionEffects)
         }
