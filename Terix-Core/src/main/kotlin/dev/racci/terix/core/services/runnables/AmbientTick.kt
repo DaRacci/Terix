@@ -1,13 +1,13 @@
 package dev.racci.terix.core.services.runnables
 
 import dev.racci.minix.api.utils.now
-import dev.racci.minix.nms.aliases.toNMS
 import dev.racci.terix.api.extensions.playSound
 import dev.racci.terix.api.origins.sounds.SoundEffect
 import dev.racci.terix.core.services.RunnableService
 import kotlinx.datetime.Instant
 import org.bukkit.entity.Player
-import kotlin.math.pow
+import kotlin.random.Random
+import kotlin.time.Duration.Companion.seconds
 
 class AmbientTick(
     private val player: Player,
@@ -17,15 +17,17 @@ class AmbientTick(
 ) : ChildCoroutineRunnable(mother) {
 
     private var disabled: Boolean = false
-    private var lastAmbient: Instant = Instant.DISTANT_FUTURE
+    private var nextAmbient: Instant = Instant.DISTANT_FUTURE
 
-    private fun chancePass(): Boolean {
-        return player.toNMS().random.nextDouble(0.0, 1.0).pow((now() - lastAmbient).inWholeSeconds.toDouble()) > 0.5
+    private fun ambientTime(): Boolean {
+        if (now() < nextAmbient) return false
+        nextAmbient += Random.nextDouble(MIN_TIME, MAX_TIME).seconds
+        return true
     }
 
     override suspend fun run() {
         if (disabled) return
-        if (!chancePass()) return
+        if (!ambientTime()) return
 
         player.playSound(
             sound.resourceKey.asString(),
@@ -33,5 +35,10 @@ class AmbientTick(
             sound.pitch,
             sound.distance,
         )
+    }
+
+    companion object {
+        const val MIN_TIME: Double = 600.0
+        const val MAX_TIME: Double = 1200.0
     }
 }
