@@ -60,13 +60,11 @@ import org.bukkit.event.entity.EntityDamageEvent
 import org.bukkit.event.entity.EntityPotionEffectEvent
 import org.bukkit.event.entity.FoodLevelChangeEvent
 import org.bukkit.event.entity.PlayerDeathEvent
-import org.bukkit.event.player.AsyncPlayerPreLoginEvent
 import org.bukkit.event.player.PlayerChangedWorldEvent
 import org.bukkit.event.player.PlayerJoinEvent
 import org.bukkit.potion.PotionEffect
 import org.bukkit.potion.PotionEffectType
 import org.jetbrains.exposed.sql.transactions.experimental.newSuspendedTransaction
-import org.jetbrains.exposed.sql.transactions.transaction
 import org.koin.core.component.inject
 import kotlin.math.roundToInt
 import kotlin.time.Duration.Companion.seconds
@@ -99,10 +97,6 @@ class ListenerService(override val plugin: Terix) : Extension<Terix>() {
                 false,
                 false
             )
-        }
-
-        event<AsyncPlayerPreLoginEvent> {
-            transaction { PlayerData.findById(this@event.uniqueId) ?: PlayerData.new(this@event.uniqueId) {} }
         }
 
         event<PlayerJoinEvent>(forceAsync = true) {
