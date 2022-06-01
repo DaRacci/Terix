@@ -102,11 +102,25 @@ class RunnableService(override val plugin: Terix) : Extension<Terix>() {
             }
 
             if (task is PersistentList<*>) {
-                for (t in task) {
-                    t.unsafeCast<KClass<*>>().primaryConstructor!!.call(player, origin, this@RunnableService, mother)
-                }
-            } else task.unsafeCast<KClass<*>>().primaryConstructor!!.call(player, origin, this@RunnableService, mother)
+                task.forEach { checkAndRegister(player, origin, mother, it) }
+            } else checkAndRegister(player, origin, mother, task)
         }
+    }
+
+    private fun checkAndRegister(
+        player: Player,
+        origin: AbstractOrigin,
+        mother: MotherCoroutineRunnable,
+        taskClazz: Any?
+    ) {
+        if (taskClazz == null) return
+        if (mother.children.any { it::class == taskClazz }) return
+        taskClazz.unsafeCast<KClass<*>>().primaryConstructor!!.call(
+            player,
+            origin,
+            this@RunnableService,
+            mother
+        )
     }
 
     suspend fun doInvoke(
