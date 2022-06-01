@@ -21,7 +21,7 @@ class Levitate : AbstractAbility() {
                     key = NamespacedKey("terix", KEY)
                 }
             )
-            player.playSound("minecraft:entity.phantom.flap", 1f, 1f)
+            player.playSound(SOUND.first, SOUND.second, SOUND.third)
         }
     }
 
@@ -33,10 +33,12 @@ class Levitate : AbstractAbility() {
             break
         }
 
+        player.playSound(SOUND.first, SOUND.second, SOUND.third)
         ensureMainThread { types.forEach(player::removePotionEffect) }
     }
 
     companion object {
         const val KEY = "origin_ability_levitate"
+        val SOUND = Triple("minecraft:entity.phantom.flap", 1f, 1f)
     }
 }
