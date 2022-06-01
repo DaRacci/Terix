@@ -36,6 +36,7 @@ import dev.racci.terix.api.dsl.PotionEffectBuilder
 import dev.racci.terix.api.ensureMainThread
 import dev.racci.terix.api.events.PlayerOriginChangeEvent
 import dev.racci.terix.api.extensions.playSound
+import dev.racci.terix.api.origins.AbstractOrigin
 import dev.racci.terix.api.origins.enums.KeyBinding
 import dev.racci.terix.api.origins.enums.Trigger
 import dev.racci.terix.api.origins.enums.Trigger.Companion.getTrigger
@@ -56,6 +57,7 @@ import kotlinx.coroutines.delay
 import org.bukkit.attribute.Attribute
 import org.bukkit.entity.Player
 import org.bukkit.event.EventPriority
+import org.bukkit.event.entity.EntityCombustEvent
 import org.bukkit.event.entity.EntityDamageEvent
 import org.bukkit.event.entity.EntityPotionEffectEvent
 import org.bukkit.event.entity.FoodLevelChangeEvent
@@ -80,7 +82,7 @@ class ListenerService(override val plugin: Terix) : Extension<Terix>() {
         event<BeaconEffectEvent>(priority = EventPriority.LOWEST) {
             val potion = player.getPotionEffect(effect.type) ?: return@event
             if (potion.duration < effect.duration) return@event // The beacons potion will last longer than the temporary potion.
-            if (potion.key?.asString()?.matches(PotionEffectBuilder.regex) != true) return@event // Not one of our potions.
+            if (potion.key?.asString()?.matches(PotionEffectBuilder.regex) != true) return@event // Not one of my potions.
 
             player.getPotionEffect(effect.type)?.let { potion ->
                 if (potion.duration > effect.duration &&
@@ -158,17 +160,23 @@ class ListenerService(override val plugin: Terix) : Extension<Terix>() {
             player.origin().titles[toTrigger]?.invoke(player)
         }
 
+        event<EntityCombustEvent> {
+            val player = entity as? Player ?: return@event
+            if (ensureNoFire(player, player.origin())) cancel()
+        }
+
         event<EntityDamageEvent>(
             ignoreCancelled = true,
             priority = EventPriority.LOWEST
         ) {
             val player = entity as? Player ?: return@event
-            if (entity.unsafeCast<Player>().origin().damageActions[cause]?.invoke(this) != null && damage == 0.0) {
-                log.debug { "Canceling damage event for ${entity.name} because the action changed the damage to 0." }
-                return@event cancel()
-            }
+            val origin = player.origin()
 
-            log.debug { "Playing hurt sound for ${entity.name}." }
+            if (ensureNoFire(player, origin) ||
+                origin.damageActions[cause]?.invoke(this) != null &&
+                damage == 0.0
+            ) return@event cancel()
+
             val sound = player.origin().sounds.hurtSound
             player.playSound(sound.resourceKey.asString(), sound.volume, sound.pitch, sound.distance)
         }
@@ -246,6 +254,15 @@ class ListenerService(override val plugin: Terix) : Extension<Terix>() {
             val ability = origin.abilities[clazz] ?: return@events
             ability.toggle(player)
         }
+    }
+
+    private fun ensureNoFire(
+        player: Player,
+        origin: AbstractOrigin,
+    ): Boolean {
+        if (player.fireTicks <= 0 || !origin.fireImmune) return false
+        player.fireTicks = 0
+        return true
     }
 
     private fun removeUnfulfilledOrInvalidAttributes(
