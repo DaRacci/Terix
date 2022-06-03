@@ -39,6 +39,9 @@ enum class Trigger {
     /*Activates within lava*/
     LAVA,
 
+    /*Activates when on land*/
+    LAND,
+
     /*Activated within lava or fire*/
     FLAMMABLE,
 
