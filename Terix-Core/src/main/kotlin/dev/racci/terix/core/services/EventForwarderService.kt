@@ -32,6 +32,7 @@ import dev.racci.terix.core.extensions.origin
 import org.bukkit.entity.Player
 import org.bukkit.event.block.BlockBreakEvent
 import org.bukkit.event.block.BlockPlaceEvent
+import org.bukkit.event.entity.EntityAirChangeEvent
 import org.bukkit.event.entity.EntityCombustEvent
 import org.bukkit.event.entity.EntityDamageByEntityEvent
 import org.bukkit.event.entity.EntityDamageEvent
@@ -42,8 +43,11 @@ import org.bukkit.event.entity.EntityToggleSwimEvent
 import org.bukkit.event.entity.PlayerDeathEvent
 import org.bukkit.event.entity.ProjectileHitEvent
 import org.bukkit.event.inventory.InventoryOpenEvent
+import org.bukkit.event.player.PlayerBedEnterEvent
 import org.bukkit.event.player.PlayerChangedWorldEvent
 import org.bukkit.event.player.PlayerFishEvent
+import org.bukkit.event.player.PlayerInteractEvent
+import org.bukkit.event.player.PlayerItemConsumeEvent
 import org.bukkit.event.player.PlayerItemDamageEvent
 import org.bukkit.event.player.PlayerRespawnEvent
 import org.bukkit.event.player.PlayerRiptideEvent
@@ -53,8 +57,13 @@ import org.spigotmc.event.entity.EntityMountEvent
 @MappedExtension(Terix::class, "Event Forwarder Service", [OriginService::class])
 class EventForwarderService(override val plugin: Terix) : Extension<Terix>() {
 
+    // TODO -> HashMap reference for events to the KCallable
+    // TODO -> Implement caching knowledge of if an origin should have the event forwarded.
     override suspend fun handleEnable() {
-        event<PlayerOriginChangeEvent> { player.origin().onChange(this) }
+        event<PlayerOriginChangeEvent> {
+            preOrigin.onChange(this)
+            newOrigin.onChange(this)
+        }
         event<PlayerRespawnEvent> { player.origin().onRespawn(this) }
         event<PlayerPostRespawnEvent> { player.origin().onPostRespawn(this) }
         event<PlayerDeathEvent> { player.origin().onDeath(this) }
@@ -84,7 +93,11 @@ class EventForwarderService(override val plugin: Terix) : Extension<Terix>() {
         event<PlayerElytraBoostEvent> { player.origin().onElytraBoost(this) }
         event<EntityMountEvent> { (entity as? Player)?.origin()?.onEntityMount(this) }
         event<EntityDismountEvent> { (entity as? Player)?.origin()?.onEntityDismount(this) }
-        event< InventoryOpenEvent> { (player as? Player)?.origin()?.onInventoryOpen(this) }
+        event<InventoryOpenEvent> { (player as? Player)?.origin()?.onInventoryOpen(this) }
+        event<EntityAirChangeEvent> { (entity as? Player)?.origin()?.onAirChange(this) }
+        event<PlayerBedEnterEvent> { player.origin().onEnterBed(this) }
+        event<PlayerInteractEvent> { player.origin().onInteract(this) }
+        event<PlayerItemConsumeEvent> { player.origin().onConsume(this) }
 
         // Combo Events
         event<PlayerLeftClickEvent> { player.origin().onLeftClick(this) }

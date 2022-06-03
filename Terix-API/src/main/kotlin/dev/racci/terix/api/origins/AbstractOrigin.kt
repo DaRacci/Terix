@@ -51,6 +51,7 @@ import org.bukkit.block.Biome
 import org.bukkit.entity.Player
 import org.bukkit.event.block.BlockBreakEvent
 import org.bukkit.event.block.BlockPlaceEvent
+import org.bukkit.event.entity.EntityAirChangeEvent
 import org.bukkit.event.entity.EntityCombustEvent
 import org.bukkit.event.entity.EntityDamageByEntityEvent
 import org.bukkit.event.entity.EntityDamageEvent
@@ -61,8 +62,11 @@ import org.bukkit.event.entity.EntityToggleSwimEvent
 import org.bukkit.event.entity.PlayerDeathEvent
 import org.bukkit.event.entity.ProjectileHitEvent
 import org.bukkit.event.inventory.InventoryOpenEvent
+import org.bukkit.event.player.PlayerBedEnterEvent
 import org.bukkit.event.player.PlayerChangedWorldEvent
 import org.bukkit.event.player.PlayerFishEvent
+import org.bukkit.event.player.PlayerInteractEvent
+import org.bukkit.event.player.PlayerItemConsumeEvent
 import org.bukkit.event.player.PlayerItemDamageEvent
 import org.bukkit.event.player.PlayerRespawnEvent
 import org.bukkit.event.player.PlayerRiptideEvent
@@ -127,6 +131,8 @@ abstract class AbstractOrigin : WithPlugin<MinixPlugin> {
      * Called when the player respawns
      */
     open suspend fun onRespawn(event: PlayerRespawnEvent) {}
+
+    open suspend fun onBecomeOrigin(event: PlayerOriginChangeEvent) {}
 
     /**
      * Called when the player changes origins
@@ -280,6 +286,20 @@ abstract class AbstractOrigin : WithPlugin<MinixPlugin> {
 
     /** Called when the player opens an inventory. */
     open suspend fun onInventoryOpen(event: InventoryOpenEvent) {}
+
+    /** Called when the player's air level changes. */
+    open suspend fun onAirChange(event: EntityAirChangeEvent) {}
+
+    /** Called when the player attempts to enter a bed. */
+    open suspend fun onEnterBed(event: PlayerBedEnterEvent) {}
+
+    /** Called when the player interacts with something. */
+    open suspend fun onInteract(event: PlayerInteractEvent) {}
+
+    /** Called when the player consumes an item. */
+    open suspend fun onConsume(event: PlayerItemConsumeEvent) {}
+
+    open suspend fun onTick(player: Player) {}
 
     @MinixDsl
     protected suspend fun potions(builder: suspend AbstractOrigin.PotionsBuilder.() -> Unit) {
