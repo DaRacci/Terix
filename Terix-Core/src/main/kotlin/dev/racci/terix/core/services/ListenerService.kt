@@ -3,6 +3,7 @@ package dev.racci.terix.core.services
 import com.destroystokyo.paper.event.block.BeaconEffectEvent
 import com.destroystokyo.paper.event.player.PlayerPostRespawnEvent
 import dev.racci.minix.api.annotations.MappedExtension
+import dev.racci.minix.api.events.LiquidType
 import dev.racci.minix.api.events.PlayerDoubleLeftClickEvent
 import dev.racci.minix.api.events.PlayerDoubleOffhandEvent
 import dev.racci.minix.api.events.PlayerDoubleRightClickEvent
@@ -38,6 +39,7 @@ import dev.racci.terix.api.extensions.playSound
 import dev.racci.terix.api.origins.AbstractOrigin
 import dev.racci.terix.api.origins.enums.KeyBinding
 import dev.racci.terix.api.origins.enums.Trigger
+import dev.racci.terix.api.origins.enums.Trigger.Companion.getTimeTrigger
 import dev.racci.terix.api.origins.enums.Trigger.Companion.getTrigger
 import dev.racci.terix.core.data.Config
 import dev.racci.terix.core.data.Lang
@@ -53,6 +55,7 @@ import dev.racci.terix.core.origins.invokeReload
 import dev.racci.terix.core.origins.invokeRemove
 import dev.racci.terix.core.origins.invokeSwap
 import kotlinx.coroutines.delay
+import kotlinx.datetime.Instant
 import org.bukkit.attribute.Attribute
 import org.bukkit.entity.Player
 import org.bukkit.event.EventPriority
@@ -63,6 +66,7 @@ import org.bukkit.event.entity.FoodLevelChangeEvent
 import org.bukkit.event.entity.PlayerDeathEvent
 import org.bukkit.event.player.PlayerChangedWorldEvent
 import org.bukkit.event.player.PlayerJoinEvent
+import org.bukkit.inventory.ItemStack
 import org.bukkit.potion.PotionEffect
 import org.bukkit.potion.PotionEffectType
 import org.jetbrains.exposed.sql.transactions.experimental.newSuspendedTransaction
@@ -78,9 +82,7 @@ class ListenerService(override val plugin: Terix) : Extension<Terix>() {
     @Suppress("kotlin:S3776")
     override suspend fun handleEnable() {
         event<BeaconEffectEvent>(priority = EventPriority.LOWEST) {
-            val potion = player.getPotionEffect(effect.type) ?: return@event
-            if (potion.duration < effect.duration) return@event // The beacons potion will last longer than the temporary potion.
-            if (potion.key?.asString()?.matches(PotionEffectBuilder.regex) != true) return@event // Not one of my potions.
+            if (shouldIgnore()) return@event
 
             player.getPotionEffect(effect.type)?.let { potion ->
                 if (potion.duration > effect.duration &&
@@ -127,7 +129,7 @@ class ListenerService(override val plugin: Terix) : Extension<Terix>() {
             removeUnfulfilledOrInvalidAttributes(player)
             Trigger.invokeBase(player)
             player.world.environment.getTrigger().invokeAdd(player)
-            player.health = player.maxHealth
+            player.health = player.getAttribute(Attribute.GENERIC_MAX_HEALTH)!!.value
         }
 
         event<EntityPotionEffectEvent> { if (shouldCancel()) cancel() }
@@ -143,19 +145,16 @@ class ListenerService(override val plugin: Terix) : Extension<Terix>() {
             Trigger.LAND.invokeAdd(player)
         }
 
-        event<PlayerEnterLiquidEvent> { Trigger.values().find { it.name == newType.name }?.invokeAdd(player) }
-        event<PlayerExitLiquidEvent> { Trigger.values().find { it.name == previousType.name }?.invokeRemove(player) }
-
         event<WorldNightEvent>(forceAsync = true) { timeTrigger(Trigger.NIGHT) }
         event<WorldDayEvent>(forceAsync = true) { timeTrigger(Trigger.DAY) }
 
         event<PlayerChangedWorldEvent>(forceAsync = true) {
             val fromTrigger = from.environment.getTrigger()
             val toTrigger = player.world.environment.getTrigger()
+
             if (fromTrigger == toTrigger) return@event
-            if (fromTrigger.ordinal == 4 && toTrigger.ordinal != 4) {
-                (if (from.isDayTime) Trigger.DAY else Trigger.NIGHT).invokeRemove(player)
-            }
+            if (fromTrigger.ordinal == 4 && toTrigger.ordinal != 4) from.getTimeTrigger()!!.invokeRemove(player)
+
             toTrigger.invokeSwap(fromTrigger, player)
             player.origin().titles[toTrigger]?.invoke(player)
         }
@@ -197,12 +196,7 @@ class ListenerService(override val plugin: Terix) : Extension<Terix>() {
             val item = item ?: return@event
             val origin = player.origin()
 
-            // TODO -> Saturation
-            origin.foodMultipliers[item.type]?.invokeIfNotNull {
-                cancel()
-                if (it == 0.0) return@invokeIfNotNull
-                player.foodLevel += ((foodLevel - player.foodLevel) * it).toInt()
-            }
+            foodLevelChange(origin, item, player)
             origin.foodBlocks[item.type]?.invoke(player)
             origin.foodAttributes[item.type]?.forEach { it.invoke(player) }
             origin.foodPotions[item.type]?.invokeIfNotNull(player::addPotionEffects)
@@ -213,11 +207,10 @@ class ListenerService(override val plugin: Terix) : Extension<Terix>() {
             priority = EventPriority.LOWEST
         ) {
             val now = now()
-            if (!bypassCooldown &&
-                player.originTime + config.intervalBeforeChange > now
-            ) return@event cancel()
 
+            if (bypassOrEarly(now)) return@event cancel()
             if (!bypassCooldown) player.originTime = now
+
             newSuspendedTransaction { PlayerData[player.uniqueId].origin = newOrigin }
             Trigger.invokeReload(player, preOrigin, newOrigin) // TODO: This should cover the removeUnfulfilled method
 
@@ -253,6 +246,33 @@ class ListenerService(override val plugin: Terix) : Extension<Terix>() {
         }
     }
 
+    private fun BeaconEffectEvent.shouldIgnore(): Boolean {
+        val potion = player.getPotionEffect(effect.type) ?: return true
+        return potion.duration < effect.duration ||
+            !potion.hasKey() ||
+            !potion.key!!.asString().matches(PotionEffectBuilder.regex)
+    }
+
+    // TODO -> Saturation
+    private fun FoodLevelChangeEvent.foodLevelChange(
+        origin: AbstractOrigin,
+        item: ItemStack,
+        player: Player
+    ) {
+        origin.foodMultipliers[item.type]?.invokeIfNotNull {
+            cancel()
+            if (it == 0.0) return@invokeIfNotNull
+            player.foodLevel += ((foodLevel - player.foodLevel) * it).toInt()
+        }
+    }
+
+    private fun PlayerOriginChangeEvent.bypassOrEarly(now: Instant): Boolean {
+        if (!bypassCooldown &&
+            player.originTime + config.intervalBeforeChange > now
+        ) return true
+        return false
+    }
+
     private fun ensureNoFire(
         player: Player,
         origin: AbstractOrigin,
@@ -261,6 +281,11 @@ class ListenerService(override val plugin: Terix) : Extension<Terix>() {
         player.fireTicks = 0
         return true
     }
+
+    private fun EntityPotionEffectEvent.shouldCancel() = entity is Player &&
+        cause == EntityPotionEffectEvent.Cause.MILK &&
+        oldEffect != null && oldEffect!!.hasKey() &&
+        oldEffect!!.key!!.asString().matches(PotionEffectBuilder.regex)
 
     private fun removeUnfulfilledOrInvalidAttributes(
         player: Player,
