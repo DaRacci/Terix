@@ -21,8 +21,6 @@ class RainTick(
     private var lastTick = Instant.DISTANT_PAST
 
     override suspend fun run() {
-        player.wasInRain = player.inRain
-        player.inRain = player.isInRain
         service.doInvoke(player, origin, Trigger.RAIN, player.wasInRain, player.inRain)
 
         if (!player.inRain) return

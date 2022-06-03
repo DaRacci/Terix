@@ -1,6 +1,5 @@
 package dev.racci.terix.core.services.runnables
 
-import dev.racci.minix.api.extensions.isDay
 import dev.racci.minix.api.utils.kotlin.ifTrue
 import dev.racci.minix.nms.aliases.toNMS
 import dev.racci.terix.api.origins.AbstractOrigin
@@ -12,7 +11,6 @@ import dev.racci.terix.core.services.RunnableService
 import net.kyori.adventure.extra.kotlin.text
 import net.kyori.adventure.text.Component
 import net.kyori.adventure.text.format.NamedTextColor
-import net.minecraft.core.BlockPos
 import org.bukkit.craftbukkit.v1_18_R2.inventory.CraftItemStack
 import org.bukkit.entity.Player
 
@@ -83,16 +81,7 @@ class SunlightTick(
         fun shouldTickSunlight(player: Player): () -> Boolean {
             val nms = player.toNMS()
             val brightness = nms.brightness
-            val pos = BlockPos(nms.x, nms.eyeY, nms.z)
-            val presentPrevention = player.isInWaterOrRainOrBubbleColumn || player.isInPowderedSnow
             val shouldBurn = { (nms.random.nextFloat() * 15.0f) < ((brightness - 0.4f) * 2.0f) } // Lazy evaluation
-            val actuallyInSunlight = player.isDay &&
-                !presentPrevention &&
-                brightness > 0.5f &&
-                nms.level.canSeeSky(pos)
-
-            player.wasInSunlight = player.inSunlight
-            player.inSunlight = actuallyInSunlight
             return shouldBurn
         }
     }
