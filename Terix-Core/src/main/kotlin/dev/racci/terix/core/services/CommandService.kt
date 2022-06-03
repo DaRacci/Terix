@@ -3,6 +3,7 @@ package dev.racci.terix.core.services
 import dev.jorel.commandapi.CommandAPICommand
 import dev.jorel.commandapi.CommandPermission
 import dev.jorel.commandapi.arguments.ArgumentSuggestions
+import dev.jorel.commandapi.arguments.BooleanArgument
 import dev.jorel.commandapi.arguments.DoubleArgument
 import dev.jorel.commandapi.arguments.EntitySelectorArgument
 import dev.jorel.commandapi.arguments.StringArgument
@@ -32,15 +33,18 @@ import dev.racci.terix.core.extensions.safelyAddPotion
 import dev.racci.terix.core.extensions.safelyRemovePotion
 import dev.racci.terix.core.extensions.subcommand
 import dev.racci.terix.core.extensions.usedChoices
+import org.bukkit.Fluid
 import org.bukkit.attribute.Attribute
 import org.bukkit.attribute.AttributeModifier
 import org.bukkit.command.CommandSender
+import org.bukkit.entity.LivingEntity
 import org.bukkit.entity.Player
 import org.bukkit.entity.Villager
 import org.bukkit.potion.PotionEffectType
 import org.koin.core.component.get
 import org.koin.core.component.inject
 import java.util.UUID
+import java.util.logging.Level
 import kotlin.time.Duration
 
 @MappedExtension(Terix::class, "Command Service", [OriginService::class, GUIService::class, SpecialService::class])
@@ -61,6 +65,47 @@ class CommandService(override val plugin: Terix) : Extension<Terix>() {
         }
 
         command("testing") {
+
+            subcommand("oxygen") {
+                executePlayer { player, _ ->
+                    player.isReverseOxygen = !player.isReverseOxygen
+                    player.msg("oxygen.${if (player.isReverseOxygen) "enabled" else "disabled"}")
+                }
+            }
+
+            subcommand("debug") {
+                arguments {
+                    arg<BooleanArgument>("debug")
+                }
+                execute { _, a ->
+                    val bool = a.getCast<Boolean>(0)
+                    plugin.logger.level = if (bool) Level.OFF else Level.ALL
+                }
+            }
+
+            subcommand("stand") {
+                arguments {
+                    arg<EntitySelectorArgument<LivingEntity>>("entity")
+                }
+                executePlayer { player, anies ->
+                    val entity = anies.getCast<LivingEntity>(0)
+                    Fluid.values().forEach {
+                        entity.addCanStandOnFluid(it)
+                    }
+                }
+            }
+
+            subcommand("remove") {
+                arguments {
+                    arg<EntitySelectorArgument<LivingEntity>>("entity")
+                }
+                executePlayer { player, anies ->
+                    val entity = anies.getCast<LivingEntity>(0)
+                    Fluid.values().forEach {
+                        entity.removeCanStandOnFluid(it)
+                    }
+                }
+            }
 
             subcommand("discount") {
                 arguments {
