@@ -5,14 +5,14 @@ import dev.racci.terix.api.Terix
 import dev.racci.terix.api.origins.AbstractOrigin
 import dev.racci.terix.api.origins.enums.Trigger
 import dev.racci.terix.api.origins.sounds.SoundEffect
-import net.kyori.adventure.text.format.NamedTextColor
+import net.kyori.adventure.text.format.TextColor
 import org.bukkit.Material
 import org.bukkit.potion.PotionEffectType
 
 class HumanOrigin(override val plugin: Terix) : AbstractOrigin() {
 
     override val name = "Human"
-    override val colour = NamedTextColor.GRAY!!
+    override val colour = TextColor.fromHexString("#ff3838")!!
 
     override suspend fun onRegister() {
         sounds.hurtSound = SoundEffect("entity.player.hurt")

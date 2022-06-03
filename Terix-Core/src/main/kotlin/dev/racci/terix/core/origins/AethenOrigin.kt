@@ -14,7 +14,7 @@ import org.bukkit.event.entity.EntityDamageEvent
 class AethenOrigin(override val plugin: Terix) : AbstractOrigin() {
 
     override val name = "Aethen"
-    override val colour = TextColor.fromHexString("#fff6cc")!!
+    override val colour = TextColor.fromHexString("#ffc757")!!
 
     override suspend fun onRegister() {
         sounds.hurtSound = SoundEffect("entity.silverfish.hurt")

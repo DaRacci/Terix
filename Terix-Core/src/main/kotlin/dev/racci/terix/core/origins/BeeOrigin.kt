@@ -9,7 +9,7 @@ import dev.racci.terix.api.origins.AbstractOrigin
 import dev.racci.terix.api.origins.sounds.SoundEffect
 import dev.racci.terix.core.services.HookService
 import me.angeschossen.lands.api.flags.Flags
-import net.kyori.adventure.text.format.NamedTextColor
+import net.kyori.adventure.text.format.TextColor
 import org.bukkit.Material
 import org.bukkit.block.Block
 import org.bukkit.entity.Player
@@ -19,7 +19,7 @@ import org.bukkit.potion.PotionEffect
 class BeeOrigin(override val plugin: Terix) : AbstractOrigin() {
 
     override val name = "Bee"
-    override val colour = NamedTextColor.GOLD!!
+    override val colour = TextColor.fromHexString("#fc9f2f")!!
 
     override suspend fun onRegister() {
         sounds.hurtSound = SoundEffect("entity.bee.hurt")

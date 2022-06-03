@@ -13,7 +13,8 @@ import dev.racci.terix.api.origins.enums.Trigger
 import dev.racci.terix.api.origins.sounds.SoundEffect
 import kotlinx.coroutines.NonCancellable.cancel
 import kotlinx.coroutines.delay
-import net.kyori.adventure.text.format.NamedTextColor
+import kotlinx.datetime.Instant
+import net.kyori.adventure.text.format.TextColor
 import org.bukkit.Material
 import org.bukkit.attribute.Attribute
 import org.bukkit.attribute.AttributeModifier
@@ -27,7 +28,7 @@ import kotlin.time.Duration.Companion.seconds
 class SlimeOrigin(override val plugin: Terix) : AbstractOrigin() {
 
     override val name = "Slime"
-    override val colour = NamedTextColor.LIGHT_PURPLE!!
+    override val colour = TextColor.fromHexString("#61f45a")!!
 
     private val playerHealthCache = Caffeine.newBuilder()
         .expireAfterAccess(Duration.ofSeconds(15))

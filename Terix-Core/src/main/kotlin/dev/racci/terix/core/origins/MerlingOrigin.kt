@@ -7,7 +7,7 @@ import dev.racci.terix.api.dsl.PotionEffectBuilder
 import dev.racci.terix.api.dsl.TimedAttributeBuilder
 import dev.racci.terix.api.origins.AbstractOrigin
 import dev.racci.terix.api.origins.sounds.SoundEffect
-import net.kyori.adventure.text.format.NamedTextColor
+import net.kyori.adventure.text.format.TextColor
 import org.bukkit.Material
 import org.bukkit.attribute.Attribute
 import org.bukkit.attribute.AttributeModifier
@@ -19,7 +19,7 @@ import kotlin.time.Duration.Companion.seconds
 class MerlingOrigin(override val plugin: Terix) : AbstractOrigin() {
 
     override val name = "Merling"
-    override val colour = NamedTextColor.AQUA!!
+    override val colour = TextColor.fromHexString("#47d7ff")!!
     override val waterBreathing = true
 
     override suspend fun onRegister() {

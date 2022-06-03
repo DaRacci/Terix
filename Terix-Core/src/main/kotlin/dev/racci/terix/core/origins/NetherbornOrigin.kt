@@ -4,14 +4,14 @@ import dev.racci.minix.api.plugin.MinixPlugin
 import dev.racci.terix.api.origins.AbstractOrigin
 import dev.racci.terix.api.origins.enums.Trigger
 import dev.racci.terix.api.origins.sounds.SoundEffect
-import net.kyori.adventure.text.format.NamedTextColor
+import net.kyori.adventure.text.format.TextColor
 import org.bukkit.Material
 import org.bukkit.event.entity.EntityDamageEvent
 
 class NetherbornOrigin(override val plugin: MinixPlugin) : AbstractOrigin() {
 
     override val name = "Netherborn"
-    override val colour = NamedTextColor.LIGHT_PURPLE!!
+    override val colour = TextColor.fromHexString("#ff5936")!!
 
     override val fireImmune = true
 
