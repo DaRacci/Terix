@@ -130,15 +130,17 @@ class ListenerService(override val plugin: Terix) : Extension<Terix>() {
             player.health = player.maxHealth
         }
 
-        event<EntityPotionEffectEvent> {
-            if (entity is Player &&
-                cause == EntityPotionEffectEvent.Cause.MILK &&
-                oldEffect != null && oldEffect!!.hasKey() &&
-                oldEffect!!.key!!.asString().matches(PotionEffectBuilder.regex)
-            ) {
-                log.debug { "Canceling milk potion removal for ${entity.name}." }
-                cancel()
-            }
+        event<EntityPotionEffectEvent> { if (shouldCancel()) cancel() }
+
+        event<PlayerEnterLiquidEvent> {
+            Trigger.values().find { it.name == newType.name }?.invokeAdd(player)
+            if (previousType != LiquidType.NON) return@event
+            Trigger.LAND.invokeRemove(player)
+        }
+        event<PlayerExitLiquidEvent> {
+            Trigger.values().find { it.name == previousType.name }?.invokeRemove(player)
+            if (newType != LiquidType.NON) return@event
+            Trigger.LAND.invokeAdd(player)
         }
 
         event<PlayerEnterLiquidEvent> { Trigger.values().find { it.name == newType.name }?.invokeAdd(player) }
