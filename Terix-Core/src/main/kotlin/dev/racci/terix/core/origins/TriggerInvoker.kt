@@ -26,21 +26,6 @@ suspend fun Trigger.invokeAdd(
     applyMainThread(player, origin, this, false)
 }
 
-/* suspend fun Trigger.Companion.invokeAddAll(
-    player: Player,
-    origin: AbstractOrigin = player.origin(),
-    triggers: Collection<Trigger>
-) {
-    val potions = mutableListOf<PotionEffect>()
-
-    for (trigger in triggers) {
-        applyAsyncable(player, origin, trigger, false)
-        origin.potions[trigger]?.let(potions::addAll)
-    }
-
-    ensureMainThread { triggers.forEach { applyMainThread(player, origin, it, false) } }
-} */
-
 suspend fun Trigger.invokeSwap(
     oldTrigger: Trigger,
     player: Player,
