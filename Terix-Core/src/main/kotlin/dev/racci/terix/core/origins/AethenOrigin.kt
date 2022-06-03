@@ -1,15 +1,17 @@
 package dev.racci.terix.core.origins
 
+import dev.racci.minix.api.extensions.cancel
+import dev.racci.minix.api.extensions.parse
 import dev.racci.terix.api.Terix
 import dev.racci.terix.api.origins.AbstractOrigin
 import dev.racci.terix.api.origins.abilities.Levitate
 import dev.racci.terix.api.origins.enums.KeyBinding
-import dev.racci.terix.api.origins.enums.Trigger
 import dev.racci.terix.api.origins.sounds.SoundEffect
 import net.kyori.adventure.text.format.TextColor
 import org.bukkit.Material
 import org.bukkit.attribute.Attribute
 import org.bukkit.event.entity.EntityDamageEvent
+import org.bukkit.event.player.PlayerBedEnterEvent
 
 class AethenOrigin(override val plugin: Terix) : AbstractOrigin() {
 
@@ -23,7 +25,6 @@ class AethenOrigin(override val plugin: Terix) : AbstractOrigin() {
 
         attributes {
             Attribute.GENERIC_MAX_HEALTH *= 0.80
-            Pair(Trigger.NETHER, Attribute.GENERIC_MAX_HEALTH) *= 0.50
         }
         damage {
             EntityDamageEvent.DamageCause.FALL *= 0.0
@@ -42,5 +43,11 @@ class AethenOrigin(override val plugin: Terix) : AbstractOrigin() {
         abilities {
             KeyBinding.DOUBLE_OFFHAND.add<Levitate>()
         }
+    }
+
+    override suspend fun onEnterBed(event: PlayerBedEnterEvent) {
+        if (event.bed.location.y > 91) return
+        event.cancel()
+        event.player.sendActionBar("<red>You need fresh air to sleep!".parse())
     }
 }
