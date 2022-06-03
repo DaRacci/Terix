@@ -1,31 +1,58 @@
 package dev.racci.terix.core.origins
 
 import com.destroystokyo.paper.MaterialTags
-import dev.racci.minix.api.extensions.msg
+import dev.racci.minix.api.extensions.cancel
+import dev.racci.minix.api.utils.minecraft.MaterialTagsExtension
 import dev.racci.terix.api.Terix
-import dev.racci.terix.api.dsl.PotionEffectBuilder
-import dev.racci.terix.api.dsl.TimedAttributeBuilder
+import dev.racci.terix.api.events.PlayerOriginChangeEvent
 import dev.racci.terix.api.origins.AbstractOrigin
+import dev.racci.terix.api.origins.enums.Trigger
 import dev.racci.terix.api.origins.sounds.SoundEffect
 import net.kyori.adventure.text.format.TextColor
 import org.bukkit.Material
 import org.bukkit.attribute.Attribute
-import org.bukkit.attribute.AttributeModifier
+import org.bukkit.enchantments.Enchantment
 import org.bukkit.entity.Player
+import org.bukkit.event.entity.EntityAirChangeEvent
+import org.bukkit.event.player.PlayerItemConsumeEvent
 import org.bukkit.event.player.PlayerRiptideEvent
+import org.bukkit.inventory.meta.PotionMeta
 import org.bukkit.potion.PotionEffectType
-import kotlin.time.Duration.Companion.seconds
+import org.bukkit.potion.PotionType
+import kotlin.time.Duration
 
 class MerlingOrigin(override val plugin: Terix) : AbstractOrigin() {
 
     override val name = "Merling"
     override val colour = TextColor.fromHexString("#47d7ff")!!
-    override val waterBreathing = true
 
     override suspend fun onRegister() {
         sounds.hurtSound = SoundEffect("entity.salmon.hurt")
         sounds.deathSound = SoundEffect("entity.salmon.death")
         sounds.ambientSound = SoundEffect("entity.salmon.ambient")
+
+        attributes {
+            Pair(Trigger.WATER, Attribute.GENERIC_MOVEMENT_SPEED) *= 1.2
+            Pair(Trigger.LAND, Attribute.GENERIC_MOVEMENT_SPEED) *= 0.9
+            Pair(Trigger.WATER, Attribute.GENERIC_ATTACK_DAMAGE) *= 1.2
+            Pair(Trigger.WATER, Attribute.GENERIC_KNOCKBACK_RESISTANCE) *= 0.80
+            Pair(Trigger.WATER, Attribute.GENERIC_ATTACK_SPEED) *= 5.0
+            Pair(Trigger.LAND, Attribute.GENERIC_ATTACK_SPEED) *= 0.80
+        }
+
+        potions {
+            Trigger.WATER += {
+                type = PotionEffectType.NIGHT_VISION
+                duration = Duration.INFINITE
+                amplifier = 0
+                ambient = true
+            }
+        }
+
+        food {
+            MaterialTags.RAW_FISH *= 4.0
+            MaterialTagsExtension.COOKED_MEATS *= 0.5
+        }
 
         item {
             material = Material.TRIDENT
@@ -34,28 +61,60 @@ class MerlingOrigin(override val plugin: Terix) : AbstractOrigin() {
                 <aqua>It's not clear what it is.
             """.trimIndent()
         }
-        food {
-            MaterialTags.RAW_FISH *= 2
-            Material.COOKED_BEEF /= 2
-            Material.COOKED_CHICKEN += { player: Player ->
-                player.msg("You ate the cooked chicken!")
-            }
-            Material.COOKED_MUTTON += { builder: PotionEffectBuilder ->
-                builder.type = PotionEffectType.BLINDNESS
-                builder.duration = 5.seconds
-                builder.amplifier = 4
-                builder.ambient = false
-            }
-            Material.COOKED_PORKCHOP += { builder: TimedAttributeBuilder ->
-                builder.attribute = Attribute.GENERIC_MAX_HEALTH
-                builder.amount = 5.0
-                builder.operation = AttributeModifier.Operation.ADD_NUMBER
-                builder.duration = 15.seconds
-            }
-        }
+    }
+
+    override suspend fun onBecomeOrigin(event: PlayerOriginChangeEvent) {
+        event.player.isReverseOxygen = true
+    }
+
+    override suspend fun onChange(event: PlayerOriginChangeEvent) {
+        event.player.isReverseOxygen = false
     }
 
     override suspend fun onRiptide(event: PlayerRiptideEvent) {
         event.player.velocity = event.player.velocity.multiply(1.5)
     }
+
+    override suspend fun onConsume(event: PlayerItemConsumeEvent) {
+        if ((event.item.itemMeta as? PotionMeta)?.basePotionData?.type != PotionType.WATER) return
+
+        event.player.remainingAir = (event.player.remainingAir + 2).coerceAtMost(event.player.maximumAir)
+    }
+
+    // TODO -> Move into tentacles then remove here
+    override suspend fun onAirChange(event: EntityAirChangeEvent) {
+        val player = event.entity as? Player ?: return
+
+        if (player.hasPotionEffect(PotionEffectType.WATER_BREATHING)) return event.cancel()
+
+        val helmet = player.inventory.helmet ?: return
+        if (helmet.type == Material.TURTLE_HELMET || helmet.enchantments.containsKey(Enchantment.OXYGEN)) return event.cancel()
+    }
+
+    // TODO -> Fix inside tentacles then remove here
+//    override suspend fun onInteract(event: PlayerInteractEvent) {
+//        val player = event.player.toNMS()
+//
+//        if (event.action == Action.LEFT_CLICK_BLOCK) {
+//            val packet = ClientboundBlockDestructionPacket(
+//                event.player.entityId,
+//                BlockPos(
+//                    event.clickedBlock!!.x,
+//                    event.clickedBlock!!.y,
+//                    event.clickedBlock!!.z
+//                ),
+//                3
+//            )
+//            try {
+//                val field: Field = packet.getClass()
+//                    .getDeclaredField("a")
+//                field.setAccessible(true) // allows us to access the field
+//                field.setInt(packet, 123) // sets the field to an integer
+//                field.setAccessible(!field.isAccessible()) // we want to stop accessing this now
+//            } catch (x: Exception) {
+//                x.printStackTrace()
+//            }
+//            p.getHandle().playerConnection.sendPacket(packet)
+//        }
+//    }
 }
