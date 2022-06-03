@@ -6,8 +6,11 @@ import dev.racci.terix.api.origins.enums.Trigger
 import dev.racci.terix.api.origins.sounds.SoundEffect
 import net.kyori.adventure.text.format.TextColor
 import org.bukkit.Material
+import org.bukkit.event.entity.EntityDamageByEntityEvent
 import org.bukkit.event.entity.EntityDamageEvent
 
+// TODO -> Spawn in the nether.
+// TODO -> Flame particles.
 class NetherbornOrigin(override val plugin: MinixPlugin) : AbstractOrigin() {
 
     override val name = "Netherborn"
@@ -21,7 +24,7 @@ class NetherbornOrigin(override val plugin: MinixPlugin) : AbstractOrigin() {
         sounds.ambientSound = SoundEffect("entity.polar_bear.ambient")
 
         damage {
-            Trigger.WET += 2.0
+            Trigger.WET += 0.5
             listOf(
                 EntityDamageEvent.DamageCause.LAVA,
                 EntityDamageEvent.DamageCause.FIRE,
@@ -34,5 +37,11 @@ class NetherbornOrigin(override val plugin: MinixPlugin) : AbstractOrigin() {
             material = Material.LAVA_BUCKET
             lore = "<light_purple>A breath of fire that can be used to summon a dragon."
         }
+    }
+
+    override suspend fun onDamageEntity(event: EntityDamageByEntityEvent) {
+        if (event.damager.fireTicks <= 0) return
+
+        event.damage *= 1.2
     }
 }
