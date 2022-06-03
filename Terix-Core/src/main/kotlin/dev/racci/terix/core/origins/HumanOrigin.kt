@@ -38,4 +38,8 @@ class HumanOrigin(override val plugin: Terix) : AbstractOrigin() {
             lore = "This is a <blue>blue"
         }
     }
+
+    // TODO -> Better trades with villagers
+    // TODO -> Tames animals faster
+    // TODO -> Agriculture
 }

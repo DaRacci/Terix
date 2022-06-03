@@ -107,7 +107,7 @@ class HookService(override val plugin: Terix) : Extension<Terix>() {
     }
 
     class PlaceholderAPIHook : HookService, PlaceholderExpansion() {
-        private val serializer = LegacyComponentSerializer.builder().hexColors().build()
+        private val serializer = LegacyComponentSerializer.builder().hexColors().hexCharacter('#').build()
 
         override fun persist() = true
         override fun canRegister() = true
