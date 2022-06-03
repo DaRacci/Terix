@@ -4,15 +4,14 @@ import dev.racci.terix.api.Terix
 import dev.racci.terix.api.origins.AbstractOrigin
 import dev.racci.terix.api.origins.enums.Trigger
 import dev.racci.terix.api.origins.sounds.SoundEffect
-import net.kyori.adventure.text.format.NamedTextColor
+import net.kyori.adventure.text.format.TextColor
 import org.bukkit.Material
 import org.bukkit.event.entity.EntityDamageEvent.DamageCause
 
 class DragonOrigin(override val plugin: Terix) : AbstractOrigin() {
 
     override val name = "Dragon"
-    override val colour = NamedTextColor.LIGHT_PURPLE!!
-    override val fireImmune = true
+    override val colour = TextColor.fromHexString("#9e33ff")!!
 
     override suspend fun onRegister() {
         sounds.hurtSound = SoundEffect("entity.hoglin.angry")

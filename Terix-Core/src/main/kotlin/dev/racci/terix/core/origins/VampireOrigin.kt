@@ -11,7 +11,7 @@ import dev.racci.terix.api.origins.AbstractOrigin
 import dev.racci.terix.api.origins.enums.Trigger
 import dev.racci.terix.api.origins.sounds.SoundEffect
 import kotlinx.datetime.Instant
-import net.kyori.adventure.text.format.NamedTextColor
+import net.kyori.adventure.text.format.TextColor
 import net.minecraft.world.damagesource.DamageSource
 import org.bukkit.Material
 import org.bukkit.entity.LivingEntity
@@ -26,7 +26,7 @@ import kotlin.time.Duration.Companion.seconds
 class VampireOrigin(override val plugin: Terix) : AbstractOrigin() {
 
     override val name = "Vampire"
-    override val colour = NamedTextColor.DARK_RED!!
+    override val colour = TextColor.fromHexString("#ff1234")!!
 
     override val nightVision = true
 
