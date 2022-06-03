@@ -5,6 +5,8 @@ import com.github.benmanes.caffeine.cache.RemovalCause
 import dev.racci.minix.api.events.LiquidType
 import dev.racci.minix.api.events.PlayerEnterLiquidEvent
 import dev.racci.minix.api.events.PlayerExitLiquidEvent
+import dev.racci.minix.api.extensions.dropItem
+import dev.racci.minix.api.utils.now
 import dev.racci.minix.api.utils.unsafeCast
 import dev.racci.minix.nms.aliases.toNMS
 import dev.racci.terix.api.Terix
@@ -20,6 +22,7 @@ import org.bukkit.attribute.Attribute
 import org.bukkit.attribute.AttributeModifier
 import org.bukkit.entity.Player
 import org.bukkit.event.entity.EntityDamageEvent
+import org.bukkit.inventory.ItemStack
 import org.bukkit.potion.PotionEffectType
 import java.time.Duration
 import java.util.UUID
@@ -140,5 +143,19 @@ class SlimeOrigin(override val plugin: Terix) : AbstractOrigin() {
             playerHealthCache.put(event.player.uniqueId, bonus)
             delay(1.seconds)
         }
+    }
+
+    private val lastDamage = Caffeine.newBuilder()
+        .expireAfterWrite(Duration.ofSeconds(15))
+        .build<Player, Instant>()
+
+    override suspend fun onDamage(event: EntityDamageEvent) {
+        val last = lastDamage.getIfPresent(event.entity.unsafeCast<Player>())
+        val now = now()
+
+        if (last != null && (last + 15.seconds) > now()) return
+
+        lastDamage.put(event.entity.unsafeCast<Player>(), now)
+        event.entity.location.dropItem(ItemStack(Material.SLIME_BALL))
     }
 }
