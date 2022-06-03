@@ -1,8 +1,9 @@
 package dev.racci.terix.core.origins
 
 import dev.racci.minix.api.events.PlayerShiftRightClickEvent
-import dev.racci.minix.api.extensions.asBoolean
 import dev.racci.minix.api.extensions.parse
+import dev.racci.minix.api.extensions.playSound
+import dev.racci.minix.api.extensions.sync
 import dev.racci.minix.api.utils.now
 import dev.racci.minix.api.utils.safeCast
 import dev.racci.minix.nms.aliases.toNMS
@@ -14,6 +15,7 @@ import kotlinx.datetime.Instant
 import net.kyori.adventure.text.format.TextColor
 import net.minecraft.world.damagesource.DamageSource
 import org.bukkit.Material
+import org.bukkit.Sound
 import org.bukkit.entity.LivingEntity
 import org.bukkit.entity.Player
 import org.bukkit.potion.PotionEffectType
@@ -64,46 +66,23 @@ class VampireOrigin(override val plugin: Terix) : AbstractOrigin() {
         }
     }
 
-    private val cooldownList = object : HashSet<Player>() {
-        val cooldowns = mutableMapOf<Player, Instant>()
-
-        override fun add(element: Player): Boolean {
-            cooldowns += element to now()
-            return super.add(element)
-        }
-
-        override fun remove(element: Player): Boolean {
-            cooldowns -= element
-            return super.remove(element)
-        }
-
-        override fun contains(element: Player): Boolean {
-            if (cooldowns[element]?.let { it + 1.seconds }?.compareTo(now())?.asBoolean() == true) {
-                remove(element)
-                return false
-            }
-            return super.contains(element)
-        }
-    }
+    private val cooldowns = mutableMapOf<Player, Instant>()
 
     // TODO: Sucking sound
     override suspend fun onSneakRightClick(event: PlayerShiftRightClickEvent) {
-        if (event.player in cooldownList) return
+        val now = now()
+        if (event.player in cooldowns) {
+            val inst = cooldowns[event.player]!!
+
+            if (inst + 1.seconds > now) return
+            cooldowns -= event.player
+        }
+
         val entity = event.entity as? LivingEntity ?: return
 
-        val amountTaken = (event.player.maxHealth - event.player.health).coerceAtMost(1.0)
-        val vampAmount = (entity.maxHealth / 8).coerceAtMost(entity.health.coerceAtMost(amountTaken * 2))
+        val amountTaken = (event.player.maxHealth - event.player.health).coerceAtMost(2.0)
+        val vampAmount = (entity.maxHealth / 8).coerceAtMost(entity.health.coerceAtMost(amountTaken))
         val killing = entity.maxHealth - vampAmount <= 0.0
-
-        plugin.log.debug {
-            """\n
-                |Vampire: ${event.player.name}
-                |Entity: ${entity.name}
-                |Amount Taken: $amountTaken
-                |Vampire Amount: $vampAmount
-                |Killing: $killing
-            """.trimIndent()
-        }
 
         event.player.health += vampAmount
         event.player.sendHealthUpdate()
@@ -114,13 +93,18 @@ class VampireOrigin(override val plugin: Terix) : AbstractOrigin() {
             .display()
 
         if (killing) {
+            val nmsPlayer = event.player.toNMS()
+
             entity.killer = event.player
-            entity.toNMS().health = 0.0f
-            return entity.toNMS().die(DamageSource.playerAttack(event.player.toNMS()))
+            nmsPlayer.health = 0.0f
+
+            sync { nmsPlayer.die(DamageSource.playerAttack(event.player.toNMS())) }
+            return
         }
 
+        entity.location.playSound(Sound.BLOCK_SCULK_SENSOR_CLICKING, 1.0f, 1.0f)
         entity.health = (entity.health - vampAmount)
         entity.safeCast<Player>()?.sendHealthUpdate()
-        cooldownList += event.player
+        cooldowns[event.player] = now
     }
 }
