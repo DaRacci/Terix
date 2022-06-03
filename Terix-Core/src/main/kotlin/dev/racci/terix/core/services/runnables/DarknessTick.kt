@@ -16,8 +16,6 @@ class DarknessTick(
 ) : ChildCoroutineRunnable(mother) {
 
     override suspend fun run() {
-        player.wasInDarkness = player.inDarkness
-        player.inDarkness = player.inDarkness()
         service.doInvoke(player, origin, Trigger.DARKNESS, player.wasInDarkness, player.inDarkness)
         if (!player.inDarkness) return
 

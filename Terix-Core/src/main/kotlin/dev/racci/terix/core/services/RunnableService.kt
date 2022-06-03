@@ -1,15 +1,13 @@
 package dev.racci.terix.core.services
 
-import com.github.benmanes.caffeine.cache.Caffeine
 import dev.racci.minix.api.annotations.MappedExtension
 import dev.racci.minix.api.extension.Extension
+import dev.racci.minix.api.extensions.async
 import dev.racci.minix.api.extensions.event
+import dev.racci.minix.api.extensions.onlinePlayers
 import dev.racci.minix.api.extensions.player
-import dev.racci.minix.api.scheduler.CoroutineScheduler
 import dev.racci.minix.api.utils.kotlin.and
-import dev.racci.minix.api.utils.ticks
 import dev.racci.minix.api.utils.unsafeCast
-import dev.racci.terix.api.OriginService
 import dev.racci.terix.api.Terix
 import dev.racci.terix.api.events.PlayerOriginChangeEvent
 import dev.racci.terix.api.origins.AbstractOrigin
@@ -24,7 +22,8 @@ import dev.racci.terix.core.services.runnables.RainTick
 import dev.racci.terix.core.services.runnables.SunlightTick
 import dev.racci.terix.core.services.runnables.WaterTick
 import kotlinx.collections.immutable.PersistentList
-import kotlinx.coroutines.runBlocking
+import kotlinx.coroutines.flow.conflate
+import kotlinx.coroutines.flow.filter
 import org.bukkit.entity.Player
 import org.bukkit.event.EventPriority
 import org.bukkit.event.player.PlayerJoinEvent
@@ -33,28 +32,36 @@ import java.util.UUID
 import kotlin.reflect.KClass
 import kotlin.reflect.full.primaryConstructor
 
-@MappedExtension(Terix::class, "Runnable Service", [OriginService::class, HookService::class])
+// TODO -> Merge fully into TickService
+@MappedExtension(Terix::class, "Runnable Service", [HookService::class, TickService::class])
 class RunnableService(override val plugin: Terix) : Extension<Terix>() {
-    private val motherRunnables =
-        Caffeine.newBuilder()
-            .removalListener { uuid: UUID?, value: MotherCoroutineRunnable?, cause ->
-                log.debug { "Ordering a hitman on the mother of ${value!!.children.size} hideous children who's father was $uuid. (Reason: $cause)" }
-                runBlocking { CoroutineScheduler.shutdownTask(value!!.taskID) }
-            }
-            .build { uuid: UUID ->
-                val mother = getNewMother(uuid)
-                mother?.runAsyncTaskTimer(plugin, 5.ticks, 5.ticks)
-                mother
-            }
+    private val motherRunnables = HashMap<UUID, MotherCoroutineRunnable>()
 
     override suspend fun handleEnable() {
-        event<PlayerJoinEvent> { motherRunnables[player.uniqueId] }
-        event<PlayerQuitEvent> { motherRunnables.invalidate(player.uniqueId) }
-        event<PlayerOriginChangeEvent>(ignoreCancelled = true, priority = EventPriority.MONITOR) { motherRunnables.refresh(player.uniqueId) }
+        onlinePlayers.forEach(::addIfNeeded)
+
+        event<PlayerJoinEvent> { addIfNeeded(player) }
+        event<PlayerQuitEvent> { motherRunnables.remove(player.uniqueId) }
+        event<PlayerOriginChangeEvent>(
+            priority = EventPriority.MONITOR,
+            ignoreCancelled = true,
+            forceAsync = true
+        ) { addIfNeeded(player) }
+
+        startFlowListener()
     }
 
-    override suspend fun handleUnload() {
-        motherRunnables.invalidateAll()
+    override suspend fun handleUnload() { motherRunnables.clear() }
+
+    private fun addIfNeeded(player: Player) {
+        motherRunnables.compute(player.uniqueId) { uuid, _ -> getNewMother(uuid) }
+    }
+
+    private fun startFlowListener() = async {
+        val service = TickService.getService()
+        service.playerFlow
+            .filter { player -> motherRunnables.contains(player.uniqueId) }
+            .conflate().collect { player -> motherRunnables[player.uniqueId]!!.run() }
     }
 
     private fun getNewMother(uuid: UUID): MotherCoroutineRunnable? {
@@ -95,10 +102,7 @@ class RunnableService(override val plugin: Terix) : Extension<Terix>() {
                 Trigger.RAIN -> RainTick::class
                 Trigger.DARKNESS -> DarknessTick::class
                 Trigger.WET -> WaterTick::class and RainTick::class
-                else -> {
-                    log.debug { "Non applicable trigger for runnable services: $trigger" }
-                    continue
-                }
+                else -> continue
             }
 
             if (task is PersistentList<*>) {
