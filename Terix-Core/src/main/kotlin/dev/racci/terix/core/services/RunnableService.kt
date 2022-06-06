@@ -37,6 +37,9 @@ import kotlin.reflect.full.primaryConstructor
 class RunnableService(override val plugin: Terix) : Extension<Terix>() {
     private val motherRunnables = HashMap<UUID, MotherCoroutineRunnable>()
 
+    // Use native code :)
+    external fun getMotherRunnable(player: Player): MotherCoroutineRunnable?
+
     override suspend fun handleEnable() {
         onlinePlayers.forEach(::addIfNeeded)
 
