@@ -11,7 +11,7 @@ fun Player.playSound(
     soundKey: String,
     volume: Float = 1.0f,
     pitch: Float = 1.0f,
-    distance: Double = 16.0,
+    distance: Double = 16.0
 ) {
     val nmsWorld = this.world.toNMS()
 
@@ -23,13 +23,17 @@ fun Player.playSound(
         resourceKey,
         SoundSource.PLAYERS,
         Vec3(this.location.x, this.location.y, this.location.z),
-        volume, pitch,
+        volume,
+        pitch,
+        0
     )
 
     nmsWorld.server.playerList
         .broadcast(
             this.toNMS(),
-            this.location.x, this.location.y, this.location.z,
+            this.location.x,
+            this.location.y,
+            this.location.z,
             if (volume > 1f) volume * distance else distance,
             nmsWorld.dimension(),
             packet
