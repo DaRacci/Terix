@@ -54,11 +54,13 @@ import org.bukkit.event.player.PlayerRiptideEvent
 import org.spigotmc.event.entity.EntityDismountEvent
 import org.spigotmc.event.entity.EntityMountEvent
 
+// TODO: Only register when used by at-least one active origin.
+// TODO: Create a cleaner function to register events.
+// TODO -> HashMap reference for events to the KCallable
+// TODO -> Implement caching knowledge of if an origin should have the event forwarded.
 @MappedExtension(Terix::class, "Event Forwarder Service", [OriginService::class])
 class EventForwarderService(override val plugin: Terix) : Extension<Terix>() {
 
-    // TODO -> HashMap reference for events to the KCallable
-    // TODO -> Implement caching knowledge of if an origin should have the event forwarded.
     override suspend fun handleEnable() {
         event<PlayerOriginChangeEvent> {
             preOrigin.onChange(this)
