@@ -11,7 +11,7 @@ import dev.racci.terix.core.services.RunnableService
 import net.kyori.adventure.extra.kotlin.text
 import net.kyori.adventure.text.Component
 import net.kyori.adventure.text.format.NamedTextColor
-import org.bukkit.craftbukkit.v1_18_R2.inventory.CraftItemStack
+import org.bukkit.craftbukkit.v1_19_R1.inventory.CraftItemStack
 import org.bukkit.entity.Player
 
 class SunlightTick(
@@ -79,10 +79,8 @@ class SunlightTick(
         }
 
         fun shouldTickSunlight(player: Player): () -> Boolean {
-            val nms = player.toNMS()
-            val brightness = nms.brightness
-            val shouldBurn = { (nms.random.nextFloat() * 15.0f) < ((brightness - 0.4f) * 2.0f) } // Lazy evaluation
-            return shouldBurn
+            val brightness = player.location.toCenterLocation().block.lightLevel
+            return { (player.toNMS().random.nextFloat() * 15.0f) < ((brightness - 0.4f) * 2.0f) }
         }
     }
 }

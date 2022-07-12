@@ -1,4 +1,4 @@
-import com.github.jengelman.gradle.plugins.shadow.tasks.ShadowJar
+
 import java.net.URL
 
 plugins {
@@ -15,7 +15,7 @@ bukkit {
     name = project.name
     prefix = project.name
     author = "Racci"
-    apiVersion = "1.18"
+    apiVersion = "1.19"
     version = rootProject.version.toString()
     main = "dev.racci.terix.core.TerixImpl"
     load = net.minecrell.pluginyml.bukkit.BukkitPluginDescription.PluginLoadOrder.STARTUP
@@ -53,18 +53,19 @@ subprojects {
         maven("https://jitpack.io")
         maven("https://repo.racci.dev/releases")
         maven("https://repo.racci.dev/snapshots/")
+        maven("https://repo.dmulloy2.net/repository/public/")
         maven("https://repo.extendedclip.com/content/repositories/placeholderapi/")
     }
 
     dependencies {
         compileOnly("dev.racci:Minix-NMS:$minixVersion")
-        compileOnly("dev.racci:Minix:3.0.0-SNAPSHOT")
-        compileOnly("dev.racci:Minix-Core:3.0.0-SNAPSHOT")
+        compileOnly(rootProject.libs.minecraft.minix)
+        compileOnly(rootProject.libs.minecraft.minix.core)
 
         testImplementation(platform(kotlin("bom")))
         testImplementation("dev.racci:Minix-NMS:$minixVersion")
-        testImplementation("dev.racci:Minix:3.0.0-SNAPSHOT")
-        testImplementation("dev.racci:Minix-Core:3.0.0-SNAPSHOT")
+        testImplementation(rootProject.libs.minecraft.minix)
+        testImplementation(rootProject.libs.minecraft.minix.core)
         testImplementation(rootProject.libs.bundles.kotlin)
         testImplementation(rootProject.libs.bundles.kotlinx)
         testImplementation(rootProject.libs.bundles.testing)
@@ -110,12 +111,12 @@ fun included(
 
 tasks {
 
-    withType<ShadowJar> {
-        val location = "dev.racci.terix.libs"
-        relocate("com.github.retrooper", "$location.packetevents")
-        relocate("com.github.stefvanschie.inventoryframework", "$location.inventoryframework")
-        relocate("dev.racci.minix.nms", "$location.minix-nms")
-    }
+//    withType<ShadowJar> {
+//        val location = "dev.racci.terix.libs"
+//        relocate("com.github.retrooper", "$location.packetevents")
+//        relocate("com.github.stefvanschie.inventoryframework", "$location.inventoryframework")
+//        relocate("dev.racci.minix.nms", "$location.minix-nms")
+//    }
 
     ktlintFormat {
         dependsOn(gradle.includedBuilds.map { it.task(":ktlintFormat") })

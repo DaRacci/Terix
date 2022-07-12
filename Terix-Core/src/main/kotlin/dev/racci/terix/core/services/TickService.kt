@@ -48,6 +48,7 @@ import org.bukkit.event.player.PlayerJoinEvent
 import org.bukkit.event.player.PlayerQuitEvent
 import org.bukkit.inventory.PlayerInventory
 import java.util.UUID
+import kotlin.math.roundToInt
 
 @MappedExtension(Terix::class, "Tick Service", [OriginService::class])
 class TickService(override val plugin: Terix) : Extension<Terix>() {
@@ -134,7 +135,7 @@ class TickService(override val plugin: Terix) : Extension<Terix>() {
     ) {
         val nmsPlayer = player.toNMS()
         val level = nmsPlayer.level
-        val pos = nmsPlayer.eyeBlockPosition()
+        val pos = BlockPos(nmsPlayer.x.roundToInt(), nmsPlayer.eyeY.roundToInt(), nmsPlayer.z.roundToInt()) // Player.eyePosition
         val brightness = level.getMaxLocalRawBrightness(pos)
         val canSeeSky = level.canSeeSky(pos)
 
@@ -176,7 +177,7 @@ class TickService(override val plugin: Terix) : Extension<Terix>() {
         player: Player,
         canSeeSky: Boolean,
         level: NMSWorld,
-        brightness: Int,
+        brightness: Int
     ) = canSeeSky &&
         !player.inWater &&
         !player.inRain &&

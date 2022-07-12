@@ -19,7 +19,7 @@ import io.mockk.mockkObject
 import io.mockk.mockkStatic
 import net.minecraft.SharedConstants
 import net.minecraft.world.level.storage.DataVersion
-import org.bukkit.craftbukkit.v1_18_R2.entity.CraftPlayer
+import org.bukkit.craftbukkit.v1_19_R1.entity.CraftPlayer
 import org.bukkit.entity.Player
 import java.util.UUID
 import java.util.function.Supplier
