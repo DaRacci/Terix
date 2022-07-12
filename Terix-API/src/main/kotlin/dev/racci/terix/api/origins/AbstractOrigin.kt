@@ -667,8 +667,7 @@ abstract class AbstractOrigin : WithPlugin<MinixPlugin> {
 
     protected inner class BiomeBuilder {
 
-        operator fun <T : AbstractAbility> Biome.plusAssign(ability: KClass<out T>) {
-        }
+        operator fun <T : AbstractAbility> Biome.plusAssign(ability: KClass<out T>) {}
     }
 
     override fun toString(): String {
