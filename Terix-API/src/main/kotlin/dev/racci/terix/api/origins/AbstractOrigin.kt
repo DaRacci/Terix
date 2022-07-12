@@ -132,6 +132,7 @@ abstract class AbstractOrigin : WithPlugin<MinixPlugin> {
      */
     open suspend fun onRespawn(event: PlayerRespawnEvent) {}
 
+    /** Called when the player first becomes the origin. */
     open suspend fun onBecomeOrigin(event: PlayerOriginChangeEvent) {}
 
     /**
@@ -299,6 +300,7 @@ abstract class AbstractOrigin : WithPlugin<MinixPlugin> {
     /** Called when the player consumes an item. */
     open suspend fun onConsume(event: PlayerItemConsumeEvent) {}
 
+    /** Called on each tick cycles default of once per 5 ticks. */
     open suspend fun onTick(player: Player) {}
 
     @MinixDsl
@@ -336,6 +338,7 @@ abstract class AbstractOrigin : WithPlugin<MinixPlugin> {
         builder(builder())
     }
 
+    /** A Utility class for building potion modifiers. */
     protected inner class PotionsBuilder {
 
         /**
@@ -348,6 +351,7 @@ abstract class AbstractOrigin : WithPlugin<MinixPlugin> {
         }
     }
 
+    /** A Utility class for building attribute modifiers. */
     protected inner class AttributeBuilder {
 
         /**
@@ -432,6 +436,7 @@ abstract class AbstractOrigin : WithPlugin<MinixPlugin> {
         }
     }
 
+    /** A Utility class for building time based titles. */
     protected inner class TimeTitleBuilder {
 
         /**
@@ -449,6 +454,7 @@ abstract class AbstractOrigin : WithPlugin<MinixPlugin> {
         // TODO: Title on deactivation of trigger.
     }
 
+    /** A Utility class for building damage triggers. */
     protected inner class DamageBuilder {
 
         /**
@@ -559,7 +565,7 @@ abstract class AbstractOrigin : WithPlugin<MinixPlugin> {
         operator fun Collection<EntityDamageEvent.DamageCause>.divAssign(number: Number) = forEach { it /= number }
     }
 
-    /** A Utility class for creating food related triggers. */
+    /** A Utility class for building food triggers. */
     protected inner class FoodBuilder {
 
         /**
@@ -658,6 +664,7 @@ abstract class AbstractOrigin : WithPlugin<MinixPlugin> {
         }
     }
 
+    /** A Utility class for building abilities. */
     protected inner class AbilityBuilder {
 
         fun <T : AbstractAbility> KeyBinding.add(clazz: KClass<out T>) = abilities.put(this, OriginService.getAbility(clazz))
@@ -665,6 +672,7 @@ abstract class AbstractOrigin : WithPlugin<MinixPlugin> {
         inline fun <reified T : AbstractAbility> KeyBinding.add() = add(T::class)
     }
 
+    /** A Utility class for building biome triggers. */
     protected inner class BiomeBuilder {
 
         operator fun <T : AbstractAbility> Biome.plusAssign(ability: KClass<out T>) {}

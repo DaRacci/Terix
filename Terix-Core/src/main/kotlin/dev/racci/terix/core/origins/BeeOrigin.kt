@@ -54,6 +54,7 @@ class BeeOrigin(override val plugin: Terix) : AbstractOrigin() {
     }
 
     // TODO: Possible groups
+    @Suppress("kotlin:S1151")
     private val Material.isFlower get() = when (this) {
         Material.DANDELION,
         Material.POPPY,
