@@ -15,38 +15,11 @@ import kotlin.time.Duration
 import kotlin.time.Duration.Companion.seconds
 
 // TODO: Look into some sort of persistence system for abilities through player metadata
-abstract class AbstractAbility : WithPlugin<Terix>, KoinComponent {
+abstract class AbstractAbility(abilityType: AbilityType) : WithPlugin<Terix>, KoinComponent {
     final override val plugin: Terix by inject()
 
     protected val cooldownCache = mutableMapOf<UUID, Instant>()
-    protected val abilityCache = object : HashSet<UUID>() {
-        /** Returns true if the player is off cooldown and was added to the set. */
-        override fun add(element: UUID): Boolean {
-            if (isOnCooldown(element)) return false
-
-            cooldownCache[element] = now() + cooldown
-            return super.add(element)
-        }
-
-        override fun remove(element: UUID): Boolean {
-            if (cooldownCache[element]?.let { it < now() } == true) {
-                cooldownCache.remove(element) // If the players cooldown has expired, remove it from the map.
-            }
-            return super.remove(element)
-        }
-
-        init {
-            scheduler {
-                if (onlinePlayers.isEmpty() || this.isEmpty()) return@scheduler
-
-                val uuidList = onlinePlayers.map(Player::getUniqueId)
-                for (player in this) {
-                    if (player in uuidList) continue
-                    remove(player)
-                }
-            }.runAsyncTaskTimer(plugin, Duration.ZERO, 15.seconds)
-        }
-    }
+    protected var abilityCache: HashSet<UUID>? = null
 
     /** The duration before the ability can be activated again. */
     protected open val cooldown: Duration = 20.ticks
@@ -54,10 +27,10 @@ abstract class AbstractAbility : WithPlugin<Terix>, KoinComponent {
     /** Returns if this player is able to activate this ability. */
     protected open fun isAble(player: Player): Boolean = true
 
-    /* Called when the ability is activated the given player. */
+    /** Called when the ability is activated the given player. */
     open suspend fun onActivate(player: Player) {}
 
-    /* Called when the ability is deactivated the given player. */
+    /** Called when the ability is deactivated the given player. */
     open suspend fun onDeactivate(player: Player) {}
 
     /** Returns true if the player had their ability activated, false otherwise. */
@@ -72,21 +45,58 @@ abstract class AbstractAbility : WithPlugin<Terix>, KoinComponent {
     suspend fun activate(player: Player): Boolean {
         if (!isAble(player) || isOnCooldown(player.uniqueId)) return false
 
-        abilityCache += player.uniqueId
+        if (abilityCache != null) abilityCache!! += player.uniqueId
+
         onActivate(player)
         return true
     }
 
-    /** Returns true if the player has their ability deactivated, false otherwise. */
+    /** Returns true if the player has their ability deactivated or if the ability isn't toggleable, false otherwise. */
     suspend fun deactivate(player: Player): Boolean {
         if (!isActivated(player.uniqueId)) return false
 
-        abilityCache -= player.uniqueId
+        if (abilityCache != null) abilityCache!! -= player.uniqueId
+
         onDeactivate(player)
         return true
     }
 
-    fun isActivated(uuid: UUID): Boolean = uuid in abilityCache
+    fun isActivated(uuid: UUID): Boolean = abilityCache != null && uuid in abilityCache!!
 
     fun isOnCooldown(uuid: UUID): Boolean = (cooldownCache[uuid] ?: Instant.DISTANT_PAST) > now()
+
+    init {
+        if (abilityType == AbilityType.TOGGLE) {
+            abilityCache = object : HashSet<UUID>() {
+                /** Returns true if the player is off cooldown and was added to the set. */
+                override fun add(element: UUID): Boolean {
+                    if (isOnCooldown(element)) return false
+
+                    cooldownCache[element] = now() + cooldown
+                    return super.add(element)
+                }
+
+                override fun remove(element: UUID): Boolean {
+                    if (cooldownCache[element]?.let { it < now() } == true) {
+                        cooldownCache.remove(element) // If the players cooldown has expired, remove it from the map.
+                    }
+                    return super.remove(element)
+                }
+
+                init {
+                    scheduler {
+                        if (onlinePlayers.isEmpty() || this.isEmpty()) return@scheduler
+
+                        val uuidList = onlinePlayers.map(Player::getUniqueId)
+                        for (player in this) {
+                            if (player in uuidList) continue
+                            remove(player)
+                        }
+                    }.runAsyncTaskTimer(plugin, Duration.ZERO, 15.seconds)
+                }
+            }
+        }
+    }
+
+    enum class AbilityType { TOGGLE, TRIGGER, TARGET, }
 }
