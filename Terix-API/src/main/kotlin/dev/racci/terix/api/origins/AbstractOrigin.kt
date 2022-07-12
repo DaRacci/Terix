@@ -75,6 +75,7 @@ import org.spigotmc.event.entity.EntityDismountEvent
 import org.spigotmc.event.entity.EntityMountEvent
 import java.time.Duration
 import kotlin.reflect.KClass
+import kotlin.reflect.KProperty
 
 abstract class AbstractOrigin : WithPlugin<MinixPlugin> {
     abstract override val plugin: MinixPlugin
@@ -682,5 +683,72 @@ abstract class AbstractOrigin : WithPlugin<MinixPlugin> {
         return "Origin(name='$name', item=$item, " +
             "abilities=$abilities, triggerBlocks=$triggerBlocks, damageTicks=$damageTicks, " +
             "damageActions=$damageActions, foodPotions=$foodPotions, foodAttributes=$foodAttributes, foodMultipliers=$foodMultipliers)"
+    }
+
+    class Info<T> internal constructor(
+        val defaultMethod: AbstractOrigin.() -> T
+    ) {
+        private var _cached: T? = null
+        lateinit var name: String; private set
+
+        operator fun getValue(thisRef: Any?, property: KProperty<*>): Info<T> {
+            name = property.name
+            return this@Info
+        }
+
+        fun get(origin: AbstractOrigin): T {
+            if (_cached == null) _cached = defaultMethod(origin)
+            return _cached!!
+        }
+    }
+
+    object InfoTypes {
+        val ABILITIES by Info {
+            if (this.abilities.isEmpty()) return@Info ""
+
+            val builder = StringBuilder("Abilities: { ")
+            val iterator = this.abilities.iterator()
+
+            while (iterator.hasNext()) {
+                val (key, value) = iterator.next()
+
+                builder.append("${key.name}: ${value::class.simpleName}")
+                if (iterator.hasNext()) builder.append(", ") else builder.append(" }")
+            }
+
+            builder.toString()
+        }
+
+        val TRIGGER_BLOCKS by Info {
+            if (this.triggerBlocks.isEmpty()) return@Info ""
+
+            val builder = StringBuilder("Trigger Blocks: [ ")
+            val iterator = this.triggerBlocks.iterator()
+
+            while (iterator.hasNext()) {
+                val (key, _) = iterator.next()
+
+                builder.append(key.name)
+                if (iterator.hasNext()) builder.append(", ") else builder.append(" ]")
+            }
+
+            builder.toString()
+        }
+
+        val DAMAGE_TICKS by Info {
+            if (this.damageTicks.isEmpty()) return@Info ""
+
+            val builder = StringBuilder("Damage Ticks: [ ")
+            val iterator = this.damageTicks.iterator()
+
+            while (iterator.hasNext()) {
+                val (key, _) = iterator.next()
+
+                builder.append(key.name)
+                if (iterator.hasNext()) builder.append(", ") else builder.append(" ]")
+            }
+
+            builder.toString()
+        }
     }
 }
