@@ -28,6 +28,11 @@ import java.time.Duration
 import java.util.UUID
 import kotlin.time.Duration.Companion.seconds
 
+// TODO -> Top food is a bottle of water.
+// TODO -> Water melon, Honey, and soup / stew (No rabbit stew) is good too.
+// TODO -> CAke.
+// TODO -> More damage from fire and lava (25-50%).
+// TODO -> More damage from swords.
 class SlimeOrigin(override val plugin: Terix) : AbstractOrigin() {
 
     override val name = "Slime"

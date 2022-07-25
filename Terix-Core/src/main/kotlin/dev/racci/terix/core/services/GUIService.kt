@@ -60,6 +60,9 @@ import kotlin.time.Duration.Companion.seconds
 
 // TODO: Send fixup packet when player clicks an item
 // TODO: When clicking on another item after the first the second doesnt flash.
+// TODO -> Lime green instead of green wool.
+// TODO -> Move buttons down one row.
+// TODO -> Add block below each item which shows detailed info about the origin.
 @MappedExtension(Terix::class, "GUI Service", [OriginService::class, HookService::class])
 class GUIService(override val plugin: Terix) : Extension<Terix>() {
     private val lang by inject<DataService>().inject<Lang>()

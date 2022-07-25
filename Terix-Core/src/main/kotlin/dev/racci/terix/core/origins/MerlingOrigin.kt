@@ -21,6 +21,10 @@ import org.bukkit.potion.PotionEffectType
 import org.bukkit.potion.PotionType
 import kotlin.time.Duration
 
+// TODO -> Raw fish, kelp and glow berries.
+// TODO -> Make cake soggy.
+// TODO -> Nothing in the ocean targets the merling (minus elder guardian).
+// TODO -> More fire / lava damage.
 class MerlingOrigin(override val plugin: Terix) : AbstractOrigin() {
 
     override val name = "Merling"

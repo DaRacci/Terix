@@ -11,6 +11,11 @@ import org.bukkit.event.entity.EntityDamageEvent
 
 // TODO -> Spawn in the nether.
 // TODO -> Flame particles.
+// TODO -> Eating raw items gives the same as cooked food since hes hot.
+// TODO -> Eating Cooked food gives less since it becomes overcooked.
+// TODO -> Cake.
+// TODO -> Cannot eat vegetables or bread.
+// TODO -> No lava damage, More water damage.
 class NetherbornOrigin(override val plugin: MinixPlugin) : AbstractOrigin() {
 
     override val name = "Netherborn"

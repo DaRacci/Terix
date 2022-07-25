@@ -6,6 +6,10 @@ import dev.racci.terix.api.origins.sounds.SoundEffect
 import net.kyori.adventure.text.format.TextColor
 import org.bukkit.Material
 
+// TODO -> Sweet berries, cake and glow berries are top.
+// TODO -> Beetroot, apple, carrots, fruits.
+// TODO -> If they eat potatoes they get fat.
+// TODO -> Take more damage from arrows.
 class FairyOrigin(override val plugin: Terix) : AbstractOrigin() {
 
     override val name = "Fairy"

@@ -29,6 +29,7 @@ import kotlin.reflect.full.declaredMemberProperties
     Terix::class, "Lang.conf",
     [Lang.PartialComponent::class, Lang.PartialComponent.Serializer::class]
 )
+// TODO -> Fix elixir gradient and make bold
 class Lang : IConfig() {
 
     override fun loadCallback() {

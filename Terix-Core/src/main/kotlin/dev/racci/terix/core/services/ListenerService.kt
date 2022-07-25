@@ -85,6 +85,7 @@ import kotlin.time.Duration.Companion.milliseconds
 import kotlin.time.Duration.Companion.seconds
 
 // Check for button presses to invoke actions in the test chambers
+// TODO -> Light entities on fire when hit with a torch
 @MappedExtension(Terix::class, "Listener Service", [DataService::class])
 class ListenerService(override val plugin: Terix) : Extension<Terix>() {
     private val config by inject<DataService>().inject<Config>()

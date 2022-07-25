@@ -9,6 +9,11 @@ import net.kyori.adventure.text.format.TextColor
 import org.bukkit.Material
 import org.bukkit.potion.PotionEffectType
 
+// TODO -> Better trades with villagers
+// TODO -> Tames animals faster
+// TODO -> Agriculture
+// TODO -> Get sick from eating raw meat / fish and then they shit themselves.
+// TODO -> Increase cake.
 class HumanOrigin(override val plugin: Terix) : AbstractOrigin() {
 
     override val name = "Human"
@@ -38,8 +43,4 @@ class HumanOrigin(override val plugin: Terix) : AbstractOrigin() {
             lore = "This is a <blue>blue"
         }
     }
-
-    // TODO -> Better trades with villagers
-    // TODO -> Tames animals faster
-    // TODO -> Agriculture
 }
