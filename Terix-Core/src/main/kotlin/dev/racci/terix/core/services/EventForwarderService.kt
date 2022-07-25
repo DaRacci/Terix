@@ -51,6 +51,7 @@ import org.bukkit.event.player.PlayerItemConsumeEvent
 import org.bukkit.event.player.PlayerItemDamageEvent
 import org.bukkit.event.player.PlayerRespawnEvent
 import org.bukkit.event.player.PlayerRiptideEvent
+import org.bukkit.event.player.PlayerToggleSneakEvent
 import org.spigotmc.event.entity.EntityDismountEvent
 import org.spigotmc.event.entity.EntityMountEvent
 
@@ -100,6 +101,7 @@ class EventForwarderService(override val plugin: Terix) : Extension<Terix>() {
         event<PlayerBedEnterEvent> { player.origin().onEnterBed(this) }
         event<PlayerInteractEvent> { player.origin().onInteract(this) }
         event<PlayerItemConsumeEvent> { player.origin().onConsume(this) }
+        event<PlayerToggleSneakEvent> { player.origin().onToggleSneak(this) }
 
         // Combo Events
         event<PlayerLeftClickEvent> { player.origin().onLeftClick(this) }

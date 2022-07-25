@@ -75,6 +75,7 @@ import org.bukkit.event.player.PlayerItemConsumeEvent
 import org.bukkit.event.player.PlayerItemDamageEvent
 import org.bukkit.event.player.PlayerRespawnEvent
 import org.bukkit.event.player.PlayerRiptideEvent
+import org.bukkit.event.player.PlayerToggleSneakEvent
 import org.bukkit.potion.PotionEffect
 import org.spigotmc.event.entity.EntityDismountEvent
 import org.spigotmc.event.entity.EntityMountEvent
@@ -304,6 +305,9 @@ abstract class AbstractOrigin : WithPlugin<MinixPlugin> {
 
     /** Called when the player consumes an item. */
     open suspend fun onConsume(event: PlayerItemConsumeEvent) {}
+
+    /** Called when the player starts or finishes sneaking. */
+    open suspend fun onToggleSneak(event: PlayerToggleSneakEvent) {}
 
     /** Called on each tick cycles default of once per 5 ticks. */
     open suspend fun onTick(player: Player) {}
