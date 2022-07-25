@@ -3,13 +3,13 @@ package dev.racci.terix.core.extensions
 import dev.racci.minix.api.coroutine.launch
 import dev.racci.minix.api.utils.getKoin
 import dev.racci.minix.nms.aliases.toNMS
+import dev.racci.terix.api.PlayerData
 import dev.racci.terix.api.Terix
 import dev.racci.terix.api.origins.AbstractOrigin
 import dev.racci.terix.api.origins.enums.Trigger
 import dev.racci.terix.api.origins.enums.Trigger.Companion.getLiquidTrigger
 import dev.racci.terix.api.origins.enums.Trigger.Companion.getTimeTrigger
 import dev.racci.terix.api.origins.enums.Trigger.Companion.getTrigger
-import dev.racci.terix.core.data.PlayerData
 import kotlinx.datetime.Instant
 import net.kyori.adventure.text.Component
 import net.minecraft.core.BlockPos
@@ -21,7 +21,8 @@ import org.jetbrains.exposed.sql.transactions.transaction
 
 private val terix by getKoin().inject<Terix>()
 
-fun Player.origin(): AbstractOrigin = PlayerData.originCache[uniqueId]
+@Deprecated("moved", ReplaceWith("origin(player: Player): AbstractOrigin", "dev.racci.terix.api.origin"))
+fun Player.origin(): AbstractOrigin = PlayerData.cachedOrigin(this)
 
 fun Player.lastOrigin(): String? = transaction { PlayerData[this@lastOrigin].lastOrigin }
 
@@ -87,7 +88,7 @@ var Player.usedChoices: Int
     get() { return transaction { PlayerData[this@usedChoices].usedChoices } }
     set(value) { transaction { PlayerData[this@usedChoices].usedChoices = value } }
 
-val Player.tickCache: PlayerData.Companion.PlayerTickCache get() = PlayerData.tickCache(this)
+val Player.tickCache: PlayerData.PlayerTickCache get() = PlayerData.cachedTicks(this)
 
 var Player.wasInSunlight
     get() = tickCache.wasInSunlight
