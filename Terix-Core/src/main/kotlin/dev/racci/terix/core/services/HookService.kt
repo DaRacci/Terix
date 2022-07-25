@@ -129,10 +129,10 @@ class HookService(override val plugin: Terix) : Extension<Terix>() {
             player: Player,
             params: String
         ): String? {
-            return when (params) {
-                "origin_name" -> player.origin().name
-                "origin_displayName" -> serializer.serialize(player.origin().displayName)
-                "origin_colour" -> player.origin().colour.asHexString()
+            return when (params.uppercase()) {
+                "ORIGIN_NAME" -> player.origin().name
+                "ORIGIN_DISPLAY" -> serializer.serialize(player.origin().displayName)
+                "ORIGIN_COLOUR" -> player.origin().colour.asHexString()
                 else -> null
             }
         }
