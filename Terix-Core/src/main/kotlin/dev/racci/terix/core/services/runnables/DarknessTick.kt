@@ -12,7 +12,7 @@ class DarknessTick(
     private val player: Player,
     private val origin: AbstractOrigin,
     private val service: RunnableService,
-    mother: MotherCoroutineRunnable,
+    mother: MotherCoroutineRunnable
 ) : ChildCoroutineRunnable(mother) {
 
     override suspend fun run() {

@@ -21,6 +21,7 @@ object AttributeHandler {
     private fun getBase(player: Player, origin: Origin? = player.currentOrigin): EnumMap<Attribute, Double>? {
         return origin?.baseAttributes
     }
+
     /**
      * Sets the base attributes for the players' origin.
      *
@@ -33,6 +34,7 @@ object AttributeHandler {
             player.getAttribute(attribute.key)!!.baseValue = attribute.value
         }
     }
+
     /**
      * Returns true if the players base attributes match,
      * the origins base attributes
@@ -48,6 +50,7 @@ object AttributeHandler {
         }
         return true
     }
+
     /**
      * Gets the matching EnumMap for the condition.
      *
@@ -60,6 +63,7 @@ object AttributeHandler {
     private fun getCondition(player: Player, condition: Condition, origin: Origin? = player.currentOrigin): EnumMap<Attribute, AttributeModifier> {
         return origin?.attributes?.get(condition)?.modifiers ?: EnumMap(Attribute::class.java)
     }
+
     /**
      * Adds the attribute modifiers for the given condition.
      *
@@ -74,6 +78,7 @@ object AttributeHandler {
             player.getAttribute(modifier.key)!!.addModifier(modifier.value)
         }
     }
+
     /**
      * Removes the attribute modifiers for the given condition.
      *
@@ -88,6 +93,7 @@ object AttributeHandler {
             player.getAttribute(modifier.key)!!.removeModifier(modifier.value)
         }
     }
+
     /**
      * Returns true if the players has all attribute modifiers,
      * for the given condition.
@@ -109,6 +115,7 @@ object AttributeHandler {
         }
         return true
     }
+
     /**
      * Resets all the players attributes and removes all modifiers,
      * Then sets the base attributes for the players origin

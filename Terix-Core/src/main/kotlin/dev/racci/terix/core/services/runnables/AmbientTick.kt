@@ -33,7 +33,7 @@ class AmbientTick(
             sound.resourceKey.asString(),
             sound.volume,
             sound.pitch,
-            sound.distance,
+            sound.distance
         )
     }
 

@@ -92,7 +92,6 @@ class GUIService(override val plugin: Terix) : Extension<Terix>() {
     private fun baseGUI(): ChestGui {
         val guiRows = ceil(originService.registeredOrigins.size.toDouble() / 9).coerceAtLeast(1.0).toInt() + 4
         val pane = StaticPane(1, 1, 7, guiRows).apply {
-
             addItem(originService.getOrigin<AethenOrigin>().createItem(), 0, 0)
             addItem(originService.getOrigin<AxolotlOrigin>().createItem(), 1, 0)
             addItem(originService.getOrigin<BeeOrigin>().createItem(), 2, 0)
@@ -139,7 +138,6 @@ class GUIService(override val plugin: Terix) : Extension<Terix>() {
         hookService.protocolManager.addPacketListener(
             object : PacketAdapter(plugin, ListenerPriority.HIGHEST, PacketType.Play.Server.SET_SLOT, PacketType.Play.Client.WINDOW_CLICK) {
                 override fun onPacketSending(event: PacketEvent) {
-
                     if (!validPacket(event)) return
 
                     val cache = packetModifierCache[event.player]!!

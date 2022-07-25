@@ -19,7 +19,6 @@ class MotherCoroutineRunnable : CoroutineRunnable(), KoinComponent {
     override suspend fun run() {
         supervisorScope {
             for (child in children) {
-
                 if (!child.isAlive && child.upForAdoption) {
                     runBlocking(handler) { child.breakWater() }
                 }

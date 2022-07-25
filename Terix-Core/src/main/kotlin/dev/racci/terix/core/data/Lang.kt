@@ -24,12 +24,13 @@ import kotlin.reflect.KClass
 import kotlin.reflect.KProperty1
 import kotlin.reflect.full.declaredMemberProperties
 
+// TODO -> Fix elixir gradient and make bold
 @ConfigSerializable
 @MappedConfig(
-    Terix::class, "Lang.conf",
+    Terix::class,
+    "Lang.conf",
     [Lang.PartialComponent::class, Lang.PartialComponent.Serializer::class]
 )
-// TODO -> Fix elixir gradient and make bold
 class Lang : IConfig() {
 
     override fun loadCallback() {
@@ -55,7 +56,7 @@ class Lang : IConfig() {
     val prefixes: Map<String, String> = mapOf(
         "<prefix_terix>" to "<light_purple>Terix</light_purple> » <aqua>",
         "<prefix_server>" to "<light_purple>Elixir</light_purple> » <aqua>",
-        "<prefix_origins>" to "<gold>Origins</gold> » <aqua>",
+        "<prefix_origins>" to "<gold>Origins</gold> » <aqua>"
     )
 
     var generic: Generic = Generic()
@@ -74,7 +75,7 @@ class Lang : IConfig() {
         return value.get(key.substringAfter('.')).get(*placeholder)
     }
 
-    sealed class PropertyFinder <C : PropertyFinder<C, R>, R : Any?>(clazz: KClass<C>) {
+    sealed class PropertyFinder<C : PropertyFinder<C, R>, R : Any?>(clazz: KClass<C>) {
         @Transient
         private val map: PersistentMap<String, KProperty1<C, R>> = persistentMapOf(
             *clazz.declaredMemberProperties
@@ -173,13 +174,13 @@ class Lang : IConfig() {
 
             override fun deserialize(
                 type: Type,
-                node: ConfigurationNode,
+                node: ConfigurationNode
             ): PartialComponent = node.get<String>()?.let(PartialComponent::of) ?: throw SerializationException(type, "Null Partial Component: ${node.path()}")
 
             override fun serialize(
                 type: Type,
                 obj: PartialComponent?,
-                node: ConfigurationNode,
+                node: ConfigurationNode
             ) {
                 if (obj == null) { node.raw(null); return }
                 node.set(obj.raw)
