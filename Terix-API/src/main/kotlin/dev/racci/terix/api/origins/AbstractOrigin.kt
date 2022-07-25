@@ -29,11 +29,10 @@ import dev.racci.minix.api.extensions.WithPlugin
 import dev.racci.minix.api.plugin.MinixPlugin
 import dev.racci.minix.api.utils.collections.MultiMap
 import dev.racci.minix.api.utils.collections.multiMapOf
-import dev.racci.minix.api.utils.getKoin
 import dev.racci.minix.api.utils.unsafeCast
 import dev.racci.terix.api.OriginService
-import dev.racci.terix.api.Terix
 import dev.racci.terix.api.dsl.AttributeModifierBuilder
+import dev.racci.terix.api.dsl.FoodPropertyBuilder
 import dev.racci.terix.api.dsl.PotionEffectBuilder
 import dev.racci.terix.api.dsl.TimedAttributeBuilder
 import dev.racci.terix.api.dsl.TitleBuilder
@@ -41,9 +40,15 @@ import dev.racci.terix.api.events.PlayerOriginChangeEvent
 import dev.racci.terix.api.origins.enums.KeyBinding
 import dev.racci.terix.api.origins.enums.Trigger
 import dev.racci.terix.api.origins.sounds.SoundEffects
+import net.kyori.adventure.extra.kotlin.plus
 import net.kyori.adventure.text.Component
+import net.kyori.adventure.text.Component.empty
+import net.kyori.adventure.text.Component.newline
+import net.kyori.adventure.text.Component.text
 import net.kyori.adventure.text.format.NamedTextColor
 import net.kyori.adventure.text.format.TextColor
+import net.minecraft.world.food.FoodProperties
+import net.minecraft.world.food.Foods
 import org.bukkit.Material
 import org.bukkit.attribute.Attribute
 import org.bukkit.attribute.AttributeModifier
@@ -108,9 +113,8 @@ abstract class AbstractOrigin : WithPlugin<MinixPlugin> {
     val damageActions: MutableMap<EntityDamageEvent.DamageCause, suspend EntityDamageEvent.() -> Unit> by lazy(::mutableMapOf)
 
     val foodBlocks: MutableMap<Material, suspend (Player) -> Unit> by lazy(::mutableMapOf)
-    val foodPotions: MultiMap<Material, PotionEffect> by lazy(::multiMapOf)
     val foodAttributes: MultiMap<Material, TimedAttributeBuilder> by lazy(::multiMapOf)
-    val foodMultipliers: MutableMap<Material, Double> by lazy(::mutableMapOf)
+    val customFoodProperties: HashMap<Material, FoodProperties> by lazy(::hashMapOf)
 
     val abilities: MutableMap<KeyBinding, AbstractAbility> by lazy(::mutableMapOf)
 
@@ -569,100 +573,81 @@ abstract class AbstractOrigin : WithPlugin<MinixPlugin> {
     /** A Utility class for building food triggers. */
     protected inner class FoodBuilder {
 
-        /**
-         * When the player consumes an item in this collection, the food level will be multiplied by this value.
-         *
-         * @param value The value to multiply the food level by.
-         * @receiver The collection of foods.
-         */
+        @JvmName("plusAssignFoodPropertyBuilder")
+        operator fun Material.plusAssign(foodProperties: FoodPropertyBuilder.() -> Unit) {
+            customFoodProperties[this] = FoodPropertyBuilder(foodProperties).build()
+        }
+
+        fun Material.modifyFood(foodProperties: FoodPropertyBuilder.() -> Unit) {
+            val foodProps = Foods.DEFAULT_PROPERTIES[this.key.key]
+            val builder = FoodPropertyBuilder(foodProps)
+
+            foodProperties(builder)
+            customFoodProperties[this] = builder.build()
+        }
+
+        fun MaterialSetTag.modifyFood(foodProperties: (FoodPropertyBuilder) -> Unit) { values.forEach { it.modifyFood(foodProperties) } }
+
+        @JvmName("plusAssignFoodPropertyBuilder")
+        operator fun MaterialSetTag.plusAssign(foodProperties: (FoodPropertyBuilder) -> Unit) { values.forEach { it += foodProperties } }
+
+        @JvmName("plusAssignMaterialFoodPropertyBuilder")
+        operator fun Collection<Material>.plusAssign(foodProperties: (FoodPropertyBuilder) -> Unit) = forEach { it += foodProperties }
+
+        @JvmName("plusAssignFoodPropertyBuilder")
+        operator fun Collection<MaterialSetTag>.plusAssign(foodProperties: (FoodPropertyBuilder) -> Unit) = forEach { it += foodProperties }
+
         operator fun MaterialSetTag.timesAssign(value: Number) = values.forEach { it *= value }
 
-        /**
-         * When the player consumes an item in this collection, the food level will be divided by this value.
-         *
-         * @param value The value to divide the food level by.
-         * @receiver The collection of foods.
-         */
         operator fun MaterialSetTag.divAssign(value: Number) = values.forEach { it /= value }
 
-        /**
-         * When the player consumes an item in this collection, this lambda will be run async.
-         *
-         * @param builder The lambda to run.
-         * @receiver The collection of foods.
-         */
         operator fun MaterialSetTag.plusAssign(builder: suspend (Player) -> Unit) = values.forEach { it += builder }
 
-        /**
-         * When the player consumes an item in this collection, this potion will be applied.
-         * #Note: The potions key will be overwritten.
-         *
-         * @param builder The builder to apply the potion.
-         * @receiver The collection of foods.
-         */
         operator fun MaterialSetTag.plusAssign(builder: (PotionEffectBuilder) -> Unit) = values.forEach { it += builder }
 
-        /**
-         * When the player consumes an item in this collection, this Timed Attribute will be applied.
-         *
-         * @param builder The builder to apply the Timed Attribute.
-         * @receiver The collection of foods.
-         */
         @JvmName("plusAssignTimedAttributeBuilder")
         operator fun MaterialSetTag.plusAssign(builder: (TimedAttributeBuilder) -> Unit) = values.forEach { it += builder }
 
-        /**
-         * When the player consumes this food, the granted food level will be multiplied by this value.
-         * ### Note: If the food is not [Material.isEdible], this will do nothing.
-         *
-         * @param value The value to multiply the food level by.
-         * @receiver The food.
-         */
-        operator fun Material.timesAssign(value: Number) { if (checkEdible()) foodMultipliers[this] = value.toDouble() }
+        operator fun Material.timesAssign(value: Number) {
+            modifyFood {
+                this.nutrition = value.toInt()
+                this.saturationModifier = value.toFloat()
+            }
+        }
 
-        /**
-         * When the player consumes this food, the granted food level will be divided by this value.
-         * ### Note: If the food is not [Material.isEdible], this will do nothing.
-         *
-         * @param value The value to divide the food level by.
-         * @receiver The food.
-         */
-        operator fun Material.divAssign(value: Number) { if (checkEdible()) foodMultipliers[this] = 1 / value.toDouble() }
+        operator fun Material.divAssign(value: Number) {
+            modifyFood {
+                this.nutrition /= value.toInt()
+                this.saturationModifier /= value.toFloat()
+            }
+        }
 
-        /**
-         * When the player consumes this food, this lambda will be run async.
-         * ### Note: If the food is not [Material.isEdible], this will do nothing.
-         *
-         * @param builder The lambda to run.
-         * @receiver The food.
-         */
-        operator fun Material.plusAssign(builder: suspend (Player) -> Unit) { if (checkEdible()) foodBlocks[this] = builder }
+        operator fun Material.plusAssign(builder: suspend (Player) -> Unit) { foodBlocks[this] = builder }
 
-        /**
-         * When the player consumes this food, this potion will be applied.
-         * ### Note: If the food is not [Material.isEdible], this will do nothing.
-         *
-         * @param builder The builder to apply the potion.
-         * @receiver The food.
-         */
-        operator fun Material.plusAssign(builder: (PotionEffectBuilder) -> Unit) { if (checkEdible()) foodPotions.put(this, PotionEffectBuilder(builder).apply { foodKey(this@plusAssign) }.build()) }
+        operator fun Material.plusAssign(builder: (PotionEffectBuilder) -> Unit) {
+            modifyFood {
+                addEffect {
+                    builder(this)
+                    foodKey(this@plusAssign)
+                }
+            }
+        }
 
-        /**
-         * When the player consumes this food, this Timed Attribute will be applied.
-         * ### Note: If the food is not [Material.isEdible], this will do nothing.
-         *
-         * @param builder The builder to apply the Timed Attribute.
-         * @receiver The food.
-         */
         @JvmName("plusAssignTimedAttributeBuilder")
         operator fun Material.plusAssign(builder: (TimedAttributeBuilder) -> Unit) {
-            if (checkEdible()) foodAttributes.put(this, TimedAttributeBuilder(builder).materialName(this, this@AbstractOrigin))
+            foodAttributes.put(this, TimedAttributeBuilder(builder).materialName(this, this@AbstractOrigin))
         }
 
-        private fun Material.checkEdible(): Boolean {
-            if (!isEdible) getKoin().get<Terix>().log.warn { "Trying to add a non-edible material to the food builder: $name" }
-            return isEdible
-        }
+        operator fun Collection<Material>.timesAssign(value: Number) { for (food in this) food *= value }
+
+        operator fun Collection<Material>.divAssign(value: Number) { for (food in this) food /= value }
+
+        operator fun Collection<Material>.plusAssign(builder: suspend (Player) -> Unit) { for (food in this) food += builder }
+
+        operator fun Collection<Material>.plusAssign(builder: (PotionEffectBuilder) -> Unit) { for (food in this) food += builder }
+
+        @JvmName("plusAssignTimedAttributeBuilder")
+        operator fun Collection<Material>.plusAssign(builder: (TimedAttributeBuilder) -> Unit) { for (food in this) food += builder }
     }
 
     /** A Utility class for building abilities. */
@@ -682,7 +667,7 @@ abstract class AbstractOrigin : WithPlugin<MinixPlugin> {
     override fun toString(): String {
         return "Origin(name='$name', item=$item, " +
             "abilities=$abilities, triggerBlocks=$triggerBlocks, damageTicks=$damageTicks, " +
-            "damageActions=$damageActions, foodPotions=$foodPotions, foodAttributes=$foodAttributes, foodMultipliers=$foodMultipliers)"
+            "damageActions=$damageActions, foodPotions=foodPotions, foodAttributes=$foodAttributes, foodMultipliers=foodMultipliers)"
     }
 
     class Info<T> internal constructor(

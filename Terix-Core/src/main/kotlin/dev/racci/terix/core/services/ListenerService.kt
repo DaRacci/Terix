@@ -21,6 +21,7 @@ import dev.racci.minix.api.events.PlayerShiftRightClickEvent
 import dev.racci.minix.api.events.WorldDayEvent
 import dev.racci.minix.api.events.WorldNightEvent
 import dev.racci.minix.api.extension.Extension
+import dev.racci.minix.api.extensions.async
 import dev.racci.minix.api.extensions.cancel
 import dev.racci.minix.api.extensions.event
 import dev.racci.minix.api.extensions.events
@@ -28,8 +29,8 @@ import dev.racci.minix.api.extensions.inOverworld
 import dev.racci.minix.api.extensions.onlinePlayers
 import dev.racci.minix.api.services.DataService
 import dev.racci.minix.api.services.DataService.Companion.inject
-import dev.racci.minix.api.utils.kotlin.invokeIfNotNull
 import dev.racci.minix.api.utils.now
+import dev.racci.minix.nms.aliases.toNMS
 import dev.racci.terix.api.Terix
 import dev.racci.terix.api.dsl.AttributeModifierBuilder
 import dev.racci.terix.api.dsl.PotionEffectBuilder
@@ -54,9 +55,16 @@ import dev.racci.terix.core.origins.invokeBase
 import dev.racci.terix.core.origins.invokeReload
 import dev.racci.terix.core.origins.invokeRemove
 import dev.racci.terix.core.origins.invokeSwap
+import kotlinx.coroutines.ExperimentalCoroutinesApi
+import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.delay
 import kotlinx.datetime.Instant
+import net.minecraft.advancements.CriteriaTriggers
+import net.minecraft.stats.Stats
+import net.minecraft.world.InteractionHand
+import net.minecraft.world.InteractionResultHolder
 import org.bukkit.attribute.Attribute
+import org.bukkit.craftbukkit.v1_19_R1.event.CraftEventFactory
 import org.bukkit.entity.Player
 import org.bukkit.event.EventPriority
 import org.bukkit.event.entity.EntityCombustEvent
@@ -65,12 +73,15 @@ import org.bukkit.event.entity.EntityPotionEffectEvent
 import org.bukkit.event.entity.FoodLevelChangeEvent
 import org.bukkit.event.entity.PlayerDeathEvent
 import org.bukkit.event.player.PlayerChangedWorldEvent
+import org.bukkit.event.player.PlayerItemConsumeEvent
 import org.bukkit.event.player.PlayerJoinEvent
 import org.bukkit.inventory.ItemStack
 import org.bukkit.potion.PotionEffect
 import org.bukkit.potion.PotionEffectType
 import org.jetbrains.exposed.sql.transactions.experimental.newSuspendedTransaction
 import org.koin.core.component.inject
+import java.util.UUID
+import kotlin.time.Duration.Companion.milliseconds
 import kotlin.time.Duration.Companion.seconds
 
 // Check for button presses to invoke actions in the test chambers
@@ -244,6 +255,151 @@ class ListenerService(override val plugin: Terix) : Extension<Terix>() {
             val ability = origin.abilities[clazz] ?: return@events
             ability.toggle(player)
         }
+
+        val channels = hashMapOf<UUID, Channel<Boolean>>()
+        val lasts = hashMapOf<UUID, Long>()
+        event<PlayerRightClickEvent> {
+            if (!this.hasItem) return@event
+            var now = now().toEpochMilliseconds()
+
+            val channel = channels.computeIfAbsent(player.uniqueId) {
+                val channel = Channel<Boolean>(2) // 2 So we can overflow in the case of lag
+                lasts[player.uniqueId] = now
+
+                log.debug { "PlayerRightClickEvent - channel created with empty state ${channel.isEmpty}" }
+
+                async {
+                    var required = 1600L
+                    do {
+                        delay(400.milliseconds)
+
+                        now = now().toEpochMilliseconds()
+                        val received = channel.tryReceive()
+
+                        when {
+                            received.isSuccess -> {
+                                log.debug { "PlayerRightClickEvent - received ${received.getOrNull()}" }
+                                required -= (now - last)
+                            }
+                            received.isFailure -> {
+                                log.debug { "Missed receiving." }
+                                continue
+                            }
+                            received.isClosed -> break
+                        }
+
+                        if (channel.isEmpty) {
+                            log.debug { "PlayerRightClickEvent - Channel is empty" }
+                            continue
+                        }
+
+                        if (required == 0L) {
+                            log.debug { "PlayerRightClickEvent - Consumed all required." }
+                            break
+                        }
+//                        }
+                    } while (!channel.isEmpty && !channel.isClosedForReceive)
+
+                    log.debug { "PlayerRightClickEvent - Channel closed for receive." }
+                    channel.close()
+                    channels.remove(player.uniqueId, channel)
+                }
+                channel
+            }
+
+            if (channel.trySend(true).isSuccess) {
+                log.debug { "PlayerRightClickEvent - Sent element" }
+            } else {
+                log.debug { "PlayerRightClickEvent - Channel is full" }
+                channel.close()
+                channels.remove(player.uniqueId, channel)
+            }
+
+//            val serverPlayer = player.toNMS()
+
+//            channel.
+
+//            while ()
+
+//            var index = 2000
+//            while (index != 0) {
+//                serverPlayer.usedItemHand
+//                index--
+//            }
+
+//            val serverPlayer = player.toNMS()
+//            val hand = serverPlayer.usedItemHand
+//            val itemStack = serverPlayer.getItemInHand(hand)
+//
+//            if (serverPlayer.canEat(itemStack.item.foodProperties?.canAlwaysEat() == true)) {
+//                serverPlayer.startUsingItem(InteractionHand.valueOf(hand.name))
+//                InteractionResultHolder.consume(itemStack)
+//            }
+//
+//            return if (user.canEat(
+//                    this.getFoodProperties()
+//                        .canAlwaysEat()
+//                )
+//            ) {
+//                user.startUsingItem(hand)
+//                InteractionResultHolder.consume(itemStack)
+//            } else {
+//                InteractionResultHolder.fail(itemStack)
+//            }
+
+            // foodEvent(player, item!!)
+        }
+
+        event<PlayerItemConsumeEvent> {
+            log.debug { "PlayerItemConsumeEvent: $player, $item" }
+
+//            foodEvent(player, item!!)
+        }
+    }
+
+    private suspend fun foodEvent(
+        player: Player,
+        item: ItemStack
+    ) {
+        val serverPlayer = player.toNMS()
+        val hand = serverPlayer.usedItemHand
+        val itemStack = serverPlayer.getItemInHand(hand)
+        var foodInfo = player.origin().customFoodProperties[item.type] ?: itemStack.item.foodProperties
+
+        if (serverPlayer.canEat(itemStack.item.foodProperties?.canAlwaysEat() == true)) {
+            serverPlayer.startUsingItem(InteractionHand.valueOf(hand.name))
+            InteractionResultHolder.consume(itemStack)
+        } else {
+            InteractionResultHolder.fail(itemStack)
+        }
+
+        val origin = player.origin()
+
+        val attributes = origin.foodAttributes[item.type]
+
+        val actions = origin.foodBlocks[item.type]
+
+        if (!item.type.isEdible && actions == null && attributes == null && foodInfo == null) return // Theres nothing to do here
+        if (foodInfo == null) foodInfo = itemStack.item.foodProperties
+
+        if (foodInfo != null) {
+            val oldFoodLevel: Int = serverPlayer.foodData.foodLevel
+            val event = CraftEventFactory.callFoodLevelChangeEvent(serverPlayer, foodInfo.nutrition + oldFoodLevel, itemStack)
+
+            if (!event.isCancelled) {
+                serverPlayer.foodData.eat(event.foodLevel - oldFoodLevel, foodInfo.saturationModifier)
+                serverPlayer.awardStat(Stats.ITEM_USED[itemStack.item])
+                CriteriaTriggers.CONSUME_ITEM.trigger(serverPlayer, itemStack)
+
+                attributes?.forEach { it.invoke(player) }
+                actions?.invoke(player)
+            }
+
+            player.sendHealthUpdate()
+        } else {
+            attributes?.forEach { it.invoke(player) }
+            actions?.invoke(player)
+        }
     }
 
     private fun BeaconEffectEvent.shouldIgnore(): Boolean {
@@ -259,11 +415,11 @@ class ListenerService(override val plugin: Terix) : Extension<Terix>() {
         item: ItemStack,
         player: Player
     ) {
-        origin.foodMultipliers[item.type]?.invokeIfNotNull {
-            cancel()
-            if (it == 0.0) return@invokeIfNotNull
-            player.foodLevel += ((foodLevel - player.foodLevel) * it).toInt()
-        }
+//        origin.foodMultipliers[item.type]?.invokeIfNotNull {
+//            cancel()
+//            if (it == 0.0) return@invokeIfNotNull
+//            player.foodLevel += ((foodLevel - player.foodLevel) * it).toInt()
+//        }
     }
 
     private fun PlayerOriginChangeEvent.bypassOrEarly(now: Instant): Boolean {
