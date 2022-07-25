@@ -95,7 +95,6 @@ class SlimeOrigin(override val plugin: Terix) : AbstractOrigin() {
         if (cache["in-water"] == true) return
         cache["in-water"] = true
         while (playerHealthCache[event.player.uniqueId] < 5.0) {
-
             if (LiquidType.convert(event.player.location.block) != LiquidType.WATER) break
 
             val modifier = event.player.getAttribute(Attribute.GENERIC_MAX_HEALTH)!!.modifiers.find { it.name == "ORIGIN_SLIME_HEALTH" }
@@ -119,14 +118,12 @@ class SlimeOrigin(override val plugin: Terix) : AbstractOrigin() {
     }
 
     override suspend fun onExitLiquid(event: PlayerExitLiquidEvent) {
-
         if (event.previousType != LiquidType.WATER) return
         val cache = playerCache[event.player]
         if (cache["in-water"] == false) return
         cache["in-water"] = false
 
         while (playerHealthCache[event.player.uniqueId] > 0.0) {
-
             if (LiquidType.convert(event.player.location.block) == LiquidType.WATER) break
 
             val modifier = event.player.getAttribute(Attribute.GENERIC_MAX_HEALTH)!!.modifiers.find { it.name == "ORIGIN_SLIME_HEALTH" }

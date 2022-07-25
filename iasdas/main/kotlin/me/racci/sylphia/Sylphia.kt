@@ -50,7 +50,7 @@ import java.util.Locale
 
 class Terix : RacciPlugin(
     "&6",
-    "Terix",
+    "Terix"
 ) {
 
     internal companion object {
@@ -86,7 +86,6 @@ class Terix : RacciPlugin(
     private lateinit var optionLoader: OptionL
 
     override suspend fun handleEnable() {
-
         instance = this
 
         config.options().copyDefaults(true)
@@ -154,7 +153,7 @@ class Terix : RacciPlugin(
             PlayerChangeWorldListener(),
             OriginEventListener(),
             RunnableListener(),
-            OffhandListener(this),
+            OffhandListener(this)
         )
     }
 
@@ -170,7 +169,7 @@ class Terix : RacciPlugin(
         return listOf(
             SunLightRunnable(this),
             RainRunnable(this),
-            WaterRunnable(this),
+            WaterRunnable(this)
         )
     }
 

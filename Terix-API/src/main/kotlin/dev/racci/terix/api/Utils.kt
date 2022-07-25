@@ -10,6 +10,7 @@ import org.bukkit.entity.Player
 import java.util.UUID
 
 @PublishedApi internal val mainThread by lazy { getKoin().get<Terix>().minecraftDispatcher }
+
 @PublishedApi internal val asyncThread by lazy { getKoin().get<Terix>().asyncDispatcher }
 
 suspend inline fun ensureMainThread(crossinline block: suspend () -> Unit) {

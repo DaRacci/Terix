@@ -15,7 +15,7 @@ class OutlinePane(
     length: Int,
     height: Int,
     priority: Priority,
-    block: (dev.racci.terix.core.extensions.OutlinePane.() -> Unit)? = null,
+    block: (dev.racci.terix.core.extensions.OutlinePane.() -> Unit)? = null
 ) : OutlinePane(x, y, length, height, priority) {
 
     fun setMask(mask: Mask) = applyMask(mask)

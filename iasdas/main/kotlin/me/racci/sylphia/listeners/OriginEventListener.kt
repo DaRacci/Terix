@@ -23,7 +23,6 @@ class OriginEventListener : KotlinListener {
 
     @EventHandler(priority = EventPriority.HIGHEST, ignoreCancelled = true)
     fun onOriginChange(event: OriginChangeEvent) {
-
         val player = event.player
         val origin = event.newOrigin
 
@@ -35,8 +34,10 @@ class OriginEventListener : KotlinListener {
                         LegacyUtils.parseLegacy(
                             replace(
                                 Lang[Origins.COMMAND_SET_CURRENT],
-                                "{PlayerDisplayName}", player.displayName,
-                                "{origin}", origin.identity.displayName
+                                "{PlayerDisplayName}",
+                                player.displayName,
+                                "{origin}",
+                                origin.identity.displayName
                             )
                         )
                     )
@@ -54,8 +55,10 @@ class OriginEventListener : KotlinListener {
                             LegacyUtils.parseLegacy(
                                 replace(
                                     Lang[Origins.SELECT_BROADCAST],
-                                    "{PlayerDisplayName}", player.displayName,
-                                    "{var}", origin.identity.displayName
+                                    "{PlayerDisplayName}",
+                                    player.displayName,
+                                    "{var}",
+                                    origin.identity.displayName
                                 )
                             )
                         )
@@ -69,8 +72,10 @@ class OriginEventListener : KotlinListener {
                     LegacyUtils.parseLegacy(
                         replace(
                             Lang[Origins.COMMAND_SET_SUCCESS],
-                            "{PlayerDisplayName}", player.displayName,
-                            "{var}", origin.identity.displayName
+                            "{PlayerDisplayName}",
+                            player.displayName,
+                            "{var}",
+                            origin.identity.displayName
                         )
                     )
                 )
@@ -103,7 +108,8 @@ class OriginEventListener : KotlinListener {
                         LegacyUtils.parseLegacy(
                             replace(
                                 Lang[Origins.COMMAND_GET_NULL],
-                                "{PlayerDisplayName}", player.displayName
+                                "{PlayerDisplayName}",
+                                player.displayName
                             )
                         )
                     )
@@ -118,7 +124,8 @@ class OriginEventListener : KotlinListener {
                         LegacyUtils.parseLegacy(
                             replace(
                                 Lang[Origins.COMMAND_RESET_TARGET],
-                                "{SenderDisplayName}", event.sender.displayName
+                                "{SenderDisplayName}",
+                                event.sender.displayName
                             )
                         )
                     )
@@ -131,7 +138,8 @@ class OriginEventListener : KotlinListener {
                     LegacyUtils.parseLegacy(
                         replace(
                             Lang[Origins.COMMAND_RESET_SENDER],
-                            "{PlayerDisplayName}", player.displayName,
+                            "{PlayerDisplayName}",
+                            player.displayName
                         )
                     )
                 ).build()

@@ -63,6 +63,7 @@ class TickService(override val plugin: Terix) : Extension<Terix>() {
             return newFixedThreadPoolContext(4, "Origin Ticker")
         }
     }
+
     /** The queue of players which have disconnected. (Slightly faster performance than checking [Player.isOnline]) */
     private val removeQueue = HashSet<UUID>()
 
@@ -123,7 +124,7 @@ class TickService(override val plugin: Terix) : Extension<Terix>() {
             .collect { player ->
                 async {
                     yield()
-                    delay(5.ticks)
+                    delay(1.ticks)
                     if (player.uniqueId in removeQueue) return@async
                     mutex.withLock { playerQueue.addLast(player) }
                 }

@@ -24,7 +24,7 @@ class SpecialService(override val plugin: Terix) : Extension<Terix>() {
             Trigger.NIGHT,
             Trigger.NETHER,
             Trigger.THE_END,
-            Trigger.OVERWORLD,
+            Trigger.OVERWORLD
         )
     }
     val specialStatesFormatted by lazy { specialStates.map { it.formatted("_", false) }.toTypedArray() }

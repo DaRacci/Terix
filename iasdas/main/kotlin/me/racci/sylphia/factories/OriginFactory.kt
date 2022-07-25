@@ -121,13 +121,13 @@ object OriginFactory : IFactory<OriginFactory> {
         }
         val identities = arrayOf(
             config.getString(IDENTITY_NAME.path) ?: IDENTITY_NAME.default as String,
-            colour(config.getString(IDENTITY_COLOUR.path) ?: IDENTITY_COLOUR.default as String),
+            colour(config.getString(IDENTITY_COLOUR.path) ?: IDENTITY_COLOUR.default as String)
         )
         val sounds = arrayOf(
             Sound.valueOf(config.getString(SOUND_HURT.path) ?: SOUND_HURT.default as String),
             Sound.valueOf(config.getString(SOUND_DEATH.path) ?: SOUND_DEATH.default as String),
             null,
-            null,
+            null
         )
         config.getString(DAY_SOUND.path).apply { if (this != null) sounds[2] = Sound.valueOf(this) }
         config.getString(NIGHT_SOUND.path).apply { if (this != null) sounds[3] = Sound.valueOf(this) }
@@ -135,11 +135,11 @@ object OriginFactory : IFactory<OriginFactory> {
             colour(config.getString(DAY_TITLE.path).orEmpty()),
             colour(config.getString(DAY_SUBTITLE.path).orEmpty()),
             colour(config.getString(NIGHT_TITLE.path).orEmpty()),
-            colour(config.getString(NIGHT_SUBTITLE.path).orEmpty()),
+            colour(config.getString(NIGHT_SUBTITLE.path).orEmpty())
         )
         val perms = arrayOf(
             config.getStringList(PERMISSION_REQUIRED.path),
-            config.getStringList(PERMISSION_GIVEN.path),
+            config.getStringList(PERMISSION_GIVEN.path)
         )
         val enables = booleanArrayOf(
             config.getBoolean(PASSIVES_GENERAL.path, false),
@@ -150,19 +150,19 @@ object OriginFactory : IFactory<OriginFactory> {
             config.getBoolean(FALL_ENABLED.path, false),
             config.getBoolean(RAIN_ENABLED.path, false),
             config.getBoolean(WATER_ENABLED.path, false),
-            config.getBoolean(LAVA_ENABLED.path, false),
+            config.getBoolean(LAVA_ENABLED.path, false)
         )
         val specials = byteArrayOf(
             if (config.getBoolean(TOGGLES_NIGHTVISION.path, false)) 1.toByte() else 0.toByte(),
             if (config.getBoolean(TOGGLES_SLOWFALLING.path, false)) 1.toByte() else 0.toByte(),
-            config.getInt(TOGGLES_JUMPBOOST.path, 0).toByte(),
+            config.getInt(TOGGLES_JUMPBOOST.path, 0).toByte()
         )
         val damages = intArrayOf(
             config.getInt(SUN_AMOUNT.path, 100),
             config.getInt(FALL_AMOUNT.path, 100),
             config.getInt(RAIN_AMOUNT.path, 100),
             config.getInt(WATER_AMOUNT.path, 100),
-            config.getInt(LAVA_AMOUNT.path, 100),
+            config.getInt(LAVA_AMOUNT.path, 100)
         )
         val guis = GUIItem(
             if (config.getBoolean(GUI_ENABLED.path)) {
@@ -264,7 +264,7 @@ object OriginFactory : IFactory<OriginFactory> {
             guis,
             baseAttributes,
             attributes,
-            potions,
+            potions
         )
     }
 
@@ -292,7 +292,7 @@ data class Origin(
     private val guis: GUIItem,
     val baseAttributes: EnumMap<Attribute, Double>,
     val attributes: EnumMap<Condition, AttributeCondition>,
-    val potions: EnumMap<Condition, ArrayList<PotionEffect>>,
+    val potions: EnumMap<Condition, ArrayList<PotionEffect>>
 ) {
 
     val identity = Identity()

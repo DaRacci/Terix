@@ -130,5 +130,5 @@ fun Player.activeTriggers(): List<Trigger> = listOfNotNull(
     getLightOrDarkTrigger(),
     *getLiquidTrigger(),
     world.getTimeTrigger(),
-    world.environment.getTrigger(),
+    world.environment.getTrigger()
 )

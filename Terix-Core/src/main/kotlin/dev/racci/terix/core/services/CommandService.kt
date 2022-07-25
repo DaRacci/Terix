@@ -53,7 +53,6 @@ class CommandService(override val plugin: Terix) : Extension<Terix>() {
     private val lang by inject<DataService>().inject<Lang>()
 
     override suspend fun handleEnable() {
-
         command("origin") {
             aliases += "origins"
             permission = CommandPermission.fromString("terix.origin")
@@ -66,7 +65,6 @@ class CommandService(override val plugin: Terix) : Extension<Terix>() {
         }
 
         command("testing") {
-
             subcommand("oxygen") {
                 executePlayer { player, _ ->
                     player.isReverseOxygen = !player.isReverseOxygen

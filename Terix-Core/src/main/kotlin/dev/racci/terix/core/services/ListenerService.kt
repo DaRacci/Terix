@@ -91,6 +91,7 @@ class ListenerService(override val plugin: Terix) : Extension<Terix>() {
     private val config by inject<DataService>().inject<Config>()
     private val lang by inject<DataService>().inject<Lang>()
 
+    @OptIn(ExperimentalCoroutinesApi::class)
     @Suppress("kotlin:S3776")
     override suspend fun handleEnable() {
         event<BeaconEffectEvent>(priority = EventPriority.LOWEST) {
@@ -114,7 +115,6 @@ class ListenerService(override val plugin: Terix) : Extension<Terix>() {
         }
 
         event<PlayerJoinEvent>(forceAsync = true) {
-
             val origin = player.origin()
             val activeTriggers = player.activeTriggers()
             val activeTriggersStr = activeTriggers.map { it.name.lowercase() }
@@ -211,7 +211,7 @@ class ListenerService(override val plugin: Terix) : Extension<Terix>() {
             foodLevelChange(origin, item, player)
             origin.foodBlocks[item.type]?.invoke(player)
             origin.foodAttributes[item.type]?.forEach { it.invoke(player) }
-            origin.foodPotions[item.type]?.invokeIfNotNull(player::addPotionEffects)
+//            origin.foodPotions[item.type]?.invokeIfNotNull(player::addPotionEffects)
         }
 
         event<PlayerOriginChangeEvent>(
@@ -248,7 +248,7 @@ class ListenerService(override val plugin: Terix) : Extension<Terix>() {
             PlayerShiftDoubleOffhandEvent::class,
             PlayerShiftLeftClickEvent::class,
             PlayerShiftRightClickEvent::class,
-            PlayerShiftOffhandEvent::class,
+            PlayerShiftOffhandEvent::class
         ) {
             val clazz = KeyBinding.fromEvent(this::class)
             val origin = player.origin()
@@ -432,7 +432,7 @@ class ListenerService(override val plugin: Terix) : Extension<Terix>() {
 
     private fun ensureNoFire(
         player: Player,
-        origin: AbstractOrigin,
+        origin: AbstractOrigin
     ): Boolean {
         if (player.fireTicks <= 0 || !origin.fireImmune) return false
         player.fireTicks = 0
