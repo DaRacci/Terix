@@ -95,7 +95,7 @@ abstract class AbstractOrigin : WithPlugin<MinixPlugin> {
         it.value.isLetter() || it.index == 0
     }?.map(IndexedValue<Char>::value)?.toString() ?: "Unknown"
     open val colour: TextColor = NamedTextColor.WHITE
-    open val displayName: Component by lazy { Component.text(name).color(colour) }
+    open val displayName: Component by lazy { text(name).color(colour) }
 
     open val nightVision: Boolean = false
     open val waterBreathing: Boolean = false
@@ -691,23 +691,36 @@ abstract class AbstractOrigin : WithPlugin<MinixPlugin> {
         }
     }
 
+    // TODO: General info (name, colour, displayName, permission)
+    // TODO: Nightvision, waterbreathing, fireimmune
+    // TODO: Attribute modifiers
+    // TODO: Titles
+    // TODO: Potions
+    // TODO: food (blocks, potions, attributes, multipliers)
     object InfoTypes {
-        val ABILITIES by Info {
-            if (this.abilities.isEmpty()) return@Info ""
-
-            val builder = StringBuilder("Abilities: { ")
-            val iterator = this.abilities.iterator()
-
-            while (iterator.hasNext()) {
-                val (key, value) = iterator.next()
-
-                builder.append("${key.name}: ${value::class.simpleName}")
-                if (iterator.hasNext()) builder.append(", ") else builder.append(" }")
+        val GENERAL by Info {
+            text {
+                it.append { text("Name: $name") + newline() }
+                it.append { text("Colour: ${colour.asHexString()}") + newline() }
+                it.append { text("Display Name: $displayName") + newline() }
+                it.append { text("Permission: $permission") + newline() }
             }
-
-            builder.toString()
         }
+        val ABILITIES by Info {
+            if (this.abilities.isEmpty()) return@Info empty()
 
+            text {
+                it.append { text("Abilities: ") }
+
+                val iterator = this.abilities.iterator()
+                while (iterator.hasNext()) {
+                    val (key, value) = iterator.next()
+
+                    it.append { text("${key.name}: ${value::class.simpleName}") }
+                    if (iterator.hasNext()) it.append { text(", ") }
+                }
+            }
+        }
         val TRIGGER_BLOCKS by Info {
             if (this.triggerBlocks.isEmpty()) return@Info ""
 
@@ -723,7 +736,6 @@ abstract class AbstractOrigin : WithPlugin<MinixPlugin> {
 
             builder.toString()
         }
-
         val DAMAGE_TICKS by Info {
             if (this.damageTicks.isEmpty()) return@Info ""
 

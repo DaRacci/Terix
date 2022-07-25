@@ -25,6 +25,14 @@ import java.awt.Color
 import kotlin.time.Duration
 import kotlin.time.Duration.Companion.seconds
 
+// TODO -> Turn into bat via turning them invisible and adding then onto a bat.
+// TODO -> Raw meat gives the amount of cooked meat.
+// TODO -> Cooked meat gives the amount of raw meat.
+// TODO -> Rotten flesh no hunger, Spider eye no poison and higher saturation.
+// TODO -> All food sources that dont supply blood should be reduced to 0.5 saturation or close to.
+// TODO -> Cake good.
+// TODO -> Immune to wither-rose.
+// TODO -> Take damage to healing potion, heal from damage potions like zombies.
 class VampireOrigin(override val plugin: Terix) : AbstractOrigin() {
 
     override val name = "Vampire"

@@ -6,6 +6,10 @@ import dev.racci.terix.api.origins.sounds.SoundEffect
 import net.kyori.adventure.text.format.TextColor
 import org.bukkit.Material
 
+// TODO -> Edible snowballs are the top food.
+// TODO -> Raw fish are better than cooked fish.
+// TODO -> Cake!
+// TODO -> More fire / lava damage
 class BlizzOrigin(override val plugin: Terix) : AbstractOrigin() {
 
     override val name = "Blizz"

@@ -16,6 +16,11 @@ import org.bukkit.entity.Player
 import org.bukkit.inventory.ItemStack
 import org.bukkit.potion.PotionEffect
 
+// TODO -> Unable to use potions unless applied from another origin.
+// TODO -> All normal food gives half a heart of damage, they can only eat flowers.
+// TODO -> Some flowers are edible, some flowers are potion effects.
+// TODO -> When trying to use a potion, send a message such as "The potion is too strong, try a flower bitch"
+// TODO -> When attacking without a tool in hand take half a heart of damage.
 class BeeOrigin(override val plugin: Terix) : AbstractOrigin() {
 
     override val name = "Bee"

@@ -6,6 +6,11 @@ import dev.racci.terix.api.origins.sounds.SoundEffect
 import net.kyori.adventure.text.format.TextColor
 import org.bukkit.Material
 
+// TODO -> Every meat gives increased saturation.
+// TODO -> Always have hunger.
+// TODO -> Diamond, Gold and Emerald are edible.
+// TODO -> Take more damage from beds.
+// TODO -> Bed explosion does more damage.
 class DragonOrigin(override val plugin: Terix) : AbstractOrigin() {
 
     override val name = "Dragon"
