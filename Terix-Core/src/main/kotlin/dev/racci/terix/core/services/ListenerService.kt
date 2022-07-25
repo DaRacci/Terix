@@ -37,6 +37,7 @@ import dev.racci.terix.api.dsl.PotionEffectBuilder
 import dev.racci.terix.api.ensureMainThread
 import dev.racci.terix.api.events.PlayerOriginChangeEvent
 import dev.racci.terix.api.extensions.playSound
+import dev.racci.terix.api.origin
 import dev.racci.terix.api.origins.AbstractOrigin
 import dev.racci.terix.api.origins.enums.KeyBinding
 import dev.racci.terix.api.origins.enums.Trigger
@@ -50,8 +51,8 @@ import dev.racci.terix.core.extensions.message
 import dev.racci.terix.core.extensions.nightVision
 import dev.racci.terix.core.extensions.origin
 import dev.racci.terix.core.extensions.originTime
+import dev.racci.terix.core.origins.OriginHelper
 import dev.racci.terix.core.origins.invokeAdd
-import dev.racci.terix.core.origins.invokeBase
 import dev.racci.terix.core.origins.invokeReload
 import dev.racci.terix.core.origins.invokeRemove
 import dev.racci.terix.core.origins.invokeSwap
@@ -139,8 +140,13 @@ class ListenerService(override val plugin: Terix) : Extension<Terix>() {
 
         event<PlayerPostRespawnEvent>(forceAsync = true) {
             removeUnfulfilledOrInvalidAttributes(player)
-            Trigger.invokeBase(player)
-            player.world.environment.getTrigger().invokeAdd(player)
+
+            val origin = origin(player)
+            val trigger = player.world.environment.getTrigger()
+
+            OriginHelper.applyBase(player, origin)
+            OriginHelper.add(player, origin, trigger)
+
             player.health = player.getAttribute(Attribute.GENERIC_MAX_HEALTH)!!.value
         }
 
@@ -154,7 +160,7 @@ class ListenerService(override val plugin: Terix) : Extension<Terix>() {
         event<PlayerExitLiquidEvent> {
             Trigger.values().find { it.name == previousType.name }?.invokeRemove(player)
             if (newType != LiquidType.NON) return@event
-            Trigger.LAND.invokeAdd(player)
+            OriginHelper.add(player, origin(player), Trigger.LAND)
         }
 
         event<WorldNightEvent>(forceAsync = true) { timeTrigger(Trigger.NIGHT) }
@@ -280,7 +286,8 @@ class ListenerService(override val plugin: Terix) : Extension<Terix>() {
                         when {
                             received.isSuccess -> {
                                 log.debug { "PlayerRightClickEvent - received ${received.getOrNull()}" }
-                                required -= (now - last)
+                                val elapsed = now - (lasts.replace(player.uniqueId, now) ?: 0L)
+                                required -= elapsed
                             }
                             received.isFailure -> {
                                 log.debug { "Missed receiving." }
@@ -298,7 +305,6 @@ class ListenerService(override val plugin: Terix) : Extension<Terix>() {
                             log.debug { "PlayerRightClickEvent - Consumed all required." }
                             break
                         }
-//                        }
                     } while (!channel.isEmpty && !channel.isClosedForReceive)
 
                     log.debug { "PlayerRightClickEvent - Channel closed for receive." }

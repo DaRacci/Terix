@@ -21,7 +21,7 @@ import org.jetbrains.exposed.sql.transactions.transaction
 
 private val terix by getKoin().inject<Terix>()
 
-@Deprecated("moved", ReplaceWith("origin(player: Player): AbstractOrigin", "dev.racci.terix.api.origin"))
+@Deprecated("moved", ReplaceWith("dev.racci.terix.api.origin(this)", "dev.racci.terix.api.origin"))
 fun Player.origin(): AbstractOrigin = PlayerData.cachedOrigin(this)
 
 fun Player.lastOrigin(): String? = transaction { PlayerData[this@lastOrigin].lastOrigin }
