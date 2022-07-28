@@ -10,8 +10,8 @@ import dev.racci.minix.api.plugin.MinixLogger
 import dev.racci.minix.api.utils.collections.CollectionUtils.clear
 import dev.racci.minix.api.utils.collections.CollectionUtils.getCast
 import dev.racci.terix.api.Terix
+import dev.racci.terix.api.origin
 import dev.racci.terix.core.enchantments.SunResistance
-import dev.racci.terix.core.extensions.origin
 import me.angeschossen.lands.api.flags.Flags
 import me.angeschossen.lands.api.integration.LandsIntegration
 import me.clip.placeholderapi.expansion.PlaceholderExpansion
@@ -130,9 +130,9 @@ class HookService(override val plugin: Terix) : Extension<Terix>() {
             params: String
         ): String? {
             return when (params.uppercase()) {
-                "ORIGIN_NAME" -> player.origin().name
-                "ORIGIN_DISPLAY" -> serializer.serialize(player.origin().displayName)
-                "ORIGIN_COLOUR" -> player.origin().colour.asHexString()
+                "ORIGIN_NAME" -> origin(player).name
+                "ORIGIN_DISPLAY" -> serializer.serialize(origin(player).displayName)
+                "ORIGIN_COLOUR" -> origin(player).colour.asHexString()
                 else -> null
             }
         }

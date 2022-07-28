@@ -118,7 +118,7 @@ class AethenOrigin(override val plugin: Terix) : AbstractOrigin() {
             return
         }
 
-        if (!event.player.getAllOriginPotions(Trigger.ON).contains(PotionEffectType.SLOW_FALLING)) {
+        if (!OriginHelper.getAllPotions(event.player, Trigger.ON).contains(PotionEffectType.SLOW_FALLING)) {
             event.player.addPotionEffect(PotionEffect(PotionEffectType.SLOW_FALLING, Integer.MAX_VALUE, 0))
         }
     }

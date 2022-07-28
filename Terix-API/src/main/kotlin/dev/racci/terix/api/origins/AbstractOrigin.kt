@@ -88,7 +88,7 @@ abstract class AbstractOrigin : WithPlugin<MinixPlugin> {
 
     private val builderCache = Caffeine.newBuilder()
         .expireAfterAccess(Duration.ofMinutes(1))
-        .build<KClass<*>, Any>() { kClass -> kClass.constructors.first().call(this) }
+        .build<KClass<*>, Any> { kClass -> kClass.constructors.first().call(this) }
     private inline fun <reified T> builder(): T = builderCache[T::class].unsafeCast()
 
     open val name: String = this::class.simpleName?.withIndex()?.takeWhile {

@@ -16,12 +16,12 @@ import dev.racci.minix.nms.aliases.toNMS
 import dev.racci.terix.api.OriginService
 import dev.racci.terix.api.Terix
 import dev.racci.terix.api.events.PlayerOriginChangeEvent
+import dev.racci.terix.api.origin
 import dev.racci.terix.api.origins.AbstractOrigin
 import dev.racci.terix.core.extensions.inDarkness
 import dev.racci.terix.core.extensions.inRain
 import dev.racci.terix.core.extensions.inSunlight
 import dev.racci.terix.core.extensions.inWater
-import dev.racci.terix.core.extensions.origin
 import dev.racci.terix.core.extensions.wasInDarkness
 import dev.racci.terix.core.extensions.wasInRain
 import dev.racci.terix.core.extensions.wasInSunlight
@@ -75,7 +75,7 @@ class TickService(override val plugin: Terix) : Extension<Terix>() {
             removeQueue.remove(player.uniqueId) // Maybe they reconnected?
             mutex.withLock { playerQueue.addLast(player) }
 
-            val origin = player.origin()
+            val origin = origin(player)
             if (hasTick(origin)) { originReference[player] = origin }
         }
         event<PlayerQuitEvent> {
@@ -83,7 +83,7 @@ class TickService(override val plugin: Terix) : Extension<Terix>() {
             removeQueue.add(player.uniqueId)
         }
         event<PlayerOriginChangeEvent> {
-            val origin = player.origin()
+            val origin = origin(player)
             if (hasTick(origin)) { originReference[player] = origin } else { originReference.remove(player) }
         }
 
