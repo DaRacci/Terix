@@ -142,7 +142,7 @@ internal class AbstractOriginTest {
     @Test
     fun `attribute modifiers apply correct amounts`() {
         val list = mutableListOf<AttributeModifier>()
-        val inst = mockk<AttributeInstance>() {
+        val inst = mockk<AttributeInstance> {
             every { value } answers {
                 var d = baseValue
 

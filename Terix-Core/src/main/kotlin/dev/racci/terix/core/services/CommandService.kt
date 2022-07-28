@@ -21,6 +21,7 @@ import dev.racci.terix.api.OriginService
 import dev.racci.terix.api.Terix
 import dev.racci.terix.api.dsl.PotionEffectBuilder
 import dev.racci.terix.api.events.PlayerOriginChangeEvent
+import dev.racci.terix.api.origin
 import dev.racci.terix.core.data.Config
 import dev.racci.terix.core.data.Lang
 import dev.racci.terix.core.extensions.arguments
@@ -29,7 +30,6 @@ import dev.racci.terix.core.extensions.execute
 import dev.racci.terix.core.extensions.executePlayer
 import dev.racci.terix.core.extensions.fulfilled
 import dev.racci.terix.core.extensions.nightVision
-import dev.racci.terix.core.extensions.origin
 import dev.racci.terix.core.extensions.safelyAddPotion
 import dev.racci.terix.core.extensions.safelyRemovePotion
 import dev.racci.terix.core.extensions.subcommand
@@ -164,7 +164,7 @@ class CommandService(override val plugin: Terix) : Extension<Terix>() {
 
             subcommand("origin") {
                 executePlayer { player, _ ->
-                    player.origin().toString() message player
+                    origin(player).toString() message player
                 }
             }
 
@@ -271,7 +271,7 @@ class CommandService(override val plugin: Terix) : Extension<Terix>() {
 
             addSpecialCommand(
                 "nightvision",
-                { it.origin().nightVision },
+                { origin(it).nightVision },
                 { sender, args -> async { nightvision(sender, args.getCast(0)) } }
             )
         }
@@ -367,7 +367,7 @@ class CommandService(override val plugin: Terix) : Extension<Terix>() {
         sender: CommandSender,
         target: Player? = sender as? Player
     ) {
-        val origin = (target)?.origin() ?: run {
+        val origin = (target)?.let { origin(it) } ?: run {
             return lang.generic.error[
                 "message" to { "This command must have a target or be sent by a Player." }
             ] message sender
@@ -395,7 +395,7 @@ class CommandService(override val plugin: Terix) : Extension<Terix>() {
                 "message" to { "Invalid origin: $originString." }
             ] message sender
         }
-        if (origin == target.origin()) {
+        if (origin == origin(target)) {
             return lang[
                 "origin.set.same.${if (target == sender) "self" else "other"}",
                 "origin" to { origin.displayName },
@@ -404,11 +404,11 @@ class CommandService(override val plugin: Terix) : Extension<Terix>() {
         }
         lang[
             "origin.set.${if (target == sender) "self" else "other"}",
-            "old_origin" to { target.origin().displayName },
+            "old_origin" to { origin(target).displayName },
             "new_origin" to { origin.displayName },
             "player" to { target.displayName() }
         ] message sender
-        PlayerOriginChangeEvent(target, target.origin(), origin, true).callEvent()
+        PlayerOriginChangeEvent(target, origin(target), origin, true).callEvent()
     }
 
     private fun nightvision(
@@ -438,7 +438,7 @@ class CommandService(override val plugin: Terix) : Extension<Terix>() {
                 duration = Duration.INFINITE
                 amplifier = 0
                 ambient = true
-                originKey(player.origin(), new)
+                originKey(origin(player), new)
             }.apply(player::safelyAddPotion)
         }
 

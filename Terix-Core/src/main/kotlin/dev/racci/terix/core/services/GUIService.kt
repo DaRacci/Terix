@@ -26,11 +26,11 @@ import dev.racci.minix.nms.aliases.toNMS
 import dev.racci.terix.api.OriginService
 import dev.racci.terix.api.Terix
 import dev.racci.terix.api.events.PlayerOriginChangeEvent
+import dev.racci.terix.api.origin
 import dev.racci.terix.api.origins.AbstractOrigin
 import dev.racci.terix.core.data.Config
 import dev.racci.terix.core.data.Lang
 import dev.racci.terix.core.extensions.asGuiItem
-import dev.racci.terix.core.extensions.origin
 import dev.racci.terix.core.extensions.originTime
 import dev.racci.terix.core.extensions.usedChoices
 import dev.racci.terix.core.origins.AethenOrigin
@@ -200,14 +200,14 @@ class GUIService(override val plugin: Terix) : Extension<Terix>() {
             val player = whoClicked as? Player ?: return@asGuiItem
             val origin = selectedOrigin.getIfPresent(player) ?: return@asGuiItem
             async {
-                if (player.origin() == origin) {
+                if (origin(player) == origin) {
                     player.shieldSound()
                     lang.origin.setSameSelf["origin" to { origin.displayName }] message player
                     return@async selectedOrigin.invalidate(player)
                 }
 
                 val bypass = config.freeChanges > 0 && player.usedChoices < config.freeChanges
-                if (PlayerOriginChangeEvent(player, player.origin(), origin, bypass).callEvent()) {
+                if (PlayerOriginChangeEvent(player, origin(player), origin, bypass).callEvent()) {
                     if (bypass) player.usedChoices++
                     sync { player.closeInventory(InventoryCloseEvent.Reason.PLAYER) }
                     player.playSound(Sound.sound(Key.key("block.chest.unlock"), Sound.Source.PLAYER, 1.0f, 1.0f))
@@ -287,5 +287,5 @@ class GUIService(override val plugin: Terix) : Extension<Terix>() {
         playSound(Sound.sound(Key.key("item.shield.break"), Sound.Source.MASTER, 1f, 0.5f))
     }
 
-    companion object : Extension.ExtensionCompanion<GUIService>()
+    companion object : ExtensionCompanion<GUIService>()
 }

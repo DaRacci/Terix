@@ -28,7 +28,7 @@ import dev.racci.minix.api.extensions.event
 import dev.racci.terix.api.OriginService
 import dev.racci.terix.api.Terix
 import dev.racci.terix.api.events.PlayerOriginChangeEvent
-import dev.racci.terix.core.extensions.origin
+import dev.racci.terix.api.origin
 import org.bukkit.entity.Player
 import org.bukkit.event.block.BlockBreakEvent
 import org.bukkit.event.block.BlockPlaceEvent
@@ -67,54 +67,54 @@ class EventForwarderService(override val plugin: Terix) : Extension<Terix>() {
             preOrigin.onChange(this)
             newOrigin.onChange(this)
         }
-        event<PlayerRespawnEvent> { player.origin().onRespawn(this) }
-        event<PlayerPostRespawnEvent> { player.origin().onPostRespawn(this) }
-        event<PlayerDeathEvent> { player.origin().onDeath(this) }
-        event<PlayerEnterLiquidEvent> { player.origin().onEnterLiquid(this) }
-        event<PlayerExitLiquidEvent> { player.origin().onExitLiquid(this) }
-        event<BlockBreakEvent> { player.origin().onBreakBlock(this) }
-        event<BlockPlaceEvent> { player.origin().onPlaceBlock(this) }
-        event<EntityDamageEvent> { (entity as? Player)?.origin()?.onDamage(this) }
-        event<EntityDamageByEntityEvent> { (damager as? Player)?.origin()?.onDamageEntity(this) }
-        event<EntityDamageByEntityEvent> { (entity as? Player)?.origin()?.onDamageByEntity(this) }
-        event<EntityDeathEvent> { entity.killer?.origin()?.onKillEntity(this) }
-        event<PlayerLaunchProjectileEvent> { player.origin().onProjectileLaunch(this) }
-        event<ProjectileHitEvent> { (entity.shooter as? Player)?.origin()?.onProjectileLand(this) }
-        event<ProjectileCollideEvent> { (entity.shooter as? Player)?.origin()?.onProjectileCollide(this) }
-        event<PlayerArmorChangeEvent> { player.origin().onArmourChange(this) }
-        event<PlayerChangedWorldEvent> { player.origin().onChangeWorld(this) }
-        event<PlayerFishEvent> { player.origin().onFish(this) }
-        event<PlayerItemDamageEvent> { player.origin().onItemDamage(this) }
-        event<PlayerRiptideEvent> { player.origin().onRiptide(this) }
-        event<EntityCombustEvent> { (entity as? Player)?.origin()?.onCombust(this) }
-        event<EntityResurrectEvent> { (entity as? Player)?.origin()?.onResurrect(this) }
-        event<EntityToggleSwimEvent> { (entity as? Player)?.origin()?.onToggleSwim(this) }
-        event<EntityToggleGlideEvent> { (entity as? Player)?.origin()?.onToggleGlide(this) }
-        event<PlayerJumpEvent> { player.origin().onJump(this) }
-        event<EntityKnockbackByEntityEvent> { (entity as? Player)?.origin()?.onKnockback(this) }
-        event<PhantomPreSpawnEvent> { (spawningEntity as? Player)?.origin()?.onPhantomSpawn(this) }
-        event<PlayerElytraBoostEvent> { player.origin().onElytraBoost(this) }
-        event<EntityMountEvent> { (entity as? Player)?.origin()?.onEntityMount(this) }
-        event<EntityDismountEvent> { (entity as? Player)?.origin()?.onEntityDismount(this) }
-        event<InventoryOpenEvent> { (player as? Player)?.origin()?.onInventoryOpen(this) }
-        event<EntityAirChangeEvent> { (entity as? Player)?.origin()?.onAirChange(this) }
-        event<PlayerBedEnterEvent> { player.origin().onEnterBed(this) }
-        event<PlayerInteractEvent> { player.origin().onInteract(this) }
-        event<PlayerItemConsumeEvent> { player.origin().onConsume(this) }
-        event<PlayerToggleSneakEvent> { player.origin().onToggleSneak(this) }
+        event<PlayerRespawnEvent> { origin(player).onRespawn(this) }
+        event<PlayerPostRespawnEvent> { origin(player).onPostRespawn(this) }
+        event<PlayerDeathEvent> { origin(player).onDeath(this) }
+        event<PlayerEnterLiquidEvent> { origin(player).onEnterLiquid(this) }
+        event<PlayerExitLiquidEvent> { origin(player).onExitLiquid(this) }
+        event<BlockBreakEvent> { origin(player).onBreakBlock(this) }
+        event<BlockPlaceEvent> { origin(player).onPlaceBlock(this) }
+        event<EntityDamageEvent> { (entity as? Player)?.let { origin(it) }?.onDamage(this) }
+        event<EntityDamageByEntityEvent> { (damager as? Player)?.let { origin(it) }?.onDamageEntity(this) }
+        event<EntityDamageByEntityEvent> { (entity as? Player)?.let { origin(it) }?.onDamageByEntity(this) }
+        event<EntityDeathEvent> { entity.killer?.let { origin(it) }?.onKillEntity(this) }
+        event<PlayerLaunchProjectileEvent> { origin(player).onProjectileLaunch(this) }
+        event<ProjectileHitEvent> { (entity.shooter as? Player)?.let { origin(it) }?.onProjectileLand(this) }
+        event<ProjectileCollideEvent> { (entity.shooter as? Player)?.let { origin(it) }?.onProjectileCollide(this) }
+        event<PlayerArmorChangeEvent> { origin(player).onArmourChange(this) }
+        event<PlayerChangedWorldEvent> { origin(player).onChangeWorld(this) }
+        event<PlayerFishEvent> { origin(player).onFish(this) }
+        event<PlayerItemDamageEvent> { origin(player).onItemDamage(this) }
+        event<PlayerRiptideEvent> { origin(player).onRiptide(this) }
+        event<EntityCombustEvent> { (entity as? Player)?.let { origin(it) }?.onCombust(this) }
+        event<EntityResurrectEvent> { (entity as? Player)?.let { origin(it) }?.onResurrect(this) }
+        event<EntityToggleSwimEvent> { (entity as? Player)?.let { origin(it) }?.onToggleSwim(this) }
+        event<EntityToggleGlideEvent> { (entity as? Player)?.let { origin(it) }?.onToggleGlide(this) }
+        event<PlayerJumpEvent> { origin(player).onJump(this) }
+        event<EntityKnockbackByEntityEvent> { (entity as? Player)?.let { origin(it) }?.onKnockback(this) }
+        event<PhantomPreSpawnEvent> { (spawningEntity as? Player)?.let { origin(it) }?.onPhantomSpawn(this) }
+        event<PlayerElytraBoostEvent> { origin(player).onElytraBoost(this) }
+        event<EntityMountEvent> { (entity as? Player)?.let { origin(it) }?.onEntityMount(this) }
+        event<EntityDismountEvent> { (entity as? Player)?.let { origin(it) }?.onEntityDismount(this) }
+        event<InventoryOpenEvent> { (player as? Player)?.let { origin(it) }?.onInventoryOpen(this) }
+        event<EntityAirChangeEvent> { (entity as? Player)?.let { origin(it) }?.onAirChange(this) }
+        event<PlayerBedEnterEvent> { origin(player).onEnterBed(this) }
+        event<PlayerInteractEvent> { origin(player).onInteract(this) }
+        event<PlayerItemConsumeEvent> { origin(player).onConsume(this) }
+        event<PlayerToggleSneakEvent> { origin(player).onToggleSneak(this) }
 
         // Combo Events
-        event<PlayerLeftClickEvent> { player.origin().onLeftClick(this) }
-        event<PlayerRightClickEvent> { player.origin().onRightClick(this) }
-        event<PlayerOffhandEvent> { player.origin().onOffhand(this) }
-        event<PlayerDoubleLeftClickEvent> { player.origin().onDoubleLeftClick(this) }
-        event<PlayerDoubleRightClickEvent> { player.origin().onDoubleRightClick(this) }
-        event<PlayerDoubleOffhandEvent> { player.origin().onDoubleOffhand(this) }
-        event<PlayerShiftLeftClickEvent> { player.origin().onSneakLeftClick(this) }
-        event<PlayerShiftRightClickEvent> { player.origin().onSneakRightClick(this) }
-        event<PlayerShiftOffhandEvent> { player.origin().onSneakOffhand(this) }
-        event<PlayerShiftDoubleLeftClickEvent> { player.origin().onSneakDoubleLeftClick(this) }
-        event<PlayerShiftDoubleRightClickEvent> { player.origin().onSneakDoubleRightClick(this) }
-        event<PlayerShiftDoubleOffhandEvent> { player.origin().onSneakDoubleOffhand(this) }
+        event<PlayerLeftClickEvent> { origin(player).onLeftClick(this) }
+        event<PlayerRightClickEvent> { origin(player).onRightClick(this) }
+        event<PlayerOffhandEvent> { origin(player).onOffhand(this) }
+        event<PlayerDoubleLeftClickEvent> { origin(player).onDoubleLeftClick(this) }
+        event<PlayerDoubleRightClickEvent> { origin(player).onDoubleRightClick(this) }
+        event<PlayerDoubleOffhandEvent> { origin(player).onDoubleOffhand(this) }
+        event<PlayerShiftLeftClickEvent> { origin(player).onSneakLeftClick(this) }
+        event<PlayerShiftRightClickEvent> { origin(player).onSneakRightClick(this) }
+        event<PlayerShiftOffhandEvent> { origin(player).onSneakOffhand(this) }
+        event<PlayerShiftDoubleLeftClickEvent> { origin(player).onSneakDoubleLeftClick(this) }
+        event<PlayerShiftDoubleRightClickEvent> { origin(player).onSneakDoubleRightClick(this) }
+        event<PlayerShiftDoubleOffhandEvent> { origin(player).onSneakDoubleOffhand(this) }
     }
 }

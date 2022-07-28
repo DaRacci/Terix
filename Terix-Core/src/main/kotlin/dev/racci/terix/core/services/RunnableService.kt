@@ -10,11 +10,10 @@ import dev.racci.minix.api.utils.kotlin.and
 import dev.racci.minix.api.utils.unsafeCast
 import dev.racci.terix.api.Terix
 import dev.racci.terix.api.events.PlayerOriginChangeEvent
+import dev.racci.terix.api.origin
 import dev.racci.terix.api.origins.AbstractOrigin
 import dev.racci.terix.api.origins.enums.Trigger
-import dev.racci.terix.core.extensions.origin
-import dev.racci.terix.core.origins.invokeAdd
-import dev.racci.terix.core.origins.invokeRemove
+import dev.racci.terix.core.origins.OriginHelper
 import dev.racci.terix.core.services.runnables.AmbientTick
 import dev.racci.terix.core.services.runnables.DarknessTick
 import dev.racci.terix.core.services.runnables.MotherCoroutineRunnable
@@ -70,7 +69,7 @@ class RunnableService(override val plugin: Terix) : Extension<Terix>() {
     private fun getNewMother(uuid: UUID): MotherCoroutineRunnable? {
         val mother = MotherCoroutineRunnable()
         val player = player(uuid) ?: return null
-        val origin = player.origin()
+        val origin = origin(player)
         val ambientSound = origin.sounds.ambientSound
 
         if (ambientSound != null) { AmbientTick(player, ambientSound, this@RunnableService, mother) }
@@ -140,8 +139,8 @@ class RunnableService(override val plugin: Terix) : Extension<Terix>() {
         if (wasBool == isBool) return
 
         if (isBool) {
-            trigger.invokeAdd(player, origin)
-        } else trigger.invokeRemove(player, origin)
+            OriginHelper.add(player, origin, trigger)
+        } else OriginHelper.remove(player, origin, trigger)
     }
 
     // @Ticker(Trigger.HOT) TODO

@@ -131,5 +131,5 @@ class OriginServiceImpl(override val plugin: Terix) : OriginService, Extension<T
         }
     }
 
-    companion object : Extension.ExtensionCompanion<OriginServiceImpl>()
+    companion object : ExtensionCompanion<OriginServiceImpl>()
 }
