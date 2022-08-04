@@ -2,7 +2,7 @@ package dev.racci.terix.core.extensions
 
 import dev.racci.terix.api.OriginService
 import dev.racci.terix.api.dsl.PotionEffectBuilder
-import dev.racci.terix.api.origins.AbstractOrigin
+import dev.racci.terix.api.origins.origin.AbstractOrigin
 import org.bukkit.potion.PotionEffect
 
 fun PotionEffect?.fromOrigin(): Boolean {

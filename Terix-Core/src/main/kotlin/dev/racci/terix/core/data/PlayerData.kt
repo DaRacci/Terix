@@ -3,8 +3,8 @@ package dev.racci.terix.core.data
 import com.github.benmanes.caffeine.cache.Caffeine
 import com.github.benmanes.caffeine.cache.LoadingCache
 import dev.racci.terix.api.PlayerData
-import dev.racci.terix.api.origins.AbstractOrigin
 import dev.racci.terix.api.origins.enums.Trigger
+import dev.racci.terix.api.origins.origin.AbstractOrigin
 import dev.racci.terix.core.services.OriginServiceImpl
 import kotlinx.datetime.Instant
 import org.bukkit.entity.Player

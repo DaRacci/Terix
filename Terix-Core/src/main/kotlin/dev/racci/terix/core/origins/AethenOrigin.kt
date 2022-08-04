@@ -11,10 +11,10 @@ import dev.racci.minix.api.utils.minecraft.MaterialTagsExtension
 import dev.racci.minix.api.utils.now
 import dev.racci.minix.nms.aliases.toNMS
 import dev.racci.terix.api.Terix
-import dev.racci.terix.api.origins.AbstractOrigin
 import dev.racci.terix.api.origins.abilities.Levitate
 import dev.racci.terix.api.origins.enums.KeyBinding
 import dev.racci.terix.api.origins.enums.Trigger
+import dev.racci.terix.api.origins.origin.AbstractOrigin
 import dev.racci.terix.api.origins.sounds.SoundEffect
 import kotlinx.datetime.Instant
 import net.kyori.adventure.text.format.TextColor
@@ -106,7 +106,7 @@ class AethenOrigin(override val plugin: Terix) : AbstractOrigin() {
         }
     }
 
-    override suspend fun onEnterBed(event: PlayerBedEnterEvent) {
+    override suspend fun onBedEnter(event: PlayerBedEnterEvent) {
         if (event.bed.location.y > 91) return
         event.cancel()
         event.player.sendActionBar("<red>You need fresh air to sleep!".parse())

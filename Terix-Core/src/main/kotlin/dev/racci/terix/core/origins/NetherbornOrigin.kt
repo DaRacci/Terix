@@ -1,8 +1,8 @@
 package dev.racci.terix.core.origins
 
 import dev.racci.minix.api.plugin.MinixPlugin
-import dev.racci.terix.api.origins.AbstractOrigin
 import dev.racci.terix.api.origins.enums.Trigger
+import dev.racci.terix.api.origins.origin.AbstractOrigin
 import dev.racci.terix.api.origins.sounds.SoundEffect
 import net.kyori.adventure.text.format.TextColor
 import org.bukkit.Material
@@ -21,7 +21,7 @@ class NetherbornOrigin(override val plugin: MinixPlugin) : AbstractOrigin() {
     override val name = "Netherborn"
     override val colour = TextColor.fromHexString("#ff5936")!!
 
-    override val fireImmune = true
+    override var fireImmunity = true
 
     override suspend fun onRegister() {
         sounds.hurtSound = SoundEffect("entity.ravager.hurt")

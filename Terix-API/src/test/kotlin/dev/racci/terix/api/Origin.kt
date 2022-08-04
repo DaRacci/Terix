@@ -3,8 +3,8 @@ package dev.racci.terix.api
 import dev.racci.minix.api.extensions.parse
 import dev.racci.minix.api.plugin.MinixPlugin
 import dev.racci.terix.api.dsl.TitleBuilder
-import dev.racci.terix.api.origins.AbstractOrigin
 import dev.racci.terix.api.origins.enums.Trigger
+import dev.racci.terix.api.origins.origin.AbstractOrigin
 import net.kyori.adventure.text.format.NamedTextColor
 import org.bukkit.attribute.Attribute
 import org.bukkit.potion.PotionEffectType
@@ -15,9 +15,9 @@ class Origin : AbstractOrigin() {
     override val plugin: MinixPlugin get() = null!!
     override val name = "TestOrigin"
     override val colour = NamedTextColor.AQUA!!
-    override val fireImmune = true
-    override val nightVision = true
-    override val waterBreathing = true
+    override var fireImmunity = true
+    override var nightVision = true
+    override var waterBreathing = true
     override val permission = "test.permission"
     override val becomeOriginTitle = TitleBuilder("<white><bold>Test".parse(), "<aqua><italic>Subtitle".parse())
 

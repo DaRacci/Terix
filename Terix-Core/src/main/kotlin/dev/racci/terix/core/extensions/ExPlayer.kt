@@ -5,11 +5,11 @@ import dev.racci.minix.api.utils.getKoin
 import dev.racci.minix.nms.aliases.toNMS
 import dev.racci.terix.api.PlayerData
 import dev.racci.terix.api.Terix
-import dev.racci.terix.api.origins.AbstractOrigin
 import dev.racci.terix.api.origins.enums.Trigger
 import dev.racci.terix.api.origins.enums.Trigger.Companion.getLiquidTrigger
 import dev.racci.terix.api.origins.enums.Trigger.Companion.getTimeTrigger
 import dev.racci.terix.api.origins.enums.Trigger.Companion.getTrigger
+import dev.racci.terix.api.origins.origin.AbstractOrigin
 import kotlinx.datetime.Instant
 import net.kyori.adventure.text.Component
 import net.minecraft.core.BlockPos

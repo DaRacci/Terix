@@ -1,8 +1,8 @@
 package dev.racci.terix.core.services.runnables
 
 import dev.racci.minix.api.extensions.sync
-import dev.racci.terix.api.origins.AbstractOrigin
 import dev.racci.terix.api.origins.enums.Trigger
+import dev.racci.terix.api.origins.origin.AbstractOrigin
 import dev.racci.terix.core.extensions.inDarkness
 import dev.racci.terix.core.extensions.wasInDarkness
 import dev.racci.terix.core.services.RunnableService

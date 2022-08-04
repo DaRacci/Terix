@@ -10,8 +10,8 @@ import dev.racci.minix.api.utils.now
 import dev.racci.minix.api.utils.unsafeCast
 import dev.racci.minix.nms.aliases.toNMS
 import dev.racci.terix.api.Terix
-import dev.racci.terix.api.origins.AbstractOrigin
 import dev.racci.terix.api.origins.enums.Trigger
+import dev.racci.terix.api.origins.origin.AbstractOrigin
 import dev.racci.terix.api.origins.sounds.SoundEffect
 import kotlinx.coroutines.NonCancellable.cancel
 import kotlinx.coroutines.delay

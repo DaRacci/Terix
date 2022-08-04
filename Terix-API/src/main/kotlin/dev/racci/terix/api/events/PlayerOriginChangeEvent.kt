@@ -2,7 +2,7 @@ package dev.racci.terix.api.events
 
 import dev.racci.minix.api.events.KEvent
 import dev.racci.minix.api.events.KPlayerEvent
-import dev.racci.terix.api.origins.AbstractOrigin
+import dev.racci.terix.api.origins.origin.AbstractOrigin
 import org.bukkit.entity.Player
 import org.bukkit.event.HandlerList
 

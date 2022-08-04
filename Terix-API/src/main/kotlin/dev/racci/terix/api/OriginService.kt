@@ -2,7 +2,7 @@ package dev.racci.terix.api
 
 import dev.racci.minix.api.utils.getKoin
 import dev.racci.terix.api.origins.AbstractAbility
-import dev.racci.terix.api.origins.AbstractOrigin
+import dev.racci.terix.api.origins.origin.AbstractOrigin
 import kotlinx.collections.immutable.PersistentMap
 import kotlin.reflect.KClass
 

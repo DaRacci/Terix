@@ -2,6 +2,7 @@ package dev.racci.terix.api.origins
 
 import dev.racci.terix.api.Origin
 import dev.racci.terix.api.origins.enums.Trigger
+import dev.racci.terix.api.origins.origin.AbstractOrigin
 import io.mockk.every
 import io.mockk.mockk
 import io.mockk.verify
@@ -72,7 +73,7 @@ internal class AbstractOriginTest {
 
     @Test
     fun getFireImmune() {
-        assertEquals(true, origin.fireImmune)
+        assertEquals(true, origin.fireImmunity)
     }
 
     @Test

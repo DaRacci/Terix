@@ -2,8 +2,8 @@ package dev.racci.terix.core.origins
 
 import dev.racci.minix.api.extensions.parse
 import dev.racci.terix.api.Terix
-import dev.racci.terix.api.origins.AbstractOrigin
 import dev.racci.terix.api.origins.enums.Trigger
+import dev.racci.terix.api.origins.origin.AbstractOrigin
 import dev.racci.terix.api.origins.sounds.SoundEffect
 import net.kyori.adventure.text.format.TextColor
 import org.bukkit.Material

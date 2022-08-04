@@ -7,7 +7,7 @@ import dev.racci.minix.api.scheduler.CoroutineTask
 import dev.racci.minix.api.utils.collections.multiMapOf
 import dev.racci.terix.api.Terix
 import dev.racci.terix.api.origin
-import dev.racci.terix.api.origins.AbstractOrigin
+~import dev.racci.terix.api.origins.origin.AbstractOrigin
 import io.mockk.MockKAnnotations
 import io.mockk.Runs
 import io.mockk.every

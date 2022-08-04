@@ -5,7 +5,7 @@ import dev.racci.minix.api.utils.unsafeCast
 import dev.racci.terix.api.Terix
 import dev.racci.terix.api.dsl.TimedAttributeBuilder
 import dev.racci.terix.api.dsl.TitleBuilder
-import dev.racci.terix.api.origins.AbstractOrigin
+import dev.racci.terix.api.origins.origin.AbstractOrigin
 import dev.racci.terix.api.origins.sounds.SoundEffect
 import dev.racci.terix.core.services.HookService
 import me.angeschossen.lands.api.flags.Flags
