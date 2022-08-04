@@ -2,8 +2,8 @@ package dev.racci.terix.core.services.runnables
 
 import dev.racci.minix.api.utils.kotlin.ifTrue
 import dev.racci.minix.nms.aliases.toNMS
-import dev.racci.terix.api.origins.AbstractOrigin
 import dev.racci.terix.api.origins.enums.Trigger
+import dev.racci.terix.api.origins.origin.AbstractOrigin
 import dev.racci.terix.core.extensions.inSunlight
 import dev.racci.terix.core.extensions.wasInSunlight
 import dev.racci.terix.core.services.HookService

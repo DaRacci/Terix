@@ -1,8 +1,8 @@
 package dev.racci.terix.api
 
 import dev.racci.minix.api.utils.getKoin
-import dev.racci.terix.api.origins.AbstractOrigin
 import dev.racci.terix.api.origins.enums.Trigger
+import dev.racci.terix.api.origins.origin.AbstractOrigin
 import kotlinx.datetime.Instant
 import org.bukkit.entity.Player
 import org.jetbrains.exposed.dao.UUIDEntity

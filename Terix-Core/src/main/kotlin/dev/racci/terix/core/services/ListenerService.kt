@@ -38,11 +38,11 @@ import dev.racci.terix.api.dsl.PotionEffectBuilder
 import dev.racci.terix.api.events.PlayerOriginChangeEvent
 import dev.racci.terix.api.extensions.playSound
 import dev.racci.terix.api.origin
-import dev.racci.terix.api.origins.AbstractOrigin
 import dev.racci.terix.api.origins.enums.KeyBinding
 import dev.racci.terix.api.origins.enums.Trigger
 import dev.racci.terix.api.origins.enums.Trigger.Companion.getTimeTrigger
 import dev.racci.terix.api.origins.enums.Trigger.Companion.getTrigger
+import dev.racci.terix.api.origins.origin.AbstractOrigin
 import dev.racci.terix.core.data.Config
 import dev.racci.terix.core.data.Lang
 import dev.racci.terix.core.data.PlayerData
@@ -435,7 +435,7 @@ class ListenerService(override val plugin: Terix) : Extension<Terix>() {
         player: Player,
         origin: AbstractOrigin
     ): Boolean {
-        if (player.fireTicks <= 0 || !origin.fireImmune) return false
+        if (player.fireTicks <= 0 || !origin.fireImmunity) return false
         player.fireTicks = 0
         return true
     }

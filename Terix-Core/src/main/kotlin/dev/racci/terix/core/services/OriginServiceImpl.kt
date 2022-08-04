@@ -9,9 +9,9 @@ import dev.racci.minix.api.utils.unsafeCast
 import dev.racci.terix.api.OriginService
 import dev.racci.terix.api.Terix
 import dev.racci.terix.api.origins.AbstractAbility
-import dev.racci.terix.api.origins.AbstractOrigin
 import dev.racci.terix.api.origins.abilities.Levitate
 import dev.racci.terix.api.origins.abilities.Teleport
+import dev.racci.terix.api.origins.origin.AbstractOrigin
 import dev.racci.terix.core.data.Config
 import dev.racci.terix.core.origins.AethenOrigin
 import dev.racci.terix.core.origins.AxolotlOrigin

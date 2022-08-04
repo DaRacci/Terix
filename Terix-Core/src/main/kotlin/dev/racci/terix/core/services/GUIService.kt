@@ -27,7 +27,7 @@ import dev.racci.terix.api.OriginService
 import dev.racci.terix.api.Terix
 import dev.racci.terix.api.events.PlayerOriginChangeEvent
 import dev.racci.terix.api.origin
-import dev.racci.terix.api.origins.AbstractOrigin
+import dev.racci.terix.api.origins.origin.AbstractOrigin
 import dev.racci.terix.core.data.Config
 import dev.racci.terix.core.data.Lang
 import dev.racci.terix.core.extensions.asGuiItem

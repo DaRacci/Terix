@@ -7,8 +7,8 @@ import dev.racci.minix.api.utils.getKoin
 import dev.racci.terix.api.Terix
 import dev.racci.terix.api.dsl.PotionEffectBuilder
 import dev.racci.terix.api.origin
-import dev.racci.terix.api.origins.AbstractOrigin
 import dev.racci.terix.api.origins.enums.Trigger
+import dev.racci.terix.api.origins.origin.AbstractOrigin
 import dev.racci.terix.api.sentryUser
 import dev.racci.terix.core.extensions.activeTriggers
 import dev.racci.terix.core.extensions.fromOrigin
@@ -72,7 +72,7 @@ object OriginHelper : WithPlugin<Terix> {
         applyMainThread(player, origin, Trigger.ON, false)
 
         player.setCanBreathUnderwater(origin.waterBreathing)
-        player.setImmuneToFire(origin.fireImmune)
+        player.setImmuneToFire(origin.fireImmunity)
     }
 
     suspend fun changeTo(
@@ -82,7 +82,7 @@ object OriginHelper : WithPlugin<Terix> {
     ) {
         sentryBreadcrumb(player, newOrigin, Trigger.ON, "reload")
 
-        player.setImmuneToFire(newOrigin.fireImmune)
+        player.setImmuneToFire(newOrigin.fireImmunity)
         player.setCanBreathUnderwater(newOrigin.waterBreathing)
 
         val activeTriggers = player.activeTriggers()

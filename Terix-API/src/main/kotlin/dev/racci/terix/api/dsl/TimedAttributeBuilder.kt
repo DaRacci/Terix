@@ -3,7 +3,7 @@ package dev.racci.terix.api.dsl
 import dev.racci.minix.api.extensions.scheduler
 import dev.racci.minix.api.utils.getKoin
 import dev.racci.terix.api.Terix
-import dev.racci.terix.api.origins.AbstractOrigin
+import dev.racci.terix.api.origins.origin.OriginValues
 import org.bukkit.Material
 import org.bukkit.attribute.Attribute
 import org.bukkit.attribute.AttributeModifier
@@ -28,7 +28,7 @@ class TimedAttributeBuilder() {
 
     fun materialName(
         material: Material,
-        origin: AbstractOrigin
+        origin: OriginValues
     ): TimedAttributeBuilder {
         name = StringBuilder("terix:timed_attribute_")
             .append(origin.name.lowercase())

@@ -1,7 +1,8 @@
 package dev.racci.terix.api.dsl
 
-import dev.racci.terix.api.origins.AbstractOrigin
 import dev.racci.terix.api.origins.enums.Trigger
+import dev.racci.terix.api.origins.origin.AbstractOrigin
+import dev.racci.terix.api.origins.origin.OriginValues
 import org.bukkit.attribute.Attribute
 import org.bukkit.attribute.AttributeModifier
 import java.util.UUID
@@ -20,7 +21,7 @@ class AttributeModifierBuilder() {
     var operation by Delegates.notNull<AttributeModifier.Operation>()
 
     fun originName(
-        origin: AbstractOrigin,
+        origin: OriginValues,
         trigger: Trigger
     ) = originName(origin.name, trigger.name)
 

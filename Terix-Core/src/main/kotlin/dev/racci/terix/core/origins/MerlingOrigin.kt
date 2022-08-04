@@ -5,8 +5,8 @@ import dev.racci.minix.api.extensions.cancel
 import dev.racci.minix.api.utils.minecraft.MaterialTagsExtension
 import dev.racci.terix.api.Terix
 import dev.racci.terix.api.events.PlayerOriginChangeEvent
-import dev.racci.terix.api.origins.AbstractOrigin
 import dev.racci.terix.api.origins.enums.Trigger
+import dev.racci.terix.api.origins.origin.AbstractOrigin
 import dev.racci.terix.api.origins.sounds.SoundEffect
 import net.kyori.adventure.text.format.TextColor
 import org.bukkit.Material
@@ -79,7 +79,7 @@ class MerlingOrigin(override val plugin: Terix) : AbstractOrigin() {
         event.player.velocity = event.player.velocity.multiply(1.5)
     }
 
-    override suspend fun onConsume(event: PlayerItemConsumeEvent) {
+    override suspend fun onItemConsume(event: PlayerItemConsumeEvent) {
         if ((event.item.itemMeta as? PotionMeta)?.basePotionData?.type != PotionType.WATER) return
 
         event.player.remainingAir = (event.player.remainingAir + 2).coerceAtMost(event.player.maximumAir)

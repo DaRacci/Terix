@@ -4,8 +4,9 @@ import dev.racci.minix.api.extensions.inWholeTicks
 import dev.racci.minix.api.extensions.ticks
 import dev.racci.terix.api.OriginService
 import dev.racci.terix.api.origins.AbstractAbility
-import dev.racci.terix.api.origins.AbstractOrigin
 import dev.racci.terix.api.origins.enums.Trigger
+import dev.racci.terix.api.origins.origin.AbstractOrigin
+import dev.racci.terix.api.origins.origin.OriginValues
 import org.bukkit.Material
 import org.bukkit.NamespacedKey
 import org.bukkit.potion.PotionEffect
@@ -30,7 +31,7 @@ class PotionEffectBuilder() {
 
     inline fun <reified O : AbstractOrigin> originKey(trigger: Trigger) = originKey(OriginService.getOrigin(O::class), trigger)
 
-    fun originKey(origin: AbstractOrigin, trigger: Trigger) = originKey(origin.name, trigger.name)
+    fun originKey(origin: OriginValues, trigger: Trigger) = originKey(origin.name, trigger.name)
 
     fun originKey(origin: String, trigger: String): PotionEffectBuilder {
         this.key = NamespacedKey("terix", "origin_potion_${origin.lowercase()}/${trigger.lowercase()}")

@@ -11,8 +11,8 @@ import dev.racci.minix.api.utils.unsafeCast
 import dev.racci.terix.api.Terix
 import dev.racci.terix.api.events.PlayerOriginChangeEvent
 import dev.racci.terix.api.origin
-import dev.racci.terix.api.origins.AbstractOrigin
 import dev.racci.terix.api.origins.enums.Trigger
+import dev.racci.terix.api.origins.origin.AbstractOrigin
 import dev.racci.terix.core.origins.OriginHelper
 import dev.racci.terix.core.services.runnables.AmbientTick
 import dev.racci.terix.core.services.runnables.DarknessTick

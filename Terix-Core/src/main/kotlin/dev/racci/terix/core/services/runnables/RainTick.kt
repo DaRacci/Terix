@@ -3,8 +3,8 @@ package dev.racci.terix.core.services.runnables
 import dev.racci.minix.api.extensions.sync
 import dev.racci.minix.api.utils.now
 import dev.racci.minix.api.utils.ticks
-import dev.racci.terix.api.origins.AbstractOrigin
 import dev.racci.terix.api.origins.enums.Trigger
+import dev.racci.terix.api.origins.origin.AbstractOrigin
 import dev.racci.terix.core.extensions.inRain
 import dev.racci.terix.core.extensions.wasInRain
 import dev.racci.terix.core.services.RunnableService

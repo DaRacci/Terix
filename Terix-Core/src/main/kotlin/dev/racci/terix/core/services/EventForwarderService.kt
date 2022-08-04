@@ -25,11 +25,18 @@ import dev.racci.minix.api.events.PlayerShiftOffhandEvent
 import dev.racci.minix.api.events.PlayerShiftRightClickEvent
 import dev.racci.minix.api.extension.Extension
 import dev.racci.minix.api.extensions.event
+import dev.racci.minix.api.utils.collections.multiMapOf
+import dev.racci.minix.api.utils.safeCast
+import dev.racci.minix.api.utils.unsafeCast
 import dev.racci.terix.api.OriginService
 import dev.racci.terix.api.Terix
 import dev.racci.terix.api.events.PlayerOriginChangeEvent
 import dev.racci.terix.api.origin
+import dev.racci.terix.api.origins.origin.AbstractOrigin
+import dev.racci.terix.api.origins.origin.OriginEventListener
 import org.bukkit.entity.Player
+import org.bukkit.event.Event
+import org.bukkit.event.EventPriority
 import org.bukkit.event.block.BlockBreakEvent
 import org.bukkit.event.block.BlockPlaceEvent
 import org.bukkit.event.entity.EntityAirChangeEvent
@@ -37,6 +44,7 @@ import org.bukkit.event.entity.EntityCombustEvent
 import org.bukkit.event.entity.EntityDamageByEntityEvent
 import org.bukkit.event.entity.EntityDamageEvent
 import org.bukkit.event.entity.EntityDeathEvent
+import org.bukkit.event.entity.EntityEvent
 import org.bukkit.event.entity.EntityResurrectEvent
 import org.bukkit.event.entity.EntityToggleGlideEvent
 import org.bukkit.event.entity.EntityToggleSwimEvent
@@ -44,7 +52,9 @@ import org.bukkit.event.entity.PlayerDeathEvent
 import org.bukkit.event.entity.ProjectileHitEvent
 import org.bukkit.event.inventory.InventoryOpenEvent
 import org.bukkit.event.player.PlayerBedEnterEvent
+import org.bukkit.event.player.PlayerBedLeaveEvent
 import org.bukkit.event.player.PlayerChangedWorldEvent
+import org.bukkit.event.player.PlayerEvent
 import org.bukkit.event.player.PlayerFishEvent
 import org.bukkit.event.player.PlayerInteractEvent
 import org.bukkit.event.player.PlayerItemConsumeEvent
@@ -52,8 +62,16 @@ import org.bukkit.event.player.PlayerItemDamageEvent
 import org.bukkit.event.player.PlayerRespawnEvent
 import org.bukkit.event.player.PlayerRiptideEvent
 import org.bukkit.event.player.PlayerToggleSneakEvent
+import org.bukkit.event.player.PlayerToggleSprintEvent
+import org.koin.core.component.get
 import org.spigotmc.event.entity.EntityDismountEvent
 import org.spigotmc.event.entity.EntityMountEvent
+import org.spigotmc.event.player.PlayerSpawnLocationEvent
+import kotlin.reflect.KClass
+import kotlin.reflect.KFunction
+import kotlin.reflect.full.memberFunctions
+import kotlin.reflect.full.starProjectedType
+import kotlin.reflect.full.valueParameters
 
 // TODO: Only register when used by at-least one active origin.
 // TODO: Create a cleaner function to register events.
@@ -61,60 +79,217 @@ import org.spigotmc.event.entity.EntityMountEvent
 // TODO -> Implement caching knowledge of if an origin should have the event forwarded.
 @MappedExtension(Terix::class, "Event Forwarder Service", [OriginService::class])
 class EventForwarderService(override val plugin: Terix) : Extension<Terix>() {
+    private val events = multiMapOf<KClass<out Event>, suspend (Event) -> Unit>()
+    private val functionCache = mutableMapOf<KClass<out Event>, KFunction<Event>>()
 
     override suspend fun handleEnable() {
-        event<PlayerOriginChangeEvent> {
-            preOrigin.onChange(this)
-            newOrigin.onChange(this)
-        }
-        event<PlayerRespawnEvent> { origin(player).onRespawn(this) }
-        event<PlayerPostRespawnEvent> { origin(player).onPostRespawn(this) }
-        event<PlayerDeathEvent> { origin(player).onDeath(this) }
-        event<PlayerEnterLiquidEvent> { origin(player).onEnterLiquid(this) }
-        event<PlayerExitLiquidEvent> { origin(player).onExitLiquid(this) }
-        event<BlockBreakEvent> { origin(player).onBreakBlock(this) }
-        event<BlockPlaceEvent> { origin(player).onPlaceBlock(this) }
-        event<EntityDamageEvent> { (entity as? Player)?.let { origin(it) }?.onDamage(this) }
-        event<EntityDamageByEntityEvent> { (damager as? Player)?.let { origin(it) }?.onDamageEntity(this) }
-        event<EntityDamageByEntityEvent> { (entity as? Player)?.let { origin(it) }?.onDamageByEntity(this) }
-        event<EntityDeathEvent> { entity.killer?.let { origin(it) }?.onKillEntity(this) }
-        event<PlayerLaunchProjectileEvent> { origin(player).onProjectileLaunch(this) }
-        event<ProjectileHitEvent> { (entity.shooter as? Player)?.let { origin(it) }?.onProjectileLand(this) }
-        event<ProjectileCollideEvent> { (entity.shooter as? Player)?.let { origin(it) }?.onProjectileCollide(this) }
-        event<PlayerArmorChangeEvent> { origin(player).onArmourChange(this) }
-        event<PlayerChangedWorldEvent> { origin(player).onChangeWorld(this) }
-        event<PlayerFishEvent> { origin(player).onFish(this) }
-        event<PlayerItemDamageEvent> { origin(player).onItemDamage(this) }
-        event<PlayerRiptideEvent> { origin(player).onRiptide(this) }
-        event<EntityCombustEvent> { (entity as? Player)?.let { origin(it) }?.onCombust(this) }
-        event<EntityResurrectEvent> { (entity as? Player)?.let { origin(it) }?.onResurrect(this) }
-        event<EntityToggleSwimEvent> { (entity as? Player)?.let { origin(it) }?.onToggleSwim(this) }
-        event<EntityToggleGlideEvent> { (entity as? Player)?.let { origin(it) }?.onToggleGlide(this) }
-        event<PlayerJumpEvent> { origin(player).onJump(this) }
-        event<EntityKnockbackByEntityEvent> { (entity as? Player)?.let { origin(it) }?.onKnockback(this) }
-        event<PhantomPreSpawnEvent> { (spawningEntity as? Player)?.let { origin(it) }?.onPhantomSpawn(this) }
-        event<PlayerElytraBoostEvent> { origin(player).onElytraBoost(this) }
-        event<EntityMountEvent> { (entity as? Player)?.let { origin(it) }?.onEntityMount(this) }
-        event<EntityDismountEvent> { (entity as? Player)?.let { origin(it) }?.onEntityDismount(this) }
-        event<InventoryOpenEvent> { (player as? Player)?.let { origin(it) }?.onInventoryOpen(this) }
-        event<EntityAirChangeEvent> { (entity as? Player)?.let { origin(it) }?.onAirChange(this) }
-        event<PlayerBedEnterEvent> { origin(player).onEnterBed(this) }
-        event<PlayerInteractEvent> { origin(player).onInteract(this) }
-        event<PlayerItemConsumeEvent> { origin(player).onConsume(this) }
-        event<PlayerToggleSneakEvent> { origin(player).onToggleSneak(this) }
+        this.registerComboEvents()
+        this.registerUseEvents()
+        this.registerToggleEvents()
+        this.registerSpawnEvents()
+        this.registerMovementEvents()
+        this.registerProjectileEvents()
+        this.registerDeathEvents()
+        this.registerDamageEvents()
+        this.registerBlockEvents()
+        this.registerInventoryEvents()
+        this.registerMiscellaneousEvents()
 
-        // Combo Events
-        event<PlayerLeftClickEvent> { origin(player).onLeftClick(this) }
-        event<PlayerRightClickEvent> { origin(player).onRightClick(this) }
-        event<PlayerOffhandEvent> { origin(player).onOffhand(this) }
-        event<PlayerDoubleLeftClickEvent> { origin(player).onDoubleLeftClick(this) }
-        event<PlayerDoubleRightClickEvent> { origin(player).onDoubleRightClick(this) }
-        event<PlayerDoubleOffhandEvent> { origin(player).onDoubleOffhand(this) }
-        event<PlayerShiftLeftClickEvent> { origin(player).onSneakLeftClick(this) }
-        event<PlayerShiftRightClickEvent> { origin(player).onSneakRightClick(this) }
-        event<PlayerShiftOffhandEvent> { origin(player).onSneakOffhand(this) }
-        event<PlayerShiftDoubleLeftClickEvent> { origin(player).onSneakDoubleLeftClick(this) }
-        event<PlayerShiftDoubleRightClickEvent> { origin(player).onSneakDoubleRightClick(this) }
-        event<PlayerShiftDoubleOffhandEvent> { origin(player).onSneakDoubleOffhand(this) }
+        this.activateListeners()
+    }
+
+    private fun registerComboEvents() {
+        this.registerPlayerEvent<PlayerLeftClickEvent>()
+        this.registerPlayerEvent<PlayerRightClickEvent>()
+        this.registerPlayerEvent<PlayerOffhandEvent>()
+        this.registerPlayerEvent<PlayerDoubleLeftClickEvent>()
+        this.registerPlayerEvent<PlayerDoubleRightClickEvent>()
+        this.registerPlayerEvent<PlayerDoubleOffhandEvent>()
+        this.registerPlayerEvent<PlayerShiftLeftClickEvent>("onSneakLeftClick")
+        this.registerPlayerEvent<PlayerShiftRightClickEvent>("onSneakRightClick")
+        this.registerPlayerEvent<PlayerShiftOffhandEvent>("onSneakOffhand")
+        this.registerPlayerEvent<PlayerShiftDoubleLeftClickEvent>("onSneakDoubleLeftClick")
+        this.registerPlayerEvent<PlayerShiftDoubleRightClickEvent>("onSneakDoubleRightClick")
+        this.registerPlayerEvent<PlayerShiftDoubleOffhandEvent>("onSneakDoubleOffhand")
+    }
+
+    private fun registerUseEvents() {
+        this.registerPlayerEvent<PlayerElytraBoostEvent>()
+        this.registerPlayerEvent<PlayerRiptideEvent>()
+        this.registerPlayerEvent<PlayerFishEvent>()
+        this.registerPlayerEvent<PlayerInteractEvent>()
+        this.registerPlayerEvent<PlayerBedEnterEvent>()
+        this.registerPlayerEvent<PlayerBedLeaveEvent>()
+        this.registerPlayerEvent<PlayerItemConsumeEvent>()
+        this.registerPlayerEvent<PlayerItemDamageEvent>()
+    }
+
+    private fun registerToggleEvents() {
+        this.registerEntityEvent<EntityToggleSwimEvent>()
+        this.registerEntityEvent<EntityToggleGlideEvent>()
+        this.registerPlayerEvent<PlayerToggleSneakEvent>()
+        this.registerPlayerEvent<PlayerToggleSprintEvent>()
+    }
+
+    private fun registerMovementEvents() {
+        this.registerPlayerEvent<PlayerJumpEvent>()
+        this.registerPlayerEvent<PlayerExitLiquidEvent>()
+        this.registerPlayerEvent<PlayerEnterLiquidEvent>()
+        this.registerPlayerEvent<PlayerChangedWorldEvent>()
+        this.registerEntityEvent<EntityMountEvent>()
+        this.registerEntityEvent<EntityDismountEvent>()
+    }
+
+    private fun registerSpawnEvents() {
+        this.registerPlayerEvent<PlayerRespawnEvent>()
+        this.registerPlayerEvent<PlayerPostRespawnEvent>()
+        this.registerPlayerEvent<PlayerSpawnLocationEvent>()
+        this.registerEntityEvent<EntityResurrectEvent>()
+        this.finaliseEvent<PhantomPreSpawnEvent>("PhantomSpawn") { it.spawningEntity as? Player }
+    }
+
+    private fun registerProjectileEvents() {
+        this.registerPlayerEvent<PlayerLaunchProjectileEvent>()
+        this.finaliseEvent<ProjectileHitEvent>(null) { it.entity.shooter as? Player }
+        this.finaliseEvent<ProjectileCollideEvent>(null) { it.entity.shooter as? Player }
+    }
+
+    private fun registerDeathEvents() {
+        this.finaliseEvent(null, null, PlayerDeathEvent::getPlayer)
+        this.finaliseEvent<EntityDeathEvent>("KillEntity") { it.entity.killer }
+    }
+
+    private fun registerDamageEvents() {
+        this.registerEntityEvent<EntityDamageEvent>()
+        this.registerEntityEvent<EntityDamageByEntityEvent>()
+        this.registerEntityEvent<EntityCombustEvent>()
+        this.registerEntityEvent<EntityKnockbackByEntityEvent>("KnockbackByEntity")
+        this.finaliseEvent<EntityKnockbackByEntityEvent>("KnockbackByEntity") { it.hitBy as? Player }
+        this.finaliseEvent<EntityDamageByEntityEvent>("DamageEntity") { it.damager as? Player }
+    }
+
+    private fun registerBlockEvents() {
+        this.finaliseEvent(null, null, BlockBreakEvent::getPlayer)
+        this.finaliseEvent(null, null, BlockPlaceEvent::getPlayer)
+    }
+
+    private fun registerInventoryEvents() {
+        this.finaliseEvent<InventoryOpenEvent>(null) { it.player as? Player }
+        this.registerPlayerEvent<PlayerArmorChangeEvent>()
+    }
+
+    private fun registerMiscellaneousEvents() {
+        this.finaliseEvent("Change", PlayerOriginChangeEvent::preOrigin, null)
+
+        event<PlayerOriginChangeEvent> { preOrigin.onChange(this) }
+        event<EntityAirChangeEvent> { (entity as? Player)?.let { origin(it) }?.onAirChange(this) }
+    }
+
+    private fun activateListeners() {
+        val origins = get<OriginService>().getOrigins().values
+
+        for (origin in origins) {
+            for ((clazz, events) in events.entries) {
+                if (events == null) continue
+
+                this.getForwarding(origin, clazz) ?: continue
+
+                // Register the event
+                origin.event(
+                    type = clazz,
+                    plugin = plugin,
+                    priority = EventPriority.LOWEST
+                ) {
+                    events.forEach { it(this) }
+                }
+            }
+        }
+    }
+
+    private fun <E : Event> getForwarding(
+        listener: OriginEventListener,
+        eventKClass: KClass<E>
+    ): KFunction<E>? {
+        val function = functionCache[eventKClass]
+
+        if (function == null) {
+            plugin.log.debug { "${this::class.simpleName} doesn't override the event ${eventKClass.simpleName}" }
+            return null
+        }
+
+        if (function.valueParameters.size > 1) {
+            plugin.log.debug { "${listener::class.simpleName} overrides the event ${eventKClass.simpleName} with more than one parameter" }
+            return null
+        }
+
+        return function.unsafeCast()
+    }
+
+    private inline fun <reified T : PlayerEvent> registerPlayerEvent(name: String? = null) {
+        this.finaliseEvent<T>(name, null, PlayerEvent::getPlayer)
+    }
+
+    private inline fun <reified T : EntityEvent> registerEntityEvent(name: String? = null) {
+        this.finaliseEvent<T>(name) { it.entity as? Player }
+    }
+
+    private inline fun <reified E : Event> finaliseEvent(
+        name: String?,
+        noinline originCallback: ((E) -> AbstractOrigin?)? = null,
+        noinline playerCallback: ((E) -> Player?)?
+    ) {
+        val function = this.getFunction<E>(name) ?: return
+        log.debug { "Registering event: ${E::class.qualifiedName} -> ${function.name}" }
+
+        val callback: suspend (Event) -> Unit = when {
+            originCallback == null && playerCallback != null -> {
+                call@{
+                    val player = playerCallback(it as E).safeCast<Player>() ?: return@call
+                    val origin = origin(player)
+                    function.call(origin, it)
+                }
+            }
+
+            playerCallback == null && originCallback != null -> {
+                {
+                    val origin = originCallback(it as E)
+                    function.call(origin, it)
+                }
+            }
+
+            else -> null
+        } ?: return
+
+        events.put(E::class, callback)
+    }
+
+    private inline fun <reified T : Event> getFunction(name: String?): KFunction<T>? {
+        if (this.functionCache[T::class] != null) return this.functionCache[T::class].unsafeCast()
+
+        var nonNullName = name
+        if (nonNullName == null) {
+            val fromFunction = T::class.simpleName
+                ?.removePrefix("Entity")
+                ?.removePrefix("Player")
+                ?.removeSuffix("Event")
+
+            nonNullName = "on$fromFunction"
+        }
+
+        if (nonNullName.isEmpty() || nonNullName == "on") {
+            log.debug { "No event name for ${T::class.simpleName}" }
+            return null
+        }
+
+        val itr = AbstractOrigin::class.memberFunctions.iterator()
+        while (itr.hasNext()) {
+            val next = itr.next()
+            if (next.name != nonNullName || next.valueParameters[0].type != T::class.starProjectedType) continue
+
+            this.functionCache[T::class] = next.unsafeCast()
+            break
+        }
+
+        return this.functionCache[T::class].safeCast()
     }
 }

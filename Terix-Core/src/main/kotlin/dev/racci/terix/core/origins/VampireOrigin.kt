@@ -8,8 +8,8 @@ import dev.racci.minix.api.utils.now
 import dev.racci.minix.api.utils.safeCast
 import dev.racci.minix.nms.aliases.toNMS
 import dev.racci.terix.api.Terix
-import dev.racci.terix.api.origins.AbstractOrigin
 import dev.racci.terix.api.origins.enums.Trigger
+import dev.racci.terix.api.origins.origin.AbstractOrigin
 import dev.racci.terix.api.origins.sounds.SoundEffect
 import kotlinx.datetime.Instant
 import net.kyori.adventure.text.format.TextColor
@@ -38,7 +38,7 @@ class VampireOrigin(override val plugin: Terix) : AbstractOrigin() {
     override val name = "Vampire"
     override val colour = TextColor.fromHexString("#ff1234")!!
 
-    override val nightVision = true
+    override var nightVision = true
 
     override suspend fun onRegister() {
         sounds.hurtSound = SoundEffect("entity.bat.hurt")
