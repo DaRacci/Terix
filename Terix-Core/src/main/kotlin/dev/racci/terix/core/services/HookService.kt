@@ -6,7 +6,7 @@ import dev.racci.minix.api.annotations.MappedExtension
 import dev.racci.minix.api.extension.Extension
 import dev.racci.minix.api.extensions.event
 import dev.racci.minix.api.extensions.pm
-import dev.racci.minix.api.plugin.MinixLogger
+import dev.racci.minix.api.plugin.logger.MinixLogger
 import dev.racci.minix.api.utils.collections.CollectionUtils.clear
 import dev.racci.minix.api.utils.collections.CollectionUtils.getCast
 import dev.racci.terix.api.Terix
@@ -101,9 +101,11 @@ class HookService(override val plugin: Terix) : Extension<Terix>() {
         val plugin: Terix get() = get()
         val log: MinixLogger get() = plugin.log
 
-        suspend fun doSetup() {}
+        suspend fun doSetup() { /* Does nothing until overridden */
+        }
 
-        suspend fun doUnload() {}
+        suspend fun doUnload() { /* Does nothing until overridden */
+        }
     }
 
     class PlaceholderAPIHook : HookService, PlaceholderExpansion() {
