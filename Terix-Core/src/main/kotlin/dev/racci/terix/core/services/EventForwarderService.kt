@@ -41,6 +41,7 @@ import org.bukkit.event.block.BlockBreakEvent
 import org.bukkit.event.block.BlockPlaceEvent
 import org.bukkit.event.entity.EntityAirChangeEvent
 import org.bukkit.event.entity.EntityCombustEvent
+import org.bukkit.event.entity.EntityDamageByBlockEvent
 import org.bukkit.event.entity.EntityDamageByEntityEvent
 import org.bukkit.event.entity.EntityDamageEvent
 import org.bukkit.event.entity.EntityDeathEvent
@@ -164,7 +165,8 @@ class EventForwarderService(override val plugin: Terix) : Extension<Terix>() {
         this.registerEntityEvent<EntityDamageByEntityEvent>()
         this.registerEntityEvent<EntityCombustEvent>()
         this.registerEntityEvent<EntityKnockbackByEntityEvent>("KnockbackByEntity")
-        this.finaliseEvent<EntityKnockbackByEntityEvent>("KnockbackByEntity") { it.hitBy as? Player }
+        this.registerEntityEvent<EntityDamageByBlockEvent>("DamageByBlock")
+        this.finaliseEvent<EntityKnockbackByEntityEvent>("KnockbackEntity") { it.hitBy as? Player }
         this.finaliseEvent<EntityDamageByEntityEvent>("DamageEntity") { it.damager as? Player }
     }
 
@@ -224,6 +226,10 @@ class EventForwarderService(override val plugin: Terix) : Extension<Terix>() {
         return function.unsafeCast()
     }
 
+    //    private inline fun <reified T : PlayerEvent> registerPlayerEvent(
+//        function: KFunction<Unit>
+//    ) = this.finaliseEvent<T>(function.name, null, PlayerEvent::getPlayer)
+//
     private inline fun <reified T : PlayerEvent> registerPlayerEvent(name: String? = null) {
         this.finaliseEvent<T>(name, null, PlayerEvent::getPlayer)
     }

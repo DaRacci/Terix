@@ -31,6 +31,7 @@ import org.bukkit.event.block.BlockBreakEvent
 import org.bukkit.event.block.BlockPlaceEvent
 import org.bukkit.event.entity.EntityAirChangeEvent
 import org.bukkit.event.entity.EntityCombustEvent
+import org.bukkit.event.entity.EntityDamageByBlockEvent
 import org.bukkit.event.entity.EntityDamageByEntityEvent
 import org.bukkit.event.entity.EntityDamageEvent
 import org.bukkit.event.entity.EntityDeathEvent
@@ -93,6 +94,9 @@ sealed interface OriginEventListener : KListener<MinixPlugin> {
 
     /** Called when the player damages another entity. */
     suspend fun onDamageEntity(event: EntityDamageByEntityEvent) = Unit
+
+    /** Called when the player is damaged by a block. */
+    suspend fun onDamageByBlock(event: EntityDamageByBlockEvent) = Unit
 
     /** Called when the player is damaged by another entity. */
     suspend fun onDamageByEntity(event: EntityDamageByEntityEvent) = Unit
