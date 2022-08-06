@@ -3,6 +3,7 @@ package dev.racci.terix.core
 import dev.jorel.commandapi.CommandAPI
 import dev.jorel.commandapi.CommandAPIConfig
 import dev.racci.minix.api.annotations.MappedPlugin
+import dev.racci.minix.api.plugin.logger.MinixLogger
 import dev.racci.minix.api.services.DataService
 import dev.racci.minix.api.updater.Version
 import dev.racci.terix.api.Terix
@@ -20,8 +21,8 @@ class TerixImpl : Terix() {
         logger.level = if (get<DataService>().get<Config>().debug || Version(description.version).isPreRelease) Level.ALL else Level.INFO
         CommandAPI.onLoad(
             CommandAPIConfig()
-                .silentLogs(!log.infoEnabled)
-                .verboseOutput(log.debugEnabled)
+                .silentLogs(!log.isEnabled(MinixLogger.LoggingLevel.INFO))
+                .verboseOutput(log.isEnabled(MinixLogger.LoggingLevel.DEBUG))
         )
         // TODO: Fix this
 //        try {

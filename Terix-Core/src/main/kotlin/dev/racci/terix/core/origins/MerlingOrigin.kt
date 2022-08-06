@@ -71,7 +71,7 @@ class MerlingOrigin(override val plugin: Terix) : AbstractOrigin() {
         event.player.isReverseOxygen = true
     }
 
-    override suspend fun onChange(event: PlayerOriginChangeEvent) {
+    override suspend fun onChangeOrigin(event: PlayerOriginChangeEvent) {
         event.player.isReverseOxygen = false
     }
 
