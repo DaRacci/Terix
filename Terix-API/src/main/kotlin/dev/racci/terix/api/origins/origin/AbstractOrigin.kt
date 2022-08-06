@@ -4,9 +4,10 @@ import dev.racci.minix.api.extensions.WithPlugin
 import dev.racci.minix.api.plugin.MinixPlugin
 import org.apiguardian.api.API
 import org.bukkit.entity.Player
+import org.koin.core.component.KoinComponent
 
 @API(status = API.Status.MAINTAINED, since = "1.0.0")
-abstract class AbstractOrigin : OriginBuilder(), OriginEventListener, WithPlugin<MinixPlugin> {
+abstract class AbstractOrigin : OriginBuilder(), OriginEventListener, WithPlugin<MinixPlugin>, KoinComponent {
 
     /**
      * Checks if the player has permission for this origin.
