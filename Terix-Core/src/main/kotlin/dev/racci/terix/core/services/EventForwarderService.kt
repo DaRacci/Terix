@@ -179,10 +179,9 @@ class EventForwarderService(override val plugin: Terix) : Extension<Terix>() {
     }
 
     private fun registerMiscellaneousEvents() {
-        this.finaliseEvent("Change", PlayerOriginChangeEvent::preOrigin, null)
-
-        event<PlayerOriginChangeEvent> { preOrigin.onChange(this) }
-        event<EntityAirChangeEvent> { (entity as? Player)?.let { origin(it) }?.onAirChange(this) }
+        this.finaliseEvent("BecomeOrigin", PlayerOriginChangeEvent::newOrigin, null)
+        this.finaliseEvent("ChangeOrigin", PlayerOriginChangeEvent::preOrigin, null)
+        this.registerEntityEvent<EntityAirChangeEvent>()
     }
 
     private fun activateListeners() {
