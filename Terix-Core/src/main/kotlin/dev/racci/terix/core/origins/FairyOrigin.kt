@@ -1,15 +1,16 @@
 package dev.racci.terix.core.origins
 
 import dev.racci.terix.api.Terix
+import dev.racci.terix.api.dsl.TimedAttributeBuilder
 import dev.racci.terix.api.origins.origin.AbstractOrigin
 import dev.racci.terix.api.origins.sounds.SoundEffect
 import net.kyori.adventure.text.format.TextColor
 import org.bukkit.Material
+import org.bukkit.attribute.Attribute
+import org.bukkit.entity.Arrow
+import org.bukkit.event.entity.EntityDamageEvent.DamageCause
 
-// TODO -> Sweet berries, cake and glow berries are top.
-// TODO -> Beetroot, apple, carrots, fruits.
-// TODO -> If they eat potatoes they get fat.
-// TODO -> Take more damage from arrows.
+// TODO: Cake
 class FairyOrigin(override val plugin: Terix) : AbstractOrigin() {
 
     override val name = "Fairy"
@@ -19,9 +20,30 @@ class FairyOrigin(override val plugin: Terix) : AbstractOrigin() {
         sounds.hurtSound = SoundEffect("entity.puffer_fish.death")
         sounds.deathSound = SoundEffect("entity.glow_squid.squirt")
 
+        damage {
+            DamageCause.PROJECTILE += {
+                if (it.entity !is Arrow) it.damage *= 0.5
+            }
+        }
+
+        food {
+            TOP_FOODS *= 2.25
+            MID_FOODS *= 1.50
+            FAT_FOODS += { builder: TimedAttributeBuilder ->
+                builder.attribute = Attribute.GENERIC_MOVEMENT_SPEED
+                builder.amount *= 0.8
+            }
+        }
+
         item {
             material = Material.GLOWSTONE_DUST
             lore = "<yellow>A magical dust that can be used to create a fairy."
         }
+    }
+
+    companion object {
+        val TOP_FOODS = listOf(Material.BEETROOT, Material.APPLE, Material.GOLDEN_APPLE, Material.ENCHANTED_GOLDEN_APPLE, Material.CARROT, Material.CHORUS_FRUIT)
+        val MID_FOODS = listOf(Material.SWEET_BERRIES, Material.GLOW_BERRIES)
+        val FAT_FOODS = listOf(Material.POTATO, Material.POISONOUS_POTATO)
     }
 }
