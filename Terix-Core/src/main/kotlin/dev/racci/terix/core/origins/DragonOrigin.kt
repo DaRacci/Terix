@@ -1,6 +1,7 @@
 package dev.racci.terix.core.origins
 
 import com.destroystokyo.paper.MaterialSetTag
+import com.destroystokyo.paper.MaterialTags
 import dev.racci.minix.api.extensions.cancel
 import dev.racci.minix.api.utils.minecraft.MaterialTagsExtension
 import dev.racci.terix.api.Terix
@@ -10,6 +11,7 @@ import dev.racci.terix.api.origins.sounds.SoundEffect
 import net.kyori.adventure.text.format.TextColor
 import org.bukkit.Material
 import org.bukkit.entity.LivingEntity
+import org.bukkit.entity.Player
 import org.bukkit.event.entity.EntityDamageByBlockEvent
 import org.bukkit.event.entity.EntityDamageByEntityEvent
 import org.bukkit.event.entity.EntityDamageEvent
@@ -67,6 +69,7 @@ class DragonOrigin(override val plugin: Terix) : AbstractOrigin() {
 
     override suspend fun onDamageByEntity(event: EntityDamageByEntityEvent) {
         bedDamage(event)
+        shieldExplosion(event)
     }
 
     override suspend fun onBedEnter(event: PlayerBedEnterEvent) {
@@ -86,5 +89,14 @@ class DragonOrigin(override val plugin: Terix) : AbstractOrigin() {
         if (!MaterialSetTag.BEDS.isTagged(item.type)) return
 
         event.damage *= 2
+    }
+
+    private fun shieldExplosion(event: EntityDamageByEntityEvent) {
+        val attacker = event.damager as? LivingEntity ?: return
+        val victim = event.entity as Player
+
+        if (!victim.isBlocking || !MaterialTags.AXES.isTagged(attacker.equipment?.itemInMainHand?.type ?: return) || victim.shieldBlockingDelay <= 0) return
+
+        victim.location.createExplosion(victim, 3.5f, false, false)
     }
 }
