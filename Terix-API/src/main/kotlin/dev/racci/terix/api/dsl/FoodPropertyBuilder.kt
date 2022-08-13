@@ -56,7 +56,6 @@ class FoodPropertyBuilder() {
         val setter = prop.safeCast<KMutableProperty1<FoodPropertyBuilder, Any>>()
 
         if (setter != null && setter.get(this) != value) {
-            println("Changed from ${setter.get(this)} to $value")
             changed = true
             return true
         }
@@ -67,8 +66,6 @@ class FoodPropertyBuilder() {
     fun build(): FoodProperties {
         if (!changed) return cached!!
 
-        println("Building food properties")
-
         val builder = FoodProperties.Builder()
             .nutrition(nutrition)
             .saturationMod(saturationModifier)
@@ -77,22 +74,6 @@ class FoodPropertyBuilder() {
         if (canAlwaysEat) builder.alwaysEat()
         if (fastFood) builder.fast()
 
-//        effects.forEach {
-//            val effect = it.first
-//            builder.effect(
-//                MobEffectInstance(
-//                    MobEffect.byId(effect.type.id)!!,
-//                    effect.duration,
-//                    effect.amplifier,
-//                    effect.isAmbient,
-//                    effect.hasParticles(),
-//                    effect.hasIcon(),
-//                    effect.key,
-//                    Optional.empty()
-//                ),
-//                it.second
-//            )
-//        }
         effects.forEach { builder.effect(it.first, it.second) }
 
         cached = builder.build()
