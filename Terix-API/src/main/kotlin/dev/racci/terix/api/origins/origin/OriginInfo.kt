@@ -1,6 +1,6 @@
 package dev.racci.terix.api.origins.origin
 
-import dev.racci.terix.api.origins.enums.Trigger
+import dev.racci.terix.api.origins.states.State
 import net.kyori.adventure.extra.kotlin.plus
 import net.kyori.adventure.extra.kotlin.text
 import net.kyori.adventure.text.Component
@@ -9,7 +9,7 @@ import kotlin.reflect.KProperty
 object OriginInfo {
 
     class Info<T> internal constructor(
-        val defaultMethod: AbstractOrigin.() -> T
+        val defaultMethod: Origin.() -> T
     ) {
         private var _cached: T? = null
         lateinit var name: String; private set
@@ -19,7 +19,7 @@ object OriginInfo {
             return this@Info
         }
 
-        fun get(origin: AbstractOrigin): T {
+        fun get(origin: Origin): T {
             if (_cached == null) _cached = defaultMethod(origin)
             return _cached!!
         }
@@ -74,7 +74,7 @@ object OriginInfo {
 
         private fun <V> iterate(
             builder: StringBuilder,
-            iterator: Iterator<Map.Entry<Trigger, V>>
+            iterator: Iterator<Map.Entry<State, V>>
         ) {
             while (iterator.hasNext()) {
                 val (key, _) = iterator.next()

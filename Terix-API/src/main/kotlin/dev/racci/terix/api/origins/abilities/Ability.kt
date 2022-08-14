@@ -1,11 +1,13 @@
-package dev.racci.terix.api.origins
+package dev.racci.terix.api.origins.abilities
 
+import dev.racci.minix.api.coroutine.minecraftDispatcher
 import dev.racci.minix.api.extensions.WithPlugin
 import dev.racci.minix.api.extensions.onlinePlayers
 import dev.racci.minix.api.extensions.scheduler
 import dev.racci.minix.api.extensions.ticks
 import dev.racci.minix.api.utils.now
 import dev.racci.terix.api.Terix
+import dev.racci.terix.api.sentryScoped
 import kotlinx.datetime.Instant
 import org.bukkit.entity.Player
 import org.koin.core.component.KoinComponent
@@ -15,7 +17,7 @@ import kotlin.time.Duration
 import kotlin.time.Duration.Companion.seconds
 
 // TODO: Look into some sort of persistence system for abilities through player metadata
-abstract class AbstractAbility(abilityType: AbilityType) : WithPlugin<Terix>, KoinComponent {
+abstract class Ability(abilityType: AbilityType) : WithPlugin<Terix>, KoinComponent {
     final override val plugin: Terix by inject()
 
     protected val cooldownCache = mutableMapOf<UUID, Instant>()
@@ -23,6 +25,8 @@ abstract class AbstractAbility(abilityType: AbilityType) : WithPlugin<Terix>, Ko
 
     /** The duration before the ability can be activated again. */
     protected open val cooldown: Duration = 20.ticks
+
+    open val name: String = this::class.simpleName ?: throw IllegalStateException("Ability name is null")
 
     /** Returns if this player is able to activate this ability. */
     protected open fun isAble(player: Player): Boolean {
@@ -57,7 +61,9 @@ abstract class AbstractAbility(abilityType: AbilityType) : WithPlugin<Terix>, Ko
 
         if (abilityCache != null) abilityCache!! += player.uniqueId
 
-        onActivate(player)
+        sentryScoped(player, CATEGORY, "$name.activate", context = plugin.minecraftDispatcher) {
+            onActivate(player)
+        }
         return true
     }
 
@@ -67,7 +73,9 @@ abstract class AbstractAbility(abilityType: AbilityType) : WithPlugin<Terix>, Ko
 
         if (abilityCache != null) abilityCache!! -= player.uniqueId
 
-        onDeactivate(player)
+        sentryScoped(player, CATEGORY, "$name.deactivate", context = plugin.minecraftDispatcher) {
+            onDeactivate(player)
+        }
         return true
     }
 
@@ -106,6 +114,10 @@ abstract class AbstractAbility(abilityType: AbilityType) : WithPlugin<Terix>, Ko
                 }
             }
         }
+    }
+
+    companion object {
+        const val CATEGORY = "terix.origin.abilities"
     }
 
     enum class AbilityType { TOGGLE, TRIGGER, TARGET }

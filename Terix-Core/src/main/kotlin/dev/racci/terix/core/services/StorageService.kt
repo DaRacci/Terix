@@ -29,10 +29,11 @@ class StorageService(override val plugin: Terix) : Extension<Terix>() {
     }
     private var dataSource = lazy { HikariDataSource(config.value) }
 
+    val database: Database by lazy { Database.connect(dataSource.value) }
+
     override suspend fun handleEnable() {
         log.info { "Connected to database." }
-        Database.connect(dataSource.value)
-        transaction {
+        transaction(database) {
             SchemaUtils.createMissingTablesAndColumns(User)
         }
         event<AsyncPlayerPreLoginEvent> {

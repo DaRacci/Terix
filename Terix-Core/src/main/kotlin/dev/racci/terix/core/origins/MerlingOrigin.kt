@@ -5,9 +5,9 @@ import dev.racci.minix.api.extensions.cancel
 import dev.racci.minix.api.utils.minecraft.MaterialTagsExtension
 import dev.racci.terix.api.Terix
 import dev.racci.terix.api.events.PlayerOriginChangeEvent
-import dev.racci.terix.api.origins.enums.Trigger
-import dev.racci.terix.api.origins.origin.AbstractOrigin
+import dev.racci.terix.api.origins.origin.Origin
 import dev.racci.terix.api.origins.sounds.SoundEffect
+import dev.racci.terix.api.origins.states.State
 import net.kyori.adventure.text.format.TextColor
 import org.bukkit.Material
 import org.bukkit.attribute.Attribute
@@ -25,7 +25,7 @@ import kotlin.time.Duration
 // TODO -> Make cake soggy.
 // TODO -> Nothing in the ocean targets the merling (minus elder guardian).
 // TODO -> More fire / lava damage.
-class MerlingOrigin(override val plugin: Terix) : AbstractOrigin() {
+class MerlingOrigin(override val plugin: Terix) : Origin() {
 
     override val name = "Merling"
     override val colour = TextColor.fromHexString("#47d7ff")!!
@@ -36,16 +36,16 @@ class MerlingOrigin(override val plugin: Terix) : AbstractOrigin() {
         sounds.ambientSound = SoundEffect("entity.salmon.ambient")
 
         attributes {
-            Pair(Trigger.WATER, Attribute.GENERIC_MOVEMENT_SPEED) *= 1.2
-            Pair(Trigger.LAND, Attribute.GENERIC_MOVEMENT_SPEED) *= 0.9
-            Pair(Trigger.WATER, Attribute.GENERIC_ATTACK_DAMAGE) *= 1.2
-            Pair(Trigger.WATER, Attribute.GENERIC_KNOCKBACK_RESISTANCE) *= 0.80
-            Pair(Trigger.WATER, Attribute.GENERIC_ATTACK_SPEED) *= 5.0
-            Pair(Trigger.LAND, Attribute.GENERIC_ATTACK_SPEED) *= 0.80
+            Pair(State.LiquidState.WATER, Attribute.GENERIC_MOVEMENT_SPEED) *= 1.2
+            Pair(State.LiquidState.LAND, Attribute.GENERIC_MOVEMENT_SPEED) *= 0.9
+            Pair(State.LiquidState.WATER, Attribute.GENERIC_ATTACK_DAMAGE) *= 1.2
+            Pair(State.LiquidState.WATER, Attribute.GENERIC_KNOCKBACK_RESISTANCE) *= 0.80
+            Pair(State.LiquidState.WATER, Attribute.GENERIC_ATTACK_SPEED) *= 5.0
+            Pair(State.LiquidState.LAND, Attribute.GENERIC_ATTACK_SPEED) *= 0.80
         }
 
         potions {
-            Trigger.WATER += {
+            State.LiquidState.WATER += {
                 type = PotionEffectType.NIGHT_VISION
                 duration = Duration.INFINITE
                 amplifier = 0

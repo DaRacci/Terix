@@ -32,7 +32,7 @@ import dev.racci.terix.api.OriginService
 import dev.racci.terix.api.Terix
 import dev.racci.terix.api.events.PlayerOriginChangeEvent
 import dev.racci.terix.api.origin
-import dev.racci.terix.api.origins.origin.AbstractOrigin
+import dev.racci.terix.api.origins.origin.Origin
 import dev.racci.terix.api.origins.origin.OriginEventListener
 import org.bukkit.entity.Player
 import org.bukkit.event.Event
@@ -240,7 +240,7 @@ class EventForwarderService(override val plugin: Terix) : Extension<Terix>() {
 
     private inline fun <reified E : Event> finaliseEvent(
         name: String?,
-        noinline originCallback: ((E) -> AbstractOrigin?)? = null,
+        noinline originCallback: ((E) -> Origin?)? = null,
         noinline playerCallback: ((E) -> Player?)?
     ) {
         val function = this.getFunction<E>(name) ?: return
@@ -286,7 +286,7 @@ class EventForwarderService(override val plugin: Terix) : Extension<Terix>() {
             return null
         }
 
-        val itr = AbstractOrigin::class.memberFunctions.iterator()
+        val itr = Origin::class.memberFunctions.iterator()
         while (itr.hasNext()) {
             val next = itr.next()
             if (next.name != nonNullName || next.valueParameters[0].type != T::class.starProjectedType) continue

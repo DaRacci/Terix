@@ -7,7 +7,7 @@ import dev.racci.minix.api.scheduler.CoroutineTask
 import dev.racci.minix.api.utils.collections.multiMapOf
 import dev.racci.terix.api.Terix
 import dev.racci.terix.api.origin
-~import dev.racci.terix.api.origins.origin.AbstractOrigin
+import dev.racci.terix.api.origins.origin.Origin
 import io.mockk.MockKAnnotations
 import io.mockk.Runs
 import io.mockk.every
@@ -36,7 +36,7 @@ internal object Bootstrap {
     lateinit var mockPlayer: Player
 
     @MockK
-    lateinit var mockOrigin: AbstractOrigin
+    lateinit var mockOrigin: Origin
 
     fun startUp() {
         MockKAnnotations.init(this, relaxed = true, relaxUnitFun = true)
@@ -58,11 +58,11 @@ internal object Bootstrap {
 
         every { mockPlugin.log } answers {
             mockk {
-                every { debug(any<Throwable>(), allAny()) } just Runs
-                every { info(any<Throwable>(), allAny()) } just Runs
-                every { warn(any<Throwable>(), allAny()) } just Runs
-                every { error(any<Throwable>(), allAny()) } just Runs
-                every { trace(any<Throwable>(), allAny()) } just Runs
+                every { debug(allAny()) } just Runs
+                every { info(allAny()) } just Runs
+                every { warn(allAny()) } just Runs
+                every { error(allAny()) } just Runs
+                every { trace(allAny()) } just Runs
             }
         }
 

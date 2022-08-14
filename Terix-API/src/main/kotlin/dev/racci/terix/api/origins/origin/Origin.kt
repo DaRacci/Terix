@@ -7,7 +7,7 @@ import org.bukkit.entity.Player
 import org.koin.core.component.KoinComponent
 
 @API(status = API.Status.MAINTAINED, since = "1.0.0")
-abstract class AbstractOrigin : OriginBuilder(), OriginEventListener, WithPlugin<MinixPlugin>, KoinComponent {
+abstract class Origin : OriginBuilder(), OriginEventListener, WithPlugin<MinixPlugin>, KoinComponent {
 
     /**
      * Checks if the player has permission for this origin.

@@ -11,11 +11,12 @@ import dev.racci.minix.api.utils.minecraft.MaterialTagsExtension
 import dev.racci.minix.api.utils.now
 import dev.racci.minix.nms.aliases.toNMS
 import dev.racci.terix.api.Terix
+import dev.racci.terix.api.origins.OriginHelper
 import dev.racci.terix.api.origins.abilities.Levitate
 import dev.racci.terix.api.origins.enums.KeyBinding
-import dev.racci.terix.api.origins.enums.Trigger
-import dev.racci.terix.api.origins.origin.AbstractOrigin
+import dev.racci.terix.api.origins.origin.Origin
 import dev.racci.terix.api.origins.sounds.SoundEffect
+import dev.racci.terix.api.origins.states.State
 import kotlinx.datetime.Instant
 import net.kyori.adventure.text.format.TextColor
 import org.bukkit.Location
@@ -34,7 +35,7 @@ import kotlin.time.Duration
 import kotlin.time.Duration.Companion.minutes
 
 // TODO -> Aethens emit a constant light level while moving. Waiting until LightAPI is updated to 1.19 to implement this.
-class AethenOrigin(override val plugin: Terix) : AbstractOrigin() {
+class AethenOrigin(override val plugin: Terix) : Origin() {
 
     override val name = "Aethen"
     override val colour = TextColor.fromHexString("#ffc757")!!
@@ -63,7 +64,7 @@ class AethenOrigin(override val plugin: Terix) : AbstractOrigin() {
             ) *= 2.0
         }
         potions {
-            Trigger.ON += {
+            State.CONSTANT += {
                 type = PotionEffectType.SLOW_FALLING
                 duration = Duration.INFINITE
                 amplifier = 0
@@ -118,7 +119,7 @@ class AethenOrigin(override val plugin: Terix) : AbstractOrigin() {
             return
         }
 
-        if (!OriginHelper.getAllPotions(event.player, Trigger.ON).contains(PotionEffectType.SLOW_FALLING)) {
+        if (!OriginHelper.getOriginPotions(event.player, State.CONSTANT).contains(PotionEffectType.SLOW_FALLING)) {
             event.player.addPotionEffect(PotionEffect(PotionEffectType.SLOW_FALLING, Integer.MAX_VALUE, 0))
         }
     }

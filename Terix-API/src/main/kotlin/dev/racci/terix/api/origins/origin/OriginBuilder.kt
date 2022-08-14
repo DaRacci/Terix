@@ -4,17 +4,19 @@ import com.destroystokyo.paper.MaterialSetTag
 import com.github.benmanes.caffeine.cache.Caffeine
 import com.github.benmanes.caffeine.cache.LoadingCache
 import dev.racci.minix.api.annotations.MinixDsl
+import dev.racci.minix.api.utils.getKoin
 import dev.racci.minix.api.utils.unsafeCast
 import dev.racci.terix.api.OriginService
+import dev.racci.terix.api.Terix
 import dev.racci.terix.api.dsl.AttributeModifierBuilder
 import dev.racci.terix.api.dsl.FoodPropertyBuilder
 import dev.racci.terix.api.dsl.PotionEffectBuilder
 import dev.racci.terix.api.dsl.TimedAttributeBuilder
 import dev.racci.terix.api.dsl.TitleBuilder
-import dev.racci.terix.api.origins.AbstractAbility
 import dev.racci.terix.api.origins.OriginItem
+import dev.racci.terix.api.origins.abilities.Ability
 import dev.racci.terix.api.origins.enums.KeyBinding
-import dev.racci.terix.api.origins.enums.Trigger
+import dev.racci.terix.api.origins.states.State
 import net.minecraft.world.food.Foods
 import org.apiguardian.api.API
 import org.bukkit.Material
@@ -36,10 +38,10 @@ sealed class OriginBuilder : OriginValues() {
 
     private inline fun <reified T> builder(): T = builderCache[T::class].unsafeCast()
 
-    fun nightvision(nightVision: Boolean = true): OriginBuilder {
-        this.nightVision = nightVision
-        return this
-    }
+//    fun nightvision(nightVision: Boolean = true): OriginBuilder {
+//        this.nightVision = nightVision
+//        return this
+//    }
 
     fun fireImmunity(fireImmunity: Boolean = true): OriginBuilder {
         this.fireImmunity = fireImmunity
@@ -94,10 +96,12 @@ sealed class OriginBuilder : OriginValues() {
          *
          * ### Note: The potion key will always be overwritten.
          */
-        operator fun Trigger.plusAssign(builder: PotionEffectBuilder.() -> Unit) {
+        operator fun State.plusAssign(builder: PotionEffectBuilder.() -> Unit) {
             val pot = PotionEffectBuilder(builder).originKey(this@OriginBuilder, this)
             potions.put(this, pot.build())
         }
+
+        operator fun Collection<State>.plusAssign(builder: PotionEffectBuilder.() -> Unit) = this.forEach { it += builder }
     }
 
     /** A Utility class for building attribute modifiers. */
@@ -109,7 +113,7 @@ sealed class OriginBuilder : OriginValues() {
          * @param value The amount to remove.
          * @receiver The attribute to remove from.
          */
-        operator fun Attribute.minusAssign(value: Number) = addAttribute(this, AttributeModifier.Operation.ADD_NUMBER, value, Trigger.ON)
+        operator fun Attribute.minusAssign(value: Number) = addAttribute(this, AttributeModifier.Operation.ADD_NUMBER, value, State.CONSTANT)
 
         /**
          * Adds this number to the players base attributes.
@@ -117,7 +121,7 @@ sealed class OriginBuilder : OriginValues() {
          * @param value The amount to add.
          * @receiver The attribute to add to.
          */
-        operator fun Attribute.plusAssign(value: Number) = addAttribute(this, AttributeModifier.Operation.ADD_NUMBER, value, Trigger.ON)
+        operator fun Attribute.plusAssign(value: Number) = addAttribute(this, AttributeModifier.Operation.ADD_NUMBER, value, State.CONSTANT)
 
         /**
          * Multiplies the players base attribute by this number.
@@ -125,7 +129,7 @@ sealed class OriginBuilder : OriginValues() {
          * @param value The amount to multiply by.
          * @receiver The attribute to multiply.
          */
-        operator fun Attribute.timesAssign(value: Number) = addAttribute(this, AttributeModifier.Operation.MULTIPLY_SCALAR_1, value.toDouble() - 1, Trigger.ON)
+        operator fun Attribute.timesAssign(value: Number) = addAttribute(this, AttributeModifier.Operation.MULTIPLY_SCALAR_1, value.toDouble() - 1, State.CONSTANT)
 
         /**
          * Divides the players base attribute by this number.
@@ -133,7 +137,7 @@ sealed class OriginBuilder : OriginValues() {
          * @param value The amount to divide by.
          * @receiver The attribute to divide.
          */
-        operator fun Attribute.divAssign(value: Number) = addAttribute(this, AttributeModifier.Operation.MULTIPLY_SCALAR_1, (1.0 / value.toDouble()) - 1, Trigger.ON)
+        operator fun Attribute.divAssign(value: Number) = addAttribute(this, AttributeModifier.Operation.MULTIPLY_SCALAR_1, (1.0 / value.toDouble()) - 1, State.CONSTANT)
 
         /**
          * Removes this number from the players attribute when this trigger is
@@ -142,7 +146,7 @@ sealed class OriginBuilder : OriginValues() {
          * @param value The amount to remove.
          * @receiver The Trigger and Attribute to remove from.
          */
-        operator fun Pair<Trigger, Attribute>.minusAssign(value: Number) = addAttribute(this.second, AttributeModifier.Operation.ADD_NUMBER, value, this.first)
+        operator fun Pair<State, Attribute>.minusAssign(value: Number) = addAttribute(this.second, AttributeModifier.Operation.ADD_NUMBER, value, this.first)
 
         /**
          * Adds this number to the players attribute when this trigger is active.
@@ -150,7 +154,7 @@ sealed class OriginBuilder : OriginValues() {
          * @param value The amount to add.
          * @receiver The Trigger and Attribute to add to.
          */
-        operator fun Pair<Trigger, Attribute>.plusAssign(value: Number) = addAttribute(this.second, AttributeModifier.Operation.ADD_NUMBER, value, this.first)
+        operator fun Pair<State, Attribute>.plusAssign(value: Number) = addAttribute(this.second, AttributeModifier.Operation.ADD_NUMBER, value, this.first)
 
         /**
          * Multiplies the players attribute by this number when this trigger is
@@ -159,7 +163,7 @@ sealed class OriginBuilder : OriginValues() {
          * @param value The amount to multiply by.
          * @receiver The Trigger and Attribute to multiply.
          */
-        operator fun Pair<Trigger, Attribute>.timesAssign(value: Number) = addAttribute(this.second, AttributeModifier.Operation.MULTIPLY_SCALAR_1, value, this.first)
+        operator fun Pair<State, Attribute>.timesAssign(value: Number) = addAttribute(this.second, AttributeModifier.Operation.MULTIPLY_SCALAR_1, value, this.first)
 
         /**
          * Divides the players attribute by this number when this trigger is
@@ -168,18 +172,18 @@ sealed class OriginBuilder : OriginValues() {
          * @param value The amount to divide by.
          * @receiver The Trigger and Attribute to divide.
          */
-        operator fun Pair<Trigger, Attribute>.divAssign(value: Number) = addAttribute(this.second, AttributeModifier.Operation.MULTIPLY_SCALAR_1, 1.0 / value.toDouble(), this.first)
+        operator fun Pair<State, Attribute>.divAssign(value: Number) = addAttribute(this.second, AttributeModifier.Operation.MULTIPLY_SCALAR_1, 1.0 / value.toDouble(), this.first)
 
         private fun addAttribute(
             attribute: Attribute,
             operation: AttributeModifier.Operation,
             amount: Number,
-            trigger: Trigger
+            state: State
         ) {
             this@OriginBuilder.attributeModifiers.put(
-                trigger,
+                state,
                 attribute to AttributeModifierBuilder {
-                    originName(this@OriginBuilder, trigger)
+                    originName(this@OriginBuilder, state)
                     this.attribute = attribute
                     this.operation = operation
                     this.amount = amount
@@ -197,7 +201,7 @@ sealed class OriginBuilder : OriginValues() {
          * @param builder The title builder to use.
          * @receiver The trigger to activate the title.
          */
-        operator fun Trigger.plusAssign(builder: TitleBuilder.() -> Unit) {
+        operator fun State.plusAssign(builder: TitleBuilder.() -> Unit) {
             val title = TitleBuilder()
             builder(title)
             this@OriginBuilder.titles[this] = title
@@ -216,7 +220,7 @@ sealed class OriginBuilder : OriginValues() {
          * @param builder The damage builder to use.
          * @receiver The trigger to activate the damage.
          */
-        operator fun Trigger.plusAssign(builder: suspend (Player) -> Unit) {
+        operator fun State.plusAssign(builder: suspend (Player) -> Unit) {
             triggerBlocks[this] = builder
         }
 
@@ -227,7 +231,7 @@ sealed class OriginBuilder : OriginValues() {
          * @param number The amount of damage to deal.
          * @receiver The trigger to activate the damage.
          */
-        operator fun Trigger.plusAssign(number: Number) {
+        operator fun State.plusAssign(number: Number) {
             damageTicks[this] = number.toDouble()
         }
 
@@ -292,7 +296,7 @@ sealed class OriginBuilder : OriginValues() {
          * @receiver The triggers that activate the damage.
          */
         @JvmName("plusAssignTrigger")
-        operator fun Collection<Trigger>.plusAssign(builder: suspend (Player) -> Unit) = forEach { it += builder }
+        operator fun Collection<State>.plusAssign(builder: suspend (Player) -> Unit) = forEach { it += builder }
 
         /**
          * Adds all elements to [Trigger.plusAssign]
@@ -300,7 +304,7 @@ sealed class OriginBuilder : OriginValues() {
          * @param number The amount of damage to deal.
          * @receiver The triggers that activate the damage.
          */
-        operator fun Collection<Trigger>.plusAssign(number: Number) = forEach { it += number }
+        operator fun Collection<State>.plusAssign(number: Number) = forEach { it += number }
 
         /** Adds all elements to [EntityDamageEvent.DamageCause.plusAssign]. */
         operator fun Collection<EntityDamageEvent.DamageCause>.plusAssign(block: suspend (EntityDamageEvent) -> Unit) = forEach { it += block }
@@ -347,6 +351,7 @@ sealed class OriginBuilder : OriginValues() {
             val foodProp = FoodPropertyBuilder(foodProps)
 
             builder(foodProp)
+            getKoin().get<Terix>().log.debug { "Modifying Food Property for ${material.name} with $foodProp" }
             customFoodProperties[material] = foodProp.build()
         }
 
@@ -410,6 +415,12 @@ sealed class OriginBuilder : OriginValues() {
             builder: AttributePropBuilder
         ): Unit = foodAttributes.put(material, TimedAttributeBuilder(builder).materialName(material, this@OriginBuilder))
 
+        @JvmName("attributeModifierIterable")
+        fun attributeModifier(
+            materials: Iterable<Material>,
+            builder: AttributePropBuilder
+        ): Unit = materials.forEach { attributeModifier(it, builder) }
+
         @JvmName("actionModifierSingle")
         fun actionModifier(
             material: Material,
@@ -422,15 +433,7 @@ sealed class OriginBuilder : OriginValues() {
         fun actionModifier(
             materials: Iterable<Material>,
             action: ActionPropBuilder
-        ) {
-            materials.forEach { actionModifier(it, action) }
-        }
-
-        @JvmName("attributeModifierIterable")
-        fun attributeModifier(
-            materials: Iterable<Material>,
-            builder: AttributePropBuilder
-        ): Unit = materials.forEach { attributeModifier(it, builder) }
+        ): Unit = materials.forEach { actionModifier(it, action) }
 
         @JvmName("plusAssignMaterial")
         operator fun Material.plusAssign(builder: FoodPropBuilder) = modifyFood(this, builder)
@@ -508,15 +511,15 @@ sealed class OriginBuilder : OriginValues() {
     /** A Utility class for building abilities. */
     inner class AbilityBuilder {
 
-        fun <T : AbstractAbility> KeyBinding.add(clazz: KClass<out T>) = abilities.put(this, OriginService.getAbility(clazz))
+        fun <T : Ability> KeyBinding.add(clazz: KClass<out T>) = abilities.put(this, OriginService.getAbility(clazz))
 
-        inline fun <reified T : AbstractAbility> KeyBinding.add() = add(T::class)
+        inline fun <reified T : Ability> KeyBinding.add() = add(T::class)
     }
 
     /** A Utility class for building biome triggers. */
     inner class BiomeBuilder {
 
-        operator fun <T : AbstractAbility> Biome.plusAssign(ability: KClass<out T>) {
+        operator fun <T : Ability> Biome.plusAssign(ability: KClass<out T>) {
             TODO("Not implemented yet")
         }
     }

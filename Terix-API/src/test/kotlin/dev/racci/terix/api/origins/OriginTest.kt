@@ -1,8 +1,8 @@
 package dev.racci.terix.api.origins
 
-import dev.racci.terix.api.Origin
-import dev.racci.terix.api.origins.enums.Trigger
-import dev.racci.terix.api.origins.origin.AbstractOrigin
+import dev.racci.terix.api.TestOrigin
+import dev.racci.terix.api.origins.origin.Origin
+import dev.racci.terix.api.origins.states.State
 import io.mockk.every
 import io.mockk.mockk
 import io.mockk.verify
@@ -22,16 +22,15 @@ import strikt.assertions.first
 import strikt.assertions.hasSize
 import strikt.assertions.isNotNull
 import kotlin.test.assertEquals
-import kotlin.test.assertNotNull
 
 @TestInstance(TestInstance.Lifecycle.PER_CLASS)
-internal class AbstractOriginTest {
+internal class OriginTest {
 
-    lateinit var origin: AbstractOrigin
+    lateinit var origin: Origin
 
     @BeforeAll
     fun setUp() {
-        origin = Origin()
+        origin = TestOrigin()
         runBlocking { origin.onRegister() }
     }
 
@@ -61,10 +60,10 @@ internal class AbstractOriginTest {
         assertEquals("minecraft:entity.player.death", origin.sounds.deathSound.resourceKey.asString())
     }
 
-    @Test
-    fun getNightVision() {
-        assertEquals(true, origin.nightVision)
-    }
+//    @Test
+//    fun getNightVision() {
+//        assertEquals(true, origin.nightVision)
+//    }
 
     @Test
     fun getWaterBreathing() {
@@ -90,19 +89,19 @@ internal class AbstractOriginTest {
     fun getAttributeModifiers() {
         assertEquals(2, origin.attributeModifiers.size)
 
-        expectThat(origin.attributeModifiers[Trigger.DAY])
+        expectThat(origin.attributeModifiers[State.TimeState.DAY])
             .isNotNull().first()
             .assert("Attribute is attack damage", Attribute.GENERIC_ATTACK_DAMAGE) { it.first }
             .assert("Modifier value is 2.0", 2.0) { it.second.amount }
             .assert("Modifier operation is ADD_NUMBER", AttributeModifier.Operation.ADD_NUMBER) { it.second.operation }
             .assert("Modifier name is matches", "origin_modifier_origintest_day") { it.second.name }
 
-        expectThat(origin.attributeModifiers[Trigger.ON])
+        expectThat(origin.attributeModifiers[State.CONSTANT])
             .isNotNull().elementAt(0)
             .assert("Modifier value is 0.5", 0.5) { it.second.amount }
             .assert("Modifier operation is MULTIPLY_SCALAR_1", AttributeModifier.Operation.MULTIPLY_SCALAR_1) { it.second.operation }
 
-        expectThat(origin.attributeModifiers[Trigger.ON]!!)
+        expectThat(origin.attributeModifiers[State.CONSTANT]!!)
             .elementAt(1)
             .assert("Modifier value is 0.25", 0.25) { it.second.amount }
             .assert("Modifier operation is MULTIPLY_SCALAR_1", AttributeModifier.Operation.MULTIPLY_SCALAR_1) { it.second.operation }
@@ -112,15 +111,15 @@ internal class AbstractOriginTest {
     fun getTitles() {
         expectThat(origin.titles)
             .hasSize(1)
-            .get { this[Trigger.DAY] }
+            .get { this[State.TimeState.DAY] }
             .isNotNull()
             .assertThat("Title is correct") { MiniMessage.miniMessage().serialize(it.title!!) == "<green>Title" }
             .assertThat("Subtitle is correct") { MiniMessage.miniMessage().serialize(it.subtitle!!) == "<green>Subtitle" }
     }
 
     @Test
-    fun getPotions() { // Note: If this fails it prints a really useless stack trace
-        expectThat(origin.potions[Trigger.NETHER])
+    fun getPotions() { // Note: If this fails, it prints a really useless stack trace.
+        expectThat(origin.potions[State.WorldState.NETHER])
             .isNotNull()
             .first()
             .assertThat("Potion is correct") { it.type == PotionEffectType.REGENERATION }
@@ -130,12 +129,11 @@ internal class AbstractOriginTest {
             .assertThat("Potion show particles is correct") { !it.hasParticles() }
             .assertThat("Potion icon is correct") { !it.hasIcon() }
             .assertThat("Potion key is correct") { "terix:origin_potion_testorigin/nether" == it.key.toString() }
-        assertNotNull(origin.potions[Trigger.FLAMMABLE])
     }
 
     @Test
     fun getDamageTicks() {
-        expectThat(origin.damageTicks[Trigger.WATER])
+        expectThat(origin.damageTicks[State.LiquidState.WATER])
             .isNotNull()
             .assertThat("Damage ticks is correct") { it == 2.0 }
     }
@@ -167,7 +165,7 @@ internal class AbstractOriginTest {
             every { addModifier(any()) } answers { list.add(firstArg()) }
         }
 
-        val modi = origin.attributeModifiers[Trigger.ON]!!.first { it.first == Attribute.GENERIC_MAX_HEALTH }
+        val modi = origin.attributeModifiers[State.CONSTANT]!!.first { it.first == Attribute.GENERIC_MAX_HEALTH }
         inst.addModifier(modi.second)
 
         expectThat(inst)

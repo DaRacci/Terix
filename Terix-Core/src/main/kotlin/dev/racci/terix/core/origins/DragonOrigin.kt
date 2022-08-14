@@ -5,9 +5,9 @@ import com.destroystokyo.paper.MaterialTags
 import dev.racci.minix.api.extensions.cancel
 import dev.racci.minix.api.utils.minecraft.MaterialTagsExtension
 import dev.racci.terix.api.Terix
-import dev.racci.terix.api.origins.enums.Trigger
-import dev.racci.terix.api.origins.origin.AbstractOrigin
+import dev.racci.terix.api.origins.origin.Origin
 import dev.racci.terix.api.origins.sounds.SoundEffect
+import dev.racci.terix.api.origins.states.State
 import net.kyori.adventure.text.format.TextColor
 import org.bukkit.Material
 import org.bukkit.entity.LivingEntity
@@ -22,7 +22,7 @@ import kotlin.time.Duration
 
 // TODO: Explosion when shield is broken
 
-class DragonOrigin(override val plugin: Terix) : AbstractOrigin() {
+class DragonOrigin(override val plugin: Terix) : Origin() {
 
     override val name = "Dragon"
     override val colour = TextColor.fromHexString("#9e33ff")!!
@@ -49,7 +49,7 @@ class DragonOrigin(override val plugin: Terix) : AbstractOrigin() {
         }
 
         potions {
-            Trigger.ON += {
+            State.CONSTANT += {
                 type = PotionEffectType.HUNGER
                 duration = Duration.INFINITE
                 amplifier = 1

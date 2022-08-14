@@ -11,27 +11,21 @@ import dev.jorel.commandapi.arguments.StringArgument
 import dev.racci.minix.api.annotations.MappedExtension
 import dev.racci.minix.api.extension.Extension
 import dev.racci.minix.api.extensions.async
-import dev.racci.minix.api.extensions.formatted
 import dev.racci.minix.api.extensions.message
 import dev.racci.minix.api.extensions.msg
 import dev.racci.minix.api.services.DataService
 import dev.racci.minix.api.services.DataService.Companion.inject
 import dev.racci.minix.api.utils.collections.CollectionUtils.getCast
 import dev.racci.terix.api.OriginService
+import dev.racci.terix.api.PlayerData
 import dev.racci.terix.api.Terix
-import dev.racci.terix.api.dsl.PotionEffectBuilder
 import dev.racci.terix.api.events.PlayerOriginChangeEvent
-import dev.racci.terix.api.origin
 import dev.racci.terix.core.data.Config
 import dev.racci.terix.core.data.Lang
 import dev.racci.terix.core.extensions.arguments
 import dev.racci.terix.core.extensions.command
 import dev.racci.terix.core.extensions.execute
 import dev.racci.terix.core.extensions.executePlayer
-import dev.racci.terix.core.extensions.fulfilled
-import dev.racci.terix.core.extensions.nightVision
-import dev.racci.terix.core.extensions.safelyAddPotion
-import dev.racci.terix.core.extensions.safelyRemovePotion
 import dev.racci.terix.core.extensions.subcommand
 import dev.racci.terix.core.extensions.usedChoices
 import org.bukkit.Fluid
@@ -46,9 +40,8 @@ import org.koin.core.component.get
 import org.koin.core.component.inject
 import java.util.UUID
 import java.util.logging.Level
-import kotlin.time.Duration
 
-@MappedExtension(Terix::class, "Command Service", [OriginService::class, GUIService::class, SpecialService::class])
+@MappedExtension(Terix::class, "Command Service", [OriginService::class, GUIService::class])
 class CommandService(override val plugin: Terix) : Extension<Terix>() {
     private val lang by inject<DataService>().inject<Lang>()
 
@@ -60,7 +53,7 @@ class CommandService(override val plugin: Terix) : Extension<Terix>() {
             addGetCommands()
             addSetCommands()
             addMenuCommands()
-            addToggleCommands()
+//            addToggleCommands()
             addDatabaseCommands()
         }
 
@@ -86,7 +79,7 @@ class CommandService(override val plugin: Terix) : Extension<Terix>() {
                 arguments {
                     arg<EntitySelectorArgument<LivingEntity>>("entity")
                 }
-                executePlayer { player, anies ->
+                executePlayer { _, anies ->
                     val entity = anies.getCast<LivingEntity>(0)
                     Fluid.values().forEach {
                         entity.addCanStandOnFluid(it)
@@ -98,7 +91,7 @@ class CommandService(override val plugin: Terix) : Extension<Terix>() {
                 arguments {
                     arg<EntitySelectorArgument<LivingEntity>>("entity")
                 }
-                executePlayer { player, anies ->
+                executePlayer { _, anies ->
                     val entity = anies.getCast<LivingEntity>(0)
                     Fluid.values().forEach {
                         entity.removeCanStandOnFluid(it)
@@ -164,7 +157,7 @@ class CommandService(override val plugin: Terix) : Extension<Terix>() {
 
             subcommand("origin") {
                 executePlayer { player, _ ->
-                    origin(player).toString() message player
+                    PlayerData.cachedOrigin(player).toString() message player
                 }
             }
 
@@ -265,7 +258,7 @@ class CommandService(override val plugin: Terix) : Extension<Terix>() {
         }
     }
 
-    private fun CommandAPICommand.addToggleCommands() {
+    /*private fun CommandAPICommand.addToggleCommands() {
         subcommand("toggle") {
             permission = CommandPermission.fromString("terix.origin.toggle")
 
@@ -275,9 +268,9 @@ class CommandService(override val plugin: Terix) : Extension<Terix>() {
                 { sender, args -> async { nightvision(sender, args.getCast(0)) } }
             )
         }
-    }
+    }*/
 
-    private fun CommandAPICommand.addSpecialCommand(
+    /*private fun CommandAPICommand.addSpecialCommand(
         name: String,
         requirements: (Player) -> Boolean,
         execute: (Player, Array<out Any>) -> Unit
@@ -296,7 +289,7 @@ class CommandService(override val plugin: Terix) : Extension<Terix>() {
 
             executePlayer(execute)
         }
-    }
+    }*/
 
     private fun CommandAPICommand.addDatabaseCommands() {
         subcommand("database") {
@@ -367,7 +360,7 @@ class CommandService(override val plugin: Terix) : Extension<Terix>() {
         sender: CommandSender,
         target: Player? = sender as? Player
     ) {
-        val origin = (target)?.let { origin(it) } ?: run {
+        val origin = (target)?.let { PlayerData.cachedOrigin(it) } ?: run {
             return lang.generic.error[
                 "message" to { "This command must have a target or be sent by a Player." }
             ] message sender
@@ -395,7 +388,10 @@ class CommandService(override val plugin: Terix) : Extension<Terix>() {
                 "message" to { "Invalid origin: $originString." }
             ] message sender
         }
-        if (origin == origin(target)) {
+
+        val currentOrigin = PlayerData.cachedOrigin(target)
+
+        if (origin == currentOrigin) {
             return lang[
                 "origin.set.same.${if (target == sender) "self" else "other"}",
                 "origin" to { origin.displayName },
@@ -404,14 +400,14 @@ class CommandService(override val plugin: Terix) : Extension<Terix>() {
         }
         lang[
             "origin.set.${if (target == sender) "self" else "other"}",
-            "old_origin" to { origin(target).displayName },
+            "old_origin" to { currentOrigin.displayName },
             "new_origin" to { origin.displayName },
             "player" to { target.displayName() }
         ] message sender
-        PlayerOriginChangeEvent(target, origin(target), origin, true).callEvent()
+        PlayerOriginChangeEvent(target, currentOrigin, origin, true).callEvent()
     }
 
-    private fun nightvision(
+    /*private fun nightvision(
         player: Player,
         nightVisionString: String? = null
     ) {
@@ -450,5 +446,5 @@ class CommandService(override val plugin: Terix) : Extension<Terix>() {
             "old_nightvision" to { new.formatted() },
             "new_nightvision" to { new.formatted() }
         ] message player
-    }
+    }*/
 }

@@ -3,13 +3,13 @@ package dev.racci.terix.core.services
 import com.destroystokyo.paper.event.block.BeaconEffectEvent
 import com.destroystokyo.paper.event.player.PlayerPostRespawnEvent
 import dev.racci.minix.api.annotations.MappedExtension
-import dev.racci.minix.api.events.LiquidType
 import dev.racci.minix.api.events.PlayerDoubleLeftClickEvent
 import dev.racci.minix.api.events.PlayerDoubleOffhandEvent
 import dev.racci.minix.api.events.PlayerDoubleRightClickEvent
 import dev.racci.minix.api.events.PlayerEnterLiquidEvent
 import dev.racci.minix.api.events.PlayerExitLiquidEvent
 import dev.racci.minix.api.events.PlayerLeftClickEvent
+import dev.racci.minix.api.events.PlayerMoveFullXYZEvent
 import dev.racci.minix.api.events.PlayerOffhandEvent
 import dev.racci.minix.api.events.PlayerRightClickEvent
 import dev.racci.minix.api.events.PlayerShiftDoubleLeftClickEvent
@@ -35,30 +35,29 @@ import dev.racci.minix.nms.aliases.toNMS
 import dev.racci.terix.api.Terix
 import dev.racci.terix.api.dsl.AttributeModifierBuilder
 import dev.racci.terix.api.dsl.PotionEffectBuilder
+import dev.racci.terix.api.dsl.TimedAttributeBuilder
 import dev.racci.terix.api.events.PlayerOriginChangeEvent
 import dev.racci.terix.api.extensions.playSound
-import dev.racci.terix.api.origin
+import dev.racci.terix.api.origins.OriginHelper
 import dev.racci.terix.api.origins.enums.KeyBinding
-import dev.racci.terix.api.origins.enums.Trigger
-import dev.racci.terix.api.origins.enums.Trigger.Companion.getTimeTrigger
-import dev.racci.terix.api.origins.enums.Trigger.Companion.getTrigger
-import dev.racci.terix.api.origins.origin.AbstractOrigin
+import dev.racci.terix.api.origins.origin.ActionPropBuilder
+import dev.racci.terix.api.origins.origin.Origin
+import dev.racci.terix.api.origins.states.State
+import dev.racci.terix.api.origins.states.State.Companion.convertLiquidToState
 import dev.racci.terix.core.data.Config
 import dev.racci.terix.core.data.Lang
 import dev.racci.terix.core.data.PlayerData
-import dev.racci.terix.core.extensions.activeTriggers
 import dev.racci.terix.core.extensions.message
-import dev.racci.terix.core.extensions.nightVision
 import dev.racci.terix.core.extensions.originTime
-import dev.racci.terix.core.origins.OriginHelper
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.delay
 import kotlinx.datetime.Instant
 import net.minecraft.advancements.CriteriaTriggers
+import net.minecraft.server.level.ServerPlayer
 import net.minecraft.stats.Stats
 import net.minecraft.world.InteractionHand
-import net.minecraft.world.InteractionResultHolder
+import net.minecraft.world.food.FoodProperties
 import org.bukkit.attribute.Attribute
 import org.bukkit.craftbukkit.v1_19_R1.event.CraftEventFactory
 import org.bukkit.entity.Player
@@ -77,7 +76,6 @@ import org.bukkit.potion.PotionEffectType
 import org.jetbrains.exposed.sql.transactions.experimental.newSuspendedTransaction
 import org.koin.core.component.inject
 import java.util.UUID
-import kotlin.time.Duration.Companion.milliseconds
 import kotlin.time.Duration.Companion.seconds
 
 // Check for button presses to invoke actions in the test chambers
@@ -111,24 +109,22 @@ class ListenerService(override val plugin: Terix) : Extension<Terix>() {
         }
 
         event<PlayerJoinEvent>(forceAsync = true) {
-            val origin = origin(player)
-            val activeTriggers = player.activeTriggers()
-            val activeTriggersStr = activeTriggers.map { it.name.lowercase() }
+            val origin = PlayerData.cachedOrigin(player)
+            val activeStates = State.getPlayerStates(player)
+            val activeStatesStr = activeStates.map { it.name.lowercase() }
 
             val potions = mutableListOf<PotionEffectType>()
-            if (origin.nightVision && player.nightVision.name.lowercase() !in activeTriggersStr) potions.add(PotionEffectType.NIGHT_VISION)
+//            if (origin.nightVision && transaction { PlayerData[player].nightVision }.name.lowercase() !in activeStatesStr) potions.add(PotionEffectType.NIGHT_VISION)
             for (potion in player.activePotionEffects) {
                 val key = potion.key?.asString() ?: continue
-                val match = PotionEffectBuilder.regex.find(key)?.groups?.get("trigger") ?: continue
-                if (match.value in activeTriggersStr) continue
+                val match = PotionEffectBuilder.regex.find(key)?.groups?.get("state") ?: continue
+                if (match.value in activeStatesStr) continue
 
                 potions += potion.type
             }
             sync { potions.forEach(player::removePotionEffect) }
-            removeUnfulfilledOrInvalidAttributes(player, activeTriggers)
+            removeUnfulfilledOrInvalidAttributes(player, activeStates)
 
-            // Trigger.invokeBase(player) // I don't think this is needed anymore
-            // player.world.environment.getTrigger().invokeAdd(player) // Also may not be needed.
             delay(0.5.seconds)
             player.sendHealthUpdate()
         }
@@ -136,45 +132,37 @@ class ListenerService(override val plugin: Terix) : Extension<Terix>() {
         event<PlayerPostRespawnEvent>(forceAsync = true) {
             removeUnfulfilledOrInvalidAttributes(player)
 
-            val origin = origin(player)
-            val trigger = player.world.environment.getTrigger()
+            val origin = PlayerData.cachedOrigin(player)
+            val state = State.getEnvironmentState(player.world.environment)
 
             OriginHelper.applyBase(player, origin)
-            OriginHelper.add(player, origin, trigger)
+            state.activate(player, origin)
 
             player.health = player.getAttribute(Attribute.GENERIC_MAX_HEALTH)!!.value
         }
 
         event<EntityPotionEffectEvent> { if (shouldCancel()) cancel() }
 
-        event<PlayerEnterLiquidEvent> {
-            Trigger.values().find { it.name == newType.name }?.let { OriginHelper.add(player, origin(player), it) }
-            if (previousType != LiquidType.NON) return@event
-            OriginHelper.remove(player, origin(player), Trigger.LAND)
-        }
-        event<PlayerExitLiquidEvent> {
-            Trigger.values().find { it.name == previousType.name }?.let { OriginHelper.remove(player, origin(player), it) }
-            if (newType != LiquidType.NON) return@event
-            OriginHelper.add(player, origin(player), Trigger.LAND)
-        }
+        event<PlayerEnterLiquidEvent> { convertLiquidToState(previousType).exchange(player, PlayerData.cachedOrigin(player), convertLiquidToState(newType)) }
+        event<PlayerExitLiquidEvent> { convertLiquidToState(previousType).exchange(player, PlayerData.cachedOrigin(player), convertLiquidToState(newType)) }
 
-        event<WorldNightEvent>(forceAsync = true) { timeTrigger(Trigger.NIGHT) }
-        event<WorldDayEvent>(forceAsync = true) { timeTrigger(Trigger.DAY) }
+        event<WorldNightEvent>(forceAsync = true) { timeState(State.TimeState.NIGHT) }
+        event<WorldDayEvent>(forceAsync = true) { timeState(State.TimeState.DAY) }
 
         event<PlayerChangedWorldEvent>(forceAsync = true) {
-            val fromTrigger = from.environment.getTrigger()
-            val toTrigger = player.world.environment.getTrigger()
+            val lastState = State.getEnvironmentState(from.environment)
+            val newState = State.getEnvironmentState(player.world.environment)
+            val origin = PlayerData.cachedOrigin(player)
 
-            if (fromTrigger == toTrigger) return@event
-            if (fromTrigger.ordinal == 4 && toTrigger.ordinal != 4) OriginHelper.remove(player, origin(player), from.getTimeTrigger()!!)
+            if (lastState == newState) return@event
 
-            OriginHelper.swap(player, origin(player), fromTrigger, toTrigger)
-            origin(player).titles[toTrigger]?.invoke(player)
+            State.getTimeState(from)?.deactivate(player, origin)
+            lastState.exchange(player, origin, newState)
         }
 
         event<EntityCombustEvent> {
             val player = entity as? Player ?: return@event
-            if (ensureNoFire(player, origin(player))) cancel()
+            if (ensureNoFire(player, PlayerData.cachedOrigin(player))) cancel()
         }
 
         event<EntityDamageEvent>(
@@ -182,14 +170,14 @@ class ListenerService(override val plugin: Terix) : Extension<Terix>() {
             priority = EventPriority.LOWEST
         ) {
             val player = entity as? Player ?: return@event
-            val origin = origin(player)
+            val origin = PlayerData.cachedOrigin(player)
 
             if (ensureNoFire(player, origin) ||
                 origin.damageActions[cause]?.invoke(this) != null &&
                 damage == 0.0
             ) return@event cancel()
 
-            val sound = origin(player).sounds.hurtSound
+            val sound = PlayerData.cachedOrigin(player).sounds.hurtSound
             player.playSound(sound.resourceKey.asString(), sound.volume, sound.pitch, sound.distance)
         }
 
@@ -197,22 +185,18 @@ class ListenerService(override val plugin: Terix) : Extension<Terix>() {
             ignoreCancelled = true,
             priority = EventPriority.LOWEST
         ) {
-            val sound = origin(player).sounds.deathSound
+            val sound = PlayerData.cachedOrigin(player).sounds.deathSound
             player.playSound(sound.resourceKey.asString(), sound.volume, sound.pitch, sound.distance)
         }
 
+//
         event<FoodLevelChangeEvent>(
             ignoreCancelled = true,
             priority = EventPriority.LOWEST
         ) {
             val player = entity as? Player ?: return@event
-            val item = item ?: return@event
-            val origin = origin(player)
-
-            foodLevelChange(origin, item, player)
-            origin.foodBlocks[item.type]?.invoke(player)
-            origin.foodAttributes[item.type]?.forEach { it.invoke(player) }
-//            origin.foodPotions[item.type]?.invokeIfNotNull(player::addPotionEffects)
+            if (this.item == null) return@event
+            foodEvent(player, this.item!!, foodLevelChangeEvent = this)
         }
 
         event<PlayerOriginChangeEvent>(
@@ -252,7 +236,7 @@ class ListenerService(override val plugin: Terix) : Extension<Terix>() {
             PlayerShiftOffhandEvent::class
         ) {
             val clazz = KeyBinding.fromEvent(this::class)
-            val origin = origin(player)
+            val origin = PlayerData.cachedOrigin(player)
 
             val ability = origin.abilities[clazz] ?: return@events
             ability.toggle(player)
@@ -261,11 +245,18 @@ class ListenerService(override val plugin: Terix) : Extension<Terix>() {
         val channels = hashMapOf<UUID, Channel<Boolean>>()
         val lasts = hashMapOf<UUID, Long>()
         event<PlayerRightClickEvent> {
-            if (!this.hasItem) return@event
+            if (!this.hasItem || this.item!!.type.isEdible) return@event
+
             var now = now().toEpochMilliseconds()
+            val origin = PlayerData.cachedOrigin(player)
+            val serverPlayer = player.toNMS()
+            val hand = serverPlayer.usedItemHand
+            val itemStack = serverPlayer.getItemInHand(hand)
+            val foodInfo = origin.customFoodProperties[item!!.type] ?: itemStack.item.foodProperties
+            if (serverPlayer.canEat(itemStack.item.foodProperties?.canAlwaysEat() == true)) return@event
 
             val channel = channels.computeIfAbsent(player.uniqueId) {
-                val channel = Channel<Boolean>(2) // 2 So we can overflow in the case of lag
+                val channel = Channel<Boolean>(2) // 2 So we can overflow in case of lag
                 lasts[player.uniqueId] = now
 
                 log.debug { "PlayerRightClickEvent - channel created with empty state ${channel.isEmpty}" }
@@ -273,7 +264,7 @@ class ListenerService(override val plugin: Terix) : Extension<Terix>() {
                 async {
                     var required = 1600L
                     do {
-                        delay(400.milliseconds)
+                        delay(400)
 
                         now = now().toEpochMilliseconds()
                         val received = channel.tryReceive()
@@ -298,6 +289,7 @@ class ListenerService(override val plugin: Terix) : Extension<Terix>() {
 
                         if (required == 0L) {
                             log.debug { "PlayerRightClickEvent - Consumed all required." }
+                            foodEvent(player, this@event.item!!, origin, serverPlayer, hand, itemStack, foodInfo)
                             break
                         }
                     } while (!channel.isEmpty && !channel.isClosedForReceive)
@@ -316,92 +308,69 @@ class ListenerService(override val plugin: Terix) : Extension<Terix>() {
                 channel.close()
                 channels.remove(player.uniqueId, channel)
             }
-
-//            val serverPlayer = player.toNMS()
-
-//            channel.
-
-//            while ()
-
-//            var index = 2000
-//            while (index != 0) {
-//                serverPlayer.usedItemHand
-//                index--
-//            }
-
-//            val serverPlayer = player.toNMS()
-//            val hand = serverPlayer.usedItemHand
-//            val itemStack = serverPlayer.getItemInHand(hand)
-//
-//            if (serverPlayer.canEat(itemStack.item.foodProperties?.canAlwaysEat() == true)) {
-//                serverPlayer.startUsingItem(InteractionHand.valueOf(hand.name))
-//                InteractionResultHolder.consume(itemStack)
-//            }
-//
-//            return if (user.canEat(
-//                    this.getFoodProperties()
-//                        .canAlwaysEat()
-//                )
-//            ) {
-//                user.startUsingItem(hand)
-//                InteractionResultHolder.consume(itemStack)
-//            } else {
-//                InteractionResultHolder.fail(itemStack)
-//            }
-
-            // foodEvent(player, item!!)
         }
 
-        event<PlayerItemConsumeEvent> {
+        event<PlayerItemConsumeEvent>(EventPriority.MONITOR) {
             log.debug { "PlayerItemConsumeEvent: $player, $item" }
 
-//            foodEvent(player, item!!)
+            foodEvent(player, item)
+        }
+
+        event<PlayerMoveFullXYZEvent>() {
+            val lastState = State.getBiomeState(from)
+            val currentState = State.getBiomeState(to)
+            if (lastState == currentState) return@event
+
+            val origin = PlayerData.cachedOrigin(player)
+
+            lastState?.deactivate(player, origin)
+            currentState?.activate(player, origin)
         }
     }
 
     private suspend fun foodEvent(
         player: Player,
-        item: ItemStack
+        item: ItemStack,
+        origin: Origin = PlayerData.cachedOrigin(player),
+        serverPlayer: ServerPlayer = player.toNMS(),
+        hand: InteractionHand = serverPlayer.usedItemHand,
+        itemStack: net.minecraft.world.item.ItemStack = serverPlayer.getItemInHand(hand),
+        foodInfo: FoodProperties? = origin.customFoodProperties[item.type] ?: itemStack.item.foodProperties,
+        attributes: Collection<TimedAttributeBuilder>? = origin.foodAttributes[item.type],
+        action: ActionPropBuilder? = origin.foodBlocks[item.type],
+        foodLevelChangeEvent: FoodLevelChangeEvent? = null
     ) {
-        val serverPlayer = player.toNMS()
-        val hand = serverPlayer.usedItemHand
-        val itemStack = serverPlayer.getItemInHand(hand)
-        var foodInfo = origin(player).customFoodProperties[item.type] ?: itemStack.item.foodProperties
-
-        if (serverPlayer.canEat(itemStack.item.foodProperties?.canAlwaysEat() == true)) {
-            serverPlayer.startUsingItem(InteractionHand.valueOf(hand.name))
-            InteractionResultHolder.consume(itemStack)
-        } else {
-            InteractionResultHolder.fail(itemStack)
-        }
-
-        val origin = origin(player)
-
-        val attributes = origin.foodAttributes[item.type]
-
-        val actions = origin.foodBlocks[item.type]
-
-        if (!item.type.isEdible && actions == null && attributes == null && foodInfo == null) return // Theres nothing to do here
-        if (foodInfo == null) foodInfo = itemStack.item.foodProperties
+        if (!item.type.isEdible && action == null && attributes == null && foodInfo == null && foodLevelChangeEvent?.isCancelled != false) return // There's nothing to do here
 
         if (foodInfo != null) {
             val oldFoodLevel: Int = serverPlayer.foodData.foodLevel
+
+            if (foodLevelChangeEvent != null) {
+                foodLevelChangeEvent.foodLevel += foodInfo.nutrition
+                serverPlayer.foodData.setSaturation(serverPlayer.foodData.saturationLevel)
+                return halal(player, attributes, action)
+            }
+
             val event = CraftEventFactory.callFoodLevelChangeEvent(serverPlayer, foodInfo.nutrition + oldFoodLevel, itemStack)
 
             if (!event.isCancelled) {
-                serverPlayer.foodData.eat(event.foodLevel - oldFoodLevel, foodInfo.saturationModifier)
+                serverPlayer.foodData.eat(serverPlayer.foodData.foodLevel - oldFoodLevel, foodInfo.saturationModifier)
                 serverPlayer.awardStat(Stats.ITEM_USED[itemStack.item])
                 CriteriaTriggers.CONSUME_ITEM.trigger(serverPlayer, itemStack)
 
-                attributes?.forEach { it.invoke(player) }
-                actions?.invoke(player)
+                player.sendHealthUpdate()
+                return halal(player, attributes, action)
             }
-
-            player.sendHealthUpdate()
-        } else {
-            attributes?.forEach { it.invoke(player) }
-            actions?.invoke(player)
         }
+    }
+
+    private suspend fun halal(
+        player: Player,
+        attributes: Collection<TimedAttributeBuilder>?,
+        action: ActionPropBuilder?
+    ) {
+        attributes?.forEach { it.invoke(player) }
+        action?.invoke(player)
     }
 
     private fun BeaconEffectEvent.shouldIgnore(): Boolean {
@@ -409,19 +378,6 @@ class ListenerService(override val plugin: Terix) : Extension<Terix>() {
         return potion.duration < effect.duration ||
             !potion.hasKey() ||
             !potion.key!!.asString().matches(PotionEffectBuilder.regex)
-    }
-
-    // TODO -> Saturation
-    private fun FoodLevelChangeEvent.foodLevelChange(
-        origin: AbstractOrigin,
-        item: ItemStack,
-        player: Player
-    ) {
-//        origin.foodMultipliers[item.type]?.invokeIfNotNull {
-//            cancel()
-//            if (it == 0.0) return@invokeIfNotNull
-//            player.foodLevel += ((foodLevel - player.foodLevel) * it).toInt()
-//        }
     }
 
     private fun PlayerOriginChangeEvent.bypassOrEarly(now: Instant): Boolean {
@@ -433,7 +389,7 @@ class ListenerService(override val plugin: Terix) : Extension<Terix>() {
 
     private fun ensureNoFire(
         player: Player,
-        origin: AbstractOrigin
+        origin: Origin
     ): Boolean {
         if (player.fireTicks <= 0 || !origin.fireImmunity) return false
         player.fireTicks = 0
@@ -447,24 +403,25 @@ class ListenerService(override val plugin: Terix) : Extension<Terix>() {
 
     private fun removeUnfulfilledOrInvalidAttributes(
         player: Player,
-        activeTriggers: List<Trigger> = player.activeTriggers()
+        activeTriggers: Set<State> = State.getPlayerStates(player)
     ) {
         for (attribute in Attribute.values()) {
             val inst = player.getAttribute(attribute) ?: continue
+            val origin = PlayerData.cachedOrigin(player)
 
             for (modifier in inst.modifiers) {
                 val match = AttributeModifierBuilder.regex.find(modifier.name)?.groups ?: continue
-                val trigger = Trigger.valueOf(match["trigger"]!!.value.uppercase())
+                val state = State.valueOf(match["state"]!!.value.uppercase())
 
-                if (trigger !in activeTriggers ||
-                    match["origin"]!!.value != origin(player).name.lowercase()
+                if (state !in activeTriggers ||
+                    match["origin"]!!.value != origin.name.lowercase()
                 ) {
                     inst.removeModifier(modifier)
                     continue
                 }
 
                 // Make sure the attribute is unchanged
-                origin(player).attributeModifiers[trigger]?.firstOrNull {
+                origin.attributeModifiers[state]?.firstOrNull {
                     it.first == attribute &&
                         it.second.name == modifier.name &&
                         it.second.amount == modifier.amount &&
@@ -475,14 +432,12 @@ class ListenerService(override val plugin: Terix) : Extension<Terix>() {
         }
     }
 
-    private suspend fun timeTrigger(trigger: Trigger) {
-        onlinePlayers
-            .filter(Player::inOverworld)
+    private suspend fun timeState(state: State) {
+        onlinePlayers.filter(Player::inOverworld)
             .onEach { player ->
-                with(origin(player)) {
-                    OriginHelper.swap(player, this, if (trigger == Trigger.DAY) Trigger.NIGHT else Trigger.DAY, trigger)
-                    titles[Trigger.DAY]?.invoke(player)
-                }
+                val origin = PlayerData.cachedOrigin(player)
+                val oldState = if (state === State.TimeState.DAY) State.TimeState.NIGHT else State.TimeState.DAY
+                oldState.exchange(player, origin, state)
             }
     }
 }

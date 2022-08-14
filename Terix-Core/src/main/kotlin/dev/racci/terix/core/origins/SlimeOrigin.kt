@@ -10,9 +10,9 @@ import dev.racci.minix.api.utils.now
 import dev.racci.minix.api.utils.unsafeCast
 import dev.racci.minix.nms.aliases.toNMS
 import dev.racci.terix.api.Terix
-import dev.racci.terix.api.origins.enums.Trigger
-import dev.racci.terix.api.origins.origin.AbstractOrigin
+import dev.racci.terix.api.origins.origin.Origin
 import dev.racci.terix.api.origins.sounds.SoundEffect
+import dev.racci.terix.api.origins.states.State
 import kotlinx.coroutines.NonCancellable.cancel
 import kotlinx.coroutines.delay
 import kotlinx.datetime.Instant
@@ -33,7 +33,7 @@ import kotlin.time.Duration.Companion.seconds
 // TODO -> CAke.
 // TODO -> More damage from fire and lava (25-50%).
 // TODO -> More damage from swords.
-class SlimeOrigin(override val plugin: Terix) : AbstractOrigin() {
+class SlimeOrigin(override val plugin: Terix) : Origin() {
 
     override val name = "Slime"
     override val colour = TextColor.fromHexString("#61f45a")!!
@@ -67,7 +67,7 @@ class SlimeOrigin(override val plugin: Terix) : AbstractOrigin() {
         sounds.ambientSound = SoundEffect("entity.slime.ambient")
 
         potions {
-            Trigger.ON += {
+            State.CONSTANT += {
                 type = PotionEffectType.JUMP
                 amplifier = 4
                 durationInt = Int.MAX_VALUE

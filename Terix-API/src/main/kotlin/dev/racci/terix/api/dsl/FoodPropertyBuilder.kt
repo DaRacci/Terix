@@ -26,7 +26,7 @@ class FoodPropertyBuilder() {
     }
 
     private var cached: FoodProperties? = null
-    private var changed: Boolean = false
+    private var changed: Boolean = true
     private val effects: ArrayList<Pair<MobEffectInstance, Float>> = arrayListOf()
 
     var nutrition: Int = 0; set(value) { if (changeValue("nutrition", value)) field = value }
@@ -79,5 +79,37 @@ class FoodPropertyBuilder() {
         cached = builder.build()
         changed = false
         return cached!!
+    }
+
+    override fun toString(): String {
+        return "FoodPropertyBuilder(nutrition=$nutrition, saturationModifier=$saturationModifier, isMeat=$isMeat, canAlwaysEat=$canAlwaysEat, fastFood=$fastFood, effects=$effects)"
+    }
+
+    override fun equals(other: Any?): Boolean {
+        if (this === other) return true
+        if (other !is FoodPropertyBuilder) return false
+
+        if (cached != other.cached) return false
+        if (changed != other.changed) return false
+        if (effects != other.effects) return false
+        if (nutrition != other.nutrition) return false
+        if (saturationModifier != other.saturationModifier) return false
+        if (isMeat != other.isMeat) return false
+        if (canAlwaysEat != other.canAlwaysEat) return false
+        if (fastFood != other.fastFood) return false
+
+        return true
+    }
+
+    override fun hashCode(): Int {
+        var result = cached?.hashCode() ?: 0
+        result = 31 * result + changed.hashCode()
+        result = 31 * result + effects.hashCode()
+        result = 31 * result + nutrition
+        result = 31 * result + saturationModifier.hashCode()
+        result = 31 * result + isMeat.hashCode()
+        result = 31 * result + canAlwaysEat.hashCode()
+        result = 31 * result + fastFood.hashCode()
+        return result
     }
 }

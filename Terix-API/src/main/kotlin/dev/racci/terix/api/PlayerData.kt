@@ -1,8 +1,7 @@
 package dev.racci.terix.api
 
 import dev.racci.minix.api.utils.getKoin
-import dev.racci.terix.api.origins.enums.Trigger
-import dev.racci.terix.api.origins.origin.AbstractOrigin
+import dev.racci.terix.api.origins.origin.Origin
 import kotlinx.datetime.Instant
 import org.bukkit.entity.Player
 import org.jetbrains.exposed.dao.UUIDEntity
@@ -12,17 +11,14 @@ import java.util.UUID
 
 abstract class PlayerData(val uuid: EntityID<UUID>) : UUIDEntity(uuid) {
 
-    abstract var origin: AbstractOrigin
+    abstract var origin: Origin
     abstract var lastOrigin: String?
     abstract var lastChosenTime: Instant?
     abstract var usedChoices: Int
-    abstract var nightVision: Trigger
-    abstract var jumpBoost: Trigger
-    abstract var slowFalling: Trigger
 
     interface Cache : KoinComponent {
         operator fun get(player: Player): PlayerData
-        fun cachedOrigin(player: Player): AbstractOrigin
+        fun cachedOrigin(player: Player): Origin
         fun cachedTicks(player: Player): PlayerTickCache
     }
 

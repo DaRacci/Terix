@@ -1,7 +1,7 @@
 package dev.racci.terix.api.dsl
 
-import dev.racci.terix.api.Origin
-import dev.racci.terix.api.origins.enums.Trigger
+import dev.racci.terix.api.TestOrigin
+import dev.racci.terix.api.origins.states.State
 import org.bukkit.attribute.Attribute
 import org.bukkit.attribute.AttributeModifier
 import org.junit.jupiter.api.BeforeAll
@@ -14,15 +14,15 @@ import kotlin.test.assertTrue
 @TestInstance(TestInstance.Lifecycle.PER_CLASS)
 internal class AttributeModifierBuilderTest {
 
-    private lateinit var angel: Origin
+    private lateinit var angel: TestOrigin
     private lateinit var name: String
     private lateinit var originName: String
 
     @BeforeAll
     fun setUp() {
-        angel = Origin()
+        angel = TestOrigin()
         name = "origin_modifier_testorigin_darkness"
-        originName = AttributeModifierBuilder.originName(angel, Trigger.DARKNESS)
+        originName = AttributeModifierBuilder.originName(angel, State.LightState.DARKNESS)
     }
 
     @Test
