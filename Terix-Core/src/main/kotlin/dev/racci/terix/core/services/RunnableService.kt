@@ -6,14 +6,12 @@ import dev.racci.minix.api.extensions.async
 import dev.racci.minix.api.extensions.event
 import dev.racci.minix.api.extensions.onlinePlayers
 import dev.racci.minix.api.extensions.player
-import dev.racci.minix.api.utils.kotlin.and
 import dev.racci.minix.api.utils.unsafeCast
+import dev.racci.terix.api.PlayerData
 import dev.racci.terix.api.Terix
 import dev.racci.terix.api.events.PlayerOriginChangeEvent
-import dev.racci.terix.api.origin
-import dev.racci.terix.api.origins.enums.Trigger
-import dev.racci.terix.api.origins.origin.AbstractOrigin
-import dev.racci.terix.core.origins.OriginHelper
+import dev.racci.terix.api.origins.origin.Origin
+import dev.racci.terix.api.origins.states.State
 import dev.racci.terix.core.services.runnables.AmbientTick
 import dev.racci.terix.core.services.runnables.DarknessTick
 import dev.racci.terix.core.services.runnables.MotherCoroutineRunnable
@@ -69,7 +67,7 @@ class RunnableService(override val plugin: Terix) : Extension<Terix>() {
     private fun getNewMother(uuid: UUID): MotherCoroutineRunnable? {
         val mother = MotherCoroutineRunnable()
         val player = player(uuid) ?: return null
-        val origin = origin(player)
+        val origin = PlayerData.cachedOrigin(player)
         val ambientSound = origin.sounds.ambientSound
 
         if (ambientSound != null) { AmbientTick(player, ambientSound, this@RunnableService, mother) }
@@ -82,7 +80,7 @@ class RunnableService(override val plugin: Terix) : Extension<Terix>() {
     private fun attachChildren(
         mother: MotherCoroutineRunnable,
         player: Player,
-        origin: AbstractOrigin
+        origin: Origin
     ) {
         registerTask(player, origin, origin.titles.keys, mother)
         registerTask(player, origin, origin.potions.keys, mother)
@@ -93,17 +91,17 @@ class RunnableService(override val plugin: Terix) : Extension<Terix>() {
 
     private fun registerTask(
         player: Player,
-        origin: AbstractOrigin,
-        triggers: Collection<Trigger>,
+        origin: Origin,
+        triggers: Collection<State>,
         mother: MotherCoroutineRunnable
     ) {
         for (trigger in triggers) {
             val task: Any = when (trigger) {
-                Trigger.SUNLIGHT -> SunlightTick::class
-                Trigger.WATER -> WaterTick::class
-                Trigger.RAIN -> RainTick::class
-                Trigger.DARKNESS -> DarknessTick::class
-                Trigger.WET -> WaterTick::class and RainTick::class
+                State.LightState.SUNLIGHT -> SunlightTick::class
+                State.LiquidState.WATER -> WaterTick::class
+                State.WeatherState.RAIN -> RainTick::class
+                State.LightState.DARKNESS -> DarknessTick::class
+//                SideEffect.WET -> WaterTick::class and RainTick::class
                 else -> continue
             }
 
@@ -115,7 +113,7 @@ class RunnableService(override val plugin: Terix) : Extension<Terix>() {
 
     private fun checkAndRegister(
         player: Player,
-        origin: AbstractOrigin,
+        origin: Origin,
         mother: MotherCoroutineRunnable,
         taskClazz: Any?
     ) {
@@ -131,18 +129,15 @@ class RunnableService(override val plugin: Terix) : Extension<Terix>() {
 
     suspend fun doInvoke(
         player: Player,
-        origin: AbstractOrigin,
-        trigger: Trigger,
+        origin: Origin,
+        state: State,
         wasBool: Boolean,
         isBool: Boolean
     ) {
         if (wasBool == isBool) return
 
         if (isBool) {
-            OriginHelper.add(player, origin, trigger)
-        } else OriginHelper.remove(player, origin, trigger)
+            state.activate(player, origin)
+        } else state.deactivate(player, origin)
     }
-
-    // @Ticker(Trigger.HOT) TODO
-    // @Ticker(Trigger.COLD) TODO
 }

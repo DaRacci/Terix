@@ -1,9 +1,9 @@
 package dev.racci.terix.api.dsl
 
 import dev.racci.minix.api.utils.ticks
-import dev.racci.terix.api.Origin
+import dev.racci.terix.api.TestOrigin
 import dev.racci.terix.api.origins.abilities.Levitate
-import dev.racci.terix.api.origins.enums.Trigger
+import dev.racci.terix.api.origins.states.State
 import org.bukkit.Material
 import org.bukkit.NamespacedKey
 import org.bukkit.potion.PotionEffect
@@ -17,7 +17,7 @@ import kotlin.test.assertTrue
 @TestInstance(TestInstance.Lifecycle.PER_CLASS)
 internal class PotionEffectBuilderTest {
 
-    private lateinit var angel: Origin
+    private lateinit var angel: TestOrigin
     private lateinit var originKey: NamespacedKey
     private lateinit var originKeyO: NamespacedKey
     private lateinit var abilityKey: NamespacedKey
@@ -27,9 +27,9 @@ internal class PotionEffectBuilderTest {
 
     @BeforeAll
     fun setUp() {
-        angel = Origin()
+        angel = TestOrigin()
         originKey = NamespacedKey("terix", "origin_potion_testorigin/darkness")
-        originKeyO = PotionEffectBuilder().originKey(angel, Trigger.DARKNESS).key!!
+        originKeyO = PotionEffectBuilder().originKey(angel, State.LightState.DARKNESS).key!!
         abilityKey = NamespacedKey("terix", "origin_ability_levitate")
         abilityKeyO = PotionEffectBuilder().abilityKey(Levitate::class).key!!
         foodKey = NamespacedKey("terix", "origin_food_cod")

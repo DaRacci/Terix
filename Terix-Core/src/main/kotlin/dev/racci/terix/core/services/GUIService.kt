@@ -27,7 +27,7 @@ import dev.racci.terix.api.OriginService
 import dev.racci.terix.api.Terix
 import dev.racci.terix.api.events.PlayerOriginChangeEvent
 import dev.racci.terix.api.origin
-import dev.racci.terix.api.origins.origin.AbstractOrigin
+import dev.racci.terix.api.origins.origin.Origin
 import dev.racci.terix.core.data.Config
 import dev.racci.terix.core.data.Lang
 import dev.racci.terix.core.extensions.asGuiItem
@@ -72,10 +72,10 @@ class GUIService(override val plugin: Terix) : Extension<Terix>() {
 
     private val packetModifierCache = mutableMapOf<Player, Array<Any?>>()
     private val selectedOrigin = Caffeine.newBuilder()
-        .removalListener<HumanEntity, AbstractOrigin> { key, _, _ ->
+        .removalListener<HumanEntity, Origin> { key, _, _ ->
             packetModifierCache.remove(key)
         }
-        .build<HumanEntity, AbstractOrigin>()
+        .build<HumanEntity, Origin>()
 
     private val borderItems = lazy {
         Caffeine.newBuilder()
@@ -170,7 +170,7 @@ class GUIService(override val plugin: Terix) : Extension<Terix>() {
         hookService.protocolManager.sendServerPacket(player, packet)
     }
 
-    private fun AbstractOrigin.createItem(): GuiItem {
+    private fun Origin.createItem(): GuiItem {
         return ItemBuilderDSL.from(item.material) {
             name = item.name ?: displayName
             lore = item.loreComponents

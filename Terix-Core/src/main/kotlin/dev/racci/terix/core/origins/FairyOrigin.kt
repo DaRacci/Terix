@@ -2,7 +2,7 @@ package dev.racci.terix.core.origins
 
 import dev.racci.terix.api.Terix
 import dev.racci.terix.api.dsl.TimedAttributeBuilder
-import dev.racci.terix.api.origins.origin.AbstractOrigin
+import dev.racci.terix.api.origins.origin.Origin
 import dev.racci.terix.api.origins.sounds.SoundEffect
 import net.kyori.adventure.text.format.TextColor
 import org.bukkit.Material
@@ -11,7 +11,7 @@ import org.bukkit.entity.Arrow
 import org.bukkit.event.entity.EntityDamageEvent.DamageCause
 
 // TODO: Cake
-class FairyOrigin(override val plugin: Terix) : AbstractOrigin() {
+class FairyOrigin(override val plugin: Terix) : Origin() {
 
     override val name = "Fairy"
     override val colour = TextColor.fromHexString("#86ff93")!!
@@ -31,7 +31,7 @@ class FairyOrigin(override val plugin: Terix) : AbstractOrigin() {
             MID_FOODS *= 1.50
             FAT_FOODS += { builder: TimedAttributeBuilder ->
                 builder.attribute = Attribute.GENERIC_MOVEMENT_SPEED
-                builder.amount *= 0.8
+                builder.amount = 0.8
             }
         }
 

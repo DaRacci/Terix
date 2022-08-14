@@ -5,11 +5,6 @@ import dev.racci.minix.api.utils.getKoin
 import dev.racci.minix.nms.aliases.toNMS
 import dev.racci.terix.api.PlayerData
 import dev.racci.terix.api.Terix
-import dev.racci.terix.api.origins.enums.Trigger
-import dev.racci.terix.api.origins.enums.Trigger.Companion.getLiquidTrigger
-import dev.racci.terix.api.origins.enums.Trigger.Companion.getTimeTrigger
-import dev.racci.terix.api.origins.enums.Trigger.Companion.getTrigger
-import dev.racci.terix.api.origins.origin.AbstractOrigin
 import kotlinx.datetime.Instant
 import net.kyori.adventure.text.Component
 import net.minecraft.core.BlockPos
@@ -21,23 +16,6 @@ import org.jetbrains.exposed.sql.transactions.transaction
 
 private val terix by getKoin().inject<Terix>()
 
-@Deprecated("moved", ReplaceWith("dev.racci.terix.api.origin(this)", "dev.racci.terix.api.origin"))
-fun Player.origin(): AbstractOrigin = PlayerData.cachedOrigin(this)
-
-fun Player.lastOrigin(): String? = transaction { PlayerData[this@lastOrigin].lastOrigin }
-
-fun Player.shouldBeEffected(): Boolean =
-    gameMode.ordinal != 0 &&
-        gameMode.ordinal != 3
-
-fun Player.safelyAddPotions(potions: Collection<PotionEffect>) {
-    terix.launch { addPotionEffects(potions) }
-}
-
-fun Player.safelyRemovePotions(potionTypes: Collection<PotionEffectType>) {
-    terix.launch { potionTypes.forEach(::removePotionEffect) }
-}
-
 fun Player.safelyAddPotion(potion: PotionEffect) {
     terix.launch { addPotionEffect(potion) }
 }
@@ -46,39 +24,15 @@ fun Player.safelyRemovePotion(potionType: PotionEffectType) {
     terix.launch { removePotionEffect(potionType) }
 }
 
-fun Player.safelySwapPotions(
-    oldPotionTypes: Collection<PotionEffectType>?,
-    newPotions: Collection<PotionEffect>?
-) {
-    terix.launch {
-        oldPotionTypes?.forEach(::removePotionEffect)
-        newPotions?.forEach(::addPotionEffect)
-    }
-}
-
-fun Player.validToBurn(): Boolean = !with(toNMS()) {
-    isInWaterRainOrBubble ||
-        isInPowderSnow ||
-        wasInPowderSnow &&
-        random.nextFloat() * 30.0f < (location.block.lightLevel - 0.4f) * 2.0f
-} // Random magic numbers are bad but it works
-
 fun Player.inDarkness(): Boolean = inventory.itemInMainHand.type != Material.TORCH &&
     inventory.itemInOffHand.type != Material.TORCH &&
     location.block.lightLevel < 5
-
-var Player.nightVision: Trigger
-    get() = transaction { PlayerData[this@nightVision].nightVision }
-    set(value) { transaction { PlayerData[this@nightVision].nightVision = value } }
 
 fun Player.canSeeSky(): Boolean {
     val nms = toNMS()
     val pos = BlockPos(nms.x, nms.eyeY, nms.z)
     return world.toNMS().canSeeSky(pos)
 }
-
-fun Player.getLightOrDarkTrigger(): Trigger? =
-    if (canSeeSky()) Trigger.SUNLIGHT else if (inDarkness()) Trigger.DARKNESS else null
 
 var Player.originTime: Instant
     get() { return transaction { PlayerData[this@originTime].lastChosenTime ?: Instant.DISTANT_PAST } }
@@ -123,12 +77,3 @@ var Player.inRain
     set(bool) { tickCache.inRain = bool }
 
 infix fun Component.message(receiver: Collection<Player>) { for (audience in receiver) { audience.sendMessage(this) } }
-
-// TODO: Cache this shit
-fun Player.activeTriggers(): List<Trigger> = listOfNotNull(
-    Trigger.ON,
-    getLightOrDarkTrigger(),
-    *getLiquidTrigger(),
-    world.getTimeTrigger(),
-    world.environment.getTrigger()
-)

@@ -1,9 +1,9 @@
 package dev.racci.terix.core.origins
 
 import dev.racci.minix.api.plugin.MinixPlugin
-import dev.racci.terix.api.origins.enums.Trigger
-import dev.racci.terix.api.origins.origin.AbstractOrigin
+import dev.racci.terix.api.origins.origin.Origin
 import dev.racci.terix.api.origins.sounds.SoundEffect
+import dev.racci.terix.api.origins.states.State
 import net.kyori.adventure.text.format.TextColor
 import org.bukkit.Material
 import org.bukkit.event.entity.EntityDamageByEntityEvent
@@ -16,7 +16,7 @@ import org.bukkit.event.entity.EntityDamageEvent
 // TODO -> Cake.
 // TODO -> Cannot eat vegetables or bread.
 // TODO -> No lava damage, More water damage.
-class NetherbornOrigin(override val plugin: MinixPlugin) : AbstractOrigin() {
+class NetherbornOrigin(override val plugin: MinixPlugin) : Origin() {
 
     override val name = "Netherborn"
     override val colour = TextColor.fromHexString("#ff5936")!!
@@ -29,7 +29,10 @@ class NetherbornOrigin(override val plugin: MinixPlugin) : AbstractOrigin() {
         sounds.ambientSound = SoundEffect("entity.polar_bear.ambient")
 
         damage {
-            Trigger.WET += 0.5
+            listOf(
+                State.WeatherState.RAIN,
+                State.LiquidState.WATER
+            ) += 0.5
             listOf(
                 EntityDamageEvent.DamageCause.LAVA,
                 EntityDamageEvent.DamageCause.FIRE,

@@ -2,7 +2,7 @@ package dev.racci.terix.api.events
 
 import dev.racci.minix.api.events.KEvent
 import dev.racci.minix.api.events.KPlayerEvent
-import dev.racci.terix.api.origins.origin.AbstractOrigin
+import dev.racci.terix.api.origins.origin.Origin
 import org.bukkit.entity.Player
 import org.bukkit.event.HandlerList
 
@@ -17,8 +17,8 @@ import org.bukkit.event.HandlerList
  */
 class PlayerOriginChangeEvent(
     player: Player,
-    val preOrigin: AbstractOrigin,
-    val newOrigin: AbstractOrigin,
+    val preOrigin: Origin,
+    val newOrigin: Origin,
     val bypassCooldown: Boolean = false
 ) : KPlayerEvent(player, true) {
     companion object {

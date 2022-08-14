@@ -2,8 +2,8 @@ package dev.racci.terix.core.services.runnables
 
 import dev.racci.minix.api.utils.kotlin.ifTrue
 import dev.racci.minix.nms.aliases.toNMS
-import dev.racci.terix.api.origins.enums.Trigger
-import dev.racci.terix.api.origins.origin.AbstractOrigin
+import dev.racci.terix.api.origins.origin.Origin
+import dev.racci.terix.api.origins.states.State
 import dev.racci.terix.core.extensions.inSunlight
 import dev.racci.terix.core.extensions.wasInSunlight
 import dev.racci.terix.core.services.HookService
@@ -16,7 +16,7 @@ import org.bukkit.entity.Player
 
 class SunlightTick(
     private val player: Player,
-    private val origin: AbstractOrigin,
+    private val origin: Origin,
     private val service: RunnableService,
     mother: MotherCoroutineRunnable
 ) : ChildCoroutineRunnable(mother) {
@@ -25,7 +25,7 @@ class SunlightTick(
 
     override suspend fun run() {
         val burn = shouldTickSunlight(player)
-        service.doInvoke(player, origin, Trigger.SUNLIGHT, player.wasInSunlight, player.inSunlight)
+        service.doInvoke(player, origin, State.LightState.SUNLIGHT, player.wasInSunlight, player.inSunlight)
 
         when {
             !player.inSunlight && exposedTime > 0 -> exposedTime -= 5
@@ -34,7 +34,7 @@ class SunlightTick(
         showBar()
         if (!player.inSunlight || exposedTime < GRACE_PERIOD) return
 
-        val ticks = origin.damageTicks[Trigger.SUNLIGHT] ?: return
+        val ticks = origin.damageTicks[State.LightState.SUNLIGHT] ?: return
         val helmet = player.inventory.helmet
 
         if (helmet == null) {

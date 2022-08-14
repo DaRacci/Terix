@@ -1,27 +1,39 @@
 package dev.racci.terix.core.origins
 
+import dev.racci.minix.api.collections.PlayerMap
 import dev.racci.minix.api.events.PlayerRightClickEvent
+import dev.racci.minix.api.extensions.cancel
+import dev.racci.minix.api.utils.now
 import dev.racci.minix.api.utils.unsafeCast
 import dev.racci.terix.api.Terix
 import dev.racci.terix.api.dsl.TimedAttributeBuilder
 import dev.racci.terix.api.dsl.TitleBuilder
-import dev.racci.terix.api.origins.origin.AbstractOrigin
+import dev.racci.terix.api.origins.origin.Origin
 import dev.racci.terix.api.origins.sounds.SoundEffect
+import dev.racci.terix.core.data.Lang
+import dev.racci.terix.core.data.Lang.PartialComponent.Companion.message
 import dev.racci.terix.core.services.HookService
+import kotlinx.datetime.Instant
 import me.angeschossen.lands.api.flags.Flags
 import net.kyori.adventure.text.format.TextColor
 import org.bukkit.Material
 import org.bukkit.block.Block
+import org.bukkit.entity.LivingEntity
 import org.bukkit.entity.Player
+import org.bukkit.event.entity.EntityDamageByEntityEvent
+import org.bukkit.event.player.PlayerItemConsumeEvent
 import org.bukkit.inventory.ItemStack
+import org.bukkit.inventory.meta.PotionMeta
 import org.bukkit.potion.PotionEffect
+import org.bukkit.potion.PotionEffectType
+import org.koin.core.component.get
+import kotlin.time.Duration.Companion.seconds
 
 // TODO -> Unable to use potions unless applied from another origin.
 // TODO -> All normal food gives half a heart of damage, they can only eat flowers.
 // TODO -> Some flowers are edible, some flowers are potion effects.
-// TODO -> When trying to use a potion, send a message such as "The potion is too strong, try a flower bitch"
-// TODO -> When attacking without a tool in hand take half a heart of damage.
-class BeeOrigin(override val plugin: Terix) : AbstractOrigin() {
+class BeeOrigin(override val plugin: Terix) : Origin() {
+    private val stingerInstant = PlayerMap<Instant>()
 
     override val name = "Bee"
     override val colour = TextColor.fromHexString("#fc9f2f")!!
@@ -38,6 +50,16 @@ class BeeOrigin(override val plugin: Terix) : AbstractOrigin() {
                 <gold>It is a type of bee.
             """.trimIndent()
         }
+    }
+
+    override suspend fun onDamageEntity(event: EntityDamageByEntityEvent) {
+        val attacker = event.damager as Player
+        val victim = event.entity as? LivingEntity ?: return
+        stingerAttack(attacker, victim)
+    }
+
+    override suspend fun onItemConsume(event: PlayerItemConsumeEvent) {
+        antiPotion(event)
     }
 
     override suspend fun onRightClick(event: PlayerRightClickEvent) {
@@ -58,27 +80,54 @@ class BeeOrigin(override val plugin: Terix) : AbstractOrigin() {
         flower.unsafeCast<Block>().type = Material.AIR
     }
 
+    private fun stingerAttack(
+        attacker: Player,
+        victim: LivingEntity
+    ) {
+        if (attacker.inventory.itemInMainHand.type != Material.AIR) return
+
+        val now = now()
+        val current = stingerInstant.compute(attacker) { _, value ->
+            if (value != null && value + STINGER_COOLDOWN >= now) value else now
+        }
+
+        if (now === current) return
+
+        attacker.damage(0.5)
+        victim.damage(0.5)
+        victim.addPotionEffect(PotionEffect(PotionEffectType.POISON, 60, 0))
+    }
+
+    private fun antiPotion(event: PlayerItemConsumeEvent) {
+        val potion = event.item
+        if (potion.itemMeta is PotionMeta) {
+            event.cancel()
+            get<Lang>().origin.bee["potion"] message event.player
+        }
+    }
+
     // TODO: Possible groups
     @Suppress("kotlin:S1151")
-    private val Material.isFlower get() = when (this) {
-        Material.DANDELION,
-        Material.POPPY,
-        Material.BLUE_ORCHID,
-        Material.ALLIUM,
-        Material.AZURE_BLUET,
-        Material.RED_TULIP,
-        Material.ORANGE_TULIP,
-        Material.WHITE_TULIP,
-        Material.PINK_TULIP,
-        Material.OXEYE_DAISY,
-        Material.CORNFLOWER,
-        Material.LILY_OF_THE_VALLEY,
-        Material.WITHER_ROSE,
-        Material.LILAC,
-        Material.ROSE_BUSH,
-        Material.PEONY -> true
-        else -> false
-    }
+    private val Material.isFlower
+        get() = when (this) {
+            Material.DANDELION,
+            Material.POPPY,
+            Material.BLUE_ORCHID,
+            Material.ALLIUM,
+            Material.AZURE_BLUET,
+            Material.RED_TULIP,
+            Material.ORANGE_TULIP,
+            Material.WHITE_TULIP,
+            Material.PINK_TULIP,
+            Material.OXEYE_DAISY,
+            Material.CORNFLOWER,
+            Material.LILY_OF_THE_VALLEY,
+            Material.WITHER_ROSE,
+            Material.LILAC,
+            Material.ROSE_BUSH,
+            Material.PEONY -> true
+            else -> false
+        }
 
     private fun Material.getEffect(): FlowerEffect? {
         if (!this.isFlower) return null
@@ -102,6 +151,10 @@ class BeeOrigin(override val plugin: Terix) : AbstractOrigin() {
             Material.PEONY -> TODO("Peony effect")
             else -> null
         }
+    }
+
+    companion object {
+        val STINGER_COOLDOWN = 10.seconds
     }
 
     private class FlowerEffect {

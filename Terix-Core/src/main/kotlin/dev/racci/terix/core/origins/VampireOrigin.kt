@@ -8,9 +8,9 @@ import dev.racci.minix.api.utils.now
 import dev.racci.minix.api.utils.safeCast
 import dev.racci.minix.nms.aliases.toNMS
 import dev.racci.terix.api.Terix
-import dev.racci.terix.api.origins.enums.Trigger
-import dev.racci.terix.api.origins.origin.AbstractOrigin
+import dev.racci.terix.api.origins.origin.Origin
 import dev.racci.terix.api.origins.sounds.SoundEffect
+import dev.racci.terix.api.origins.states.State
 import kotlinx.datetime.Instant
 import net.kyori.adventure.text.format.TextColor
 import net.minecraft.world.damagesource.DamageSource
@@ -22,7 +22,7 @@ import org.bukkit.potion.PotionEffectType
 import xyz.xenondevs.particle.ParticleBuilder
 import xyz.xenondevs.particle.ParticleEffect
 import java.awt.Color
-import kotlin.time.Duration
+import kotlin.time.Duration.Companion.INFINITE
 import kotlin.time.Duration.Companion.seconds
 
 // TODO -> Turn into bat via turning them invisible and adding then onto a bat.
@@ -33,35 +33,41 @@ import kotlin.time.Duration.Companion.seconds
 // TODO -> Cake good.
 // TODO -> Immune to wither-rose.
 // TODO -> Take damage to healing potion, heal from damage potions like zombies.
-class VampireOrigin(override val plugin: Terix) : AbstractOrigin() {
+class VampireOrigin(override val plugin: Terix) : Origin() {
 
     override val name = "Vampire"
     override val colour = TextColor.fromHexString("#ff1234")!!
-
-    override var nightVision = true
 
     override suspend fun onRegister() {
         sounds.hurtSound = SoundEffect("entity.bat.hurt")
         sounds.deathSound = SoundEffect("entity.bat.death")
         sounds.ambientSound = SoundEffect("entity.bat.ambient")
 
+        potions {
+            listOf(State.TimeState.NIGHT, State.WorldState.NETHER) += {
+                type = PotionEffectType.NIGHT_VISION
+                duration = INFINITE
+                amplifier = 0
+                ambient = true
+            }
+        }
         damage {
-            Trigger.SUNLIGHT += 160.0
+            State.LightState.SUNLIGHT += 160.0
         }
         title {
-            Trigger.SUNLIGHT += {
+            State.LightState.SUNLIGHT += {
                 subtitle = "<red>Return to the dark to regain your strength.".parse()
             }
         }
         potions {
-            Trigger.SUNLIGHT += {
+            State.LightState.SUNLIGHT += {
                 type = PotionEffectType.WEAKNESS
-                duration = Duration.INFINITE
+                duration = INFINITE
                 ambient = true
             }
-            Trigger.DARKNESS += {
+            State.LightState.DARKNESS += {
                 type = PotionEffectType.INCREASE_DAMAGE
-                duration = Duration.INFINITE
+                duration = INFINITE
                 ambient = true
             }
         }

@@ -1,28 +1,28 @@
 package dev.racci.terix.api
 
 import dev.racci.minix.api.utils.getKoin
-import dev.racci.terix.api.origins.AbstractAbility
-import dev.racci.terix.api.origins.origin.AbstractOrigin
+import dev.racci.terix.api.origins.abilities.Ability
+import dev.racci.terix.api.origins.origin.Origin
 import kotlinx.collections.immutable.PersistentMap
 import kotlin.reflect.KClass
 
 interface OriginService {
 
-    fun getAbilities(): PersistentMap<KClass<out AbstractAbility>, AbstractAbility>
+    fun getAbilities(): PersistentMap<KClass<out Ability>, Ability>
 
-    fun getOrigins(): PersistentMap<KClass<out AbstractOrigin>, AbstractOrigin>
+    fun getOrigins(): PersistentMap<KClass<out Origin>, Origin>
 
-    fun getOrigin(origin: KClass<out AbstractOrigin>): AbstractOrigin
+    fun getOrigin(origin: KClass<out Origin>): Origin
 
-    fun getOriginOrNull(origin: KClass<out AbstractOrigin>): AbstractOrigin?
+    fun getOriginOrNull(origin: KClass<out Origin>): Origin?
 
-    fun getAbility(ability: KClass<out AbstractAbility>): AbstractAbility
+    fun getAbility(ability: KClass<out Ability>): Ability
 
-    fun getAbilityOrNull(ability: KClass<out AbstractAbility>): AbstractAbility?
+    fun getAbilityOrNull(ability: KClass<out Ability>): Ability?
 
-    fun getOrigin(name: String): AbstractOrigin
+    fun getOrigin(name: String): Origin
 
-    fun getOriginOrNull(name: String?): AbstractOrigin?
+    fun getOriginOrNull(name: String?): Origin?
 
     companion object : OriginService by getKoin().get()
 }

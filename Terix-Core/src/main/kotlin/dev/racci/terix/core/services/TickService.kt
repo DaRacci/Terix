@@ -17,7 +17,7 @@ import dev.racci.terix.api.OriginService
 import dev.racci.terix.api.Terix
 import dev.racci.terix.api.events.PlayerOriginChangeEvent
 import dev.racci.terix.api.origin
-import dev.racci.terix.api.origins.origin.AbstractOrigin
+import dev.racci.terix.api.origins.origin.Origin
 import dev.racci.terix.core.extensions.inDarkness
 import dev.racci.terix.core.extensions.inRain
 import dev.racci.terix.core.extensions.inSunlight
@@ -53,7 +53,7 @@ import kotlin.math.roundToInt
 @MappedExtension(Terix::class, "Tick Service", [OriginService::class])
 class TickService(override val plugin: Terix) : Extension<Terix>() {
     private val delayChannel = Channel<Unit>(0)
-    private val originReference = HashMap<Player, AbstractOrigin>()
+    private val originReference = HashMap<Player, Origin>()
     private val mutex = Mutex()
     private val playerQueue = ArrayDeque<Player>()
     private val internalFlow = MutableSharedFlow<Player>()
@@ -95,8 +95,8 @@ class TickService(override val plugin: Terix) : Extension<Terix>() {
         tickerThreads.close()
     }
 
-    private fun hasTick(origin: AbstractOrigin): Boolean {
-        return origin::class.doesOverride(AbstractOrigin::onTick.name)
+    private fun hasTick(origin: Origin): Boolean {
+        return origin::class.doesOverride(Origin::onTick.name)
     }
 
     private suspend fun startTicker() = launch(tickerThreads.get()) {

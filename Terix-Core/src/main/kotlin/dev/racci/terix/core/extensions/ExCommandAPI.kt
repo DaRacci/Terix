@@ -3,11 +3,9 @@ package dev.racci.terix.core.extensions
 import dev.jorel.commandapi.CommandAPICommand
 import dev.jorel.commandapi.arguments.Argument
 import dev.jorel.commandapi.executors.CommandExecutor
-import dev.jorel.commandapi.executors.ConsoleCommandExecutor
 import dev.jorel.commandapi.executors.PlayerCommandExecutor
 import dev.racci.minix.api.annotations.MinixDsl
 import org.bukkit.command.CommandSender
-import org.bukkit.command.ConsoleCommandSender
 import org.bukkit.entity.Player
 
 fun command(name: String, block: CommandAPICommand.() -> Unit): CommandAPICommand {
@@ -52,10 +50,5 @@ fun CommandAPICommand.execute(block: (CommandSender, Array<out Any>) -> Unit): C
 
 fun CommandAPICommand.executePlayer(block: (Player, Array<out Any>) -> Unit): CommandAPICommand {
     executesPlayer(PlayerCommandExecutor(block))
-    return this
-}
-
-fun CommandAPICommand.executeConsole(block: (ConsoleCommandSender, Array<out Any>) -> Unit): CommandAPICommand {
-    executesConsole(ConsoleCommandExecutor(block))
     return this
 }

@@ -3,10 +3,10 @@ package dev.racci.terix.api.dsl
 import dev.racci.minix.api.extensions.inWholeTicks
 import dev.racci.minix.api.extensions.ticks
 import dev.racci.terix.api.OriginService
-import dev.racci.terix.api.origins.AbstractAbility
-import dev.racci.terix.api.origins.enums.Trigger
-import dev.racci.terix.api.origins.origin.AbstractOrigin
+import dev.racci.terix.api.origins.abilities.Ability
+import dev.racci.terix.api.origins.origin.Origin
 import dev.racci.terix.api.origins.origin.OriginValues
+import dev.racci.terix.api.origins.states.State
 import org.bukkit.Material
 import org.bukkit.NamespacedKey
 import org.bukkit.potion.PotionEffect
@@ -29,18 +29,24 @@ class PotionEffectBuilder() {
     var icon: Boolean? = null
     var key: NamespacedKey? = null
 
-    inline fun <reified O : AbstractOrigin> originKey(trigger: Trigger) = originKey(OriginService.getOrigin(O::class), trigger)
+    inline fun <reified O : Origin> originKey(state: State) = originKey(OriginService.getOrigin(O::class), state)
 
-    fun originKey(origin: OriginValues, trigger: Trigger) = originKey(origin.name, trigger.name)
+    fun originKey(
+        origin: OriginValues,
+        state: State
+    ) = originKey(origin.name, state.name)
 
-    fun originKey(origin: String, trigger: String): PotionEffectBuilder {
-        this.key = NamespacedKey("terix", "origin_potion_${origin.lowercase()}/${trigger.lowercase()}")
+    fun originKey(
+        origin: String,
+        state: String
+    ): PotionEffectBuilder {
+        this.key = NamespacedKey("terix", "origin_potion_${origin.lowercase()}/${state.lowercase()}")
         return this
     }
 
-    inline fun <reified A : AbstractAbility> abilityKey() = abilityKey(A::class)
+    inline fun <reified A : Ability> abilityKey() = abilityKey(A::class)
 
-    fun abilityKey(ability: KClass<out AbstractAbility>) = abilityKey(ability.simpleName ?: error("Cannot use anonymous classes as abilities."))
+    fun abilityKey(ability: KClass<out Ability>) = abilityKey(ability.simpleName ?: error("Cannot use anonymous classes as abilities."))
 
     fun abilityKey(ability: String): PotionEffectBuilder {
         this.key = NamespacedKey("terix", "origin_ability_${ability.lowercase()}")
@@ -65,7 +71,7 @@ class PotionEffectBuilder() {
     )
 
     companion object {
-        val regex by lazy { Regex("^terix:origin_(?<type>potion|ability|food)_(?<from>[a-z_-]+)?(/(?<trigger>[a-z_-]+))?$") }
+        val regex by lazy { Regex("^terix:origin_(?<type>potion|ability|food)_(?<from>[a-z_-]+)?(/(?<state>[a-z_-]+))?$") }
 
         fun build(builder: PotionEffectBuilder.() -> Unit): PotionEffect = PotionEffectBuilder(builder).build()
     }

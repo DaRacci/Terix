@@ -8,10 +8,10 @@ import dev.racci.minix.api.utils.collections.CollectionUtils.cacheOf
 import dev.racci.minix.api.utils.unsafeCast
 import dev.racci.terix.api.OriginService
 import dev.racci.terix.api.Terix
-import dev.racci.terix.api.origins.AbstractAbility
+import dev.racci.terix.api.origins.abilities.Ability
 import dev.racci.terix.api.origins.abilities.Levitate
 import dev.racci.terix.api.origins.abilities.Teleport
-import dev.racci.terix.api.origins.origin.AbstractOrigin
+import dev.racci.terix.api.origins.origin.Origin
 import dev.racci.terix.core.data.Config
 import dev.racci.terix.core.origins.AethenOrigin
 import dev.racci.terix.core.origins.AxolotlOrigin
@@ -34,18 +34,18 @@ import kotlin.reflect.full.primaryConstructor
 @MappedExtension(Terix::class, "Origin Service", bindToKClass = OriginService::class)
 class OriginServiceImpl(override val plugin: Terix) : OriginService, Extension<Terix>() {
     private val modifierCache = cacheOf<KClass<*>, Any>({ constructors.first().call(this@OriginServiceImpl) }, { expireAfterAccess(Duration.ofMinutes(1)) })
-    private val origins = mutableMapOf<KClass<out AbstractOrigin>, AbstractOrigin>()
+    private val origins = mutableMapOf<KClass<out Origin>, Origin>()
     private var dirtyCache: Array<String>? = null
-    private var dirtyRegistry: PersistentMap<String, AbstractOrigin>? = null
+    private var dirtyRegistry: PersistentMap<String, Origin>? = null
 
-    val abilities = mutableMapOf<KClass<out AbstractAbility>, AbstractAbility>()
-    val registry: PersistentMap<String, AbstractOrigin>
+    val abilities = mutableMapOf<KClass<out Ability>, Ability>()
+    val registry: PersistentMap<String, Origin>
         get() = dirtyRegistry ?: origins.values.associateBy { it.name.lowercase() }.toPersistentMap().also { dirtyRegistry = it }
     val registeredOrigins: Array<String>
         get() = dirtyCache ?: registry.keys.map {
             it.replaceFirstChar(Char::titlecaseChar)
         }.toTypedArray().also { dirtyCache = it }
-    val defaultOrigin: AbstractOrigin get() = registry.getOrElse(getKoin().get<DataService>().get<Config>().defaultOrigin) { origins[HumanOrigin::class]!! }
+    val defaultOrigin: Origin get() = registry.getOrElse(getKoin().get<DataService>().get<Config>().defaultOrigin) { origins[HumanOrigin::class]!! }
 
     override suspend fun handleEnable() {
         populateAbilities()
@@ -75,23 +75,23 @@ class OriginServiceImpl(override val plugin: Terix) : OriginService, Extension<T
         }
     }
 
-    override fun getAbilities(): PersistentMap<KClass<out AbstractAbility>, AbstractAbility> = abilities.toPersistentMap()
+    override fun getAbilities(): PersistentMap<KClass<out Ability>, Ability> = abilities.toPersistentMap()
 
-    override fun getOrigins(): PersistentMap<KClass<out AbstractOrigin>, AbstractOrigin> = origins.toPersistentMap()
+    override fun getOrigins(): PersistentMap<KClass<out Origin>, Origin> = origins.toPersistentMap()
 
-    override fun getOrigin(origin: KClass<out AbstractOrigin>): AbstractOrigin = origins[origin] ?: error("Origin ${origin.simpleName} not found")
+    override fun getOrigin(origin: KClass<out Origin>): Origin = origins[origin] ?: error("Origin ${origin.simpleName} not found")
 
-    inline fun <reified T : AbstractOrigin> getOrigin() = getOrigin(T::class)
+    inline fun <reified T : Origin> getOrigin() = getOrigin(T::class)
 
-    override fun getOriginOrNull(origin: KClass<out AbstractOrigin>): AbstractOrigin? = origins[origin]
+    override fun getOriginOrNull(origin: KClass<out Origin>): Origin? = origins[origin]
 
-    override fun getAbility(ability: KClass<out AbstractAbility>): AbstractAbility = abilities[ability] ?: error("No ability registered for ${ability.simpleName}")
+    override fun getAbility(ability: KClass<out Ability>): Ability = abilities[ability] ?: error("No ability registered for ${ability.simpleName}")
 
-    override fun getAbilityOrNull(ability: KClass<out AbstractAbility>): AbstractAbility? = abilities[ability]
+    override fun getAbilityOrNull(ability: KClass<out Ability>): Ability? = abilities[ability]
 
-    override fun getOrigin(name: String): AbstractOrigin = registry[name] ?: error("No origin registered for $name")
+    override fun getOrigin(name: String): Origin = registry[name] ?: error("No origin registered for $name")
 
-    override fun getOriginOrNull(name: String?): AbstractOrigin? {
+    override fun getOriginOrNull(name: String?): Origin? {
         if (name.isNullOrBlank()) return null
         return registry[name]
     }
@@ -100,33 +100,35 @@ class OriginServiceImpl(override val plugin: Terix) : OriginService, Extension<T
     suspend fun registry(block: suspend RegistryModifier.() -> Unit) { block(modifierCache.get(RegistryModifier::class).unsafeCast()) }
 
     @MinixDsl
-    suspend fun abilities(block: suspend AbilitiesModifier.() -> Unit) { block(modifierCache.get(AbilitiesModifier::class).unsafeCast()) }
+    suspend fun abilities(block: suspend AbilityModifier.() -> Unit) {
+        block(modifierCache.get(AbilityModifier::class).unsafeCast())
+    }
 
     inner class RegistryModifier {
 
         @MinixDsl
-        suspend fun add(originBuilder: suspend (Terix) -> AbstractOrigin) {
+        suspend fun add(originBuilder: suspend (Terix) -> Origin) {
             val origin = originBuilder(plugin)
             origin.onRegister()
             origins.putIfAbsent(origin::class, origin)
         }
 
         @MinixDsl
-        suspend inline fun <reified T : AbstractOrigin> add(kClazz: KClass<T> = T::class) {
+        suspend inline fun <reified T : Origin> add(kClazz: KClass<T> = T::class) {
             add { kClazz.primaryConstructor!!.call(plugin) }
         }
     }
 
-    inner class AbilitiesModifier {
+    inner class AbilityModifier {
 
         @MinixDsl
-        suspend fun add(abilityBuilder: suspend () -> AbstractAbility) {
+        suspend fun add(abilityBuilder: suspend () -> Ability) {
             val inst = abilityBuilder()
             abilities[inst::class] = inst
         }
 
         @MinixDsl
-        suspend inline fun <reified T : AbstractAbility> add(kClass: KClass<T> = T::class) {
+        suspend inline fun <reified T : Ability> add(kClass: KClass<T> = T::class) {
             add(kClass::createInstance)
         }
     }

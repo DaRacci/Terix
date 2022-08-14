@@ -2,14 +2,14 @@ package dev.racci.terix.core.origins
 
 import dev.racci.terix.api.Terix
 import dev.racci.terix.api.dsl.FoodPropertyBuilder
-import dev.racci.terix.api.origins.origin.AbstractOrigin
+import dev.racci.terix.api.origins.origin.Origin
 import dev.racci.terix.api.origins.sounds.SoundEffect
 import net.kyori.adventure.text.format.TextColor
 import org.bukkit.Material
 import org.bukkit.event.entity.EntityDamageEvent.DamageCause
 
 // TODO -> Cake!
-class BlizzOrigin(override val plugin: Terix) : AbstractOrigin() {
+class BlizzOrigin(override val plugin: Terix) : Origin() {
 
     override val name = "Blizz"
     override val colour = TextColor.fromHexString("#7ac2ff")!!

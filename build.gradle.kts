@@ -26,7 +26,7 @@ bukkit {
         "ProtocolLib"
     )
     libraries = listOf(
-        libs.minecraft.commandAPI.get().toString(),
+        "dev.jorel:commandapi-shade:8.5.1",
         "xyz.xenondevs:particle:1.7.1"
     )
     website = "https://terix.racci.dev/"

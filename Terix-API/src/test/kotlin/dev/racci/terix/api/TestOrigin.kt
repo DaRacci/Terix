@@ -3,20 +3,19 @@ package dev.racci.terix.api
 import dev.racci.minix.api.extensions.parse
 import dev.racci.minix.api.plugin.MinixPlugin
 import dev.racci.terix.api.dsl.TitleBuilder
-import dev.racci.terix.api.origins.enums.Trigger
-import dev.racci.terix.api.origins.origin.AbstractOrigin
+import dev.racci.terix.api.origins.origin.Origin
+import dev.racci.terix.api.origins.states.State
 import net.kyori.adventure.text.format.NamedTextColor
 import org.bukkit.attribute.Attribute
 import org.bukkit.potion.PotionEffectType
 import kotlin.time.Duration.Companion.seconds
 
-class Origin : AbstractOrigin() {
+class TestOrigin : Origin() {
 
     override val plugin: MinixPlugin get() = null!!
     override val name = "TestOrigin"
     override val colour = NamedTextColor.AQUA!!
     override var fireImmunity = true
-    override var nightVision = true
     override var waterBreathing = true
     override val permission = "test.permission"
     override val becomeOriginTitle = TitleBuilder("<white><bold>Test".parse(), "<aqua><italic>Subtitle".parse())
@@ -25,22 +24,22 @@ class Origin : AbstractOrigin() {
         attributes {
             Attribute.GENERIC_MAX_HEALTH *= 0.5
             Attribute.GENERIC_MOVEMENT_SPEED /= 4
-            Pair(Trigger.DAY, Attribute.GENERIC_ATTACK_DAMAGE) += 2.0
+            Pair(State.TimeState.DAY, Attribute.GENERIC_ATTACK_DAMAGE) += 2.0
         }
         title {
-            Trigger.DAY += {
+            State.TimeState.DAY += {
                 title = "<green>Title".parse()
                 subtitle = "<green>Subtitle".parse()
             }
         }
         potions {
-            Trigger.NETHER += {
+            State.WorldState.NETHER += {
                 type = PotionEffectType.REGENERATION
                 duration = 5.seconds
                 amplifier = 1
                 ambient = true
             }
-            Trigger.FLAMMABLE += {
+            State.BiomeState.COLD += {
                 type = PotionEffectType.FIRE_RESISTANCE
                 duration = 5.seconds
                 amplifier = 1
@@ -48,7 +47,7 @@ class Origin : AbstractOrigin() {
             }
         }
         damage {
-            Trigger.WATER += 2.0
+            State.LiquidState.WATER += 2.0
         }
     }
 }

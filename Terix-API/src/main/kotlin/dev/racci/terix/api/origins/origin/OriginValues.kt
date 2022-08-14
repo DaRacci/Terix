@@ -5,11 +5,11 @@ import dev.racci.minix.api.utils.collections.multiMapOf
 import dev.racci.terix.api.dsl.TimedAttributeBuilder
 import dev.racci.terix.api.dsl.TitleBuilder
 import dev.racci.terix.api.exceptions.OriginCreationException
-import dev.racci.terix.api.origins.AbstractAbility
 import dev.racci.terix.api.origins.OriginItem
+import dev.racci.terix.api.origins.abilities.Ability
 import dev.racci.terix.api.origins.enums.KeyBinding
-import dev.racci.terix.api.origins.enums.Trigger
 import dev.racci.terix.api.origins.sounds.SoundEffects
+import dev.racci.terix.api.origins.states.State
 import net.kyori.adventure.text.Component
 import net.kyori.adventure.text.format.NamedTextColor
 import net.kyori.adventure.text.format.TextColor
@@ -35,11 +35,11 @@ sealed class OriginValues {
 
     open val becomeOriginTitle: TitleBuilder? = null
 
-    open var nightVision: Boolean
-        get() = specials[0] ?: false
-        protected set(value) {
-            specials[0] = value
-        }
+    /*    open var nightVision: Boolean
+            get() = specials[0] ?: false
+            protected set(value) {
+                specials[0] = value
+            }*/
     open var fireImmunity: Boolean
         get() = specials[1] ?: false
         protected set(value) {
@@ -55,14 +55,14 @@ sealed class OriginValues {
     val sounds: SoundEffects = SoundEffects()
     val displayName: Component by lazy { Component.text(name).color(colour) }
 
-    val potions: MultiMap<Trigger, PotionEffect> by lazy(::multiMapOf)
-    val damageTicks: MutableMap<Trigger, Double> by lazy(::mutableMapOf)
-    val titles: MutableMap<Trigger, TitleBuilder> by lazy(::mutableMapOf)
-    val abilities: MutableMap<KeyBinding, AbstractAbility> by lazy(::mutableMapOf)
+    val potions: MultiMap<State, PotionEffect> by lazy(::multiMapOf)
+    val damageTicks: MutableMap<State, Double> by lazy(::mutableMapOf)
+    val titles: MutableMap<State, TitleBuilder> by lazy(::mutableMapOf)
+    val abilities: MutableMap<KeyBinding, Ability> by lazy(::mutableMapOf)
     val customFoodProperties: HashMap<Material, FoodProperties> by lazy(::hashMapOf)
     val foodAttributes: MultiMap<Material, TimedAttributeBuilder> by lazy(::multiMapOf)
     val foodBlocks: MutableMap<Material, suspend (Player) -> Unit> by lazy(::mutableMapOf)
-    val triggerBlocks: MutableMap<Trigger, suspend (Player) -> Unit> by lazy(::mutableMapOf)
-    val attributeModifiers: MultiMap<Trigger, Pair<Attribute, AttributeModifier>> by lazy(::multiMapOf)
+    val triggerBlocks: MutableMap<State, suspend (Player) -> Unit> by lazy(::mutableMapOf)
+    val attributeModifiers: MultiMap<State, Pair<Attribute, AttributeModifier>> by lazy(::multiMapOf)
     val damageActions: MutableMap<EntityDamageEvent.DamageCause, suspend EntityDamageEvent.() -> Unit> by lazy(::mutableMapOf)
 }
