@@ -7,16 +7,15 @@ import dev.racci.minix.api.extensions.async
 import dev.racci.minix.api.extensions.isNight
 import dev.racci.minix.api.extensions.sync
 import dev.racci.minix.api.utils.collections.multiMapOf
+import dev.racci.minix.api.utils.getKoin
 import dev.racci.minix.api.utils.unsafeCast
 import dev.racci.minix.nms.aliases.toNMS
 import dev.racci.terix.api.Terix
-import dev.racci.terix.api.dsl.PotionEffectBuilder
+import dev.racci.terix.api.origins.OriginHelper
 import dev.racci.terix.api.origins.origin.Origin
 import dev.racci.terix.api.sentryScoped
 import kotlinx.atomicfu.AtomicInt
 import kotlinx.atomicfu.atomic
-import kotlinx.collections.immutable.PersistentList
-import kotlinx.collections.immutable.persistentListOf
 import kotlinx.collections.immutable.toPersistentSet
 import net.minecraft.core.BlockPos
 import net.minecraft.world.level.biome.Biome
@@ -29,11 +28,8 @@ import org.bukkit.block.Block
 import org.bukkit.craftbukkit.v1_19_R1.block.CraftBlock
 import org.bukkit.entity.Player
 import org.bukkit.potion.PotionEffect
-import org.bukkit.potion.PotionEffectType
-import org.jetbrains.exposed.sql.functions.math.PiFunction.functionName
 import org.koin.core.component.KoinComponent
 import org.koin.core.component.inject
-import kotlin.time.Duration
 
 sealed class State : KoinComponent, WithPlugin<Terix> {
     final override val plugin: Terix by inject()
@@ -45,6 +41,7 @@ sealed class State : KoinComponent, WithPlugin<Terix> {
     open val providesSideEffects: Array<out SideEffect> = emptyArray()
 
     object CONSTANT : State(), StateSource<Nothing> {
+        override fun fromPlayer(player: Player): Boolean = true
         override fun getState(input: Nothing): Boolean = true
     }
 
@@ -150,22 +147,32 @@ sealed class State : KoinComponent, WithPlugin<Terix> {
 
     private suspend fun ifContains(
         player: Player,
+        origin: Origin,
         required: Boolean,
         state: State,
         block: suspend () -> Unit
     ) {
-        val isPresent = activeTriggers[player]?.contains(state)
+        val states = activeStates[player]
+        val isPresent = states?.contains(state) ?: false
         if (isPresent != required) return
 
+        if (!required) {
+            states?.filter { state in it.incompatibleStates || it in state.incompatibleStates }?.forEach { it.deactivate(player, origin) }
+            activeStates.put(player, state)
+        } else {
+            activeStates.remove(player, state)
+        }
+
         block()
-        activeTriggers.put(player, state)
     }
 
     open suspend fun activate(
         player: Player,
         origin: Origin
     ) = sentryScoped(player, CATEGORY, this.sentryMessage(origin)) {
-        ifContains(player, false, this) {
+        if (OriginHelper.shouldIgnorePlayer(player)) return@sentryScoped
+
+        ifContains(player, origin, false, this) {
             addAsync(player, origin)
             addSync(player, origin)
         }
@@ -175,7 +182,9 @@ sealed class State : KoinComponent, WithPlugin<Terix> {
         player: Player,
         origin: Origin
     ) = sentryScoped(player, CATEGORY, this.sentryMessage(origin)) {
-        ifContains(player, true, this) {
+        if (OriginHelper.shouldIgnorePlayer(player)) return@sentryScoped
+
+        ifContains(player, origin, true, this) {
             removeAsync(player, origin)
             removeSync(player, origin)
         }
@@ -185,13 +194,15 @@ sealed class State : KoinComponent, WithPlugin<Terix> {
         player: Player,
         origin: Origin,
         to: State
-    ) = sentryScoped(player, CATEGORY, this.sentryMessage(origin, null, to)) {
-        ifContains(player, true, this) {
+    ) = sentryScoped(player, CATEGORY, this.sentryMessage(origin, to)) {
+        if (OriginHelper.shouldIgnorePlayer(player)) return@sentryScoped
+
+        ifContains(player, origin, true, this) {
             this.removeAsync(player, origin)
             this.removeSync(player, origin)
         }
 
-        ifContains(player, true, to) {
+        ifContains(player, origin, false, to) {
             to.addAsync(player, origin)
             to.addSync(player, origin)
         }
@@ -199,7 +210,7 @@ sealed class State : KoinComponent, WithPlugin<Terix> {
 
     init {
         @Suppress("LeakingThis")
-        values.add(this)
+        states.add(this)
     }
 
     private suspend fun addAsync(
@@ -235,44 +246,30 @@ sealed class State : KoinComponent, WithPlugin<Terix> {
         origin: Origin
     ) = sync {
         origin.potions[this@State]?.takeUnless(Collection<*>::isEmpty)?.map(PotionEffect::getType)?.forEach(player::removePotionEffect)
-
-//        if (origin.nightVision && transaction { PlayerData[player].nightVision == this@State } && player.activePotionEffects.find { it.type == PotionEffectType.NIGHT_VISION }.fromOrigin()) {
-//            player.removePotionEffect(PotionEffectType.NIGHT_VISION)
-//        }
     }
-
-    private fun PotionEffect?.fromOrigin(): Boolean {
-        if (this == null) return false
-        return PotionEffectBuilder.regex.matches(key.toString())
-    }
-
-    private fun nightVisionPotion(
-        origin: Origin
-    ) = PotionEffectBuilder {
-        type = PotionEffectType.NIGHT_VISION
-        duration = Duration.INFINITE
-        amplifier = 0
-        ambient = true
-        originKey(origin, this@State)
-    }.build()
 
     private fun sentryMessage(
         origin: Origin,
-        otherOrigin: Origin? = null,
         otherState: State? = null
     ): String {
-        return StringBuilder(origin.name).apply {
-            if (otherOrigin != null) {
-                append('.')
-                append(functionName)
-                append('.')
-                append(otherOrigin.name)
+        return buildString {
+            val functionName = StackWalker.getInstance().walk { stream ->
+                stream.skip(2).findFirst().get().methodName
             }
+            append(origin.name)
 
-            if (otherOrigin != null && this.endsWith(otherOrigin.name)) {
-                this.append(" | ")
-            }
+//            if (otherOrigin != null) {
+//                append('.')
+//                append(functionName)
+//                append('.')
+//                append(otherOrigin.name)
+//            }
+//
+//            if (otherOrigin != null && this.endsWith(otherOrigin.name)) {
+//                this.append(" | ")
+//            }
 
+            append('.')
             append(this@State.name)
             append(".")
             append(functionName)
@@ -281,7 +278,7 @@ sealed class State : KoinComponent, WithPlugin<Terix> {
                 append('.')
                 append(otherState.name)
             }
-        }.toString()
+        }
     }
 
     final override fun toString(): String {
@@ -306,15 +303,48 @@ sealed class State : KoinComponent, WithPlugin<Terix> {
 
     companion object {
         private const val CATEGORY = "terix.origin.trigger"
-        private val activeTriggers = multiMapOf<Player, State>()
+        internal val activeStates = multiMapOf<Player, State>()
         private val ordinalInc: AtomicInt = atomic(0)
-        val values: PersistentList<State> = persistentListOf()
+        private val plugin by getKoin().inject<Terix>()
+        private val states = mutableSetOf<State>()
+        var values: Array<State> = emptyArray();
+            private set
+            get() {
+                if (field.size != states.size) {
+                    field = states.toTypedArray()
+                }
+                return field
+            }
 
-        fun getPlayerStates(player: Player) = activeTriggers[player]?.toPersistentSet() ?: emptySet<State>().toPersistentSet()
+        fun recalculateAllStates(player: Player) {
+            activeStates.remove(player)
+
+            for (state in values) {
+                if (state !is StateSource<*>) {
+                    plugin.log.debug { "Skipping state $state" }
+                    continue
+                }
+
+                if (state.incompatibleStates.any { activeStates[player]?.contains(it) == true }) {
+                    plugin.log.debug { "Skipping state $state because an incompatible state was already present." }
+                    continue
+                }
+
+                if (!state.fromPlayer(player)) return
+
+                plugin.log.debug { "Adding state $state" }
+                activeStates.put(player, state)
+            }
+        }
+
+        fun getPlayerStates(player: Player) = activeStates[player]?.toPersistentSet() ?: emptySet<State>().toPersistentSet()
 
         fun fromOrdinal(ordinal: Int): State = values[ordinal]
 
-        fun valueOf(name: String): State = values.find { it.name == name } ?: throw IllegalArgumentException("No trigger with name $name")
+        fun valueOf(name: String): State {
+            plugin.log.debug { values.joinToString(", ") { it.name } }
+            return values.find { it.name == name } ?: throw IllegalArgumentException("No State with name $name")
+        }
 
         fun getTimeState(world: World): TimeState? = when {
             world.environment != Environment.NORMAL -> null
