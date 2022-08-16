@@ -21,6 +21,9 @@ import org.bukkit.block.Block
 import org.bukkit.entity.LivingEntity
 import org.bukkit.entity.Player
 import org.bukkit.event.entity.EntityDamageByEntityEvent
+import org.bukkit.event.entity.EntityPotionEffectEvent
+import org.bukkit.event.entity.EntityPotionEffectEvent.Cause
+import org.bukkit.event.entity.FoodLevelChangeEvent
 import org.bukkit.event.player.PlayerItemConsumeEvent
 import org.bukkit.inventory.ItemStack
 import org.bukkit.inventory.meta.PotionMeta
@@ -29,11 +32,11 @@ import org.bukkit.potion.PotionEffectType
 import org.koin.core.component.get
 import kotlin.time.Duration.Companion.seconds
 
-// TODO -> Unable to use potions unless applied from another origin.
 // TODO -> All normal food gives half a heart of damage, they can only eat flowers.
 // TODO -> Some flowers are edible, some flowers are potion effects.
 class BeeOrigin(override val plugin: Terix) : Origin() {
     private val stingerInstant = PlayerMap<Instant>()
+    private val lowerFood = mutableSetOf<Player>()
 
     override val name = "Bee"
     override val colour = TextColor.fromHexString("#fc9f2f")!!
@@ -58,8 +61,18 @@ class BeeOrigin(override val plugin: Terix) : Origin() {
         stingerAttack(attacker, victim)
     }
 
+    override suspend fun onPotionEffect(event: EntityPotionEffectEvent) {
+        if (event.action != EntityPotionEffectEvent.Action.ADDED) return
+        if (event.cause in BANNED_POTION_CAUSES) event.cancel()
+    }
+
+    override suspend fun onFoodChange(event: FoodLevelChangeEvent) {
+        if (lowerFood.remove(event.entity.unsafeCast())) event.cancel()
+    }
+
     override suspend fun onItemConsume(event: PlayerItemConsumeEvent) {
-        antiPotion(event)
+        if (antiPotion(event)) return
+        lowerFood.add(event.player)
     }
 
     override suspend fun onRightClick(event: PlayerRightClickEvent) {
@@ -98,12 +111,15 @@ class BeeOrigin(override val plugin: Terix) : Origin() {
         victim.addPotionEffect(PotionEffect(PotionEffectType.POISON, 60, 0))
     }
 
-    private fun antiPotion(event: PlayerItemConsumeEvent) {
+    private fun antiPotion(event: PlayerItemConsumeEvent): Boolean {
         val potion = event.item
         if (potion.itemMeta is PotionMeta) {
             event.cancel()
             get<Lang>().origin.bee["potion"] message event.player
+            return true
         }
+
+        return false
     }
 
     // TODO: Possible groups
@@ -155,6 +171,13 @@ class BeeOrigin(override val plugin: Terix) : Origin() {
 
     companion object {
         val STINGER_COOLDOWN = 10.seconds
+        val BANNED_POTION_CAUSES = arrayOf(
+            Cause.AREA_EFFECT_CLOUD,
+            Cause.BEACON,
+            Cause.CONDUIT,
+            Cause.POTION_DRINK,
+            Cause.POTION_SPLASH
+        )
     }
 
     private class FlowerEffect {
