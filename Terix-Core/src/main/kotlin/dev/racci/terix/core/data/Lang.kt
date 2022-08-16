@@ -2,6 +2,7 @@ package dev.racci.terix.core.data
 
 import dev.racci.minix.api.annotations.MappedConfig
 import dev.racci.minix.api.data.IConfig
+import dev.racci.minix.api.extensions.WithPlugin
 import dev.racci.minix.api.extensions.msg
 import dev.racci.minix.api.utils.safeCast
 import dev.racci.minix.api.utils.unsafeCast
@@ -16,6 +17,8 @@ import net.kyori.adventure.text.minimessage.tag.PreProcess
 import net.kyori.adventure.text.minimessage.tag.Tag
 import net.kyori.adventure.text.minimessage.tag.resolver.TagResolver
 import org.bukkit.command.CommandSender
+import org.koin.core.component.KoinComponent
+import org.koin.core.component.inject
 import org.spongepowered.configurate.ConfigurationNode
 import org.spongepowered.configurate.kotlin.extensions.get
 import org.spongepowered.configurate.objectmapping.ConfigSerializable
@@ -24,6 +27,8 @@ import org.spongepowered.configurate.serialize.TypeSerializer
 import java.lang.reflect.Type
 import kotlin.reflect.KProperty1
 import kotlin.reflect.full.declaredMemberProperties
+import kotlin.reflect.full.isSubtypeOf
+import kotlin.reflect.typeOf
 
 // TODO -> Fix elixir gradient and make bold
 @ConfigSerializable
@@ -32,25 +37,48 @@ import kotlin.reflect.full.declaredMemberProperties
     "Lang.conf",
     [Lang.PartialComponent::class, Lang.PartialComponent.Serializer::class]
 )
-class Lang : IConfig() {
+class Lang : IConfig(), WithPlugin<Terix>, KoinComponent {
+    @delegate:Transient
+    override val plugin: Terix by inject()
+
+    private fun <T : Any> getNested(instance: T): List<Pair<Any, KProperty1<Any, PropertyFinder<PartialComponent>>>> {
+        return instance::class.declaredMemberProperties
+            .filter { it.returnType.isSubtypeOf(typeOf<PropertyFinder<*>>()) }
+            .filterIsInstance<KProperty1<T, PropertyFinder<PartialComponent>>>()
+            .map { instance to it }.unsafeCast()
+    }
 
     override fun loadCallback() {
         val map = prefixes.mapKeys {
-            if (!it.key.matches(prefixRegex)) "<prefix_${it.key}" else it.key
+            if (!it.key.matches(prefixRegex)) "<prefix_${it.key}>" else it.key
         }
-        Lang::class.declaredMemberProperties
-            .filterIsInstance<KProperty1<Lang, PropertyFinder<PartialComponent>>>()
-            .forEach { prop ->
-                val inst = try {
-                    prop.get(this)
-                } catch (e: ClassCastException) { return@forEach }
 
-                inst::class.declaredMemberProperties
-                    .filterIsInstance<KProperty1<PropertyFinder<PartialComponent>, PartialComponent>>()
-                    .forEach {
-                        it.get(inst).formatRaw(map)
-                    }
+        val initialNested = getNested(this)
+        val queue = ArrayDeque(initialNested)
+        while (queue.isNotEmpty()) {
+            val (instance, property) = queue.removeFirst()
+
+            val propInstance = try {
+                property.get(instance)
+            } catch (e: ClassCastException) {
+                continue
             }
+
+            val nested = getNested(propInstance)
+            if (nested.isNotEmpty()) {
+                queue.addAll(nested)
+            }
+
+            propInstance::class.declaredMemberProperties
+                .filterIsInstance<KProperty1<PropertyFinder<PartialComponent>, PartialComponent>>()
+                .forEach {
+                    try {
+                        it.get(propInstance).formatRaw(map)
+                    } catch (e: ClassCastException) {
+                        return@forEach
+                    }
+                }
+        }
     }
 
     val prefixes: Map<String, String> = mapOf(
@@ -84,17 +112,16 @@ class Lang : IConfig() {
         init {
             val properties = this::class.declaredMemberProperties.filterIsInstance<KProperty1<Any, R>>()
             propertyMap = properties.associateBy { property ->
-                val nameBuilder = StringBuilder()
-                for ((index, char) in property.name.withIndex()) {
-                    if (index == 0 || char.isLowerCase()) {
-                        nameBuilder.append(char)
-                        continue
+                buildString {
+                    for ((index, char) in property.name.withIndex()) {
+                        if (index == 0 || char.isLowerCase()) {
+                            append(char)
+                            continue
+                        }
+
+                        append('.').append(char.lowercaseChar())
                     }
-
-                    nameBuilder.append('.').append(char.lowercaseChar())
                 }
-
-                nameBuilder.toString()
             }.toPersistentMap()
         }
     }
@@ -128,7 +155,10 @@ class Lang : IConfig() {
 
         var onChangeCooldown: PartialComponent = PartialComponent.of("<prefix_origins>You can't change your origin for another <cooldown>.")
 
-        var bee: PropertyFinder<PartialComponent> = @ConfigSerializable object : PropertyFinder<PartialComponent>() {
+        var bee: Bee = Bee()
+
+        @ConfigSerializable
+        class Bee : PropertyFinder<PartialComponent>() {
             var potion: PartialComponent = PartialComponent.of("<prefix_origins>The potion is too strong for you, try a flower instead.")
         }
     }
