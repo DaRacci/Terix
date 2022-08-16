@@ -19,12 +19,14 @@ class DarknessTick(
 ) : ChildCoroutineRunnable(mother) {
 
     private var lastTick = Instant.DISTANT_PAST
-    private val damage = origin.damageTicks[State.LightState.DARKNESS]!!
+    private val damage = origin.damageTicks[State.LightState.DARKNESS]
 
     override suspend fun run() {
         service.doInvoke(player, origin, State.LightState.DARKNESS, player.wasInDarkness, player.inDarkness)
         if (!player.inDarkness) return
         if ((now() - lastTick).ticks < 10) return
+
+        if (damage == null) return
 
 //        val damage = origin.damageTicks[State.LightState.DARKNESS] ?: return
 //        if (false) return // TODO: Implement chance so it doesn't damage 4 times a second
