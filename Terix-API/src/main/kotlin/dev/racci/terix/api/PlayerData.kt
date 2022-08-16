@@ -1,22 +1,36 @@
 package dev.racci.terix.api
 
+import com.github.benmanes.caffeine.cache.Caffeine
+import com.github.benmanes.caffeine.cache.LoadingCache
 import dev.racci.minix.api.utils.getKoin
 import dev.racci.terix.api.origins.origin.Origin
 import kotlinx.datetime.Instant
 import org.bukkit.entity.Player
 import org.jetbrains.exposed.dao.UUIDEntity
+import org.jetbrains.exposed.dao.UUIDEntityClass
 import org.jetbrains.exposed.dao.id.EntityID
-import org.koin.core.component.KoinComponent
+import org.jetbrains.exposed.dao.id.UUIDTable
+import org.jetbrains.exposed.sql.kotlin.datetime.timestamp
+import org.jetbrains.exposed.sql.transactions.transaction
+import java.time.Duration
 import java.util.UUID
 
-abstract class PlayerData(val uuid: EntityID<UUID>) : UUIDEntity(uuid) {
+class PlayerData(val uuid: EntityID<UUID>) : UUIDEntity(uuid) {
 
-    abstract var origin: Origin
-    abstract var lastOrigin: String?
-    abstract var lastChosenTime: Instant?
-    abstract var usedChoices: Int
+    private var _origin: String by User.origin
+    var lastOrigin: String? by User.lastOrigin
+    var lastChosenTime: Instant? by User.lastChosenTime
+    var usedChoices: Int by User.usedChoices
 
-    interface Cache : KoinComponent {
+    var origin: Origin
+        get() = originCache[uuid.value]
+        set(value) {
+            lastOrigin = _origin
+            _origin = value.name.lowercase()
+            originCache.put(uuid.value, value)
+        }
+
+    interface Cache {
         operator fun get(player: Player): PlayerData
         fun cachedOrigin(player: Player): Origin
         fun cachedTicks(player: Player): PlayerTickCache
@@ -34,5 +48,43 @@ abstract class PlayerData(val uuid: EntityID<UUID>) : UUIDEntity(uuid) {
         var inRain: Boolean = false
     }
 
-    companion object : Cache by getKoin().get()
+    companion object : UUIDEntityClass<PlayerData>(User), Cache {
+        override operator fun get(player: Player): PlayerData = get(player.uniqueId)
+
+        override fun cachedTicks(player: Player): PlayerTickCache = tickCache[player.uniqueId]
+
+        override fun cachedOrigin(player: Player): Origin = originCache[player.uniqueId]
+
+        // TODO: Implement defaulting to the default origin
+        // Actually, is this needed?
+        // does jetbrains exposed already have a cache?
+        private val originCache: LoadingCache<UUID, Origin> = Caffeine.newBuilder()
+            .expireAfterAccess(Duration.ofSeconds(15)) // We don't want offline players
+            .refreshAfterWrite(Duration.ofSeconds(15)) // To ensure we are 100% up to date
+            .build { uuid: UUID ->
+                val koin = getKoin()
+                val origin = transaction(koin.getProperty("terix:database")) { this@Companion[uuid]._origin }
+                val originService = koin.get<OriginService>()
+                val originInstance = originService.getOriginOrNull(origin)
+
+                if (originInstance == null) {
+                    koin.get<Terix>().log.warn { "Player $uuid had an invalid origin $origin, setting to default." }
+                }
+
+                originInstance ?: originService.defaultOrigin
+            }
+
+        private val tickCache: LoadingCache<UUID, PlayerTickCache> = Caffeine.newBuilder()
+            .expireAfterAccess(Duration.ofSeconds(15))
+            .build { PlayerTickCache() }
+    }
+
+    object User : UUIDTable("user") {
+
+        val origin = text("origin").default(getKoin().get<OriginService>().defaultOrigin.name.lowercase())
+        val lastOrigin = text("last_origin").nullable().default(null)
+
+        val lastChosenTime = timestamp("last_chosen_time").nullable().default(null)
+        val usedChoices = integer("used_choices").default(0)
+    }
 }
