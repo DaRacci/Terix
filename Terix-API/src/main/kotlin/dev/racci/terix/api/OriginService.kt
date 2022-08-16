@@ -8,6 +8,8 @@ import kotlin.reflect.KClass
 
 interface OriginService {
 
+    val defaultOrigin: Origin
+
     fun getAbilities(): PersistentMap<KClass<out Ability>, Ability>
 
     fun getOrigins(): PersistentMap<KClass<out Origin>, Origin>

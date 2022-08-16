@@ -45,7 +45,7 @@ class OriginServiceImpl(override val plugin: Terix) : OriginService, Extension<T
         get() = dirtyCache ?: registry.keys.map {
             it.replaceFirstChar(Char::titlecaseChar)
         }.toTypedArray().also { dirtyCache = it }
-    val defaultOrigin: Origin get() = registry.getOrElse(getKoin().get<DataService>().get<Config>().defaultOrigin) { origins[HumanOrigin::class]!! }
+    override val defaultOrigin: Origin get() = registry.getOrElse(getKoin().get<DataService>().get<Config>().defaultOrigin) { origins[HumanOrigin::class]!! }
 
     override suspend fun handleEnable() {
         populateAbilities()
