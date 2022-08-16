@@ -1,5 +1,6 @@
 package dev.racci.terix.core.origins
 
+import dev.racci.minix.api.collections.PlayerMap
 import dev.racci.minix.api.events.PlayerDoubleRightClickEvent
 import dev.racci.minix.api.extensions.cancel
 import dev.racci.minix.api.extensions.dropItem
@@ -7,16 +8,17 @@ import dev.racci.minix.api.extensions.parse
 import dev.racci.minix.api.extensions.playSound
 import dev.racci.minix.api.extensions.sync
 import dev.racci.minix.api.extensions.toItemStack
+import dev.racci.minix.api.utils.collections.CollectionUtils.computeAndRemove
 import dev.racci.minix.api.utils.minecraft.MaterialTagsExtension
 import dev.racci.minix.api.utils.now
 import dev.racci.minix.nms.aliases.toNMS
 import dev.racci.terix.api.Terix
-import dev.racci.terix.api.origins.OriginHelper
 import dev.racci.terix.api.origins.abilities.Levitate
 import dev.racci.terix.api.origins.enums.KeyBinding
 import dev.racci.terix.api.origins.origin.Origin
 import dev.racci.terix.api.origins.sounds.SoundEffect
 import dev.racci.terix.api.origins.states.State
+import dev.racci.terix.core.extensions.fromOrigin
 import kotlinx.datetime.Instant
 import net.kyori.adventure.text.format.TextColor
 import org.bukkit.Location
@@ -40,6 +42,7 @@ class AethenOrigin(override val plugin: Terix) : Origin() {
     override val name = "Aethen"
     override val colour = TextColor.fromHexString("#ffc757")!!
 
+    private val missingPotion = PlayerMap<PotionEffect>()
     private val regenPotion = PotionEffect(PotionEffectType.REGENERATION, 10 * 20, 1, true)
     private val regenCache = mutableMapOf<UUID, Instant>()
     private val regenCooldown = 3.minutes
@@ -115,13 +118,12 @@ class AethenOrigin(override val plugin: Terix) : Origin() {
 
     override suspend fun onToggleSneak(event: PlayerToggleSneakEvent) {
         if (event.isSneaking) {
+            missingPotion[event.player] = event.player.activePotionEffects.first { it.type == PotionEffectType.SLOW_FALLING && it.fromOrigin() }
             event.player.removePotionEffect(PotionEffectType.SLOW_FALLING)
             return
         }
 
-        if (!OriginHelper.getOriginPotions(event.player, State.CONSTANT).contains(PotionEffectType.SLOW_FALLING)) {
-            event.player.addPotionEffect(PotionEffect(PotionEffectType.SLOW_FALLING, Integer.MAX_VALUE, 0))
-        }
+        missingPotion.computeAndRemove(event.player, event.player::addPotionEffect)
     }
 
     override suspend fun onDoubleRightClick(event: PlayerDoubleRightClickEvent) {
