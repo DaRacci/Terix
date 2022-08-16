@@ -1,14 +1,12 @@
 package dev.racci.terix.api.origins.abilities
 
+import dev.racci.minix.api.extensions.SimpleKListener
 import dev.racci.minix.api.extensions.cancel
+import dev.racci.minix.api.extensions.event
 import dev.racci.minix.api.extensions.sync
-import dev.racci.minix.api.flow.eventFlow
 import dev.racci.terix.api.dsl.PotionEffectBuilder
 import dev.racci.terix.api.extensions.playSound
 import dev.racci.terix.api.sentryBreadcrumb
-import kotlinx.coroutines.channels.Channel
-import kotlinx.coroutines.flow.filterNot
-import kotlinx.coroutines.flow.takeWhile
 import org.bukkit.NamespacedKey
 import org.bukkit.entity.Player
 import org.bukkit.event.EventPriority
@@ -20,9 +18,20 @@ class Levitate : Ability(AbilityType.TOGGLE) {
 
     private val glideMap = HashSet<UUID>()
 
+    init {
+        val listener = SimpleKListener(plugin)
+        listener.event<EntityToggleGlideEvent>(
+            EventPriority.LOWEST,
+            true
+        ) {
+            val player = entity as? Player ?: return@event
+            if (glideMap.contains(player.uniqueId)) cancel()
+        }
+    }
+
     override suspend fun onActivate(player: Player) {
         startGliding(player)
-        player.velocity.add(player.location.direction.multiply(0.3))
+        player.velocity.add(player.location.direction.multiply(3))
         player.playSound(SOUND.first, SOUND.second, SOUND.third)
         player.addPotionEffect(
             PotionEffectBuilder.build {
@@ -47,25 +56,13 @@ class Levitate : Ability(AbilityType.TOGGLE) {
         sync { types.forEach(player::removePotionEffect) }
     }
 
-    private suspend fun startGliding(player: Player) {
+    private fun startGliding(player: Player) {
         if (glideMap.contains(player.uniqueId)) return
 
         sentryBreadcrumb(CATEGORY, "levitate.gliding.start")
 
         glideMap += player.uniqueId
         player.isGliding = true
-
-        val channel = Channel<EntityToggleGlideEvent>(Channel.CONFLATED)
-
-        try {
-            eventFlow(player, EventPriority.HIGHEST, true, channel = channel)
-                .takeWhile { glideMap.contains(player.uniqueId) }
-                .filterNot { it.entity == player }
-                .collect { plugin.log.debug { "Collected for ${player.name()}" }; it.cancel() }
-        } finally {
-            sentryBreadcrumb(CATEGORY, "levitate.gliding.stop")
-            channel.close()
-        }
     }
 
     companion object {
