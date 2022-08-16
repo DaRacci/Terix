@@ -21,7 +21,6 @@ import org.bukkit.potion.PotionEffectType
 import kotlin.time.Duration
 
 // TODO: Explosion when shield is broken
-
 class DragonOrigin(override val plugin: Terix) : Origin() {
 
     override val name = "Dragon"
