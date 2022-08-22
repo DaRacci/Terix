@@ -2,6 +2,7 @@ package dev.racci.terix.core.origins
 
 import dev.racci.minix.api.collections.PlayerMap
 import dev.racci.minix.api.events.PlayerDoubleRightClickEvent
+import dev.racci.minix.api.events.PlayerMoveFullXYZEvent
 import dev.racci.minix.api.extensions.cancel
 import dev.racci.minix.api.extensions.dropItem
 import dev.racci.minix.api.extensions.parse
@@ -11,6 +12,7 @@ import dev.racci.minix.api.extensions.toItemStack
 import dev.racci.minix.api.utils.collections.CollectionUtils.computeAndRemove
 import dev.racci.minix.api.utils.minecraft.MaterialTagsExtension
 import dev.racci.minix.api.utils.now
+import dev.racci.minix.api.utils.unsafeCast
 import dev.racci.minix.nms.aliases.toNMS
 import dev.racci.terix.api.Terix
 import dev.racci.terix.api.origins.abilities.Levitate
@@ -32,11 +34,13 @@ import org.bukkit.event.player.PlayerBedEnterEvent
 import org.bukkit.event.player.PlayerToggleSneakEvent
 import org.bukkit.potion.PotionEffect
 import org.bukkit.potion.PotionEffectType
+import ru.beykerykt.minecraft.lightapi.bukkit.api.extension.IBukkitExtension
+import ru.beykerykt.minecraft.lightapi.common.LightAPI
+import ru.beykerykt.minecraft.lightapi.common.api.engine.LightFlag
 import java.util.UUID
 import kotlin.time.Duration
 import kotlin.time.Duration.Companion.minutes
 
-// TODO -> Aethens emit a constant light level while moving. Waiting until LightAPI is updated to 1.19 to implement this.
 class AethenOrigin(override val plugin: Terix) : Origin() {
 
     override val name = "Aethen"
@@ -144,6 +148,17 @@ class AethenOrigin(override val plugin: Terix) : Origin() {
         if (target == null || target.isDead) return
         regenCache[event.player.uniqueId] = now
         sync { target.addPotionEffect(regenPotion) }
+    }
+
+    private val handler = LightAPI.get().extension.unsafeCast<IBukkitExtension>().handler
+    private val playerLocations = PlayerMap<Location>()
+    override suspend fun onMove(event: PlayerMoveFullXYZEvent) {
+        playerLocations.compute(event.player) { _, oldLocation ->
+            if (oldLocation != null) handler.recalculateLighting(oldLocation.world, oldLocation.x.toInt(), oldLocation.y.toInt(), oldLocation.z.toInt(), LightFlag.BLOCK_LIGHTING)
+            val location = event.to
+            handler.setRawLightLevel(location.world, location.x.toInt(), location.y.toInt(), location.z.toInt(), 9, LightFlag.BLOCK_LIGHTING)
+            location
+        }
     }
 
     /* // Possibly move to on move?

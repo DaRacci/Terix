@@ -10,6 +10,7 @@ dependencies {
     compileOnly(rootProject.libs.minecraft.api.landsAPI)
     compileOnly(rootProject.libs.minecraft.api.ecoEnchants)
     compileOnly(rootProject.libs.minecraft.api.eco)
+    compileOnly("com.github.BeYkeRYkt.LightAPI:lightapi-bukkit-common:5.3.0-Bukkit")
 
     compileOnly(project(":Terix-API"))
     compileOnly(rootProject.libs.minecraft.inventoryFramework)
