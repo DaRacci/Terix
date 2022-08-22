@@ -3,21 +3,10 @@ package dev.racci.terix.core.services
 import com.destroystokyo.paper.event.block.BeaconEffectEvent
 import com.destroystokyo.paper.event.player.PlayerPostRespawnEvent
 import dev.racci.minix.api.annotations.MappedExtension
-import dev.racci.minix.api.events.PlayerDoubleLeftClickEvent
-import dev.racci.minix.api.events.PlayerDoubleOffhandEvent
-import dev.racci.minix.api.events.PlayerDoubleRightClickEvent
 import dev.racci.minix.api.events.PlayerEnterLiquidEvent
 import dev.racci.minix.api.events.PlayerExitLiquidEvent
-import dev.racci.minix.api.events.PlayerLeftClickEvent
 import dev.racci.minix.api.events.PlayerMoveFullXYZEvent
-import dev.racci.minix.api.events.PlayerOffhandEvent
 import dev.racci.minix.api.events.PlayerRightClickEvent
-import dev.racci.minix.api.events.PlayerShiftDoubleLeftClickEvent
-import dev.racci.minix.api.events.PlayerShiftDoubleOffhandEvent
-import dev.racci.minix.api.events.PlayerShiftDoubleRightClickEvent
-import dev.racci.minix.api.events.PlayerShiftLeftClickEvent
-import dev.racci.minix.api.events.PlayerShiftOffhandEvent
-import dev.racci.minix.api.events.PlayerShiftRightClickEvent
 import dev.racci.minix.api.events.WorldDayEvent
 import dev.racci.minix.api.events.WorldNightEvent
 import dev.racci.minix.api.extension.Extension
@@ -235,20 +224,7 @@ class ListenerService(override val plugin: Terix) : Extension<Terix>() {
             if (config.showTitleOnChange) newOrigin.becomeOriginTitle?.invoke(player)
         }
 
-        events(
-            PlayerLeftClickEvent::class,
-            PlayerRightClickEvent::class,
-            PlayerOffhandEvent::class,
-            PlayerDoubleLeftClickEvent::class,
-            PlayerDoubleRightClickEvent::class,
-            PlayerDoubleOffhandEvent::class,
-            PlayerShiftDoubleLeftClickEvent::class,
-            PlayerShiftDoubleRightClickEvent::class,
-            PlayerShiftDoubleOffhandEvent::class,
-            PlayerShiftLeftClickEvent::class,
-            PlayerShiftRightClickEvent::class,
-            PlayerShiftOffhandEvent::class
-        ) {
+        events(*KeyBinding.values().map(KeyBinding::event).toTypedArray()) {
             val clazz = KeyBinding.fromEvent(this::class)
             val origin = PlayerData.cachedOrigin(player)
 

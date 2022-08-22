@@ -15,45 +15,29 @@ import dev.racci.minix.api.events.PlayerShiftOffhandEvent
 import dev.racci.minix.api.events.PlayerShiftRightClickEvent
 import kotlin.reflect.KClass
 
-enum class KeyBinding {
-    DOUBLE_OFFHAND,
-    DOUBLE_SNEAK, // TODO: Event
-    DOUBLE_RIGHT_CLICK,
-    DOUBLE_LEFT_CLICK,
+enum class KeyBinding(val event: KClass<out AbstractComboEvent>) {
+    DOUBLE_OFFHAND(PlayerDoubleOffhandEvent::class),
 
-    SINGLE_OFFHAND,
-    SINGLE_SNEAK, // TODO: Event
-    SINGLE_RIGHT_CLICK,
-    SINGLE_LEFT_CLICK,
+    // DOUBLE_SNEAK(), // TODO: Event
+    DOUBLE_RIGHT_CLICK(PlayerDoubleRightClickEvent::class),
+    DOUBLE_LEFT_CLICK(PlayerDoubleLeftClickEvent::class),
 
-    SNEAK_OFFHAND,
-    SNEAK_RIGHT_CLICK,
-    SNEAK_LEFT_CLICK,
+    SINGLE_OFFHAND(PlayerOffhandEvent::class),
 
-    SNEAK_DOUBLE_OFFHAND,
-    SNEAK_DOUBLE_RIGHT_CLICK,
-    SNEAK_DOUBLE_LEFT_CLICK;
+    // SINGLE_SNEAK, // TODO: Event
+    SINGLE_RIGHT_CLICK(PlayerRightClickEvent::class),
+    SINGLE_LEFT_CLICK(PlayerLeftClickEvent::class),
+
+    SNEAK_OFFHAND(PlayerShiftOffhandEvent::class),
+    SNEAK_RIGHT_CLICK(PlayerShiftRightClickEvent::class),
+    SNEAK_LEFT_CLICK(PlayerShiftLeftClickEvent::class),
+
+    SNEAK_DOUBLE_OFFHAND(PlayerShiftDoubleOffhandEvent::class),
+    SNEAK_DOUBLE_RIGHT_CLICK(PlayerShiftDoubleRightClickEvent::class),
+    SNEAK_DOUBLE_LEFT_CLICK(PlayerShiftDoubleLeftClickEvent::class);
 
     companion object {
-        fun fromEvent(clazz: KClass<out AbstractComboEvent>): KeyBinding = when (clazz) {
-            PlayerRightClickEvent::class -> SINGLE_RIGHT_CLICK
-            PlayerLeftClickEvent::class -> SINGLE_LEFT_CLICK
-            PlayerOffhandEvent::class -> SINGLE_OFFHAND
-
-            PlayerDoubleRightClickEvent::class -> DOUBLE_RIGHT_CLICK
-            PlayerDoubleLeftClickEvent::class -> DOUBLE_LEFT_CLICK
-            PlayerDoubleOffhandEvent::class -> DOUBLE_OFFHAND
-
-            PlayerShiftRightClickEvent::class -> SNEAK_RIGHT_CLICK
-            PlayerShiftLeftClickEvent::class -> SNEAK_LEFT_CLICK
-            PlayerShiftOffhandEvent::class -> SNEAK_OFFHAND
-
-            PlayerShiftDoubleRightClickEvent::class -> SNEAK_DOUBLE_RIGHT_CLICK
-            PlayerShiftDoubleLeftClickEvent::class -> SNEAK_DOUBLE_LEFT_CLICK
-            PlayerShiftDoubleOffhandEvent::class -> SNEAK_DOUBLE_OFFHAND
-
-            else -> throw IllegalArgumentException("Unknown event class $clazz")
-        }
+        fun fromEvent(clazz: KClass<out AbstractComboEvent>): KeyBinding = values().find { it.event === clazz } ?: throw IllegalArgumentException("Unknown event class $clazz")
 
         inline fun <reified T : AbstractComboEvent> fromEvent(): KeyBinding = fromEvent(T::class)
     }
