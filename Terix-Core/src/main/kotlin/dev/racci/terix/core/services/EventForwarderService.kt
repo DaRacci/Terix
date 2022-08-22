@@ -15,6 +15,7 @@ import dev.racci.minix.api.events.PlayerDoubleRightClickEvent
 import dev.racci.minix.api.events.PlayerEnterLiquidEvent
 import dev.racci.minix.api.events.PlayerExitLiquidEvent
 import dev.racci.minix.api.events.PlayerLeftClickEvent
+import dev.racci.minix.api.events.PlayerMoveFullXYZEvent
 import dev.racci.minix.api.events.PlayerOffhandEvent
 import dev.racci.minix.api.events.PlayerRightClickEvent
 import dev.racci.minix.api.events.PlayerShiftDoubleLeftClickEvent
@@ -147,6 +148,7 @@ class EventForwarderService(override val plugin: Terix) : Extension<Terix>() {
         this.registerPlayerEvent<PlayerChangedWorldEvent>()
         this.registerEntityEvent<EntityMountEvent>()
         this.registerEntityEvent<EntityDismountEvent>()
+        this.registerPlayerEvent<PlayerMoveFullXYZEvent>("Move")
     }
 
     private fun registerSpawnEvents() {
