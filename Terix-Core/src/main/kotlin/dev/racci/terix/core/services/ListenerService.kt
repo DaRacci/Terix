@@ -16,10 +16,12 @@ import dev.racci.minix.api.extensions.event
 import dev.racci.minix.api.extensions.events
 import dev.racci.minix.api.extensions.inOverworld
 import dev.racci.minix.api.extensions.onlinePlayers
+import dev.racci.minix.api.extensions.scheduler
 import dev.racci.minix.api.extensions.sync
 import dev.racci.minix.api.services.DataService
 import dev.racci.minix.api.services.DataService.Companion.inject
 import dev.racci.minix.api.utils.now
+import dev.racci.minix.api.utils.ticks
 import dev.racci.minix.nms.aliases.toNMS
 import dev.racci.terix.api.PlayerData
 import dev.racci.terix.api.Terix
@@ -34,31 +36,35 @@ import dev.racci.terix.api.origins.OriginHelper.deactivateOrigin
 import dev.racci.terix.api.origins.enums.KeyBinding
 import dev.racci.terix.api.origins.origin.ActionPropBuilder
 import dev.racci.terix.api.origins.origin.Origin
+import dev.racci.terix.api.origins.sounds.SoundEffect
+import dev.racci.terix.api.origins.sounds.SoundEffects
 import dev.racci.terix.api.origins.states.State
 import dev.racci.terix.api.origins.states.State.Companion.convertLiquidToState
 import dev.racci.terix.core.data.Config
 import dev.racci.terix.core.data.Lang
-import dev.racci.terix.core.data.PlayerData
 import dev.racci.terix.core.extensions.message
 import dev.racci.terix.core.extensions.originTime
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.delay
-import kotlinx.datetime.Instant
 import net.minecraft.advancements.CriteriaTriggers
 import net.minecraft.server.level.ServerPlayer
 import net.minecraft.stats.Stats
 import net.minecraft.world.InteractionHand
 import net.minecraft.world.food.FoodProperties
+import org.bukkit.Sound
 import org.bukkit.attribute.Attribute
 import org.bukkit.craftbukkit.v1_19_R1.event.CraftEventFactory
+import org.bukkit.entity.LivingEntity
 import org.bukkit.entity.Player
 import org.bukkit.event.EventPriority
 import org.bukkit.event.entity.EntityCombustEvent
 import org.bukkit.event.entity.EntityDamageEvent
 import org.bukkit.event.entity.EntityPotionEffectEvent
+import org.bukkit.event.entity.EntityShootBowEvent
 import org.bukkit.event.entity.FoodLevelChangeEvent
 import org.bukkit.event.entity.PlayerDeathEvent
+import org.bukkit.event.entity.ProjectileHitEvent
 import org.bukkit.event.player.PlayerChangedWorldEvent
 import org.bukkit.event.player.PlayerGameModeChangeEvent
 import org.bukkit.event.player.PlayerJoinEvent
@@ -77,6 +83,8 @@ import kotlin.time.Duration.Companion.seconds
 class ListenerService(override val plugin: Terix) : Extension<Terix>() {
     private val config by inject<DataService>().inject<Config>()
     private val lang by inject<DataService>().inject<Lang>()
+    private val customEvent = mutableListOf<Player>()
+    val bowTracker = mutableMapOf<LivingEntity, ItemStack>()
 
     @OptIn(ExperimentalCoroutinesApi::class)
     @Suppress("kotlin:S3776")
@@ -99,6 +107,37 @@ class ListenerService(override val plugin: Terix) : Extension<Terix>() {
                 false,
                 false
             )
+        }
+
+        event<EntityShootBowEvent>(EventPriority.MONITOR, true) {
+            val entity = this.entity as? LivingEntity ?: return@event
+            val item = this.bow ?: return@event
+            bowTracker[entity] = item
+        }
+
+        event<ProjectileHitEvent>(EventPriority.MONITOR) {
+            val entity = this.entity.shooter as? LivingEntity ?: return@event
+            val bow = bowTracker[entity] ?: return@event
+            scheduler { bowTracker.remove(entity, bow) }.runAsyncTaskLater(plugin, 2.ticks)
+        }
+
+        fun getInvalidPotions(
+            player: Player,
+            origin: Origin,
+            states: Set<State>
+        ): List<PotionEffectType> {
+            val activeEffects = player.activePotionEffects
+            val invalidTypes = arrayOfNulls<PotionEffectType>(activeEffects.size)
+
+            for ((index, potion) in player.activePotionEffects.withIndex()) {
+                val state = OriginHelper.potionState(potion)
+                val potOrigin = OriginHelper.potionOrigin(potion)
+                if ((state == null || state in states) && potOrigin == null || potOrigin === origin) continue
+
+                invalidTypes[index] = potion.type
+            }
+
+            return invalidTypes.filterNotNull()
         }
 
         event<PlayerJoinEvent>(forceAsync = true) {
@@ -172,14 +211,18 @@ class ListenerService(override val plugin: Terix) : Extension<Terix>() {
             priority = EventPriority.LOWEST
         ) { originSound(player, PlayerData.cachedOrigin(player), SoundEffects::hurtSound) }
 
-//
         event<FoodLevelChangeEvent>(
             ignoreCancelled = true,
             priority = EventPriority.LOWEST
         ) {
             val player = entity as? Player ?: return@event
-            if (this.item == null) return@event
-            foodEvent(player, this.item!!, foodLevelChangeEvent = this)
+
+            when {
+                customEvent.contains(player) -> customEvent.remove(player)
+                item != null -> foodEvent(player, item!!, foodLevelChangeEvent = this)
+                else -> { /* Do nothing */
+                }
+            }
         }
 
         event<PlayerOriginChangeEvent>(
@@ -257,6 +300,7 @@ class ListenerService(override val plugin: Terix) : Extension<Terix>() {
                                 log.debug { "PlayerRightClickEvent - received ${received.getOrNull()}" }
                                 val elapsed = now - (lasts.replace(player.uniqueId, now) ?: 0L)
                                 required -= elapsed
+                                player.playSound(Sound.ENTITY_GENERIC_EAT.key.key)
                             }
                             received.isFailure -> {
                                 log.debug { "Missed receiving." }
@@ -272,6 +316,7 @@ class ListenerService(override val plugin: Terix) : Extension<Terix>() {
 
                         if (required == 0L) {
                             log.debug { "PlayerRightClickEvent - Consumed all required." }
+                            player.playSound(Sound.ENTITY_PLAYER_BURP.key.key)
                             foodEvent(player, this@event.item!!, origin, serverPlayer, hand, itemStack, foodInfo)
                             break
                         }
@@ -291,12 +336,6 @@ class ListenerService(override val plugin: Terix) : Extension<Terix>() {
                 channel.close()
                 channels.remove(player.uniqueId, channel)
             }
-        }
-
-        event<PlayerItemConsumeEvent>(EventPriority.MONITOR) {
-            log.debug { "PlayerItemConsumeEvent: $player, $item" }
-
-            foodEvent(player, item)
         }
 
         event<PlayerMoveFullXYZEvent>() {
@@ -326,32 +365,52 @@ class ListenerService(override val plugin: Terix) : Extension<Terix>() {
         serverPlayer: ServerPlayer = player.toNMS(),
         hand: InteractionHand = serverPlayer.usedItemHand,
         itemStack: net.minecraft.world.item.ItemStack = serverPlayer.getItemInHand(hand),
-        foodInfo: FoodProperties? = origin.customFoodProperties[item.type] ?: itemStack.item.foodProperties,
+        foodInfo: FoodProperties? = origin.customFoodProperties[item.type],
         attributes: Collection<TimedAttributeBuilder>? = origin.foodAttributes[item.type],
         action: ActionPropBuilder? = origin.foodBlocks[item.type],
         foodLevelChangeEvent: FoodLevelChangeEvent? = null
     ) {
-        if (!item.type.isEdible && action == null && attributes == null && foodInfo == null && foodLevelChangeEvent?.isCancelled != false) return // There's nothing to do here
+        if (foodLevelChangeEvent?.isCancelled == true || (action == null && attributes == null && foodInfo == null)) {
+            return log.debug { "Nothing to do with this item." }
+        } // There's nothing to do here
 
         if (foodInfo != null) {
-            val oldFoodLevel: Int = serverPlayer.foodData.foodLevel
+            val foodData = serverPlayer.foodData
+            val oldFoodLevel = serverPlayer.foodData.foodLevel
 
             if (foodLevelChangeEvent != null) {
-                foodLevelChangeEvent.foodLevel += foodInfo.nutrition
-                serverPlayer.foodData.setSaturation(serverPlayer.foodData.saturationLevel)
+                val newFoodLevel = foodData.foodLevel + foodInfo.nutrition
+                val newSaturationLevel = (foodData.saturationLevel + foodInfo.nutrition * foodInfo.saturationModifier * 2.0f).coerceAtMost(foodData.foodLevel.toFloat())
+
+                log.debug { "Modifying existing foodLevelChangeEvent" }
+                log.debug { "Old food level: $oldFoodLevel" }
+                log.debug { "New food level: $newFoodLevel" }
+                log.debug { "newSaturationLevel: $newSaturationLevel" }
+
+                foodLevelChangeEvent.foodLevel = newFoodLevel
+                scheduler {
+                    if (foodLevelChangeEvent.isCancelled) return@scheduler
+                    serverPlayer.foodData.setSaturation(newSaturationLevel)
+                }.runAsyncTaskLater(plugin, 1.ticks)
                 return halal(player, attributes, action)
             }
 
+            customEvent += player
             val event = CraftEventFactory.callFoodLevelChangeEvent(serverPlayer, foodInfo.nutrition + oldFoodLevel, itemStack)
+            log.debug { "Calling new FoodLevelChangeEvent" }
 
             if (!event.isCancelled) {
+                log.debug { "FoodLevelChangeEvent is not cancelled" }
+                log.debug { "Old food level: $oldFoodLevel" }
+                log.debug { "New food level: ${event.foodLevel}" }
+
                 serverPlayer.foodData.eat(serverPlayer.foodData.foodLevel - oldFoodLevel, foodInfo.saturationModifier)
                 serverPlayer.awardStat(Stats.ITEM_USED[itemStack.item])
                 CriteriaTriggers.CONSUME_ITEM.trigger(serverPlayer, itemStack)
 
                 player.sendHealthUpdate()
                 return halal(player, attributes, action)
-            }
+            } else customEvent -= player // Ensure that we don't have a ghost event.
         }
     }
 
@@ -400,6 +459,7 @@ class ListenerService(override val plugin: Terix) : Extension<Terix>() {
                 if (state !in activeTriggers ||
                     match["origin"]!!.value != origin.name.lowercase()
                 ) {
+                    log.debug { "Removing unfulfilled or invalid attribute: $modifier" }
                     inst.removeModifier(modifier)
                     continue
                 }
