@@ -103,20 +103,14 @@ class ListenerService(override val plugin: Terix) : Extension<Terix>() {
 
         event<PlayerJoinEvent>(forceAsync = true) {
             val origin = PlayerData.cachedOrigin(player)
-            val activeStates = State.getPlayerStates(player)
-            val activeStatesStr = activeStates.map { it.name.lowercase() }
+            State.recalculateAllStates(player)
+            val states = State.getPlayerStates(player)
+            val invalidPotions = getInvalidPotions(player, origin, states)
 
-            val potions = mutableListOf<PotionEffectType>()
-//            if (origin.nightVision && transaction { PlayerData[player].nightVision }.name.lowercase() !in activeStatesStr) potions.add(PotionEffectType.NIGHT_VISION)
-            for (potion in player.activePotionEffects) {
-                val key = potion.key?.asString() ?: continue
-                val match = PotionEffectBuilder.regex.find(key)?.groups?.get("state") ?: continue
-                if (match.value in activeStatesStr) continue
+            log.debug { "Found ${invalidPotions.size} invalid potions for ${player.name}" }
 
-                potions += potion.type
-            }
-            sync { potions.forEach(player::removePotionEffect) }
-            removeUnfulfilledOrInvalidAttributes(player, activeStates)
+            sync { invalidPotions.forEach(player::removePotionEffect) }
+            removeUnfulfilledOrInvalidAttributes(player, states)
 
             delay(0.5.seconds)
             player.sendHealthUpdate()
@@ -139,8 +133,8 @@ class ListenerService(override val plugin: Terix) : Extension<Terix>() {
         event<PlayerEnterLiquidEvent> { convertLiquidToState(previousType).exchange(player, PlayerData.cachedOrigin(player), convertLiquidToState(newType)) }
         event<PlayerExitLiquidEvent> { convertLiquidToState(previousType).exchange(player, PlayerData.cachedOrigin(player), convertLiquidToState(newType)) }
 
-        event<WorldNightEvent>(forceAsync = true) { timeState(State.TimeState.NIGHT) }
-        event<WorldDayEvent>(forceAsync = true) { timeState(State.TimeState.DAY) }
+        event<WorldNightEvent>(forceAsync = true) { switchTimeStates(State.TimeState.NIGHT) }
+        event<WorldDayEvent>(forceAsync = true) { switchTimeStates(State.TimeState.DAY) }
 
         event<PlayerChangedWorldEvent>(forceAsync = true) {
             val lastState = State.getEnvironmentState(from.environment)
@@ -170,17 +164,13 @@ class ListenerService(override val plugin: Terix) : Extension<Terix>() {
                 damage == 0.0
             ) return@event cancel()
 
-            val sound = PlayerData.cachedOrigin(player).sounds.hurtSound
-            player.playSound(sound.resourceKey.asString(), sound.volume, sound.pitch, sound.distance)
+            originSound(player, origin, SoundEffects::hurtSound)
         }
 
         event<PlayerDeathEvent>(
             ignoreCancelled = true,
             priority = EventPriority.LOWEST
-        ) {
-            val sound = PlayerData.cachedOrigin(player).sounds.deathSound
-            player.playSound(sound.resourceKey.asString(), sound.volume, sound.pitch, sound.distance)
-        }
+        ) { originSound(player, PlayerData.cachedOrigin(player), SoundEffects::hurtSound) }
 
 //
         event<FoodLevelChangeEvent>(
@@ -381,13 +371,6 @@ class ListenerService(override val plugin: Terix) : Extension<Terix>() {
             !potion.key!!.asString().matches(PotionEffectBuilder.regex)
     }
 
-    private fun PlayerOriginChangeEvent.bypassOrEarly(now: Instant): Boolean {
-        if (!bypassCooldown &&
-            player.originTime + config.intervalBeforeChange > now
-        ) return true
-        return false
-    }
-
     private fun ensureNoFire(
         player: Player,
         origin: Origin
@@ -433,7 +416,7 @@ class ListenerService(override val plugin: Terix) : Extension<Terix>() {
         }
     }
 
-    private suspend fun timeState(state: State) {
+    private suspend fun switchTimeStates(state: State) {
         onlinePlayers.filter(Player::inOverworld)
             .onEach { player ->
                 val origin = PlayerData.cachedOrigin(player)
@@ -441,4 +424,17 @@ class ListenerService(override val plugin: Terix) : Extension<Terix>() {
                 oldState.exchange(player, origin, state)
             }
     }
+
+    private fun originSound(
+        player: Player,
+        origin: Origin,
+        function: KProperty1<SoundEffects, SoundEffect>
+    ) {
+        if (OriginHelper.shouldIgnorePlayer(player)) return
+
+        val sound = function.get(origin.sounds)
+        player.playSound(sound.resourceKey.asString(), sound.volume, sound.pitch, sound.distance)
+    }
+
+    companion object : ExtensionCompanion<ListenerService>()
 }
