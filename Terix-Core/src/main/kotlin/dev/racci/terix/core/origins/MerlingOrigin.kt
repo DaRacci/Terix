@@ -12,8 +12,12 @@ import net.kyori.adventure.text.format.TextColor
 import org.bukkit.Material
 import org.bukkit.attribute.Attribute
 import org.bukkit.enchantments.Enchantment
+import org.bukkit.entity.EntityType
 import org.bukkit.entity.Player
 import org.bukkit.event.entity.EntityAirChangeEvent
+import org.bukkit.event.entity.EntityDamageEvent.DamageCause
+import org.bukkit.event.entity.EntityTargetEvent.TargetReason
+import org.bukkit.event.entity.EntityTargetLivingEntityEvent
 import org.bukkit.event.player.PlayerItemConsumeEvent
 import org.bukkit.event.player.PlayerRiptideEvent
 import org.bukkit.inventory.meta.PotionMeta
@@ -21,10 +25,7 @@ import org.bukkit.potion.PotionEffectType
 import org.bukkit.potion.PotionType
 import kotlin.time.Duration
 
-// TODO -> Raw fish, kelp and glow berries.
 // TODO -> Make cake soggy.
-// TODO -> Nothing in the ocean targets the merling (minus elder guardian).
-// TODO -> More fire / lava damage.
 class MerlingOrigin(override val plugin: Terix) : Origin() {
 
     override val name = "Merling"
@@ -44,6 +45,16 @@ class MerlingOrigin(override val plugin: Terix) : Origin() {
             Pair(State.LiquidState.LAND, Attribute.GENERIC_ATTACK_SPEED) *= 0.80
         }
 
+        damage {
+            listOf(
+                DamageCause.LAVA,
+                DamageCause.FIRE,
+                DamageCause.MELTING,
+                DamageCause.FIRE_TICK,
+                DamageCause.HOT_FLOOR
+            ) *= 2.0
+        }
+
         potions {
             State.LiquidState.WATER += {
                 type = PotionEffectType.NIGHT_VISION
@@ -54,8 +65,14 @@ class MerlingOrigin(override val plugin: Terix) : Origin() {
         }
 
         food {
-            MaterialTags.RAW_FISH *= 4.0
-            MaterialTagsExtension.COOKED_MEATS *= 0.5
+            modifyFood(listOf(*MaterialTags.RAW_FISH.values.toTypedArray(), Material.DRIED_KELP, Material.GLOW_BERRIES)) {
+                it.nutrition *= 3
+                it.saturationModifier = 0.6f
+            }
+            modifyFood(MaterialTagsExtension.COOKED_MEATS.values + MaterialTags.COOKED_FISH.values) {
+                it.nutrition /= 2
+                it.saturationModifier = 0.2f
+            }
         }
 
         item {
@@ -65,6 +82,12 @@ class MerlingOrigin(override val plugin: Terix) : Origin() {
                 <aqua>It's not clear what it is.
             """.trimIndent()
         }
+    }
+
+    override suspend fun onTarget(event: EntityTargetLivingEntityEvent) {
+        if (event.entity.type !in MARINE_FRIENDS) return
+        if (event.reason !in TARGET_REASONS) return
+        event.cancel()
     }
 
     override suspend fun onBecomeOrigin(event: PlayerOriginChangeEvent) {
@@ -121,4 +144,9 @@ class MerlingOrigin(override val plugin: Terix) : Origin() {
 //            p.getHandle().playerConnection.sendPacket(packet)
 //        }
 //    }
+
+    companion object {
+        private val MARINE_FRIENDS = arrayOf(EntityType.DROWNED, EntityType.GUARDIAN, EntityType.PUFFERFISH)
+        private val TARGET_REASONS = arrayOf(TargetReason.CLOSEST_ENTITY, TargetReason.CLOSEST_PLAYER, TargetReason.COLLISION, TargetReason.RANDOM_TARGET)
+    }
 }
