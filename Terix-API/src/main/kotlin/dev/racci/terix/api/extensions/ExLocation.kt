@@ -1,4 +1,4 @@
-package dev.racci.terix.api.extensions
+package dev.racci.terix.api.extensions // ktlint-disable filename
 
 import dev.racci.minix.nms.aliases.toNMS
 import net.minecraft.network.protocol.game.ClientboundCustomSoundPacket

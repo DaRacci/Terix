@@ -8,6 +8,7 @@ import net.kyori.adventure.text.format.TextColor
 import org.bukkit.Material
 import org.bukkit.event.entity.EntityDamageEvent.DamageCause
 
+// TODO -> Walk on powdered snow.
 // TODO -> Cake!
 class BlizzOrigin(override val plugin: Terix) : Origin() {
 

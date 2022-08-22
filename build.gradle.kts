@@ -52,6 +52,7 @@ subprojects {
         maven("https://jitpack.io")
         maven("https://repo.racci.dev/releases")
         maven("https://repo.racci.dev/snapshots/")
+        maven("https://repo.md-5.net/content/groups/public/")
         maven("https://repo.dmulloy2.net/repository/public/")
         maven("https://repo.extendedclip.com/content/repositories/placeholderapi/")
     }
@@ -60,6 +61,7 @@ subprojects {
         compileOnly("dev.racci:Minix-NMS:$minixVersion")
         compileOnly(rootProject.libs.minecraft.minix)
         compileOnly(rootProject.libs.minecraft.minix.core)
+        compileOnly("LibsDisguises:LibsDisguises:10.0.31")
 
         testImplementation(platform(kotlin("bom")))
         testImplementation("dev.racci:Minix-NMS:$minixVersion")
@@ -69,6 +71,9 @@ subprojects {
         testImplementation(rootProject.libs.bundles.kotlinx)
         testImplementation(rootProject.libs.bundles.testing)
         testImplementation(rootProject.libs.minecraft.bstats)
+        testImplementation("io.kotest:kotest-runner-junit5:5.4.1")
+        testImplementation("io.kotest:kotest-property:5.4.1")
+        testImplementation("io.kotest:kotest-assertions-core:5.4.1")
         testImplementation("io.insert-koin:koin-test:3.+")
         testImplementation("io.insert-koin:koin-test-junit5:3.+")
         testImplementation("io.mockk:mockk:1.12.4")
