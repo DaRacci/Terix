@@ -5,9 +5,9 @@ import dev.racci.terix.api.origins.origin.Origin
 import dev.racci.terix.api.origins.sounds.SoundEffect
 import net.kyori.adventure.text.format.TextColor
 import org.bukkit.Material
+import org.bukkit.entity.LivingEntity
+import org.bukkit.event.entity.EntityDamageByEntityEvent
 
-// TODO -> Raw fish raw fish raw fish raw fish, kelp no dried, cake.
-// TODO -> More damage from being beaten with a fishing rod (Similar to sword damage)
 class AxolotlOrigin(override val plugin: Terix) : Origin() {
 
     override val name = "Axolotl"
@@ -34,5 +34,11 @@ class AxolotlOrigin(override val plugin: Terix) : Origin() {
             material = Material.AXOLOTL_BUCKET
             lore = "<white>Little shit."
         }
+    }
+
+    override suspend fun onDamageByEntity(event: EntityDamageByEntityEvent) {
+        val damager = event.damager as? LivingEntity ?: return
+        if (damager.equipment?.itemInMainHand?.type != Material.FISHING_ROD) return
+        event.damage += 5
     }
 }
