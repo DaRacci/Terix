@@ -4,10 +4,8 @@ import com.destroystokyo.paper.MaterialSetTag
 import com.github.benmanes.caffeine.cache.Caffeine
 import com.github.benmanes.caffeine.cache.LoadingCache
 import dev.racci.minix.api.annotations.MinixDsl
-import dev.racci.minix.api.utils.getKoin
 import dev.racci.minix.api.utils.unsafeCast
 import dev.racci.terix.api.OriginService
-import dev.racci.terix.api.Terix
 import dev.racci.terix.api.dsl.AttributeModifierBuilder
 import dev.racci.terix.api.dsl.FoodPropertyBuilder
 import dev.racci.terix.api.dsl.PotionEffectBuilder
@@ -163,7 +161,7 @@ sealed class OriginBuilder : OriginValues() {
          * @param value The amount to multiply by.
          * @receiver The Trigger and Attribute to multiply.
          */
-        operator fun Pair<State, Attribute>.timesAssign(value: Number) = addAttribute(this.second, AttributeModifier.Operation.MULTIPLY_SCALAR_1, value, this.first)
+        operator fun Pair<State, Attribute>.timesAssign(value: Number) = addAttribute(this.second, AttributeModifier.Operation.MULTIPLY_SCALAR_1, value.toDouble() - 1, this.first)
 
         /**
          * Divides the players attribute by this number when this trigger is
@@ -338,8 +336,25 @@ sealed class OriginBuilder : OriginValues() {
         operator fun Collection<EntityDamageEvent.DamageCause>.divAssign(number: Number) = forEach { it /= number }
     }
 
+    // TODO -> Add a way to clear default potions.
     /** A Utility class for building food triggers. */
     inner class FoodBuilder {
+
+        @JvmName("exchangeFoodProperties")
+        fun exchangeFoodProperties(
+            first: Material,
+            second: Material
+        ) {
+            val firstProps = Foods.DEFAULT_PROPERTIES[first.key.key]
+            val secondProps = Foods.DEFAULT_PROPERTIES[second.key.key]
+
+            if (firstProps == null || secondProps == null) {
+                throw IllegalArgumentException("One of the materials is not a food.")
+            }
+
+            customFoodProperties[first] = secondProps
+            customFoodProperties[second] = firstProps
+        }
 
         /** Modifies or Creates a Food Property. */
         @JvmName("modifyFoodSingle")
@@ -351,7 +366,6 @@ sealed class OriginBuilder : OriginValues() {
             val foodProp = FoodPropertyBuilder(foodProps)
 
             builder(foodProp)
-            getKoin().get<Terix>().log.debug { "Modifying Food Property for ${material.name} with $foodProp" }
             customFoodProperties[material] = foodProp.build()
         }
 
