@@ -59,7 +59,7 @@ class Levitate : Ability(AbilityType.TOGGLE) {
     private fun startGliding(player: Player) {
         if (glideMap.contains(player.uniqueId)) return
 
-        sentryBreadcrumb(CATEGORY, "levitate.gliding.start")
+        sentryBreadcrumb(SCOPE, "levitate.gliding.start")
 
         glideMap += player.uniqueId
         player.isGliding = true

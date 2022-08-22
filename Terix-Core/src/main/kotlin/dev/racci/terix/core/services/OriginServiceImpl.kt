@@ -11,6 +11,7 @@ import dev.racci.terix.api.Terix
 import dev.racci.terix.api.origins.abilities.Ability
 import dev.racci.terix.api.origins.abilities.Levitate
 import dev.racci.terix.api.origins.abilities.Teleport
+import dev.racci.terix.api.origins.abilities.Transform
 import dev.racci.terix.api.origins.origin.Origin
 import dev.racci.terix.core.data.Config
 import dev.racci.terix.core.origins.AethenOrigin
@@ -72,6 +73,7 @@ class OriginServiceImpl(override val plugin: Terix) : OriginService, Extension<T
         abilities {
             add<Levitate>()
             add<Teleport>()
+            add<Transform>()
         }
     }
 
@@ -108,14 +110,22 @@ class OriginServiceImpl(override val plugin: Terix) : OriginService, Extension<T
 
         @MinixDsl
         suspend fun add(originBuilder: suspend (Terix) -> Origin) {
-            val origin = originBuilder(plugin)
+            val origin = try {
+                originBuilder(plugin)
+            } catch (e: Exception) {
+                return plugin.log.error(e) { "Exception thrown while instancing origin." }
+            }
+
             origin.onRegister()
             origins.putIfAbsent(origin::class, origin)
         }
 
         @MinixDsl
         suspend inline fun <reified T : Origin> add(kClazz: KClass<T> = T::class) {
-            add { kClazz.primaryConstructor!!.call(plugin) }
+            add {
+                log.debug { "Creating origin ${kClazz.simpleName}" }
+                kClazz.primaryConstructor!!.call(plugin)
+            }
         }
     }
 
