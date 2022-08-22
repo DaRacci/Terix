@@ -1,7 +1,6 @@
 package dev.racci.terix.core.origins
 
 import dev.racci.minix.api.collections.PlayerMap
-import dev.racci.minix.api.events.PlayerRightClickEvent
 import dev.racci.minix.api.extensions.cancel
 import dev.racci.minix.api.utils.now
 import dev.racci.minix.api.utils.unsafeCast
@@ -12,12 +11,9 @@ import dev.racci.terix.api.origins.origin.Origin
 import dev.racci.terix.api.origins.sounds.SoundEffect
 import dev.racci.terix.core.data.Lang
 import dev.racci.terix.core.data.Lang.PartialComponent.Companion.message
-import dev.racci.terix.core.services.HookService
 import kotlinx.datetime.Instant
-import me.angeschossen.lands.api.flags.Flags
 import net.kyori.adventure.text.format.TextColor
 import org.bukkit.Material
-import org.bukkit.block.Block
 import org.bukkit.entity.LivingEntity
 import org.bukkit.entity.Player
 import org.bukkit.event.entity.EntityDamageByEntityEvent
@@ -25,7 +21,6 @@ import org.bukkit.event.entity.EntityPotionEffectEvent
 import org.bukkit.event.entity.EntityPotionEffectEvent.Cause
 import org.bukkit.event.entity.FoodLevelChangeEvent
 import org.bukkit.event.player.PlayerItemConsumeEvent
-import org.bukkit.inventory.ItemStack
 import org.bukkit.inventory.meta.PotionMeta
 import org.bukkit.potion.PotionEffect
 import org.bukkit.potion.PotionEffectType
@@ -73,24 +68,6 @@ class BeeOrigin(override val plugin: Terix) : Origin() {
     override suspend fun onItemConsume(event: PlayerItemConsumeEvent) {
         if (antiPotion(event)) return
         lowerFood.add(event.player)
-    }
-
-    override suspend fun onRightClick(event: PlayerRightClickEvent) {
-        val flower = event.player.inventory.itemInMainHand.takeIf { it.type.isFlower } ?: run {
-            val area = HookService.getService().get<HookService.LandsHook>()?.integration?.getAreaByLoc(event.player.location)
-            if (area == null || area.hasFlag(event.player.uniqueId, Flags.BLOCK_BREAK)) return@run null
-            event.blockData?.block?.takeIf { it.type.isFlower }
-        } ?: return
-
-//        val effect = TODO("Unique effects for each flower type")
-//        TODO("Apply effect")
-
-        if (flower is ItemStack) {
-            flower.amount--
-            return
-        }
-
-        flower.unsafeCast<Block>().type = Material.AIR
     }
 
     private fun stingerAttack(
