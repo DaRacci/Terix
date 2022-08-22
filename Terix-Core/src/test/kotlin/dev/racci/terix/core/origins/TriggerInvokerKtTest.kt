@@ -33,7 +33,7 @@ internal class TriggerInvokerKtTest {
     }
 
     private fun mockTriggerBlocks() {
-        every { mockOrigin.triggerBlocks[State.LightState.SUNLIGHT] } returns mockk {
+        every { mockOrigin.stateBlocks[State.LightState.SUNLIGHT] } returns mockk {
             coEvery { this@mockk.invoke(any<Player>()) } just Runs
         }
     }

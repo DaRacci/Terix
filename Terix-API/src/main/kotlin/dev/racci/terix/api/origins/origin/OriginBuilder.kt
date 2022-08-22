@@ -219,7 +219,7 @@ sealed class OriginBuilder : OriginValues() {
          * @receiver The trigger to activate the damage.
          */
         operator fun State.plusAssign(builder: suspend (Player) -> Unit) {
-            triggerBlocks[this] = builder
+            stateBlocks[this] = builder
         }
 
         /**

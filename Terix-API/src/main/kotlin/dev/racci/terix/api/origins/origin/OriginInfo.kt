@@ -56,10 +56,10 @@ object OriginInfo {
             }
         }
         val TRIGGER_BLOCKS by Info {
-            if (this.triggerBlocks.isEmpty()) return@Info ""
+            if (this.stateBlocks.isEmpty()) return@Info ""
 
             val builder = StringBuilder("Trigger Blocks: [ ")
-            this@Types.iterate(builder, this.triggerBlocks.iterator())
+            this@Types.iterate(builder, this.stateBlocks.iterator())
 
             builder.toString()
         }

@@ -17,6 +17,7 @@ fun origin(player: Player) = PlayerData.cachedOrigin(player)
 
 private val sentryUsers = hashMapOf<UUID, User>()
 private val terix by getKoin().inject<Terix>()
+private const val SCOPE = "terix.sentry.scoped"
 
 fun Player.sentryUser() = sentryUsers.getOrPut(uniqueId) {
     val user = User()
@@ -60,6 +61,7 @@ suspend fun sentryScoped(
     terix.launch(context) {
         Sentry.pushScope()
         Sentry.setUser(player.sentryUser())
+        terix.log.trace(scope = SCOPE) { "Entered scope for player ${player.name}" }
         sentryBreadcrumb(category, message, type, level)
 
         try {
@@ -67,6 +69,7 @@ suspend fun sentryScoped(
         } catch (e: Exception) {
             Sentry.captureException(e)
         } finally {
+            terix.log.trace(scope = SCOPE) { "Exited scope for player ${player.name}" }
             Sentry.popScope()
         }
     }

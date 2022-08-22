@@ -173,8 +173,8 @@ sealed class State : KoinComponent, WithPlugin<Terix> {
         if (OriginHelper.shouldIgnorePlayer(player)) return@sentryScoped
 
         ifContains(player, origin, false, this) {
-            addAsync(player, origin)
-            addSync(player, origin)
+            this.addAsync(player, origin)
+            this.addSync(player, origin)
         }
     }
 
@@ -185,8 +185,8 @@ sealed class State : KoinComponent, WithPlugin<Terix> {
         if (OriginHelper.shouldIgnorePlayer(player)) return@sentryScoped
 
         ifContains(player, origin, true, this) {
-            removeAsync(player, origin)
-            removeSync(player, origin)
+            this.removeAsync(player, origin)
+            this.removeSync(player, origin)
         }
     }
 
@@ -217,16 +217,36 @@ sealed class State : KoinComponent, WithPlugin<Terix> {
         player: Player,
         origin: Origin
     ) = async {
-        origin.titles[this@State]?.invoke(player)
-        origin.triggerBlocks[this@State]?.invoke(player)
-        origin.attributeModifiers[this@State]?.takeUnless(Collection<*>::isEmpty)?.forEach { (attribute, modifier) -> player.getAttribute(attribute)?.addModifier(modifier) }
+        origin.titles[this@State]?.let { title ->
+            plugin.log.trace(scope = CATEGORY) { "Invoking title $title" }
+            title.invoke(player)
+        }
+
+        origin.stateBlocks[this@State]?.let { block ->
+            plugin.log.trace(scope = CATEGORY) { "Invoking state block" }
+            block.invoke(player)
+        }
+
+        origin.attributeModifiers[this@State]?.takeUnless(Collection<*>::isEmpty)?.forEach { (attribute, modifier) ->
+            with(player.getAttribute(attribute)) {
+                if (this == null) return@forEach plugin.log.debug(scope = CATEGORY) { "Attribute instance $attribute not found" }
+                plugin.log.trace(scope = CATEGORY) { "Adding modifier $modifier to $this" }
+                addModifier(modifier)
+            }
+        }
     }
 
     private fun removeAsync(
         player: Player,
         origin: Origin
     ) = async {
-        origin.attributeModifiers[this@State]?.takeUnless(Collection<*>::isEmpty)?.forEach { (attribute, modifier) -> player.getAttribute(attribute)?.removeModifier(modifier) }
+        origin.attributeModifiers[this@State]?.takeUnless(Collection<*>::isEmpty)?.forEach { (attribute, modifier) ->
+            with(player.getAttribute(attribute)) {
+                if (this == null) return@forEach plugin.log.debug(scope = CATEGORY) { "Attribute instance $attribute not found" }
+                plugin.log.trace(scope = CATEGORY) { "Removing modifier $modifier from $this" }
+                removeModifier(modifier)
+            }
+        }
     }
 
     // TODO: Cache if the player has their nightvision potion
@@ -234,18 +254,20 @@ sealed class State : KoinComponent, WithPlugin<Terix> {
         player: Player,
         origin: Origin
     ) = sync {
-        origin.potions[this@State]?.takeUnless(Collection<*>::isEmpty)?.let(player::addPotionEffects)
-
-//        if (origin.nightVision && transaction { PlayerData[player].nightVision == this@State } && !player.activePotionEffects.find { it.type == PotionEffectType.NIGHT_VISION }.fromOrigin()) {
-//            player.addPotionEffect(this@State.nightVisionPotion(origin))
-//        }
+        origin.potions[this@State]?.takeUnless(Collection<*>::isEmpty)?.forEach { potion ->
+            plugin.log.trace(scope = CATEGORY) { "Adding potion ${potion.type}" }
+            player.addPotionEffect(potion)
+        }
     }
 
     private fun removeSync(
         player: Player,
         origin: Origin
     ) = sync {
-        origin.potions[this@State]?.takeUnless(Collection<*>::isEmpty)?.map(PotionEffect::getType)?.forEach(player::removePotionEffect)
+        origin.potions[this@State]?.takeUnless(Collection<*>::isEmpty)?.map(PotionEffect::getType)?.forEach {
+            plugin.log.trace(scope = CATEGORY) { "Removing potion $it" }
+            player.removePotionEffect(it)
+        }
     }
 
     private fun sentryMessage(
@@ -254,7 +276,7 @@ sealed class State : KoinComponent, WithPlugin<Terix> {
     ): String {
         return buildString {
             val functionName = StackWalker.getInstance().walk { stream ->
-                stream.skip(2).findFirst().get().methodName
+                stream.skip(2).map { it.methodName.substringBefore('$') }.findFirst().get()
             }
             append(origin.name)
 
@@ -302,12 +324,12 @@ sealed class State : KoinComponent, WithPlugin<Terix> {
     }
 
     companion object {
-        private const val CATEGORY = "terix.origin.trigger"
+        private const val CATEGORY = "terix.origin.state"
         internal val activeStates = multiMapOf<Player, State>()
         private val ordinalInc: AtomicInt = atomic(0)
         private val plugin by getKoin().inject<Terix>()
         private val states = mutableSetOf<State>()
-        var values: Array<State> = emptyArray();
+        var values: Array<State> = emptyArray()
             private set
             get() {
                 if (field.size != states.size) {

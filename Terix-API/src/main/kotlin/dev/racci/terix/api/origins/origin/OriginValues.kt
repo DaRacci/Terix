@@ -57,7 +57,7 @@ sealed class OriginValues {
     val customFoodProperties: HashMap<Material, FoodProperties> by lazy(::hashMapOf)
     val foodAttributes: MultiMap<Material, TimedAttributeBuilder> by lazy(::multiMapOf)
     val foodBlocks: MutableMap<Material, suspend (Player) -> Unit> by lazy(::mutableMapOf)
-    val triggerBlocks: MutableMap<State, suspend (Player) -> Unit> by lazy(::mutableMapOf)
+    val stateBlocks: MutableMap<State, suspend (Player) -> Unit> by lazy(::mutableMapOf)
     val attributeModifiers: MultiMap<State, Pair<Attribute, AttributeModifier>> by lazy(::multiMapOf)
     val damageActions: MutableMap<EntityDamageEvent.DamageCause, suspend EntityDamageEvent.() -> Unit> by lazy(::mutableMapOf)
 }
