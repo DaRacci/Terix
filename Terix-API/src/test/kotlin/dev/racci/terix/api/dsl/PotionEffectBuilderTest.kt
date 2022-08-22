@@ -1,5 +1,6 @@
 package dev.racci.terix.api.dsl
 
+import Bootstrap
 import dev.racci.minix.api.utils.ticks
 import dev.racci.terix.api.TestOrigin
 import dev.racci.terix.api.origins.abilities.Levitate
@@ -8,6 +9,7 @@ import org.bukkit.Material
 import org.bukkit.NamespacedKey
 import org.bukkit.potion.PotionEffect
 import org.bukkit.potion.PotionEffectType
+import org.junit.jupiter.api.AfterAll
 import org.junit.jupiter.api.BeforeAll
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.TestInstance
@@ -27,6 +29,7 @@ internal class PotionEffectBuilderTest {
 
     @BeforeAll
     fun setUp() {
+        Bootstrap.startUp()
         angel = TestOrigin()
         originKey = NamespacedKey("terix", "origin_potion_testorigin/darkness")
         originKeyO = PotionEffectBuilder().originKey(angel, State.LightState.DARKNESS).key!!
@@ -34,6 +37,11 @@ internal class PotionEffectBuilderTest {
         abilityKeyO = PotionEffectBuilder().abilityKey(Levitate::class).key!!
         foodKey = NamespacedKey("terix", "origin_food_cod")
         foodKeyO = PotionEffectBuilder().foodKey(Material.COD).key!!
+    }
+
+    @AfterAll
+    fun tearDown() {
+        Bootstrap.shutDown()
     }
 
     @Test
