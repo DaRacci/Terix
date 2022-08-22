@@ -21,6 +21,7 @@ import dev.racci.minix.api.services.DataService
 import dev.racci.minix.api.services.DataService.Companion.inject
 import dev.racci.minix.api.utils.now
 import dev.racci.minix.nms.aliases.toNMS
+import dev.racci.terix.api.PlayerData
 import dev.racci.terix.api.Terix
 import dev.racci.terix.api.dsl.AttributeModifierBuilder
 import dev.racci.terix.api.dsl.PotionEffectBuilder
@@ -28,6 +29,8 @@ import dev.racci.terix.api.dsl.TimedAttributeBuilder
 import dev.racci.terix.api.events.PlayerOriginChangeEvent
 import dev.racci.terix.api.extensions.playSound
 import dev.racci.terix.api.origins.OriginHelper
+import dev.racci.terix.api.origins.OriginHelper.activateOrigin
+import dev.racci.terix.api.origins.OriginHelper.deactivateOrigin
 import dev.racci.terix.api.origins.enums.KeyBinding
 import dev.racci.terix.api.origins.origin.ActionPropBuilder
 import dev.racci.terix.api.origins.origin.Origin
@@ -57,7 +60,7 @@ import org.bukkit.event.entity.EntityPotionEffectEvent
 import org.bukkit.event.entity.FoodLevelChangeEvent
 import org.bukkit.event.entity.PlayerDeathEvent
 import org.bukkit.event.player.PlayerChangedWorldEvent
-import org.bukkit.event.player.PlayerItemConsumeEvent
+import org.bukkit.event.player.PlayerGameModeChangeEvent
 import org.bukkit.event.player.PlayerJoinEvent
 import org.bukkit.inventory.ItemStack
 import org.bukkit.potion.PotionEffect
@@ -315,6 +318,14 @@ class ListenerService(override val plugin: Terix) : Extension<Terix>() {
 
             lastState?.deactivate(player, origin)
             currentState?.activate(player, origin)
+        }
+
+        event<PlayerGameModeChangeEvent>() {
+            if (this.newGameMode.ordinal in 1..2) {
+                return@event activateOrigin(player)
+            }
+
+            deactivateOrigin(player)
         }
     }
 
