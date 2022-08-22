@@ -204,13 +204,27 @@ class ListenerService(override val plugin: Terix) : Extension<Terix>() {
             ignoreCancelled = true,
             priority = EventPriority.LOWEST
         ) {
-            val now = now()
+            if (newOrigin === preOrigin) {
+                result = PlayerOriginChangeEvent.Result.CURRENT_ORIGIN
+                return@event cancel()
+            }
 
-            if (bypassOrEarly(now)) return@event cancel()
+            if (!(skipRequirement || newOrigin.hasPermission(player))) {
+                result = PlayerOriginChangeEvent.Result.NO_PERMISSION
+                return@event cancel()
+            }
+
+            val now = now()
+            if (!(bypassCooldown || player.originTime + config.intervalBeforeChange > now)) {
+                result = PlayerOriginChangeEvent.Result.ON_COOLDOWN
+                return@event cancel()
+            }
+
             if (!bypassCooldown) player.originTime = now
 
             transaction(getKoin().getProperty("terix:database")) { PlayerData[player.uniqueId].origin = newOrigin }
             OriginHelper.changeTo(player, preOrigin, newOrigin) // TODO: This should cover the removeUnfulfilled method
+            removeUnfulfilledOrInvalidAttributes(player)
 
             lang.origin.broadcast[
                 "player" to { player.displayName() },
@@ -219,7 +233,6 @@ class ListenerService(override val plugin: Terix) : Extension<Terix>() {
             ] message onlinePlayers
 
             if (config.showTitleOnChange) newOrigin.becomeOriginTitle?.invoke(player)
-            removeUnfulfilledOrInvalidAttributes(player)
         }
 
         events(

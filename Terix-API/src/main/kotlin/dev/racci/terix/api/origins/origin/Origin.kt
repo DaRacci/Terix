@@ -15,7 +15,7 @@ abstract class Origin : OriginBuilder(), OriginEventListener, WithPlugin<MinixPl
      * @param player The player to check.
      * @return True if the player has permission, false otherwise.
      */
-    open fun hasPermission(player: Player) = permission?.let(player::hasPermission) ?: true
+    open suspend fun hasPermission(player: Player) = permission?.let(player::hasPermission) ?: true
 
     override fun toString(): String {
         return "Origin(name='$name', item=$item, " +
