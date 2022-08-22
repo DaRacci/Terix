@@ -1,8 +1,8 @@
 package dev.racci.terix.core.origins
 
+import Bootstrap.mockOrigin
 import dev.racci.terix.api.dsl.PotionEffectBuilder
 import dev.racci.terix.api.origins.states.State
-import dev.racci.terix.services.Bootstrap.mockOrigin
 import io.mockk.Runs
 import io.mockk.coEvery
 import io.mockk.every

@@ -1,5 +1,3 @@
-package dev.racci.terix.services
-
 import com.mojang.datafixers.DataFixerBuilder
 import dev.racci.minix.api.scheduler.CoroutineRunnable
 import dev.racci.minix.api.scheduler.CoroutineScheduler
@@ -24,7 +22,7 @@ import org.bukkit.entity.Player
 import java.util.UUID
 import java.util.function.Supplier
 
-internal object Bootstrap {
+object Bootstrap {
 
     @MockK
     lateinit var mockPlugin: Terix

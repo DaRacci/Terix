@@ -1,4 +1,4 @@
-package dev.racci.terix.services
+package dev.racci.terix.core.services
 
 //
 // internal class RunnableServiceTest : KoinTest {
