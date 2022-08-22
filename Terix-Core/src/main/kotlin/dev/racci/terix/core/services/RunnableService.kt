@@ -84,7 +84,7 @@ class RunnableService(override val plugin: Terix) : Extension<Terix>() {
         registerTask(player, origin, origin.titles.keys, mother)
         registerTask(player, origin, origin.potions.keys, mother)
         registerTask(player, origin, origin.damageTicks.keys, mother)
-        registerTask(player, origin, origin.triggerBlocks.keys, mother)
+        registerTask(player, origin, origin.stateBlocks.keys, mother)
         registerTask(player, origin, origin.attributeModifiers.keys, mother)
     }
 

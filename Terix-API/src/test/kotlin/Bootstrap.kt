@@ -84,7 +84,7 @@ object Bootstrap {
         every { mockOrigin.titles } returns mutableMapOf()
         every { mockOrigin.potions } returns multiMapOf()
         every { mockOrigin.damageTicks } returns mutableMapOf()
-        every { mockOrigin.triggerBlocks } returns mutableMapOf()
+        every { mockOrigin.stateBlocks } returns mutableMapOf()
         every { mockOrigin.attributeModifiers } returns multiMapOf()
 
         every { mockPlayer.name } returns "TestPlayer"
