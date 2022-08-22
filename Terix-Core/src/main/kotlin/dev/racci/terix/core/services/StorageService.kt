@@ -7,9 +7,8 @@ import dev.racci.minix.api.extension.Extension
 import dev.racci.minix.api.extensions.event
 import dev.racci.minix.api.utils.kotlin.ifInitialized
 import dev.racci.terix.api.OriginService
+import dev.racci.terix.api.PlayerData
 import dev.racci.terix.api.Terix
-import dev.racci.terix.core.data.PlayerData
-import dev.racci.terix.core.data.User
 import org.bukkit.event.player.AsyncPlayerPreLoginEvent
 import org.jetbrains.exposed.sql.Database
 import org.jetbrains.exposed.sql.SchemaUtils
@@ -29,15 +28,15 @@ class StorageService(override val plugin: Terix) : Extension<Terix>() {
     }
     private var dataSource = lazy { HikariDataSource(config.value) }
 
-    val database: Database by lazy { Database.connect(dataSource.value) }
-
     override suspend fun handleEnable() {
-        log.info { "Connected to database." }
+        val database = Database.connect(dataSource.value)
+        getKoin().setProperty("terix:database", database)
+
         transaction(database) {
-            SchemaUtils.createMissingTablesAndColumns(User)
+            SchemaUtils.createMissingTablesAndColumns(PlayerData.User)
         }
         event<AsyncPlayerPreLoginEvent> {
-            transaction { PlayerData.findById(this@event.uniqueId) ?: PlayerData.new(this@event.uniqueId) {} }
+            transaction(database) { PlayerData.findById(this@event.uniqueId) ?: PlayerData.new(this@event.uniqueId) {} }
         }
     }
 

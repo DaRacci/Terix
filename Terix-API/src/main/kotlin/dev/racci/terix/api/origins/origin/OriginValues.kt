@@ -22,7 +22,7 @@ import org.bukkit.event.entity.EntityDamageEvent
 import org.bukkit.potion.PotionEffect
 
 sealed class OriginValues {
-    private val specials = arrayOfNulls<Boolean>(3)
+    private val specials = arrayOfNulls<Boolean>(2)
 
     open val name: String = this::class.simpleName
         ?.withIndex()
@@ -35,20 +35,15 @@ sealed class OriginValues {
 
     open val becomeOriginTitle: TitleBuilder? = null
 
-    /*    open var nightVision: Boolean
-            get() = specials[0] ?: false
-            protected set(value) {
-                specials[0] = value
-            }*/
     open var fireImmunity: Boolean
+        get() = specials[0] ?: false
+        protected set(value) {
+            specials[0] = value
+        }
+    open var waterBreathing: Boolean
         get() = specials[1] ?: false
         protected set(value) {
             specials[1] = value
-        }
-    open var waterBreathing: Boolean
-        get() = specials[2] ?: false
-        protected set(value) {
-            specials[2] = value
         }
 
     val item: OriginItem = OriginItem()

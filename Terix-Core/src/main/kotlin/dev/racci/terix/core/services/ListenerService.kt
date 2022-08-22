@@ -73,9 +73,10 @@ import org.bukkit.event.player.PlayerJoinEvent
 import org.bukkit.inventory.ItemStack
 import org.bukkit.potion.PotionEffect
 import org.bukkit.potion.PotionEffectType
-import org.jetbrains.exposed.sql.transactions.experimental.newSuspendedTransaction
+import org.jetbrains.exposed.sql.transactions.transaction
 import org.koin.core.component.inject
 import java.util.UUID
+import kotlin.reflect.KProperty1
 import kotlin.time.Duration.Companion.seconds
 
 // Check for button presses to invoke actions in the test chambers
@@ -208,7 +209,7 @@ class ListenerService(override val plugin: Terix) : Extension<Terix>() {
             if (bypassOrEarly(now)) return@event cancel()
             if (!bypassCooldown) player.originTime = now
 
-            newSuspendedTransaction { PlayerData[player.uniqueId].origin = newOrigin }
+            transaction(getKoin().getProperty("terix:database")) { PlayerData[player.uniqueId].origin = newOrigin }
             OriginHelper.changeTo(player, preOrigin, newOrigin) // TODO: This should cover the removeUnfulfilled method
 
             lang.origin.broadcast[
