@@ -26,14 +26,16 @@ import dev.racci.minix.api.events.PlayerShiftRightClickEvent
 import dev.racci.minix.api.extension.Extension
 import dev.racci.minix.api.extensions.event
 import dev.racci.minix.api.utils.collections.multiMapOf
+import dev.racci.minix.api.utils.kotlin.doesOverride
 import dev.racci.minix.api.utils.safeCast
 import dev.racci.minix.api.utils.unsafeCast
 import dev.racci.terix.api.OriginService
+import dev.racci.terix.api.PlayerData
 import dev.racci.terix.api.Terix
 import dev.racci.terix.api.events.PlayerOriginChangeEvent
-import dev.racci.terix.api.origin
 import dev.racci.terix.api.origins.origin.Origin
 import dev.racci.terix.api.origins.origin.OriginEventListener
+import org.bukkit.entity.Entity
 import org.bukkit.entity.Player
 import org.bukkit.event.Event
 import org.bukkit.event.EventPriority
@@ -46,9 +48,13 @@ import org.bukkit.event.entity.EntityDamageByEntityEvent
 import org.bukkit.event.entity.EntityDamageEvent
 import org.bukkit.event.entity.EntityDeathEvent
 import org.bukkit.event.entity.EntityEvent
+import org.bukkit.event.entity.EntityPotionEffectEvent
+import org.bukkit.event.entity.EntityRegainHealthEvent
 import org.bukkit.event.entity.EntityResurrectEvent
+import org.bukkit.event.entity.EntityTargetLivingEntityEvent
 import org.bukkit.event.entity.EntityToggleGlideEvent
 import org.bukkit.event.entity.EntityToggleSwimEvent
+import org.bukkit.event.entity.FoodLevelChangeEvent
 import org.bukkit.event.entity.PlayerDeathEvent
 import org.bukkit.event.entity.ProjectileHitEvent
 import org.bukkit.event.inventory.InventoryOpenEvent
@@ -60,6 +66,7 @@ import org.bukkit.event.player.PlayerFishEvent
 import org.bukkit.event.player.PlayerInteractEvent
 import org.bukkit.event.player.PlayerItemConsumeEvent
 import org.bukkit.event.player.PlayerItemDamageEvent
+import org.bukkit.event.player.PlayerJoinEvent
 import org.bukkit.event.player.PlayerRespawnEvent
 import org.bukkit.event.player.PlayerRiptideEvent
 import org.bukkit.event.player.PlayerToggleSneakEvent
@@ -70,6 +77,7 @@ import org.spigotmc.event.entity.EntityMountEvent
 import org.spigotmc.event.player.PlayerSpawnLocationEvent
 import kotlin.reflect.KClass
 import kotlin.reflect.KFunction
+import kotlin.reflect.full.callSuspend
 import kotlin.reflect.full.memberFunctions
 import kotlin.reflect.full.starProjectedType
 import kotlin.reflect.full.valueParameters
@@ -171,8 +179,8 @@ class EventForwarderService(override val plugin: Terix) : Extension<Terix>() {
     }
 
     private fun registerBlockEvents() {
-        this.finaliseEvent(null, null, BlockBreakEvent::getPlayer)
-        this.finaliseEvent(null, null, BlockPlaceEvent::getPlayer)
+        this.finaliseEvent("BreakBlock", null, BlockBreakEvent::getPlayer)
+        this.finaliseEvent("PlaceBlock", null, BlockPlaceEvent::getPlayer)
     }
 
     private fun registerInventoryEvents() {
@@ -181,9 +189,16 @@ class EventForwarderService(override val plugin: Terix) : Extension<Terix>() {
     }
 
     private fun registerMiscellaneousEvents() {
-        this.finaliseEvent("BecomeOrigin", PlayerOriginChangeEvent::newOrigin, null)
         this.finaliseEvent("ChangeOrigin", PlayerOriginChangeEvent::preOrigin, null)
+        this.finaliseEvent("BecomeOrigin", PlayerOriginChangeEvent::newOrigin, null)
+        this.finaliseEvent("Target", null, EntityTargetLivingEntityEvent::getTarget)
+
         this.registerEntityEvent<EntityAirChangeEvent>()
+        this.registerEntityEvent<EntityRegainHealthEvent>()
+        this.registerEntityEvent<EntityPotionEffectEvent>()
+        this.registerEntityEvent<FoodLevelChangeEvent>("FoodChange")
+
+        this.registerPlayerEvent<PlayerJoinEvent>()
     }
 
     private fun activateListeners() {
@@ -195,14 +210,14 @@ class EventForwarderService(override val plugin: Terix) : Extension<Terix>() {
 
                 this.getForwarding(origin, clazz) ?: continue
 
+                log.debug { "Activating listener for ${origin.name} for ${clazz.simpleName}" }
+
                 // Register the event
                 origin.event(
                     type = clazz,
                     plugin = plugin,
                     priority = EventPriority.LOWEST
-                ) {
-                    events.forEach { it(this) }
-                }
+                ) { events.forEach { it(this) } }
             }
         }
     }
@@ -214,6 +229,11 @@ class EventForwarderService(override val plugin: Terix) : Extension<Terix>() {
         val function = functionCache[eventKClass]
 
         if (function == null) {
+            plugin.log.debug { "${this::class.simpleName} doesn't override the event ${eventKClass.simpleName}" }
+            return null
+        }
+
+        if (!listener::class.doesOverride(function.name)) {
             plugin.log.debug { "${this::class.simpleName} doesn't override the event ${eventKClass.simpleName}" }
             return null
         }
@@ -241,7 +261,7 @@ class EventForwarderService(override val plugin: Terix) : Extension<Terix>() {
     private inline fun <reified E : Event> finaliseEvent(
         name: String?,
         noinline originCallback: ((E) -> Origin?)? = null,
-        noinline playerCallback: ((E) -> Player?)?
+        noinline playerCallback: ((E) -> Entity?)?
     ) {
         val function = this.getFunction<E>(name) ?: return
         log.debug { "Registering event: ${E::class.qualifiedName} -> ${function.name}" }
@@ -250,15 +270,15 @@ class EventForwarderService(override val plugin: Terix) : Extension<Terix>() {
             originCallback == null && playerCallback != null -> {
                 call@{
                     val player = playerCallback(it as E).safeCast<Player>() ?: return@call
-                    val origin = origin(player)
-                    function.call(origin, it)
+                    val origin = PlayerData.cachedOrigin(player)
+                    function.callSuspend(origin, it)
                 }
             }
 
             playerCallback == null && originCallback != null -> {
                 {
                     val origin = originCallback(it as E)
-                    function.call(origin, it)
+                    function.callSuspend(origin, it)
                 }
             }
 

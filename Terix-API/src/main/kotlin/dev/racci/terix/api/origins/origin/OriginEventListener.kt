@@ -35,9 +35,13 @@ import org.bukkit.event.entity.EntityDamageByBlockEvent
 import org.bukkit.event.entity.EntityDamageByEntityEvent
 import org.bukkit.event.entity.EntityDamageEvent
 import org.bukkit.event.entity.EntityDeathEvent
+import org.bukkit.event.entity.EntityPotionEffectEvent
+import org.bukkit.event.entity.EntityRegainHealthEvent
 import org.bukkit.event.entity.EntityResurrectEvent
+import org.bukkit.event.entity.EntityTargetLivingEntityEvent
 import org.bukkit.event.entity.EntityToggleGlideEvent
 import org.bukkit.event.entity.EntityToggleSwimEvent
+import org.bukkit.event.entity.FoodLevelChangeEvent
 import org.bukkit.event.entity.PlayerDeathEvent
 import org.bukkit.event.entity.ProjectileHitEvent
 import org.bukkit.event.inventory.InventoryOpenEvent
@@ -48,6 +52,7 @@ import org.bukkit.event.player.PlayerFishEvent
 import org.bukkit.event.player.PlayerInteractEvent
 import org.bukkit.event.player.PlayerItemConsumeEvent
 import org.bukkit.event.player.PlayerItemDamageEvent
+import org.bukkit.event.player.PlayerJoinEvent
 import org.bukkit.event.player.PlayerRespawnEvent
 import org.bukkit.event.player.PlayerRiptideEvent
 import org.bukkit.event.player.PlayerToggleSneakEvent
@@ -61,6 +66,9 @@ sealed interface OriginEventListener : KListener<MinixPlugin> {
 
     /** Called when Terix first registers this origin. */
     suspend fun onRegister() = Unit
+
+    /** Called when the player joins the server. */
+    suspend fun onJoin(event: PlayerJoinEvent) = Unit
 
     /** Called when the player respawns. */
     suspend fun onRespawn(event: PlayerRespawnEvent) = Unit
@@ -88,6 +96,12 @@ sealed interface OriginEventListener : KListener<MinixPlugin> {
 
     /** Called when the player places a block. */
     suspend fun onPlaceBlock(event: BlockPlaceEvent) = Unit
+
+    /** Called when the player regenerates health. */
+    suspend fun onRegenHealth(event: EntityRegainHealthEvent) = Unit
+
+    /** Called when the player is targeted by an entity. */
+    suspend fun onTarget(event: EntityTargetLivingEntityEvent) = Unit
 
     /** Called when the player is damaged by a non-entity source. */
     suspend fun onDamage(event: EntityDamageEvent) = Unit
@@ -220,6 +234,11 @@ sealed interface OriginEventListener : KListener<MinixPlugin> {
 
     /** Called when the player spawn location is being found. */
     suspend fun onSpawnLocation(event: PlayerSpawnLocationEvent) = Unit
+
+    suspend fun onPotionEffect(event: EntityPotionEffectEvent) = Unit
+
+    /** Called when the players food level is changed. */
+    suspend fun onFoodChange(event: FoodLevelChangeEvent) = Unit
 
     /** Called each game tick. */
     suspend fun onTick(player: Player) = Unit
