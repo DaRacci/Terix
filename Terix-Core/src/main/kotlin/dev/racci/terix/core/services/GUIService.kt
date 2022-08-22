@@ -24,12 +24,13 @@ import dev.racci.minix.api.utils.now
 import dev.racci.minix.api.utils.unsafeCast
 import dev.racci.minix.nms.aliases.toNMS
 import dev.racci.terix.api.OriginService
+import dev.racci.terix.api.PlayerData
 import dev.racci.terix.api.Terix
 import dev.racci.terix.api.events.PlayerOriginChangeEvent
-import dev.racci.terix.api.origin
 import dev.racci.terix.api.origins.origin.Origin
 import dev.racci.terix.core.data.Config
 import dev.racci.terix.core.data.Lang
+import dev.racci.terix.core.data.Lang.PartialComponent.Companion.message
 import dev.racci.terix.core.extensions.asGuiItem
 import dev.racci.terix.core.extensions.originTime
 import dev.racci.terix.core.extensions.usedChoices
@@ -200,26 +201,31 @@ class GUIService(override val plugin: Terix) : Extension<Terix>() {
             val player = whoClicked as? Player ?: return@asGuiItem
             val origin = selectedOrigin.getIfPresent(player) ?: return@asGuiItem
             async {
-                if (origin(player) == origin) {
-                    player.shieldSound()
-                    lang.origin.setSameSelf["origin" to { origin.displayName }] message player
-                    return@async selectedOrigin.invalidate(player)
-                }
-
                 val bypass = config.freeChanges > 0 && player.usedChoices < config.freeChanges
-                if (PlayerOriginChangeEvent(player, origin(player), origin, bypass).callEvent()) {
+                val event = PlayerOriginChangeEvent(player, PlayerData.cachedOrigin(player), origin, bypass)
+
+                if (event.callEvent()) {
                     if (bypass) player.usedChoices++
                     sync { player.closeInventory(InventoryCloseEvent.Reason.PLAYER) }
                     player.playSound(Sound.sound(Key.key("block.chest.unlock"), Sound.Source.PLAYER, 1.0f, 1.0f))
                 } else {
                     player.shieldSound()
-                    lang.origin.onChangeCooldown["cooldown" to { player.originTime.remaining(config.intervalBeforeChange)!!.format() }] message player
+
+                    when (event.result) {
+                        PlayerOriginChangeEvent.Result.ON_COOLDOWN -> lang.origin.onChangeCooldown["cooldown" to { player.originTime.remaining(config.intervalBeforeChange)!!.format() }] message player
+                        PlayerOriginChangeEvent.Result.NO_PERMISSION -> lang.origin.missingRequirement message player
+                        PlayerOriginChangeEvent.Result.CURRENT_ORIGIN -> {
+                            lang.origin.setSameSelf["origin" to { origin.displayName }] message player
+                            selectedOrigin.invalidate(player)
+                        }
+
+                        else -> { /* Do Nothing. */
+                        }
+                    }
                 }
             }
         }
     }
-
-    private fun Instant.expired(cooldown: kotlin.time.Duration) = this + cooldown > now()
 
     private fun Instant.remaining(cooldown: kotlin.time.Duration) = (this + cooldown - now()).takeUnless { it.inWholeMilliseconds <= 0 }
 
