@@ -6,19 +6,18 @@ import dev.racci.minix.api.extensions.async
 import dev.racci.minix.api.extensions.event
 import dev.racci.minix.api.extensions.onlinePlayers
 import dev.racci.minix.api.extensions.player
-import dev.racci.minix.api.utils.unsafeCast
 import dev.racci.terix.api.PlayerData
 import dev.racci.terix.api.Terix
 import dev.racci.terix.api.events.PlayerOriginChangeEvent
 import dev.racci.terix.api.origins.origin.Origin
 import dev.racci.terix.api.origins.states.State
 import dev.racci.terix.core.services.runnables.AmbientTick
+import dev.racci.terix.core.services.runnables.ChildCoroutineRunnable
 import dev.racci.terix.core.services.runnables.DarknessTick
 import dev.racci.terix.core.services.runnables.MotherCoroutineRunnable
 import dev.racci.terix.core.services.runnables.RainTick
 import dev.racci.terix.core.services.runnables.SunlightTick
 import dev.racci.terix.core.services.runnables.WaterTick
-import kotlinx.collections.immutable.PersistentList
 import kotlinx.coroutines.flow.conflate
 import kotlinx.coroutines.flow.filter
 import org.bukkit.entity.Player
@@ -96,18 +95,15 @@ class RunnableService(override val plugin: Terix) : Extension<Terix>() {
         mother: MotherCoroutineRunnable
     ) {
         for (trigger in triggers) {
-            val task: Any = when (trigger) {
+            val task = when (trigger) {
                 State.LightState.SUNLIGHT -> SunlightTick::class
                 State.LiquidState.WATER -> WaterTick::class
                 State.WeatherState.RAIN -> RainTick::class
                 State.LightState.DARKNESS -> DarknessTick::class
-//                SideEffect.WET -> WaterTick::class and RainTick::class
                 else -> continue
             }
 
-            if (task is PersistentList<*>) {
-                task.forEach { checkAndRegister(player, origin, mother, it) }
-            } else checkAndRegister(player, origin, mother, task)
+            checkAndRegister(player, origin, mother, task)
         }
     }
 
@@ -115,11 +111,13 @@ class RunnableService(override val plugin: Terix) : Extension<Terix>() {
         player: Player,
         origin: Origin,
         mother: MotherCoroutineRunnable,
-        taskClazz: Any?
+        taskClazz: KClass<out ChildCoroutineRunnable>
     ) {
-        if (taskClazz == null) return
         if (mother.children.any { it::class == taskClazz }) return
-        taskClazz.unsafeCast<KClass<*>>().primaryConstructor!!.call(
+
+        log.debug { "Registering ${taskClazz.simpleName} for ${player.name}" }
+
+        taskClazz.primaryConstructor!!.call(
             player,
             origin,
             this@RunnableService,
