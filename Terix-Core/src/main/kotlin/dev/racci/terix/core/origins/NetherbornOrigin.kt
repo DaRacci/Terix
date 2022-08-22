@@ -1,6 +1,8 @@
 package dev.racci.terix.core.origins
 
-import dev.racci.minix.api.plugin.MinixPlugin
+import dev.racci.minix.api.utils.minecraft.MaterialTagsExtension
+import dev.racci.terix.api.Terix
+import dev.racci.terix.api.dsl.FoodPropertyBuilder
 import dev.racci.terix.api.origins.origin.Origin
 import dev.racci.terix.api.origins.sounds.SoundEffect
 import dev.racci.terix.api.origins.states.State
@@ -14,9 +16,7 @@ import org.bukkit.event.entity.EntityDamageEvent
 // TODO -> Eating raw items gives the same as cooked food since hes hot.
 // TODO -> Eating Cooked food gives less since it becomes overcooked.
 // TODO -> Cake.
-// TODO -> Cannot eat vegetables or bread.
-// TODO -> No lava damage, More water damage.
-class NetherbornOrigin(override val plugin: MinixPlugin) : Origin() {
+class NetherbornOrigin(override val plugin: Terix) : Origin() {
 
     override val name = "Netherborn"
     override val colour = TextColor.fromHexString("#ff5936")!!
@@ -28,6 +28,20 @@ class NetherbornOrigin(override val plugin: MinixPlugin) : Origin() {
         sounds.deathSound = SoundEffect("entity.shulker.death")
         sounds.ambientSound = SoundEffect("entity.polar_bear.ambient")
 
+        food {
+            listOf(MaterialTagsExtension.VEGETABLES, MaterialTagsExtension.CARBS, MaterialTagsExtension.FRUITS) += { builder: FoodPropertyBuilder ->
+                builder.saturationModifier = 0.3f
+                builder.nutrition = 1
+            }
+            exchangeFoodProperties(Material.COOKED_BEEF, Material.BEEF)
+            exchangeFoodProperties(Material.COOKED_CHICKEN, Material.CHICKEN)
+            exchangeFoodProperties(Material.COOKED_MUTTON, Material.MUTTON)
+            exchangeFoodProperties(Material.COOKED_PORKCHOP, Material.PORKCHOP)
+            exchangeFoodProperties(Material.COOKED_RABBIT, Material.RABBIT)
+            exchangeFoodProperties(Material.COOKED_SALMON, Material.SALMON)
+            exchangeFoodProperties(Material.COOKED_COD, Material.COD)
+            exchangeFoodProperties(Material.COOKED_SALMON, Material.SALMON)
+        }
         damage {
             listOf(
                 State.WeatherState.RAIN,
