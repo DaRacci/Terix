@@ -8,13 +8,17 @@ import dev.racci.terix.api.events.PlayerOriginChangeEvent
 import dev.racci.terix.api.origins.origin.Origin
 import dev.racci.terix.api.origins.sounds.SoundEffect
 import dev.racci.terix.api.origins.states.State
+import dev.racci.terix.core.services.ListenerService
 import net.kyori.adventure.text.format.TextColor
 import org.bukkit.Material
 import org.bukkit.attribute.Attribute
 import org.bukkit.enchantments.Enchantment
 import org.bukkit.entity.EntityType
+import org.bukkit.entity.LivingEntity
 import org.bukkit.entity.Player
+import org.bukkit.entity.Projectile
 import org.bukkit.event.entity.EntityAirChangeEvent
+import org.bukkit.event.entity.EntityDamageByEntityEvent
 import org.bukkit.event.entity.EntityDamageEvent.DamageCause
 import org.bukkit.event.entity.EntityTargetEvent.TargetReason
 import org.bukkit.event.entity.EntityTargetLivingEntityEvent
@@ -92,10 +96,27 @@ class MerlingOrigin(override val plugin: Terix) : Origin() {
 
     override suspend fun onBecomeOrigin(event: PlayerOriginChangeEvent) {
         event.player.isReverseOxygen = true
+        plugin.log.debug { "oxygen: ${event.player.isReverseOxygen}" }
     }
 
     override suspend fun onChangeOrigin(event: PlayerOriginChangeEvent) {
         event.player.isReverseOxygen = false
+        plugin.log.debug { "oxygen: ${event.player.isReverseOxygen}" }
+    }
+
+    override suspend fun onDamageByEntity(event: EntityDamageByEntityEvent) {
+        if (event.damager is Projectile) {
+            val projectile = event.damager as Projectile
+            plugin.log.debug { "projectile fire: ${projectile.fireTicks}" }
+            if (projectile.fireTicks > 0) event.damage *= 2.0
+            val bow = ListenerService.getService().bowTracker[projectile.shooter] ?: return
+            return
+        }
+
+        val damager = event.damager as? LivingEntity ?: return
+        val weapon = damager.equipment?.itemInMainHand ?: return
+
+        if (weapon.enchantments.contains(Enchantment.FIRE_ASPECT)) event.damage *= 2.0
     }
 
     override suspend fun onRiptide(event: PlayerRiptideEvent) {
