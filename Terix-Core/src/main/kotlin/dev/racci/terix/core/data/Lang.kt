@@ -155,6 +155,8 @@ class Lang : IConfig(), WithPlugin<Terix>, KoinComponent {
 
         var onChangeCooldown: PartialComponent = PartialComponent.of("<prefix_origins>You can't change your origin for another <cooldown>.")
 
+        var missingRequirement: PartialComponent = PartialComponent.of("<prefix_origins>You're missing a requirement to select this origin.")
+
         var bee: Bee = Bee()
 
         @ConfigSerializable
