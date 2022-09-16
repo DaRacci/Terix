@@ -1,8 +1,8 @@
 package dev.racci.terix.core.services.runnables
 
-import dev.racci.minix.api.extensions.sync
 import dev.racci.minix.api.utils.now
 import dev.racci.minix.api.utils.ticks
+import dev.racci.terix.api.origins.OriginHelper
 import dev.racci.terix.api.origins.origin.Origin
 import dev.racci.terix.api.origins.states.State
 import dev.racci.terix.core.extensions.inWater
@@ -22,6 +22,7 @@ class WaterTick(
     override suspend fun run() {
         if (!player.inWater) return
         if ((now() - lastTick).ticks < 10) return
+        if (OriginHelper.shouldIgnorePlayer(player)) return
 
 //        val wet = origin.damageTicks[Trigger.WET]
         val water = origin.damageTicks[State.LiquidState.WATER] ?: return
