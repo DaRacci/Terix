@@ -1,14 +1,9 @@
 package dev.racci.terix.api.origins.abilities
 
-import dev.racci.minix.api.coroutine.minecraftDispatcher
+import dev.racci.minix.api.coroutine.asyncDispatcher
 import dev.racci.minix.api.extensions.WithPlugin
-import dev.racci.minix.api.extensions.async
 import dev.racci.minix.api.extensions.event
-import dev.racci.minix.api.extensions.onlinePlayers
-import dev.racci.minix.api.extensions.scheduler
 import dev.racci.minix.api.extensions.ticks
-import dev.racci.minix.api.utils.getKoin
-import dev.racci.minix.api.utils.now
 import dev.racci.terix.api.OriginService
 import dev.racci.terix.api.Terix
 import dev.racci.terix.api.events.PlayerAbilityActivateEvent
@@ -28,93 +23,88 @@ import org.koin.core.component.KoinComponent
 import org.koin.core.component.inject
 import java.util.UUID
 import kotlin.time.Duration
-import kotlin.time.Duration.Companion.seconds
 
-abstract class Ability(abilityType: AbilityType) : WithPlugin<Terix>, KoinComponent {
+abstract class Ability(private val abilityType: AbilityType) : WithPlugin<Terix>, KoinComponent {
+    private val abilityCache: CooldownSet by lazy { CooldownSet(this) }
+
     final override val plugin: Terix by inject()
 
-    protected val cooldownCache = mutableMapOf<UUID, Instant>()
-    protected var abilityCache: CooldownSet? = null
-
     /** The duration before the ability can be activated again. */
-    protected open val cooldown: Duration = 20.ticks
+    open val cooldown: Duration = 20.ticks
 
     open val name: String = this::class.simpleName ?: throw IllegalStateException("Ability name is null")
 
-    /** Returns if this player is able to activate this ability. */
-    protected open fun isAble(player: Player): Boolean {
-        val currentTime = now()
-        val nextActivation = cooldownCache[player.uniqueId]
-
-        return nextActivation == null || currentTime >= nextActivation
-    }
-
-    /** Called when the ability is activated the given player. */
+    /**
+     * Called when the ability is activated.
+     * This is always called off the main thread.
+     *
+     * @param player The player who activated the ability.
+     */
     open suspend fun onActivate(player: Player) = Unit
 
-    /** Called when the ability is deactivated the given player. */
+    /**
+     * Called when the ability is deactivated.
+     * This is always called off the main thread.
+     *
+     * @param player The player who deactivated the ability.
+     */
     open suspend fun onDeactivate(player: Player) = Unit
 
-    /** Returns true if the player had their ability activated, false otherwise. */
-    suspend fun toggle(player: Player): Boolean {
-        when {
-            isActivated(player.uniqueId) -> deactivate(player)
-            isAble(player) -> activate(player, false)
-        }
-
-        return isActivated(player.uniqueId)
+    /**
+     * Attempts to toggle this [player]'s ability.
+     *
+     * If the ability type is [AbilityType.TRIGGER], this will try to activate it.
+     * If the ability type is [AbilityType.TOGGLE] and the ability is active for the player, this will try to deactivate it.
+     *
+     * @param player to toggle the ability for.
+     * @return If the ability is on cooldown, this will return null. Otherwise, it will return true
+     */
+    suspend fun toggle(player: Player): Boolean? = when {
+        this.abilityCache.containsCooldown(player.uniqueId) -> null
+        this.isActivated(player.uniqueId) -> this.deactivate(player)
+        else -> this.activate(player, null)
     }
 
-    /** Returns true if the player has their ability activated, false otherwise. */
-    suspend fun activate(
+    /** Call only from inside [onActivate] to show a failed ability. */
+    protected fun failActivation(player: Player) {
+        this.abilityCache.remove(player.uniqueId, true)
+    }
+
+    internal suspend fun activate(
         player: Player,
-        force: Boolean
+        forceValue: Instant?
     ): Boolean {
-        if (!force && !isAble(player) || isOnCooldown(player.uniqueId) || !PlayerAbilityActivateEvent(player, this).callEvent()) return false
+        if (!this.abilityCache.add(player.uniqueId, forceValue)) return false
+        if (!PlayerAbilityActivateEvent(player, this).callEvent()) return false
 
-        when {
-            abilityCache == null -> Unit
-            force -> abilityCache!!.forceAdd(player.uniqueId)
-            else -> abilityCache!! += player.uniqueId
-        }
         this.addToPersistentData(player)
-
-        sentryScoped(player, SCOPE, "$name.activate", context = plugin.minecraftDispatcher) {
-            onActivate(player)
+        sentryScoped(player, SCOPE, "$name.activate", context = plugin.asyncDispatcher) {
+            this.onActivate(player)
         }
         return true
     }
 
-    /** Returns true if the player has their ability deactivated or if the ability isn't toggleable, false otherwise. */
-    suspend fun deactivate(player: Player): Boolean {
-        if (!isActivated(player.uniqueId) || !PlayerAbilityDeactivateEvent(player, this).callEvent()) return false
+    internal suspend fun deactivate(player: Player): Boolean {
+        if (!PlayerAbilityDeactivateEvent(player, this).callEvent()) return false
 
-        if (abilityCache != null) abilityCache!! -= player.uniqueId
+        this.abilityCache -= player.uniqueId
         this.removeFromPersistentData(player)
 
-        sentryScoped(player, SCOPE, "$name.deactivate", context = plugin.minecraftDispatcher) {
-            onDeactivate(player)
+        sentryScoped(player, SCOPE, "$name.deactivate", context = plugin.asyncDispatcher) {
+            this.onDeactivate(player)
         }
         return true
     }
 
-    fun isActivated(uuid: UUID): Boolean = abilityCache != null && uuid in abilityCache!!
-
-    fun isOnCooldown(uuid: UUID): Boolean = (cooldownCache[uuid] ?: Instant.DISTANT_PAST) > now()
-
-    init {
-        if (abilityType == AbilityType.TOGGLE) {
-            @Suppress("LeakingThis")
-            abilityCache = CooldownSet(this)
-        }
-    }
+    private fun isActivated(uuid: UUID): Boolean = abilityType == AbilityType.TOGGLE && uuid in abilityCache
 
     private fun addToPersistentData(player: Player) = async {
+        return@async // FIXME
         val containers = player.persistentDataContainer.get(NAMESPACE, PersistentDataType.TAG_CONTAINER_ARRAY)?.toMutableList() ?: mutableListOf<PersistentDataContainer>()
         val container = player.persistentDataContainer.get(NAMESPACE, PersistentDataType.TAG_CONTAINER) ?: DirtyCraftPersistentDataContainer(CraftPersistentDataTypeRegistry())
 
         container.set(NAMESPACES[0], PersistentDataType.STRING, this@Ability.name)
-        this@Ability.cooldownCache[player.uniqueId]?.toEpochMilliseconds()?.let { container.set(NAMESPACES[1], PersistentDataType.LONG, it) }
+        this@Ability.abilityCache[player.uniqueId]?.toEpochMilliseconds()?.let { container.set(NAMESPACES[1], PersistentDataType.LONG, it) }
         if (this@Ability.isActivated(player.uniqueId)) container.set(NAMESPACES[2], PersistentDataType.BYTE, 1)
 
         containers.add(container)
@@ -122,6 +112,7 @@ abstract class Ability(abilityType: AbilityType) : WithPlugin<Terix>, KoinCompon
     }
 
     private fun removeFromPersistentData(player: Player) = async {
+        return@async // FIXME
         val containers = player.persistentDataContainer.get(NAMESPACE, PersistentDataType.TAG_CONTAINER_ARRAY)
         if (containers.isNullOrEmpty()) return@async
 
@@ -152,11 +143,10 @@ abstract class Ability(abilityType: AbilityType) : WithPlugin<Terix>, KoinCompon
                             return@with null
                         }
                     } ?: continue
-                    val cooldown = container.get(NAMESPACES[1], PersistentDataType.LONG)?.let(Instant::fromEpochMilliseconds)
+                    val lastUsed = container.get(NAMESPACES[1], PersistentDataType.LONG)?.let(Instant::fromEpochMilliseconds)
                     val active = container.get(NAMESPACES[2], PersistentDataType.BYTE) == 1.toByte()
 
-                    if (cooldown != null) ability.cooldownCache[player.uniqueId] = cooldown
-                    if (active) ability.activate(player, true)
+                    if (active) ability.activate(player, lastUsed)
                 }
             }
 
@@ -164,44 +154,5 @@ abstract class Ability(abilityType: AbilityType) : WithPlugin<Terix>, KoinCompon
         }
     }
 
-    class CooldownSet(
-        private val ability: Ability
-    ) : HashSet<UUID>() {
-        /** Returns true if the player is off cooldown and was added to the set. */
-        override fun add(element: UUID): Boolean {
-            if (ability.isOnCooldown(element)) return false
-
-            ability.cooldownCache[element] = now() + ability.cooldown
-            return super.add(element)
-        }
-
-        /** Skips the cooldown check and adds the player to the set. */
-        fun forceAdd(element: UUID): Boolean {
-            ability.cooldownCache.putIfAbsent(element, now() + ability.cooldown) // Account for force activations from data persistence.
-            return super.add(element)
-        }
-
-        override fun remove(element: UUID): Boolean {
-            if (ability.cooldownCache[element]?.let { it < now() } == true) {
-                ability.cooldownCache.remove(element) // If the players' cooldown has expired, remove it from the map.
-            }
-            return super.remove(element)
-        }
-
-        init {
-            scheduler {
-                if (onlinePlayers.isEmpty() || this.isEmpty()) return@scheduler
-
-                val uuidList = onlinePlayers.map(Player::getUniqueId)
-                for (player in this) {
-                    if (player in uuidList) continue
-
-                    this.remove(player)
-                    ability.cooldownCache.remove(player)
-                }
-            }.runAsyncTaskTimer(plugin, Duration.ZERO, 15.seconds)
-        }
-    }
-
-    enum class AbilityType { TOGGLE, TRIGGER, TARGET }
+    enum class AbilityType { TOGGLE, TRIGGER }
 }
