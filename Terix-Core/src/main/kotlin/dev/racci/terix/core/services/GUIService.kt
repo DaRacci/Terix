@@ -26,6 +26,8 @@ import dev.racci.minix.nms.aliases.toNMS
 import dev.racci.terix.api.OriginService
 import dev.racci.terix.api.PlayerData
 import dev.racci.terix.api.Terix
+import dev.racci.terix.api.TerixPlayer
+import dev.racci.terix.api.data.TerixConfig
 import dev.racci.terix.api.events.PlayerOriginChangeEvent
 import dev.racci.terix.api.origins.origin.Origin
 import dev.racci.terix.core.data.Config
@@ -67,8 +69,7 @@ import kotlin.time.Duration.Companion.seconds
 @MappedExtension(Terix::class, "GUI Service", [OriginService::class, HookService::class])
 class GUIService(override val plugin: Terix) : Extension<Terix>() {
     private val lang by inject<DataService>().inject<Lang>()
-    private val config by inject<DataService>().inject<Config>()
-    private val hookService by inject<HookService>()
+    private val terixConfig by inject<DataService>().inject<TerixConfig>()
     private val originService by inject<OriginServiceImpl>()
 
     private val packetModifierCache = mutableMapOf<Player, Array<Any?>>()
@@ -201,19 +202,19 @@ class GUIService(override val plugin: Terix) : Extension<Terix>() {
             val player = whoClicked as? Player ?: return@asGuiItem
             val origin = selectedOrigin.getIfPresent(player) ?: return@asGuiItem
             async {
-                val bypass = config.freeChanges > 0 && player.usedChoices < config.freeChanges
-                val event = PlayerOriginChangeEvent(player, PlayerData.cachedOrigin(player), origin, bypass)
+                val bypass = player.freeChanges > 0
+                val event = PlayerOriginChangeEvent(player, TerixPlayer.cachedOrigin(player), origin, bypass)
 
                 if (event.callEvent()) {
-                    if (bypass) player.usedChoices++
+                    if (bypass) player.freeChanges--
                     sync { player.closeInventory(InventoryCloseEvent.Reason.PLAYER) }
                     player.playSound(Sound.sound(Key.key("block.chest.unlock"), Sound.Source.PLAYER, 1.0f, 1.0f))
                 } else {
                     player.shieldSound()
 
                     when (event.result) {
-                        PlayerOriginChangeEvent.Result.ON_COOLDOWN -> lang.origin.onChangeCooldown["cooldown" to { player.originTime.remaining(config.intervalBeforeChange)!!.format() }] message player
-                        PlayerOriginChangeEvent.Result.NO_PERMISSION -> lang.origin.missingRequirement message player
+                        PlayerOriginChangeEvent.Result.ON_COOLDOWN -> lang.origin.onChangeCooldown["cooldown" to { player.originTime.remaining(terixConfig.intervalBeforeChange)!!.format() }] message player
+                        PlayerOriginChangeEvent.Result.NO_PERMISSION -> lang.origin.missingRequirement.message(player)
                         PlayerOriginChangeEvent.Result.CURRENT_ORIGIN -> {
                             lang.origin.setSameSelf["origin" to { origin.displayName }] message player
                             selectedOrigin.invalidate(player)

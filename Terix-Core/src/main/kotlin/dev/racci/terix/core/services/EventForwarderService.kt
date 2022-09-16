@@ -26,13 +26,14 @@ import dev.racci.minix.api.events.PlayerShiftOffhandEvent
 import dev.racci.minix.api.events.PlayerShiftRightClickEvent
 import dev.racci.minix.api.extension.Extension
 import dev.racci.minix.api.extensions.event
+import dev.racci.minix.api.extensions.log
 import dev.racci.minix.api.utils.collections.multiMapOf
 import dev.racci.minix.api.utils.kotlin.doesOverride
 import dev.racci.minix.api.utils.safeCast
 import dev.racci.minix.api.utils.unsafeCast
 import dev.racci.terix.api.OriginService
-import dev.racci.terix.api.PlayerData
 import dev.racci.terix.api.Terix
+import dev.racci.terix.api.TerixPlayer
 import dev.racci.terix.api.events.PlayerOriginChangeEvent
 import dev.racci.terix.api.origins.origin.Origin
 import dev.racci.terix.api.origins.origin.OriginEventListener
@@ -248,10 +249,6 @@ class EventForwarderService(override val plugin: Terix) : Extension<Terix>() {
         return function.unsafeCast()
     }
 
-    //    private inline fun <reified T : PlayerEvent> registerPlayerEvent(
-//        function: KFunction<Unit>
-//    ) = this.finaliseEvent<T>(function.name, null, PlayerEvent::getPlayer)
-//
     private inline fun <reified T : PlayerEvent> registerPlayerEvent(name: String? = null) {
         this.finaliseEvent<T>(name, null, PlayerEvent::getPlayer)
     }
@@ -272,7 +269,7 @@ class EventForwarderService(override val plugin: Terix) : Extension<Terix>() {
             originCallback == null && playerCallback != null -> {
                 call@{
                     val player = playerCallback(it as E).safeCast<Player>() ?: return@call
-                    val origin = PlayerData.cachedOrigin(player)
+                    val origin = TerixPlayer.cachedOrigin(player)
                     function.callSuspend(origin, it)
                 }
             }

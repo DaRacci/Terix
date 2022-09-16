@@ -5,11 +5,11 @@ import dev.racci.terix.api.TestOrigin
 import dev.racci.terix.api.origins.states.State
 import org.bukkit.attribute.Attribute
 import org.bukkit.attribute.AttributeModifier
+import org.junit.jupiter.api.AfterAll
 import org.junit.jupiter.api.BeforeAll
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.TestInstance
 import java.util.UUID
-import kotlin.test.AfterTest
 import kotlin.test.assertEquals
 import kotlin.test.assertTrue
 
@@ -28,7 +28,7 @@ internal class AttributeModifierBuilderTest {
         originName = AttributeModifierBuilder.originName(angel, State.LightState.DARKNESS)
     }
 
-    @AfterTest
+    @AfterAll
     fun tearDown() {
         Bootstrap.shutDown()
     }

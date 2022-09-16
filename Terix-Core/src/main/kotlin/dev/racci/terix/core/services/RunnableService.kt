@@ -2,12 +2,11 @@ package dev.racci.terix.core.services
 
 import dev.racci.minix.api.annotations.MappedExtension
 import dev.racci.minix.api.extension.Extension
-import dev.racci.minix.api.extensions.async
 import dev.racci.minix.api.extensions.event
 import dev.racci.minix.api.extensions.onlinePlayers
 import dev.racci.minix.api.extensions.player
-import dev.racci.terix.api.PlayerData
 import dev.racci.terix.api.Terix
+import dev.racci.terix.api.TerixPlayer
 import dev.racci.terix.api.events.PlayerOriginChangeEvent
 import dev.racci.terix.api.origins.origin.Origin
 import dev.racci.terix.api.origins.states.State
@@ -29,7 +28,7 @@ import kotlin.reflect.KClass
 import kotlin.reflect.full.primaryConstructor
 
 // TODO -> Merge fully into TickService
-@MappedExtension(Terix::class, "Runnable Service", [HookService::class, TickService::class])
+@MappedExtension(Terix::class, "Runnable Service", [TickService::class])
 class RunnableService(override val plugin: Terix) : Extension<Terix>() {
     private val motherRunnables = HashMap<UUID, MotherCoroutineRunnable>()
 
@@ -66,7 +65,7 @@ class RunnableService(override val plugin: Terix) : Extension<Terix>() {
     private fun getNewMother(uuid: UUID): MotherCoroutineRunnable? {
         val mother = MotherCoroutineRunnable()
         val player = player(uuid) ?: return null
-        val origin = PlayerData.cachedOrigin(player)
+        val origin = TerixPlayer.cachedOrigin(player)
         val ambientSound = origin.sounds.ambientSound
 
         if (ambientSound != null) { AmbientTick(player, ambientSound, this@RunnableService, mother) }
@@ -115,7 +114,7 @@ class RunnableService(override val plugin: Terix) : Extension<Terix>() {
     ) {
         if (mother.children.any { it::class == taskClazz }) return
 
-        log.debug { "Registering ${taskClazz.simpleName} for ${player.name}" }
+        logger.debug { "Registering ${taskClazz.simpleName} for ${player.name}" }
 
         taskClazz.primaryConstructor!!.call(
             player,

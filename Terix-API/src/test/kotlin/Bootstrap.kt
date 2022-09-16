@@ -5,8 +5,8 @@ import dev.racci.minix.api.scheduler.CoroutineScheduler
 import dev.racci.minix.api.scheduler.CoroutineTask
 import dev.racci.minix.api.utils.collections.multiMapOf
 import dev.racci.terix.api.OriginService
-import dev.racci.terix.api.PlayerData
 import dev.racci.terix.api.Terix
+import dev.racci.terix.api.TerixPlayer
 import dev.racci.terix.api.origin
 import dev.racci.terix.api.origins.origin.Origin
 import dev.racci.terix.api.sentryScoped
@@ -109,16 +109,16 @@ object Bootstrap {
             }
         }
 
-        mockkObject(PlayerData.Companion)
-        mockkObject(PlayerData.User)
+        mockkObject(TerixPlayer.Companion)
+        mockkObject(TerixPlayer.User)
 
-        every { PlayerData.User.origin } returns mockk()
-        every { PlayerData.User.lastOrigin } returns mockk()
-        every { PlayerData.User.lastChosenTime } returns mockk()
-        every { PlayerData.User.usedChoices } returns mockk()
+        every { TerixPlayer.User.origin } returns mockk()
+        every { TerixPlayer.User.lastOrigin } returns mockk()
+        every { TerixPlayer.User.lastChosenTime } returns mockk()
+        every { TerixPlayer.User.freeChanges } returns mockk()
 
         every { origin(mockPlayer) } returns mockOrigin
-        every { PlayerData.Companion.cachedOrigin(allAny()) } returns mockOrigin
+        every { TerixPlayer.Companion.cachedOrigin(allAny()) } returns mockOrigin
     }
 
     private fun startKoin(): KoinApplication {
@@ -152,11 +152,11 @@ object Bootstrap {
     private fun mockkPlugin() {
         every { mockPlugin.log } answers {
             mockk {
-                every { debug(allAny(), allAny(), any<() -> String>()) } just Runs
+                every { trace(any(), any(), any<() -> Any?>()) } just Runs
+                every { debug(any(), any(), any<() -> Any?>()) } just Runs
                 every { info(allAny()) } just Runs
                 every { warn(allAny()) } just Runs
                 every { error(allAny()) } just Runs
-                every { trace(allAny()) } just Runs
             }
         }
 //

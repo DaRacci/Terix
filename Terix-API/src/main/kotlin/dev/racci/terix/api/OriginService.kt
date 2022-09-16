@@ -14,14 +14,17 @@ interface OriginService {
 
     fun getOrigins(): PersistentMap<KClass<out Origin>, Origin>
 
+    @Throws(NoSuchElementException::class)
     fun getOrigin(origin: KClass<out Origin>): Origin
 
     fun getOriginOrNull(origin: KClass<out Origin>): Origin?
 
+    @Throws(NoSuchElementException::class)
     fun getAbility(ability: KClass<out Ability>): Ability
 
     fun getAbilityOrNull(ability: KClass<out Ability>): Ability?
 
+    @Throws(NoSuchElementException::class)
     fun getOrigin(name: String): Origin
 
     fun getOriginOrNull(name: String?): Origin?

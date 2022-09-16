@@ -1,10 +1,9 @@
 package dev.racci.terix.api.origins
 
 import dev.racci.minix.api.extensions.WithPlugin
-import dev.racci.minix.api.extensions.sync
 import dev.racci.terix.api.OriginService
-import dev.racci.terix.api.PlayerData
 import dev.racci.terix.api.Terix
+import dev.racci.terix.api.TerixPlayer
 import dev.racci.terix.api.dsl.AttributeModifierBuilder
 import dev.racci.terix.api.dsl.PotionEffectBuilder
 import dev.racci.terix.api.origins.origin.Origin
@@ -38,7 +37,7 @@ object OriginHelper : KoinComponent, WithPlugin<Terix> {
 
     suspend fun applyBase(
         player: Player,
-        origin: Origin = PlayerData.cachedOrigin(player)
+        origin: Origin = TerixPlayer.cachedOrigin(player)
     ) {
         State.CONSTANT.activate(player, origin)
         player.setCanBreathUnderwater(origin.waterBreathing)
@@ -70,7 +69,7 @@ object OriginHelper : KoinComponent, WithPlugin<Terix> {
 //                    removePotions += PotionEffectType.NIGHT_VISION
 //                }
 //                oldOrigin?.nightVision != true && newOrigin.nightVision -> {
-//                    val state = activeStates.find { transaction { PlayerData[player].nightVision == it } } ?: return@sync
+//                    val state = activeStates.find { transaction { TerixPlayer[player].nightVision == it } } ?: return@sync
 //                    player.addPotionEffect(nightVisionPotion(newOrigin, state))
 //                }
 //            }
@@ -93,7 +92,7 @@ object OriginHelper : KoinComponent, WithPlugin<Terix> {
 
     /** Designed to be invoked for when a player needs everything to reset. */
     suspend fun activateOrigin(player: Player) {
-        val origin = PlayerData.cachedOrigin(player)
+        val origin = TerixPlayer.cachedOrigin(player)
 
         player.setImmuneToFire(origin.fireImmunity)
         player.setCanBreathUnderwater(origin.waterBreathing)
@@ -104,7 +103,7 @@ object OriginHelper : KoinComponent, WithPlugin<Terix> {
 
     /** Designed to be invoked for when a player needs everything disabled. */
     suspend fun deactivateOrigin(player: Player) {
-        PlayerData.cachedOrigin(player).abilities.values.forEach { it.deactivate(player) }
+        TerixPlayer.cachedOrigin(player).abilities.values.forEach { it.deactivate(player) }
         getOriginPotions(player, null).forEach(player::removePotionEffect)
         State.activeStates.remove(player)
         player.setImmuneToFire(null)

@@ -3,8 +3,8 @@ package dev.racci.terix.core.extensions
 import dev.racci.minix.api.coroutine.launch
 import dev.racci.minix.api.utils.getKoin
 import dev.racci.minix.nms.aliases.toNMS
-import dev.racci.terix.api.PlayerData
 import dev.racci.terix.api.Terix
+import dev.racci.terix.api.TerixPlayer
 import kotlinx.datetime.Instant
 import net.kyori.adventure.text.Component
 import net.minecraft.core.BlockPos
@@ -35,14 +35,22 @@ fun Player.canSeeSky(): Boolean {
 }
 
 var Player.originTime: Instant
-    get() { return transaction { PlayerData[this@originTime].lastChosenTime ?: Instant.DISTANT_PAST } }
-    set(instant) { transaction { PlayerData[this@originTime].lastChosenTime = instant } }
+    get() {
+        return transaction { TerixPlayer[this@originTime].lastChosenTime ?: Instant.DISTANT_PAST }
+    }
+    set(instant) {
+        transaction { TerixPlayer[this@originTime].lastChosenTime = instant }
+    }
 
-var Player.usedChoices: Int
-    get() { return transaction { PlayerData[this@usedChoices].usedChoices } }
-    set(value) { transaction { PlayerData[this@usedChoices].usedChoices = value } }
+var Player.freeChanges: Int
+    get() {
+        return transaction { TerixPlayer[this@freeChanges].freeChanges }
+    }
+    set(value) {
+        transaction { TerixPlayer[this@freeChanges].freeChanges = value }
+    }
 
-val Player.tickCache: PlayerData.PlayerTickCache get() = PlayerData.cachedTicks(this)
+val Player.tickCache: TerixPlayer.PlayerTickCache get() = TerixPlayer.cachedTicks(this)
 
 var Player.wasInSunlight
     get() = tickCache.wasInSunlight

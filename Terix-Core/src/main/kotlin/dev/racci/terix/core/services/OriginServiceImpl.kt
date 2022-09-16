@@ -3,17 +3,18 @@ package dev.racci.terix.core.services
 import dev.racci.minix.api.annotations.MappedExtension
 import dev.racci.minix.api.annotations.MinixDsl
 import dev.racci.minix.api.extension.Extension
+import dev.racci.minix.api.extensions.log
 import dev.racci.minix.api.services.DataService
 import dev.racci.minix.api.utils.collections.CollectionUtils.cacheOf
 import dev.racci.minix.api.utils.unsafeCast
 import dev.racci.terix.api.OriginService
 import dev.racci.terix.api.Terix
+import dev.racci.terix.api.data.TerixConfig
 import dev.racci.terix.api.origins.abilities.Ability
 import dev.racci.terix.api.origins.abilities.Levitate
 import dev.racci.terix.api.origins.abilities.Teleport
 import dev.racci.terix.api.origins.abilities.Transform
 import dev.racci.terix.api.origins.origin.Origin
-import dev.racci.terix.core.data.Config
 import dev.racci.terix.core.origins.AethenOrigin
 import dev.racci.terix.core.origins.AxolotlOrigin
 import dev.racci.terix.core.origins.BeeOrigin
@@ -36,17 +37,17 @@ import kotlin.reflect.full.primaryConstructor
 class OriginServiceImpl(override val plugin: Terix) : OriginService, Extension<Terix>() {
     private val modifierCache = cacheOf<KClass<*>, Any>({ constructors.first().call(this@OriginServiceImpl) }, { expireAfterAccess(Duration.ofMinutes(1)) })
     private val origins = mutableMapOf<KClass<out Origin>, Origin>()
-    private var dirtyCache: Array<String>? = null
+    private var dirtyCache: List<String>? = null
     private var dirtyRegistry: PersistentMap<String, Origin>? = null
 
     val abilities = mutableMapOf<KClass<out Ability>, Ability>()
     val registry: PersistentMap<String, Origin>
         get() = dirtyRegistry ?: origins.values.associateBy { it.name.lowercase() }.toPersistentMap().also { dirtyRegistry = it }
-    val registeredOrigins: Array<String>
+    val registeredOrigins: List<String>
         get() = dirtyCache ?: registry.keys.map {
             it.replaceFirstChar(Char::titlecaseChar)
-        }.toTypedArray().also { dirtyCache = it }
-    override val defaultOrigin: Origin get() = registry.getOrElse(getKoin().get<DataService>().get<Config>().defaultOrigin) { origins[HumanOrigin::class]!! }
+        }.toList().also { dirtyCache = it }
+    override val defaultOrigin: Origin get() = registry.getOrElse(getKoin().get<DataService>().get<TerixConfig>().defaultOrigin) { origins[HumanOrigin::class]!! }
 
     override suspend fun handleEnable() {
         populateAbilities()
@@ -81,17 +82,17 @@ class OriginServiceImpl(override val plugin: Terix) : OriginService, Extension<T
 
     override fun getOrigins(): PersistentMap<KClass<out Origin>, Origin> = origins.toPersistentMap()
 
-    override fun getOrigin(origin: KClass<out Origin>): Origin = origins[origin] ?: error("Origin ${origin.simpleName} not found")
+    override fun getOrigin(origin: KClass<out Origin>): Origin = origins[origin] ?: throw NoSuchElementException("Origin ${origin.simpleName} not found")
 
     inline fun <reified T : Origin> getOrigin() = getOrigin(T::class)
 
     override fun getOriginOrNull(origin: KClass<out Origin>): Origin? = origins[origin]
 
-    override fun getAbility(ability: KClass<out Ability>): Ability = abilities[ability] ?: error("No ability registered for ${ability.simpleName}")
+    override fun getAbility(ability: KClass<out Ability>): Ability = abilities[ability] ?: throw NoSuchElementException("No ability registered for ${ability.simpleName}")
 
     override fun getAbilityOrNull(ability: KClass<out Ability>): Ability? = abilities[ability]
 
-    override fun getOrigin(name: String): Origin = registry[name] ?: error("No origin registered for $name")
+    override fun getOrigin(name: String): Origin = registry[name] ?: throw NoSuchElementException("No origin registered for $name")
 
     override fun getOriginOrNull(name: String?): Origin? {
         if (name.isNullOrBlank()) return null
