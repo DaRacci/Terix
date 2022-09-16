@@ -4,7 +4,6 @@ import dev.racci.minix.api.events.PlayerShiftRightClickEvent
 import dev.racci.minix.api.extensions.cancel
 import dev.racci.minix.api.extensions.parse
 import dev.racci.minix.api.extensions.playSound
-import dev.racci.minix.api.extensions.sync
 import dev.racci.minix.api.utils.minecraft.MaterialTagsExtension
 import dev.racci.minix.api.utils.now
 import dev.racci.minix.api.utils.safeCast
@@ -82,7 +81,7 @@ class VampireOrigin(override val plugin: Terix) : Origin() {
             }
         }
         damage {
-            State.LightState.SUNLIGHT += 160.0
+            State.LightState.SUNLIGHT += 300
         }
         title {
             State.LightState.SUNLIGHT += {
