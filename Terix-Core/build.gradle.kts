@@ -5,17 +5,17 @@ plugins {
 val minixVersion: String by rootProject
 
 dependencies {
+    compileOnly(project(":Terix-API"))
     compileOnly(rootProject.libs.minecraft.api.placeholderAPI)
     compileOnly(rootProject.libs.minecraft.api.protoclLib)
     compileOnly(rootProject.libs.minecraft.api.landsAPI)
     compileOnly(rootProject.libs.minecraft.api.ecoEnchants)
     compileOnly(rootProject.libs.minecraft.api.eco)
-    compileOnly("com.github.BeYkeRYkt.LightAPI:lightapi-bukkit-common:5.3.0-Bukkit")
-
-    compileOnly(project(":Terix-API"))
+    compileOnly(rootProject.libs.minecraft.api.lightAPI)
     compileOnly(rootProject.libs.minecraft.inventoryFramework)
-    compileOnly(rootProject.libs.minecraft.commandAPI)
-    compileOnly("xyz.xenondevs:particle:1.7.1")
+    compileOnly(rootProject.libs.bundles.cloud)
+    compileOnly(rootProject.libs.bundles.cloud.kotlin)
+    compileOnly(rootProject.libs.minecraft.particles)
 
     testImplementation(project(":Terix-API"))
 }
