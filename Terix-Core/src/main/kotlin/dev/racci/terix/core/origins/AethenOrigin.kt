@@ -1,6 +1,10 @@
 package dev.racci.terix.core.origins
 
 import dev.racci.minix.api.collections.PlayerMap
+import dev.racci.minix.api.destructors.component1
+import dev.racci.minix.api.destructors.component2
+import dev.racci.minix.api.destructors.component3
+import dev.racci.minix.api.destructors.component4
 import dev.racci.minix.api.events.PlayerDoubleRightClickEvent
 import dev.racci.minix.api.events.PlayerMoveFullXYZEvent
 import dev.racci.minix.api.extensions.cancel
@@ -12,7 +16,6 @@ import dev.racci.minix.api.extensions.toItemStack
 import dev.racci.minix.api.utils.collections.CollectionUtils.computeAndRemove
 import dev.racci.minix.api.utils.minecraft.MaterialTagsExtension
 import dev.racci.minix.api.utils.now
-import dev.racci.minix.api.utils.unsafeCast
 import dev.racci.minix.nms.aliases.toNMS
 import dev.racci.terix.api.Terix
 import dev.racci.terix.api.origins.abilities.Levitate
@@ -34,9 +37,10 @@ import org.bukkit.event.player.PlayerBedEnterEvent
 import org.bukkit.event.player.PlayerToggleSneakEvent
 import org.bukkit.potion.PotionEffect
 import org.bukkit.potion.PotionEffectType
-import ru.beykerykt.minecraft.lightapi.bukkit.api.extension.IBukkitExtension
 import ru.beykerykt.minecraft.lightapi.common.LightAPI
+import ru.beykerykt.minecraft.lightapi.common.api.engine.EditPolicy
 import ru.beykerykt.minecraft.lightapi.common.api.engine.LightFlag
+import ru.beykerykt.minecraft.lightapi.common.api.engine.SendPolicy
 import java.util.UUID
 import kotlin.time.Duration
 import kotlin.time.Duration.Companion.minutes
@@ -46,11 +50,11 @@ class AethenOrigin(override val plugin: Terix) : Origin() {
     override val name = "Aethen"
     override val colour = TextColor.fromHexString("#ffc757")!!
 
+    private val playerLocations = PlayerMap<Location>()
     private val missingPotion = PlayerMap<PotionEffect>()
     private val regenPotion = PotionEffect(PotionEffectType.REGENERATION, 10 * 20, 1, true)
     private val regenCache = mutableMapOf<UUID, Instant>()
     private val regenCooldown = 3.minutes
-    private val lastLocation = mutableMapOf<UUID, Location>()
 
     override suspend fun onRegister() {
         sounds.hurtSound = SoundEffect("entity.silverfish.hurt")
@@ -150,28 +154,41 @@ class AethenOrigin(override val plugin: Terix) : Origin() {
         sync { target.addPotionEffect(regenPotion) }
     }
 
-    private val handler = LightAPI.get().extension.unsafeCast<IBukkitExtension>().handler
-    private val playerLocations = PlayerMap<Location>()
+    private val handler = LightAPI.get()
     override suspend fun onMove(event: PlayerMoveFullXYZEvent) {
+        if (handler == null) {
+            plugin.log.warn { "LightAPI is not installed, disabling Aethen's ability" }
+            return
+        }
+
         playerLocations.compute(event.player) { _, oldLocation ->
-            if (oldLocation != null) handler.recalculateLighting(oldLocation.world, oldLocation.x.toInt(), oldLocation.y.toInt(), oldLocation.z.toInt(), LightFlag.BLOCK_LIGHTING)
-            val location = event.to
-            handler.setRawLightLevel(location.world, location.x.toInt(), location.y.toInt(), location.z.toInt(), 9, LightFlag.BLOCK_LIGHTING)
-            location
+            val (newX, newY, newZ, newWorld) = event.player.location
+
+            if (oldLocation != null) handler.setLightLevel(
+                oldLocation.world!!.name,
+                oldLocation.x.toInt(),
+                oldLocation.y.toInt(),
+                oldLocation.z.toInt(),
+                0,
+                LightFlag.BLOCK_LIGHTING,
+                EditPolicy.DEFERRED,
+                SendPolicy.DEFERRED,
+                null
+            )
+
+            handler.setLightLevel(
+                newWorld!!.name,
+                newX.toInt(),
+                newY.toInt(),
+                newZ.toInt(),
+                9,
+                LightFlag.BLOCK_LIGHTING,
+                EditPolicy.DEFERRED,
+                SendPolicy.DEFERRED,
+                null
+            )
+
+            event.player.location
         }
     }
-
-    /* // Possibly move to on move?
-    override suspend fun onTick(player: Player) {
-        val last = lastLocation[player.uniqueId]
-        val current = player.location
-
-        lastLocation[player.uniqueId] = current
-
-        if (last == null || last.block != current.block) {
-            if (last?.block != null) {
-                last.block.type
-            }
-        }
-    } */
 }

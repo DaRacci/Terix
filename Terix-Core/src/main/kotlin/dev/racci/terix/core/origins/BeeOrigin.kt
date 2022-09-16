@@ -2,6 +2,7 @@ package dev.racci.terix.core.origins
 
 import dev.racci.minix.api.collections.PlayerMap
 import dev.racci.minix.api.extensions.cancel
+import dev.racci.minix.api.utils.adventure.PartialComponent.Companion.message
 import dev.racci.minix.api.utils.now
 import dev.racci.minix.api.utils.unsafeCast
 import dev.racci.terix.api.Terix
@@ -10,7 +11,6 @@ import dev.racci.terix.api.dsl.TitleBuilder
 import dev.racci.terix.api.origins.origin.Origin
 import dev.racci.terix.api.origins.sounds.SoundEffect
 import dev.racci.terix.core.data.Lang
-import dev.racci.terix.core.data.Lang.PartialComponent.Companion.message
 import kotlinx.datetime.Instant
 import net.kyori.adventure.text.format.TextColor
 import org.bukkit.Material
