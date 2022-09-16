@@ -1,12 +1,11 @@
 package dev.racci.terix.core.services.runnables
 
-import dev.racci.minix.api.utils.kotlin.ifTrue
 import dev.racci.minix.nms.aliases.toNMS
+import dev.racci.terix.api.origins.OriginHelper
 import dev.racci.terix.api.origins.origin.Origin
 import dev.racci.terix.api.origins.states.State
 import dev.racci.terix.core.extensions.inSunlight
 import dev.racci.terix.core.extensions.wasInSunlight
-import dev.racci.terix.core.services.HookService
 import dev.racci.terix.core.services.RunnableService
 import net.kyori.adventure.extra.kotlin.text
 import net.kyori.adventure.text.Component
@@ -26,6 +25,7 @@ class SunlightTick(
     override suspend fun run() {
         val burn = shouldTickSunlight(player)
         service.doInvoke(player, origin, State.LightState.SUNLIGHT, player.wasInSunlight, player.inSunlight)
+        if (OriginHelper.shouldIgnorePlayer(player)) return
 
         when {
             !player.inSunlight && exposedTime > 0 -> exposedTime -= 5
@@ -46,11 +46,12 @@ class SunlightTick(
             return
         }
 
-        HookService.getService()
-            .get<HookService.EcoEnchantsHook>()
-            ?.sunResistance
-            ?.let(helmet::hasEnchant)
-            ?.ifTrue { return }
+        // TODO -> Update when eco enchants v9 is released
+//        HookService.getService()
+//            .get<HookService.EcoEnchantsHook>()
+//            ?.sunResistance
+//            ?.let(helmet::hasEnchant)
+//            ?.ifTrue { return }
 
         val nms = player.toNMS()
         val amount = nms.random.nextInt(0, 2).takeIf { it != 0 } ?: return

@@ -2,6 +2,7 @@ package dev.racci.terix.core.services.runnables
 
 import dev.racci.minix.api.utils.now
 import dev.racci.terix.api.extensions.playSound
+import dev.racci.terix.api.origins.OriginHelper
 import dev.racci.terix.api.origins.sounds.SoundEffect
 import dev.racci.terix.core.services.RunnableService
 import kotlinx.datetime.Instant
@@ -27,6 +28,7 @@ class AmbientTick(
 
     override suspend fun run() {
         if (disabled) return
+        if (OriginHelper.shouldIgnorePlayer(player)) return
         if (!ambientTime()) return
 
         player.playSound(

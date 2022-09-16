@@ -1,8 +1,8 @@
 package dev.racci.terix.core.services.runnables
 
-import dev.racci.minix.api.extensions.sync
 import dev.racci.minix.api.utils.now
 import dev.racci.minix.api.utils.ticks
+import dev.racci.terix.api.origins.OriginHelper
 import dev.racci.terix.api.origins.origin.Origin
 import dev.racci.terix.api.origins.states.State
 import dev.racci.terix.core.extensions.inRain
@@ -22,6 +22,7 @@ class RainTick(
 
     override suspend fun run() {
         service.doInvoke(player, origin, State.WeatherState.RAIN, player.wasInRain, player.inRain)
+        if (OriginHelper.shouldIgnorePlayer(player)) return
 
         if (!player.inRain) return
         if ((now() - lastTick).ticks < 10) return
