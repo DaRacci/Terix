@@ -3,7 +3,6 @@ package dev.racci.terix.api.origins.abilities
 import dev.racci.minix.api.extensions.SimpleKListener
 import dev.racci.minix.api.extensions.cancel
 import dev.racci.minix.api.extensions.event
-import dev.racci.minix.api.extensions.sync
 import dev.racci.terix.api.dsl.PotionEffectBuilder
 import dev.racci.terix.api.extensions.playSound
 import dev.racci.terix.api.sentryBreadcrumb
