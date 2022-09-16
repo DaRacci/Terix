@@ -30,26 +30,16 @@ class FoodPropertyBuilder() {
     private var changed: Boolean = true
     private val effects: ArrayList<Pair<MobEffectInstance, Float>> = arrayListOf()
 
-    var nutrition: Int = 0;
-        set(value) {
-            if (changeValue("nutrition", value)) field = value
-        }
-    var saturationModifier: Float = 0f;
-        set(value) {
-            if (changeValue("saturationModifier", value)) field = value
-        }
-    var isMeat: Boolean = false;
-        set(value) {
-            if (changeValue("isMeat", value)) field = value
-        }
-    var canAlwaysEat: Boolean = false;
-        set(value) {
-            if (changeValue("canAlwaysEat", value)) field = value
-        }
-    var fastFood: Boolean = false;
-        set(value) {
-            if (changeValue("fastFood", value)) field = value
-        }
+    var nutrition: Int = 0
+        set(value) { if (changeValue("nutrition", value)) field = value }
+    var saturationModifier: Float = 0f
+        set(value) { if (changeValue("saturationModifier", value)) field = value }
+    var isMeat: Boolean = false
+        set(value) { if (changeValue("isMeat", value)) field = value }
+    var canAlwaysEat: Boolean = false
+        set(value) { if (changeValue("canAlwaysEat", value)) field = value }
+    var fastFood: Boolean = false
+        set(value) { if (changeValue("fastFood", value)) field = value }
 
     fun clearEffects() {
         effects.clear()

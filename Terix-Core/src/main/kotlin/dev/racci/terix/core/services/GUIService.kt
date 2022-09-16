@@ -1,6 +1,7 @@
 package dev.racci.terix.core.services
 
 import com.comphenix.protocol.PacketType
+import com.comphenix.protocol.ProtocolLibrary
 import com.comphenix.protocol.events.ListenerPriority
 import com.comphenix.protocol.events.PacketAdapter
 import com.comphenix.protocol.events.PacketEvent
@@ -12,30 +13,26 @@ import com.github.stefvanschie.inventoryframework.pane.StaticPane
 import dev.racci.minix.api.annotations.MappedExtension
 import dev.racci.minix.api.builders.ItemBuilderDSL
 import dev.racci.minix.api.extension.Extension
-import dev.racci.minix.api.extensions.async
 import dev.racci.minix.api.extensions.cancel
 import dev.racci.minix.api.extensions.message
 import dev.racci.minix.api.extensions.parse
 import dev.racci.minix.api.extensions.scheduler
-import dev.racci.minix.api.extensions.sync
 import dev.racci.minix.api.services.DataService
 import dev.racci.minix.api.services.DataService.Companion.inject
+import dev.racci.minix.api.utils.adventure.PartialComponent.Companion.message
 import dev.racci.minix.api.utils.now
 import dev.racci.minix.api.utils.unsafeCast
 import dev.racci.minix.nms.aliases.toNMS
 import dev.racci.terix.api.OriginService
-import dev.racci.terix.api.PlayerData
 import dev.racci.terix.api.Terix
 import dev.racci.terix.api.TerixPlayer
 import dev.racci.terix.api.data.TerixConfig
 import dev.racci.terix.api.events.PlayerOriginChangeEvent
 import dev.racci.terix.api.origins.origin.Origin
-import dev.racci.terix.core.data.Config
 import dev.racci.terix.core.data.Lang
-import dev.racci.terix.core.data.Lang.PartialComponent.Companion.message
 import dev.racci.terix.core.extensions.asGuiItem
+import dev.racci.terix.core.extensions.freeChanges
 import dev.racci.terix.core.extensions.originTime
-import dev.racci.terix.core.extensions.usedChoices
 import dev.racci.terix.core.origins.AethenOrigin
 import dev.racci.terix.core.origins.AxolotlOrigin
 import dev.racci.terix.core.origins.BeeOrigin
@@ -66,7 +63,7 @@ import kotlin.time.Duration.Companion.seconds
 // TODO -> Lime green instead of green wool.
 // TODO -> Move buttons down one row.
 // TODO -> Add block below each item which shows detailed info about the origin.
-@MappedExtension(Terix::class, "GUI Service", [OriginService::class, HookService::class])
+@MappedExtension(Terix::class, "GUI Service", [OriginService::class])
 class GUIService(override val plugin: Terix) : Extension<Terix>() {
     private val lang by inject<DataService>().inject<Lang>()
     private val terixConfig by inject<DataService>().inject<TerixConfig>()
@@ -137,7 +134,7 @@ class GUIService(override val plugin: Terix) : Extension<Terix>() {
 
     // TODO: Sometimes glitches out.
     override suspend fun handleEnable() {
-        hookService.protocolManager.addPacketListener(
+        ProtocolLibrary.getProtocolManager().addPacketListener(
             object : PacketAdapter(plugin, ListenerPriority.HIGHEST, PacketType.Play.Server.SET_SLOT, PacketType.Play.Client.WINDOW_CLICK) {
                 override fun onPacketSending(event: PacketEvent) {
                     if (!validPacket(event)) return
@@ -167,9 +164,9 @@ class GUIService(override val plugin: Terix) : Extension<Terix>() {
     }
 
     private fun sendPacket(player: Player, slot: Int) {
-        val packet = hookService.protocolManager.createPacket(PacketType.Play.Server.SET_SLOT)
+        val packet = ProtocolLibrary.getProtocolManager().createPacket(PacketType.Play.Server.SET_SLOT)
         packet.integers.write(2, slot)
-        hookService.protocolManager.sendServerPacket(player, packet)
+        ProtocolLibrary.getProtocolManager().sendServerPacket(player, packet)
     }
 
     private fun Origin.createItem(): GuiItem {
