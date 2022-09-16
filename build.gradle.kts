@@ -25,10 +25,6 @@ bukkit {
         "EcoEnchants",
         "ProtocolLib"
     )
-    libraries = listOf(
-        "dev.jorel:commandapi-shade:8.5.1",
-        "xyz.xenondevs:particle:1.7.1"
-    )
     website = "https://terix.racci.dev/"
 }
 
@@ -37,7 +33,6 @@ dependencies {
     implementation(project(":Terix-Core"))
     implementation(project(":Terix-API"))
     implementation(libs.minecraft.inventoryFramework)
-    implementation("dev.racci:Minix-NMS:$minixVersion")
 }
 
 subprojects {
@@ -58,25 +53,19 @@ subprojects {
     }
 
     dependencies {
-        compileOnly("dev.racci:Minix-NMS:$minixVersion")
         compileOnly(rootProject.libs.minecraft.minix)
         compileOnly(rootProject.libs.minecraft.minix.core)
-        compileOnly("LibsDisguises:LibsDisguises:10.0.31")
+        compileOnly(rootProject.libs.minecraft.api.libsDisguises)
 
         testImplementation(platform(kotlin("bom")))
-        testImplementation("dev.racci:Minix-NMS:$minixVersion")
         testImplementation(rootProject.libs.minecraft.minix)
         testImplementation(rootProject.libs.minecraft.minix.core)
         testImplementation(rootProject.libs.bundles.kotlin)
         testImplementation(rootProject.libs.bundles.kotlinx)
         testImplementation(rootProject.libs.bundles.testing)
         testImplementation(rootProject.libs.minecraft.bstats)
-        testImplementation("io.kotest:kotest-runner-junit5:5.4.1")
-        testImplementation("io.kotest:kotest-property:5.4.1")
-        testImplementation("io.kotest:kotest-assertions-core:5.4.1")
-        testImplementation("io.insert-koin:koin-test:3.+")
-        testImplementation("io.insert-koin:koin-test-junit5:3.+")
-        testImplementation("io.mockk:mockk:1.12.4")
+        testImplementation(rootProject.libs.koin.test)
+        testImplementation(rootProject.libs.koin.test.junit5)
         testImplementation("dev.racci:Minix-NMS:$minixVersion")
         testImplementation(rootProject.libs.minecraft.api.protoclLib)
         testImplementation(rootProject.libs.minecraft.api.placeholderAPI)
@@ -88,7 +77,7 @@ subprojects {
 
     tasks {
 
-        test.get().useJUnitPlatform()
+//        test.get().useJUnitPlatform()
 
         dokkaHtml.get().dokkaSourceSets.configureEach {
             includeNonPublic.set(false)
@@ -115,12 +104,17 @@ fun included(
 
 tasks {
 
-//    withType<ShadowJar> {
-//        val location = "dev.racci.terix.libs"
-//        relocate("com.github.retrooper", "$location.packetevents")
-//        relocate("com.github.stefvanschie.inventoryframework", "$location.inventoryframework")
-//        relocate("dev.racci.minix.nms", "$location.minix-nms")
-//    }
+    shadowJar {
+        val location = "dev.racci.terix.libs"
+        dependencyFilter.include { dep ->
+            dep.moduleName == "Terix-API" ||
+                dep.moduleName == "Terix-Core" ||
+                dep.module.id.module == libs.minecraft.inventoryFramework.get().module ||
+                dep.module.id.module == libs.minecraft.commandAPI.get().module
+        }
+
+        relocate("com.github.stefvanschie.inventoryframework", "$location.inventoryframework")
+    }
 
     ktlintFormat {
         dependsOn(gradle.includedBuilds.map { it.task(":ktlintFormat") })
@@ -136,5 +130,11 @@ tasks {
 
     withType<org.jetbrains.dokka.gradle.DokkaMultiModuleTask> {
         outputDirectory.set(File("$rootDir/docs"))
+    }
+}
+
+allprojects {
+    configurations.configureEach {
+        exclude("me.carleslc.Simple-YAML", "Simple-Configuration")
     }
 }
