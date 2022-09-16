@@ -1,6 +1,7 @@
-package dev.racci.terix.core.data
+package dev.racci.terix.api.data
 
 import dev.racci.minix.api.annotations.MappedConfig
+import dev.racci.minix.api.data.MinixConfig
 import dev.racci.terix.api.Terix
 import org.spongepowered.configurate.objectmapping.ConfigSerializable
 import org.spongepowered.configurate.objectmapping.meta.Comment
@@ -9,10 +10,7 @@ import kotlin.time.Duration.Companion.minutes
 
 @ConfigSerializable
 @MappedConfig(Terix::class, "Config.conf")
-class Config {
-
-    @Comment("Should more verbose logging be sent to the server console?")
-    val debug: Boolean = false
+class TerixConfig : MinixConfig<Terix>(true) {
 
     @Comment("The players default origin.")
     val defaultOrigin: String = "Human"

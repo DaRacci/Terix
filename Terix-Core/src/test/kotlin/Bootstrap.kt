@@ -56,11 +56,11 @@ object Bootstrap {
 
         every { mockPlugin.log } answers {
             mockk {
-                every { debug(allAny()) } just Runs
+                every { trace(any(), any(), any<() -> Any?>()) } just Runs
+                every { debug(any(), any(), any<() -> Any?>()) } just Runs
                 every { info(allAny()) } just Runs
                 every { warn(allAny()) } just Runs
                 every { error(allAny()) } just Runs
-                every { trace(allAny()) } just Runs
             }
         }
 

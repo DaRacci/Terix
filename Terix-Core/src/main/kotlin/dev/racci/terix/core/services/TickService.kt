@@ -4,9 +4,7 @@ import dev.racci.minix.api.annotations.MappedExtension
 import dev.racci.minix.api.events.LiquidType
 import dev.racci.minix.api.events.LiquidType.Companion.liquidType
 import dev.racci.minix.api.extension.Extension
-import dev.racci.minix.api.extensions.async
 import dev.racci.minix.api.extensions.event
-import dev.racci.minix.api.extensions.launch
 import dev.racci.minix.api.extensions.onlinePlayers
 import dev.racci.minix.api.utils.Closeable
 import dev.racci.minix.api.utils.kotlin.doesOverride
@@ -14,8 +12,8 @@ import dev.racci.minix.api.utils.ticks
 import dev.racci.minix.nms.aliases.NMSWorld
 import dev.racci.minix.nms.aliases.toNMS
 import dev.racci.terix.api.OriginService
-import dev.racci.terix.api.PlayerData
 import dev.racci.terix.api.Terix
+import dev.racci.terix.api.TerixPlayer
 import dev.racci.terix.api.events.PlayerOriginChangeEvent
 import dev.racci.terix.api.origins.origin.Origin
 import dev.racci.terix.core.extensions.inDarkness
@@ -75,7 +73,7 @@ class TickService(override val plugin: Terix) : Extension<Terix>() {
             removeQueue.remove(player.uniqueId) // Maybe they reconnected?
             mutex.withLock { playerQueue.addLast(player) }
 
-            val origin = PlayerData.cachedOrigin(player)
+            val origin = TerixPlayer.cachedOrigin(player)
             if (hasTick(origin)) { originReference[player] = origin }
         }
         event<PlayerQuitEvent> {
@@ -83,7 +81,7 @@ class TickService(override val plugin: Terix) : Extension<Terix>() {
             removeQueue.add(player.uniqueId)
         }
         event<PlayerOriginChangeEvent> {
-            val origin = PlayerData.cachedOrigin(player)
+            val origin = TerixPlayer.cachedOrigin(player)
             if (hasTick(origin)) { originReference[player] = origin } else { originReference.remove(player) }
         }
 

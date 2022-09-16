@@ -2,7 +2,9 @@ package dev.racci.terix.api
 
 import com.github.benmanes.caffeine.cache.Caffeine
 import com.github.benmanes.caffeine.cache.LoadingCache
+import dev.racci.minix.api.services.DataService
 import dev.racci.minix.api.utils.getKoin
+import dev.racci.terix.api.data.TerixConfig
 import dev.racci.terix.api.origins.origin.Origin
 import kotlinx.datetime.Instant
 import org.bukkit.entity.Player
@@ -15,12 +17,12 @@ import org.jetbrains.exposed.sql.transactions.transaction
 import java.time.Duration
 import java.util.UUID
 
-class PlayerData(val uuid: EntityID<UUID>) : UUIDEntity(uuid) {
+class TerixPlayer(val uuid: EntityID<UUID>) : UUIDEntity(uuid) {
 
     private var _origin: String by User.origin
     var lastOrigin: String? by User.lastOrigin
     var lastChosenTime: Instant? by User.lastChosenTime
-    var usedChoices: Int by User.usedChoices
+    var freeChanges: Int by User.freeChanges
 
     var origin: Origin
         get() = originCache[uuid.value]
@@ -31,7 +33,7 @@ class PlayerData(val uuid: EntityID<UUID>) : UUIDEntity(uuid) {
         }
 
     interface Cache {
-        operator fun get(player: Player): PlayerData
+        operator fun get(player: Player): TerixPlayer
         fun cachedOrigin(player: Player): Origin
         fun cachedTicks(player: Player): PlayerTickCache
     }
@@ -48,8 +50,8 @@ class PlayerData(val uuid: EntityID<UUID>) : UUIDEntity(uuid) {
         var inRain: Boolean = false
     }
 
-    companion object : UUIDEntityClass<PlayerData>(User), Cache {
-        override operator fun get(player: Player): PlayerData = get(player.uniqueId)
+    companion object : UUIDEntityClass<TerixPlayer>(User), Cache {
+        override operator fun get(player: Player): TerixPlayer = get(player.uniqueId)
 
         override fun cachedTicks(player: Player): PlayerTickCache = tickCache[player.uniqueId]
 
@@ -85,6 +87,6 @@ class PlayerData(val uuid: EntityID<UUID>) : UUIDEntity(uuid) {
         val lastOrigin = text("last_origin").nullable().default(null)
 
         val lastChosenTime = timestamp("last_chosen_time").nullable().default(null)
-        val usedChoices = integer("used_choices").default(0)
+        val freeChanges = integer("free_changes").default(DataService.getService().get<TerixConfig>().freeChanges)
     }
 }
