@@ -92,11 +92,11 @@ class OriginServiceImpl(override val plugin: Terix) : OriginService, Extension<T
 
     override fun getAbilityOrNull(ability: KClass<out Ability>): Ability? = abilities[ability]
 
-    override fun getOrigin(name: String): Origin = registry[name] ?: throw NoSuchElementException("No origin registered for $name")
+    override fun getOrigin(name: String): Origin = registry[name.lowercase()] ?: throw NoSuchElementException("No origin registered for $name")
 
     override fun getOriginOrNull(name: String?): Origin? {
         if (name.isNullOrBlank()) return null
-        return registry[name]
+        return registry[name.lowercase()]
     }
 
     @MinixDsl

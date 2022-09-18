@@ -7,7 +7,7 @@ plugins {
     id("dev.racci.minix.nms")
     kotlin("plugin.serialization")
     id("dev.racci.minix.publication")
-    id("net.minecrell.plugin-yml.bukkit") version "0.5.1"
+    id("net.minecrell.plugin-yml.bukkit") version "0.5.2"
 }
 
 bukkit {
@@ -43,6 +43,7 @@ subprojects {
     apply(plugin = "org.jetbrains.dokka")
 
     repositories {
+        mavenLocal()
         mavenCentral()
         maven("https://jitpack.io")
         maven("https://repo.racci.dev/releases")
@@ -53,6 +54,7 @@ subprojects {
     }
 
     dependencies {
+        compileOnly("dev.racci:Minix:4.0.1-SNAPSHOT")
         compileOnly(rootProject.libs.minecraft.minix)
         compileOnly(rootProject.libs.minecraft.minix.core)
         compileOnly(rootProject.libs.minecraft.api.libsDisguises)
