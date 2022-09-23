@@ -32,14 +32,17 @@ class Levitate : Ability(AbilityType.TOGGLE) {
         startGliding(player)
         player.velocity.add(player.location.direction.multiply(3))
         player.playSound(SOUND.first, SOUND.second, SOUND.third)
-        player.addPotionEffect(
-            PotionEffectBuilder.build {
-                type = PotionEffectType.LEVITATION
-                durationInt = Integer.MAX_VALUE
-                ambient = true
-                key = NamespacedKey("terix", KEY)
-            }
-        )
+
+        sync {
+            player.addPotionEffect(
+                PotionEffectBuilder.build {
+                    type = PotionEffectType.LEVITATION
+                    durationInt = Integer.MAX_VALUE
+                    ambient = true
+                    key = NamespacedKey("terix", KEY)
+                }
+            )
+        }
     }
 
     override suspend fun onDeactivate(player: Player) {
