@@ -14,7 +14,6 @@ import dev.racci.minix.api.extensions.cancel
 import dev.racci.minix.api.extensions.event
 import dev.racci.minix.api.extensions.events
 import dev.racci.minix.api.extensions.inOverworld
-import dev.racci.minix.api.extensions.log
 import dev.racci.minix.api.extensions.onlinePlayers
 import dev.racci.minix.api.extensions.scheduler
 import dev.racci.minix.api.services.DataService
@@ -134,7 +133,7 @@ class ListenerService(override val plugin: Terix) : Extension<Terix>() {
             val states = State.getPlayerStates(player)
             val invalidPotions = getInvalidPotions(player, origin, states)
 
-            log.debug { "Found ${invalidPotions.size} invalid potions for ${player.name}" }
+            logger.debug { "Found ${invalidPotions.size} invalid potions for ${player.name}" }
 
             sync { invalidPotions.forEach(player::removePotionEffect) }
             removeUnfulfilledOrInvalidAttributes(player, states)
@@ -273,7 +272,7 @@ class ListenerService(override val plugin: Terix) : Extension<Terix>() {
                 val channel = Channel<Boolean>(2) // 2 So we can overflow in case of lag
                 lasts[player.uniqueId] = now
 
-                log.debug { "PlayerRightClickEvent - channel created with empty state ${channel.isEmpty}" }
+                logger.debug { "PlayerRightClickEvent - channel created with empty state ${channel.isEmpty}" }
 
                 async {
                     var required = 1600L
@@ -285,32 +284,32 @@ class ListenerService(override val plugin: Terix) : Extension<Terix>() {
 
                         when {
                             received.isSuccess -> {
-                                log.debug { "PlayerRightClickEvent - received ${received.getOrNull()}" }
+                                logger.debug { "PlayerRightClickEvent - received ${received.getOrNull()}" }
                                 val elapsed = now - (lasts.replace(player.uniqueId, now) ?: 0L)
                                 required -= elapsed
                                 player.playSound(Sound.ENTITY_GENERIC_EAT.key.key)
                             }
                             received.isFailure -> {
-                                log.debug { "Missed receiving." }
+                                logger.debug { "Missed receiving." }
                                 continue
                             }
                             received.isClosed -> break
                         }
 
                         if (channel.isEmpty) {
-                            log.debug { "PlayerRightClickEvent - Channel is empty" }
+                            logger.debug { "PlayerRightClickEvent - Channel is empty" }
                             continue
                         }
 
                         if (required == 0L) {
-                            log.debug { "PlayerRightClickEvent - Consumed all required." }
+                            logger.debug { "PlayerRightClickEvent - Consumed all required." }
                             player.playSound(Sound.ENTITY_PLAYER_BURP.key.key)
                             foodEvent(player, this@event.item!!, origin, serverPlayer, hand, itemStack, foodInfo)
                             break
                         }
                     } while (!channel.isEmpty && !channel.isClosedForReceive)
 
-                    log.debug { "PlayerRightClickEvent - Channel closed for receive." }
+                    logger.debug { "PlayerRightClickEvent - Channel closed for receive." }
                     channel.close()
                     channels.remove(player.uniqueId, channel)
                 }
@@ -318,9 +317,9 @@ class ListenerService(override val plugin: Terix) : Extension<Terix>() {
             }
 
             if (channel.trySend(true).isSuccess) {
-                log.debug { "PlayerRightClickEvent - Sent element" }
+                logger.debug { "PlayerRightClickEvent - Sent element" }
             } else {
-                log.debug { "PlayerRightClickEvent - Channel is full" }
+                logger.debug { "PlayerRightClickEvent - Channel is full" }
                 channel.close()
                 channels.remove(player.uniqueId, channel)
             }
@@ -359,7 +358,7 @@ class ListenerService(override val plugin: Terix) : Extension<Terix>() {
         foodLevelChangeEvent: FoodLevelChangeEvent? = null
     ) {
         if (foodLevelChangeEvent?.isCancelled == true || (action == null && attributes == null && foodInfo == null)) {
-            return log.debug { "Nothing to do with this item." }
+            return logger.debug { "Nothing to do with this item." }
         } // There's nothing to do here
 
         if (foodInfo != null) {
@@ -370,10 +369,10 @@ class ListenerService(override val plugin: Terix) : Extension<Terix>() {
                 val newFoodLevel = foodData.foodLevel + foodInfo.nutrition
                 val newSaturationLevel = (foodData.saturationLevel + foodInfo.nutrition * foodInfo.saturationModifier * 2.0f).coerceAtMost(foodData.foodLevel.toFloat())
 
-                log.debug { "Modifying existing foodLevelChangeEvent" }
-                log.debug { "Old food level: $oldFoodLevel" }
-                log.debug { "New food level: $newFoodLevel" }
-                log.debug { "newSaturationLevel: $newSaturationLevel" }
+                logger.debug { "Modifying existing foodLevelChangeEvent" }
+                logger.debug { "Old food level: $oldFoodLevel" }
+                logger.debug { "New food level: $newFoodLevel" }
+                logger.debug { "newSaturationLevel: $newSaturationLevel" }
 
                 foodLevelChangeEvent.foodLevel = newFoodLevel
                 scheduler {
@@ -385,12 +384,12 @@ class ListenerService(override val plugin: Terix) : Extension<Terix>() {
 
             customEvent += player
             val event = CraftEventFactory.callFoodLevelChangeEvent(serverPlayer, foodInfo.nutrition + oldFoodLevel, itemStack)
-            log.debug { "Calling new FoodLevelChangeEvent" }
+            logger.debug { "Calling new FoodLevelChangeEvent" }
 
             if (!event.isCancelled) {
-                log.debug { "FoodLevelChangeEvent is not cancelled" }
-                log.debug { "Old food level: $oldFoodLevel" }
-                log.debug { "New food level: ${event.foodLevel}" }
+                logger.debug { "FoodLevelChangeEvent is not cancelled" }
+                logger.debug { "Old food level: $oldFoodLevel" }
+                logger.debug { "New food level: ${event.foodLevel}" }
 
                 serverPlayer.foodData.eat(serverPlayer.foodData.foodLevel - oldFoodLevel, foodInfo.saturationModifier)
                 serverPlayer.awardStat(Stats.ITEM_USED[itemStack.item])
@@ -447,7 +446,7 @@ class ListenerService(override val plugin: Terix) : Extension<Terix>() {
                 if (state !in activeTriggers ||
                     match["origin"]!!.value != origin.name.lowercase()
                 ) {
-                    log.debug { "Removing unfulfilled or invalid attribute: $modifier" }
+                    logger.debug { "Removing unfulfilled or invalid attribute: $modifier" }
                     inst.removeModifier(modifier)
                     continue
                 }

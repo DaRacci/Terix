@@ -26,7 +26,6 @@ import dev.racci.minix.api.events.PlayerShiftOffhandEvent
 import dev.racci.minix.api.events.PlayerShiftRightClickEvent
 import dev.racci.minix.api.extension.Extension
 import dev.racci.minix.api.extensions.event
-import dev.racci.minix.api.extensions.log
 import dev.racci.minix.api.utils.collections.multiMapOf
 import dev.racci.minix.api.utils.kotlin.doesOverride
 import dev.racci.minix.api.utils.safeCast
@@ -213,7 +212,7 @@ class EventForwarderService(override val plugin: Terix) : Extension<Terix>() {
 
                 this.getForwarding(origin, clazz) ?: continue
 
-                log.debug { "Activating listener for ${origin.name} for ${clazz.simpleName}" }
+                logger.debug { "Activating listener for ${origin.name} for ${clazz.simpleName}" }
 
                 // Register the event
                 origin.event(
@@ -263,7 +262,7 @@ class EventForwarderService(override val plugin: Terix) : Extension<Terix>() {
         noinline playerCallback: ((E) -> Entity?)?
     ) {
         val function = this.getFunction<E>(name) ?: return
-        log.debug { "Registering event: ${E::class.qualifiedName} -> ${function.name}" }
+        logger.debug { "Registering event: ${E::class.qualifiedName} -> ${function.name}" }
 
         val callback: suspend (Event) -> Unit = when {
             originCallback == null && playerCallback != null -> {
@@ -301,7 +300,7 @@ class EventForwarderService(override val plugin: Terix) : Extension<Terix>() {
         }
 
         if (nonNullName.isEmpty() || nonNullName == "on") {
-            log.debug { "No event name for ${T::class.simpleName}" }
+            logger.debug { "No event name for ${T::class.simpleName}" }
             return null
         }
 

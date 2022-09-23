@@ -3,7 +3,6 @@ package dev.racci.terix.core.services
 import dev.racci.minix.api.annotations.MappedExtension
 import dev.racci.minix.api.annotations.MinixDsl
 import dev.racci.minix.api.extension.Extension
-import dev.racci.minix.api.extensions.log
 import dev.racci.minix.api.services.DataService
 import dev.racci.minix.api.utils.collections.CollectionUtils.cacheOf
 import dev.racci.minix.api.utils.unsafeCast
@@ -124,7 +123,7 @@ class OriginServiceImpl(override val plugin: Terix) : OriginService, Extension<T
         @MinixDsl
         suspend inline fun <reified T : Origin> add(kClazz: KClass<T> = T::class) {
             add {
-                log.debug { "Creating origin ${kClazz.simpleName}" }
+                logger.debug { "Creating origin ${kClazz.simpleName}" }
                 kClazz.primaryConstructor!!.call(plugin)
             }
         }
