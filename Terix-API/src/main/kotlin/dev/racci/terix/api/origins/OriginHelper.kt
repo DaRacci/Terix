@@ -30,7 +30,7 @@ object OriginHelper : KoinComponent, WithPlugin<Terix> {
         }
 
         val reason = ignoring()
-        if (reason != null) plugin.log.trace(scope = SCOPE) { "Ignoring player ${player.name}: ${reason.description}" }
+//        if (reason != null) plugin.log.trace(scope = SCOPE) { "Ignoring player ${player.name}: ${reason.description}" }
 
         return reason != null
     }
