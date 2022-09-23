@@ -28,7 +28,7 @@ import kotlin.reflect.KClass
 import kotlin.reflect.full.primaryConstructor
 
 // TODO -> Merge fully into TickService
-@MappedExtension(Terix::class, "Runnable Service", [TickService::class])
+@MappedExtension(Terix::class, "Runnable Service", [TickService::class], threadCount = 4)
 class RunnableService(override val plugin: Terix) : Extension<Terix>() {
     private val motherRunnables = HashMap<UUID, MotherCoroutineRunnable>()
 
@@ -63,12 +63,12 @@ class RunnableService(override val plugin: Terix) : Extension<Terix>() {
     }
 
     private fun getNewMother(uuid: UUID): MotherCoroutineRunnable? {
-        val mother = MotherCoroutineRunnable()
+        val mother = MotherCoroutineRunnable(supervisor, dispatcher)
         val player = player(uuid) ?: return null
         val origin = TerixPlayer.cachedOrigin(player)
         val ambientSound = origin.sounds.ambientSound
 
-        if (ambientSound != null) { AmbientTick(player, ambientSound, this@RunnableService, mother) }
+        if (ambientSound != null) { AmbientTick(player, origin, mother, ambientSound) }
 
         attachChildren(mother, player, origin)
 
@@ -124,7 +124,7 @@ class RunnableService(override val plugin: Terix) : Extension<Terix>() {
         )
     }
 
-    suspend fun doInvoke(
+    suspend fun tryToggle(
         player: Player,
         origin: Origin,
         state: State,
