@@ -68,7 +68,6 @@ import org.bukkit.event.player.PlayerChangedWorldEvent
 import org.bukkit.event.player.PlayerGameModeChangeEvent
 import org.bukkit.event.player.PlayerJoinEvent
 import org.bukkit.inventory.ItemStack
-import org.bukkit.potion.PotionEffect
 import org.bukkit.potion.PotionEffectType
 import org.jetbrains.exposed.sql.transactions.transaction
 import org.koin.core.component.inject
@@ -96,16 +95,6 @@ class ListenerService(override val plugin: Terix) : Extension<Terix>() {
                     potion.key?.asString()?.matches(PotionEffectBuilder.regex) == true
                 ) return@event cancel()
             }
-
-            // TODO: Move into the Elixir Plugin
-            effect = PotionEffect(
-                effect.type,
-                effect.duration,
-                effect.amplifier,
-                true,
-                false,
-                false
-            )
         }
 
         event<EntityShootBowEvent>(EventPriority.MONITOR, true) {
