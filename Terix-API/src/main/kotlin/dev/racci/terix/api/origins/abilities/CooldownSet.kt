@@ -46,7 +46,7 @@ internal class CooldownSet(private val ability: Ability) {
 
     operator fun contains(element: UUID): Boolean {
         this.checkExpired(element)
-        return element in this.cacheMap
+        return this.cacheMap[element]?.first ?: false
     }
 
     operator fun get(element: UUID) = this.cacheMap[element]?.second
@@ -59,11 +59,17 @@ internal class CooldownSet(private val ability: Ability) {
     }
 
     private fun checkExpired(element: UUID) {
-        if (!this.cacheMap.containsKey(element)) return
-        if (this.cacheMap[element]!!.second == null) return
-        if (this.cacheMap[element]!!.second!! + ability.cooldown < now()) return
+        this.cacheMap.computeIfPresent(element) { _, (active, cooldown) ->
+            val newCooldown = if (cooldown == null || cooldown + this.ability.cooldown < now()) {
+                null
+            } else cooldown
 
-        this.cacheMap.computeIfPresent(element) { _, (active, _) -> active to null }
+            when {
+                active -> true to newCooldown
+                newCooldown != null -> false to newCooldown
+                else -> null
+            }
+        }
     }
 
     init {
