@@ -6,8 +6,10 @@ plugins {
     id("dev.racci.minix.purpurmc")
     id("dev.racci.minix.nms")
     kotlin("plugin.serialization")
+//    kotlin("kapt") version "1.7.10"
     id("dev.racci.minix.publication")
     id("net.minecrell.plugin-yml.bukkit") version "0.5.2"
+//    id("io.arrow-kt.analysis.kotlin") version "2.0"
 }
 
 bukkit {
@@ -28,6 +30,16 @@ bukkit {
     website = "https://terix.racci.dev/"
 }
 
+tasks {
+    val quickBuild by creating {
+        this.group = "build"
+        dependsOn(compileKotlin)
+        dependsOn(shadowJar)
+        dependsOn(reobfJar)
+        findByName("copyJar")?.let { dependsOn(it) }
+    }
+}
+
 val minixVersion: String by project
 dependencies {
     implementation(project(":Terix-Core"))
@@ -41,6 +53,8 @@ subprojects {
     apply(plugin = "dev.racci.minix.purpurmc")
     apply(plugin = "org.jetbrains.kotlin.plugin.serialization")
     apply(plugin = "org.jetbrains.dokka")
+    apply(plugin = "kotlin-kapt")
+//    apply(plugin = "io.arrow-kt.analysis.kotlin")
 
     repositories {
         mavenLocal()
@@ -54,10 +68,16 @@ subprojects {
     }
 
     dependencies {
-        compileOnly("dev.racci:Minix:4.0.1-SNAPSHOT")
+        compileOnly("dev.racci:Minix:4.2.0-SNAPSHOT")
+        compileOnly("dev.racci:Minix-Core:4.2.0-SNAPSHOT")
         compileOnly(rootProject.libs.minecraft.minix)
         compileOnly(rootProject.libs.minecraft.minix.core)
         compileOnly(rootProject.libs.minecraft.api.libsDisguises)
+
+        compileOnly(platform("io.arrow-kt:arrow-stack:1.1.3"))
+        compileOnly("io.arrow-kt:arrow-core")
+        compileOnly("io.arrow-kt:arrow-fx-coroutines")
+//        kapt("io.arrow-kt:arrow-meta")
 
         testImplementation(platform(kotlin("bom")))
         testImplementation(rootProject.libs.minecraft.minix)
