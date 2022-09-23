@@ -12,27 +12,29 @@ import kotlinx.datetime.Instant
 import org.bukkit.entity.Player
 
 class RainTick(
-    private val player: Player,
-    private val origin: Origin,
+    player: Player,
+    origin: Origin,
     private val service: RunnableService,
     mother: MotherCoroutineRunnable
-) : ChildCoroutineRunnable(mother) {
+) : ChildCoroutineRunnable(
+    mother,
+    player,
+    origin,
+    State.WeatherState.RAIN,
+    player::wasInRain,
+    player::inRain
+) {
 
     private var lastTick = Instant.DISTANT_PAST
 
-    override suspend fun run() {
-        service.doInvoke(player, origin, State.WeatherState.RAIN, player.wasInRain, player.inRain)
-        if (OriginHelper.shouldIgnorePlayer(player)) return
+    override suspend fun shouldRun(): Boolean {
+        return player.inRain && !OriginHelper.shouldIgnorePlayer(player)
+    }
 
-        if (!player.inRain) return
+    override suspend fun handleRun() {
         if ((now() - lastTick).ticks < 10) return
-
-//        val wet = origin.damageTicks[Trigger.WET]
         val rain = origin.damageTicks[State.WeatherState.RAIN] ?: return
-//        if (wet == null && rain == null) return
 
-        // Get the one which isn't null or whichever is higher
-//        val ticks = if (wet == null) rain!! else if (rain == null) wet else maxOf(wet, rain)
         lastTick = now()
         service.sync { player.damage(rain) }
     }

@@ -12,17 +12,22 @@ import kotlinx.datetime.Instant
 import org.bukkit.entity.Player
 
 class DarknessTick(
-    private val player: Player,
-    private val origin: Origin,
+    player: Player,
+    origin: Origin,
     private val service: RunnableService,
     mother: MotherCoroutineRunnable
-) : ChildCoroutineRunnable(mother) {
-
+) : ChildCoroutineRunnable(
+    mother,
+    player,
+    origin,
+    State.LightState.DARKNESS,
+    player::wasInDarkness,
+    player::inDarkness
+) {
     private var lastTick = Instant.DISTANT_PAST
     private val damage = origin.damageTicks[State.LightState.DARKNESS]
 
-    override suspend fun run() {
-        service.doInvoke(player, origin, State.LightState.DARKNESS, player.wasInDarkness, player.inDarkness)
+    override suspend fun handleRun() {
         if (OriginHelper.shouldIgnorePlayer(player)) return
         if (!player.inDarkness) return
         if ((now() - lastTick).ticks < 10) return

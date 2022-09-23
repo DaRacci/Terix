@@ -3,19 +3,26 @@ package dev.racci.terix.core.services.runnables
 import dev.racci.minix.api.utils.now
 import dev.racci.terix.api.extensions.playSound
 import dev.racci.terix.api.origins.OriginHelper
+import dev.racci.terix.api.origins.origin.Origin
 import dev.racci.terix.api.origins.sounds.SoundEffect
-import dev.racci.terix.core.services.RunnableService
 import kotlinx.datetime.Instant
 import org.bukkit.entity.Player
 import kotlin.random.Random
 import kotlin.time.Duration.Companion.seconds
 
 class AmbientTick(
-    private val player: Player,
-    private val sound: SoundEffect,
-    private val service: RunnableService,
-    mother: MotherCoroutineRunnable
-) : ChildCoroutineRunnable(mother) {
+    player: Player,
+    origin: Origin,
+    mother: MotherCoroutineRunnable,
+    private val sound: SoundEffect
+) : ChildCoroutineRunnable(
+    mother,
+    player,
+    origin,
+    null,
+    null,
+    null
+) {
 
     private var disabled: Boolean = false
     private var nextAmbient: Instant = Instant.DISTANT_FUTURE
@@ -26,7 +33,7 @@ class AmbientTick(
         return true
     }
 
-    override suspend fun run() {
+    override suspend fun handleRun() {
         if (disabled) return
         if (OriginHelper.shouldIgnorePlayer(player)) return
         if (!ambientTime()) return

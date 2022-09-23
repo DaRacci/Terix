@@ -1,12 +1,14 @@
 package dev.racci.terix.core.services.runnables
 
+import dev.racci.minix.api.integrations.IntegrationManager
+import dev.racci.minix.core.integrations.regions.LandsRegionIntegration
 import dev.racci.minix.nms.aliases.toNMS
+import dev.racci.terix.api.events.OriginSunlightBurnEvent
 import dev.racci.terix.api.origins.OriginHelper
 import dev.racci.terix.api.origins.origin.Origin
 import dev.racci.terix.api.origins.states.State
 import dev.racci.terix.core.extensions.inSunlight
 import dev.racci.terix.core.extensions.wasInSunlight
-import dev.racci.terix.core.services.RunnableService
 import net.kyori.adventure.extra.kotlin.text
 import net.kyori.adventure.text.Component
 import net.kyori.adventure.text.format.NamedTextColor
@@ -14,49 +16,54 @@ import org.bukkit.craftbukkit.v1_19_R1.inventory.CraftItemStack
 import org.bukkit.entity.Player
 
 class SunlightTick(
-    private val player: Player,
-    private val origin: Origin,
-    private val service: RunnableService,
+    player: Player,
+    origin: Origin,
     mother: MotherCoroutineRunnable
-) : ChildCoroutineRunnable(mother) {
+) : ChildCoroutineRunnable(
+    mother,
+    player,
+    origin,
+    State.LightState.SUNLIGHT,
+    player::wasInSunlight,
+    player::inSunlight
+) {
 
     private var exposedTime: Int = 0
 
-    override suspend fun run() {
-        val burn = shouldTickSunlight(player)
-        service.doInvoke(player, origin, State.LightState.SUNLIGHT, player.wasInSunlight, player.inSunlight)
-        if (OriginHelper.shouldIgnorePlayer(player)) return
+    override suspend fun shouldRun(): Boolean {
+        if (OriginHelper.shouldIgnorePlayer(player)) return false
 
-        when {
-            !player.inSunlight && exposedTime > 0 -> exposedTime -= 5
-            exposedTime < GRACE_PERIOD -> exposedTime += 5
-        }
-        showBar()
-        if (!player.inSunlight || exposedTime < GRACE_PERIOD) return
+        this.calculateBar()
+        return this.player.inSunlight && exposedTime > GRACE_PERIOD
+    }
 
-        val ticks = origin.damageTicks[State.LightState.SUNLIGHT] ?: return
+    override suspend fun handleRun() {
+        val ticks = origin.damageTicks[State.LightState.SUNLIGHT]?.toInt() ?: return
         val helmet = player.inventory.helmet
 
-        if (helmet == null) {
-            if (player.fireTicks > ticks ||
-                player.fireTicks > 0 &&
-                !burn()
-            ) return
-            player.fireTicks = ticks.toInt()
+        val event = OriginSunlightBurnEvent(player, origin, ticks)
+        if (!event.callEvent()) return
+
+        if (!IntegrationManager.isRegistered<LandsRegionIntegration>() && helmet != null) {
+            val nms = player.toNMS()
+            val amount = nms.random.nextInt(0, 2).takeIf { it != 0 } ?: return
+            if (helmet.damage + amount > helmet.maxItemUseDuration) (helmet as CraftItemStack).handle.hurtAndBreak(amount, nms) {}
+            (helmet as CraftItemStack).handle.hurt(amount, nms.level.random, nms)
+
             return
         }
 
-        // TODO -> Update when eco enchants v9 is released
-//        HookService.getService()
-//            .get<HookService.EcoEnchantsHook>()
-//            ?.sunResistance
-//            ?.let(helmet::hasEnchant)
-//            ?.ifTrue { return }
+        if (helmet != null) return
+        if (player.fireTicks > ticks || player.fireTicks > 0 && !shouldTickSunlight(player)) return
+        player.fireTicks = ticks
+    }
 
-        val nms = player.toNMS()
-        val amount = nms.random.nextInt(0, 2).takeIf { it != 0 } ?: return
-        if (helmet.damage + amount > helmet.maxItemUseDuration) (helmet as CraftItemStack).handle.hurtAndBreak(amount, nms) {}
-        (helmet as CraftItemStack).handle.hurt(amount, nms.level.random, nms)
+    private fun calculateBar() {
+        when {
+            !player.inSunlight && exposedTime > 0 -> exposedTime += 5
+            exposedTime < GRACE_PERIOD -> exposedTime -= 5
+        }
+        this.showBar()
     }
 
     private fun showBar() {
@@ -79,9 +86,9 @@ class SunlightTick(
             }.reversedArray()
         }
 
-        fun shouldTickSunlight(player: Player): () -> Boolean {
+        fun shouldTickSunlight(player: Player): Boolean {
             val brightness = player.location.toCenterLocation().block.lightLevel
-            return { (player.toNMS().random.nextFloat() * 15.0f) < ((brightness - 0.4f) * 2.0f) }
+            return (player.toNMS().random.nextFloat() * 15.0f) < ((brightness - 0.4f) * 2.0f)
         }
     }
 }

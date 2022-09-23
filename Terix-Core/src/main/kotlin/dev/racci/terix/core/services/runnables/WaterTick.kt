@@ -2,6 +2,7 @@ package dev.racci.terix.core.services.runnables
 
 import dev.racci.minix.api.utils.now
 import dev.racci.minix.api.utils.ticks
+import dev.racci.terix.api.events.OriginWaterBurnEvent
 import dev.racci.terix.api.origins.OriginHelper
 import dev.racci.terix.api.origins.origin.Origin
 import dev.racci.terix.api.origins.states.State
@@ -11,27 +12,32 @@ import kotlinx.datetime.Instant
 import org.bukkit.entity.Player
 
 class WaterTick(
-    private val player: Player,
-    private val origin: Origin,
+    player: Player,
+    origin: Origin,
     private val service: RunnableService,
     mother: MotherCoroutineRunnable
-) : ChildCoroutineRunnable(mother) {
+) : ChildCoroutineRunnable(
+    mother,
+    player,
+    origin,
+    null,
+    null,
+    null
+) {
 
     private var lastTick = Instant.DISTANT_PAST
 
-    override suspend fun run() {
-        if (!player.inWater) return
-        if ((now() - lastTick).ticks < 10) return
-        if (OriginHelper.shouldIgnorePlayer(player)) return
+    override suspend fun shouldRun(): Boolean {
+        return player.inWater && (now() - lastTick).ticks >= 10 && OriginHelper.shouldIgnorePlayer(player)
+    }
 
-//        val wet = origin.damageTicks[Trigger.WET]
+    override suspend fun handleRun() {
         val water = origin.damageTicks[State.LiquidState.WATER] ?: return
-//        if (wet == null && water == null) return
+        val event = OriginWaterBurnEvent(player, origin, water)
 
-        // Get the one which isn't null or whichever is higher
-//        val ticks = if (wet == null) water!! else if (water == null) wet else maxOf(wet, water)
+        if (!event.callEvent()) return
 
         lastTick = now()
-        service.sync { player.damage(water) }
+        service.sync { player.damage(event.damage) }
     }
 }
