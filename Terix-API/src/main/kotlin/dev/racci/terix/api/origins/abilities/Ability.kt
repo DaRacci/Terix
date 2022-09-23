@@ -9,6 +9,7 @@ import dev.racci.terix.api.Terix
 import dev.racci.terix.api.events.PlayerAbilityActivateEvent
 import dev.racci.terix.api.events.PlayerAbilityDeactivateEvent
 import dev.racci.terix.api.events.PlayerOriginChangeEvent
+import dev.racci.terix.api.origins.OriginHelper
 import dev.racci.terix.api.sentryScoped
 import kotlinx.datetime.Instant
 import org.bukkit.NamespacedKey
@@ -57,9 +58,10 @@ abstract class Ability(private val abilityType: AbilityType) : WithPlugin<Terix>
      * If the ability type is [AbilityType.TOGGLE] and the ability is active for the player, this will try to deactivate it.
      *
      * @param player to toggle the ability for.
-     * @return If the ability is on cooldown, this will return null. Otherwise, it will return true
+     * @return If the ability is on cooldown, this will return null. Otherwise, it will return true.
      */
     suspend fun toggle(player: Player): Boolean? = when {
+        OriginHelper.shouldIgnorePlayer(player) -> false
         this.abilityCache.containsCooldown(player.uniqueId) -> null
         this.isActivated(player.uniqueId) -> this.deactivate(player)
         else -> this.activate(player, null)
