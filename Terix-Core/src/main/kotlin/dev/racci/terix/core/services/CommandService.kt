@@ -3,10 +3,15 @@ package dev.racci.terix.core.services
 import cloud.commandframework.arguments.CommandArgument
 import cloud.commandframework.arguments.flags.CommandFlag
 import cloud.commandframework.arguments.parser.ArgumentParseResult
+import cloud.commandframework.arguments.parser.ArgumentParser
 import cloud.commandframework.arguments.standard.IntegerArgument
 import cloud.commandframework.bukkit.parsers.PlayerArgument
+import cloud.commandframework.captions.Caption
+import cloud.commandframework.captions.CaptionVariable
 import cloud.commandframework.context.CommandContext
 import cloud.commandframework.exceptions.InvalidCommandSenderException
+import cloud.commandframework.exceptions.parsing.NoInputProvidedException
+import cloud.commandframework.exceptions.parsing.ParserException
 import cloud.commandframework.execution.AsynchronousCommandExecutionCoordinator
 import cloud.commandframework.kotlin.coroutines.extension.suspendingHandler
 import cloud.commandframework.kotlin.extension.buildAndRegister
@@ -15,12 +20,13 @@ import cloud.commandframework.minecraft.extras.RichDescription
 import cloud.commandframework.paper.PaperCommandManager
 import cloud.commandframework.permission.Permission
 import dev.racci.minix.api.annotations.MappedExtension
+import dev.racci.minix.api.coroutine.minecraftDispatcher
 import dev.racci.minix.api.extension.Extension
 import dev.racci.minix.api.extensions.message
+import dev.racci.minix.api.extensions.reflection.castOrThrow
 import dev.racci.minix.api.services.DataService
 import dev.racci.minix.api.services.DataService.Companion.inject
 import dev.racci.minix.api.utils.now
-import dev.racci.minix.api.utils.unsafeCast
 import dev.racci.terix.api.OriginService
 import dev.racci.terix.api.Terix
 import dev.racci.terix.api.TerixPlayer
@@ -34,6 +40,8 @@ import org.bukkit.entity.Player
 import org.jetbrains.exposed.sql.transactions.transaction
 import org.koin.core.component.get
 import org.koin.core.component.inject
+import java.util.Queue
+import java.util.function.BiFunction
 import kotlin.properties.Delegates
 
 @MappedExtension(Terix::class, "Command Service", [OriginService::class, GUIService::class])
@@ -42,8 +50,8 @@ class CommandService(override val plugin: Terix) : Extension<Terix>() {
     private var registered = false
 
     private var manager by Delegates.notNull<PaperCommandManager<CommandSender>>()
-    private var playerFlag by Delegates.notNull<CommandFlag<Player>>()
-    private var originArgument by Delegates.notNull<CommandArgument<CommandSender, Origin>>()
+    private var playerFlag by Delegates.notNull<CommandFlag.Builder<Player>>()
+    private var originArgument by Delegates.notNull<CommandArgument.Builder<CommandSender, Origin>>()
 
     override suspend fun handleEnable() {
         logger.debug { "Registering commands" }
@@ -72,9 +80,16 @@ class CommandService(override val plugin: Terix) : Extension<Terix>() {
                 RichDescription.of(MiniMessage.miniMessage().deserialize("Set the origin of a player."))
             ) {
                 mutate { it.flag(playerFlag) }
+                argument(
+                    OriginArgument(
+                        "origin",
+                        true,
+                        RichDescription.of(MiniMessage.miniMessage().deserialize("The origin to set the player to.")),
+                        null
+                    )
+                )
                 permission(Permission.of("terix.command.origin.set"))
-                argument(originArgument, RichDescription.of(MiniMessage.miniMessage().deserialize("The origin to set the target too.")))
-                suspendingHandler(supervisor, dispatcher.get()) { context -> setOrigin(context.sender, getTargetOrThrow(context), context.get(originArgument)) }
+                suspendingHandler(supervisor, dispatcher.get()) { context -> setOrigin(context.sender, getTargetOrThrow(context), context.get("origin")) }
             }
 
             this.registerCopy(
@@ -83,7 +98,7 @@ class CommandService(override val plugin: Terix) : Extension<Terix>() {
             ) {
                 permission(Permission.of("terix.command.origin.menu"))
                 mutate { it.flag(playerFlag) }
-                suspendingHandler(supervisor, dispatcher.get()) { context -> get<GUIService>().baseGui.value.show(getTargetOrThrow(context)) }
+                suspendingHandler(supervisor, plugin.minecraftDispatcher) { context -> get<GUIService>().baseGui.value.show(getTargetOrThrow(context)) }
             }
 
             this.registerCopy(
@@ -294,7 +309,7 @@ class CommandService(override val plugin: Terix) : Extension<Terix>() {
 
         MinecraftExceptionHandler<CommandSender>()
             .withHandler(MinecraftExceptionHandler.ExceptionType.INVALID_SYNTAX) { _, e ->
-                val exception = e.unsafeCast<InvalidCommandSenderException>()
+                val exception = e.castOrThrow<InvalidCommandSenderException>()
                 MiniMessage.miniMessage().deserialize("Invalid syntax: ${exception.currentChain.getOrNull(0)?.name} - ${exception.command?.arguments?.joinToString(", ")}")
             }
             .withHandler(MinecraftExceptionHandler.ExceptionType.COMMAND_EXECUTION) { _, e ->
@@ -314,24 +329,22 @@ class CommandService(override val plugin: Terix) : Extension<Terix>() {
             .withDescription(RichDescription.of(MiniMessage.miniMessage().deserialize("The target player else the command sender.")))
             .withPermission(Permission.of("terix.target.others"))
             .withAliases("p")
-            .withArgument(PlayerArgument.newBuilder<Player>("player").asOptional().build()).build()
+            .withArgument(PlayerArgument.newBuilder<Player>("player").asOptional().build())
 
         originArgument = manager.argumentBuilder(Origin::class.java, "origin")
-            .withSuggestionsProvider { _, currentInput ->
-                println("Current input: $currentInput")
+            .withSuggestionsProvider { _, _ ->
                 OriginServiceImpl.getService().registeredOrigins
             }.withParser { _, inputQueue ->
-                println("Input Queue: $inputQueue")
                 try {
-                    ArgumentParseResult.success(OriginServiceImpl.getService().getOrigin(inputQueue.peek()))
+                    ArgumentParseResult.success(OriginServiceImpl.getService().getOrigin(inputQueue.peek().lowercase()))
                 } catch (e: NoSuchElementException) {
                     ArgumentParseResult.failure(e)
                 }
-            }.build()
+            }
     }
 
     @Throws(InvalidCommandSenderException::class)
-    private fun getTargetOrThrow(context: CommandContext<CommandSender>) = context.flags().getValue(playerFlag).orElseGet {
+    private fun getTargetOrThrow(context: CommandContext<CommandSender>) = context.flags().getValue<Player>("player").orElseGet {
         context.sender as? Player ?: throw InvalidCommandSenderException(context.sender, Player::class.java, emptyList())
     }
 
@@ -340,15 +353,16 @@ class CommandService(override val plugin: Terix) : Extension<Terix>() {
         sender: CommandSender,
         target: Player
     ): String {
-        var result = if (sender === target) "self" else "other"
         return buildString {
             append(langPath)
 
-            if (lastOrNull() != null) {
-                result = result.replaceFirstChar(Char::uppercaseChar)
+            if (lastOrNull() != null && last() != '.') {
+                append('.')
             }
 
-            append(result)
+            if (sender === target) {
+                append("self")
+            } else append("other")
         }
     }
 
@@ -362,8 +376,7 @@ class CommandService(override val plugin: Terix) : Extension<Terix>() {
             ] message sender
         }
 
-        lang[
-            "origin.get.${if (target == sender) "self" else "other"}",
+        lang.origin[getTargetedPath("get", sender, target)][
             "origin" to { origin.displayName },
             "player" to { target.displayName() }
         ] message sender
@@ -377,14 +390,12 @@ class CommandService(override val plugin: Terix) : Extension<Terix>() {
         val currentOrigin = TerixPlayer.cachedOrigin(target)
 
         if (origin == currentOrigin) {
-            return lang[
-                "origin.set.same.${if (target == sender) "self" else "other"}",
+            return lang.origin[getTargetedPath("set.same", sender, target)][
                 "origin" to { origin.displayName },
                 "player" to { target.displayName() }
             ] message sender
         }
-        lang[
-            "origin.set.${if (target == sender) "self" else "other"}",
+        lang.origin[getTargetedPath("set", sender, target)][
             "old_origin" to { currentOrigin.displayName },
             "new_origin" to { origin.displayName },
             "player" to { target.displayName() }
@@ -418,9 +429,9 @@ class CommandService(override val plugin: Terix) : Extension<Terix>() {
             terixPlayer.freeChanges += amount
 
             lang.choices[getTargetedPath("mutate", sender, player)][
-                "amount" to { terixPlayer.freeChanges },
+                "choices" to { terixPlayer.freeChanges },
                 "player" to { player.displayName() }
-            ]
+            ] message sender
         }
     }
 
@@ -437,16 +448,57 @@ class CommandService(override val plugin: Terix) : Extension<Terix>() {
 
         transaction(Terix.database) {
             val terixPlayer = TerixPlayer[player.uniqueId]
-            val newAmount = terixPlayer.freeChanges - amount
-
-            if (newAmount < 0) {
-                terixPlayer.freeChanges = 0
-            } else terixPlayer.freeChanges = newAmount
+            val freeChanges = (terixPlayer.freeChanges - amount).coerceAtLeast(0)
+            terixPlayer.freeChanges = freeChanges
 
             lang.choices[getTargetedPath("mutate", sender, player)][
-                "amount" to { terixPlayer.freeChanges },
+                "choices" to { freeChanges },
                 "player" to { player.displayName() }
-            ]
+            ] message sender
+        }
+    }
+
+    class OriginArgument(
+        name: String,
+        required: Boolean,
+        description: RichDescription,
+        suggestionsProvider: BiFunction<CommandContext<CommandSender>, String, List<String>>?
+    ) : CommandArgument<CommandSender, Origin>(
+        required,
+        name,
+        OriginParser(),
+        "Human",
+        Origin::class.java,
+        suggestionsProvider,
+        description
+    ) {
+
+        class OriginParser : ArgumentParser<CommandSender, Origin> {
+            override fun parse(
+                context: CommandContext<CommandSender>,
+                inputQueue: Queue<String>
+            ): ArgumentParseResult<Origin> {
+                val input = inputQueue.peek() ?: return ArgumentParseResult.failure(NoInputProvidedException(OriginParser::class.java, context))
+                val origin = OriginService.getOriginOrNull(input) ?: return ArgumentParseResult.failure(OriginParseException(input, context))
+
+                inputQueue.remove()
+                return ArgumentParseResult.success(origin)
+            }
+
+            override fun suggestions(
+                commandContext: CommandContext<CommandSender>,
+                input: String
+            ): MutableList<String> = OriginServiceImpl.getService().registeredOrigins.toMutableList()
+
+            class OriginParseException(
+                input: String,
+                context: CommandContext<CommandSender>
+            ) : ParserException(
+                OriginParser::class.java,
+                context,
+                Caption.of("argument.parse.failure.origin"),
+                CaptionVariable.of("input", input)
+            )
         }
     }
 }
