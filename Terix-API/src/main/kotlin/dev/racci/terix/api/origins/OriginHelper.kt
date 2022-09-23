@@ -16,7 +16,6 @@ import org.koin.core.component.KoinComponent
 import org.koin.core.component.inject
 
 object OriginHelper : KoinComponent, WithPlugin<Terix> {
-    private const val SCOPE = "terix.origin.helper"
     override val plugin by inject<Terix>()
 
     /** Checks if a player should be ignored for something like staff mode. */
@@ -30,7 +29,6 @@ object OriginHelper : KoinComponent, WithPlugin<Terix> {
         }
 
         val reason = ignoring()
-//        if (reason != null) plugin.log.trace(scope = SCOPE) { "Ignoring player ${player.name}: ${reason.description}" }
 
         return reason != null
     }
@@ -103,21 +101,26 @@ object OriginHelper : KoinComponent, WithPlugin<Terix> {
 
     /** Designed to be invoked for when a player needs everything disabled. */
     suspend fun deactivateOrigin(player: Player) {
-        TerixPlayer.cachedOrigin(player).abilities.values.forEach { it.deactivate(player) }
-        getOriginPotions(player, null).forEach(player::removePotionEffect)
-        State.activeStates.remove(player)
-        player.setImmuneToFire(null)
-        player.setCanBreathUnderwater(null)
+        getOriginPotions(player, null)
+            .onEach { logger.trace { "Removing potion effect $it from ${player.name}" } }
+            .forEach(player::removePotionEffect)
 
-        for (attribute in Attribute.values()) {
-            val instance = player.getAttribute(attribute) ?: continue
-            if (instance.modifiers.isEmpty()) continue
+        async {
+            TerixPlayer.cachedOrigin(player).abilities.values.forEach { it.deactivate(player) }
+            State.activeStates.remove(player)
+            player.setImmuneToFire(null)
+            player.setCanBreathUnderwater(null)
 
-            instance.modifiers.associateWith { AttributeModifierBuilder.regex.matchEntire(it.name) }
-                .forEach { (modifier, match) ->
-                    if (match == null) return@forEach
-                    instance.removeModifier(modifier)
-                }
+            for (attribute in Attribute.values()) {
+                val instance = player.getAttribute(attribute) ?: continue
+                if (instance.modifiers.isEmpty()) continue
+
+                instance.modifiers.associateWith { AttributeModifierBuilder.regex.matchEntire(it.name) }
+                    .forEach { (modifier, match) ->
+                        if (match == null) return@forEach
+                        instance.removeModifier(modifier)
+                    }
+            }
         }
     }
 
