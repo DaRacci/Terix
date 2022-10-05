@@ -20,12 +20,11 @@ import org.bukkit.event.EventPriority
 import org.bukkit.event.player.PlayerJoinEvent
 import org.bukkit.persistence.PersistentDataContainer
 import org.bukkit.persistence.PersistentDataType
-import org.koin.core.component.KoinComponent
 import org.koin.core.component.inject
 import java.util.UUID
 import kotlin.time.Duration
 
-abstract class Ability(private val abilityType: AbilityType) : WithPlugin<Terix>, KoinComponent {
+abstract class Ability(private val abilityType: AbilityType) : WithPlugin<Terix> {
     private val abilityCache: CooldownSet by lazy { CooldownSet(this) }
 
     final override val plugin: Terix by inject()
@@ -98,7 +97,7 @@ abstract class Ability(private val abilityType: AbilityType) : WithPlugin<Terix>
         return true
     }
 
-    private fun isActivated(uuid: UUID): Boolean = abilityType == AbilityType.TOGGLE && uuid in abilityCache
+    protected fun isActivated(uuid: UUID): Boolean = abilityType == AbilityType.TOGGLE && uuid in abilityCache
 
     private fun addToPersistentData(player: Player) = async {
         return@async // FIXME
