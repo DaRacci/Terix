@@ -118,10 +118,16 @@ class AethenOrigin(override val plugin: Terix) : Origin() {
         }
     }
 
-    override suspend fun onBedEnter(event: PlayerBedEnterEvent) {
-        if (event.bed.location.y > 91) return
-        event.cancel()
-        event.player.sendActionBar("<red>You need fresh air to sleep!".parse())
+    override suspend fun handleChangeOrigin(event: PlayerOriginChangeEvent) {
+        playerLocations.computeAndRemove(event.player) { resetLightLevel(this) }
+    }
+
+    @OriginEventSelector(EventSelector.PLAYER)
+    fun PlayerBedEnterEvent.handle() {
+        if (this.bed.location.y > 91) return
+
+        this.cancel()
+        this.player.sendActionBar("<red>You need fresh air to sleep!".parse())
     }
 
     override suspend fun onToggleSneak(event: PlayerToggleSneakEvent) {
@@ -155,26 +161,19 @@ class AethenOrigin(override val plugin: Terix) : Origin() {
     }
 
     private val handler = LightAPI.get()
-    override suspend fun onMove(event: PlayerMoveFullXYZEvent) {
+
+    @RunAsync
+    @OriginEventSelector(EventSelector.PLAYER)
+    fun PlayerMoveFullXYZEvent.handle() {
         if (handler == null) {
             plugin.log.warn { "LightAPI is not installed, disabling Aethen's ability" }
             return
         }
 
-        playerLocations.compute(event.player) { _, oldLocation ->
-            val (newX, newY, newZ, newWorld) = event.player.location
+        playerLocations.compute(this.player) { _, oldLocation ->
+            val (newX, newY, newZ, newWorld) = this.player.location
 
-            if (oldLocation != null) handler.setLightLevel(
-                oldLocation.world!!.name,
-                oldLocation.x.toInt(),
-                oldLocation.y.toInt(),
-                oldLocation.z.toInt(),
-                0,
-                LightFlag.BLOCK_LIGHTING,
-                EditPolicy.DEFERRED,
-                SendPolicy.DEFERRED,
-                null
-            )
+            if (oldLocation != null) resetLightLevel(oldLocation)
 
             handler.setLightLevel(
                 newWorld!!.name,
@@ -188,7 +187,21 @@ class AethenOrigin(override val plugin: Terix) : Origin() {
                 null
             )
 
-            event.player.location
+            this.player.location
         }
+    }
+
+    private fun resetLightLevel(location: Location) {
+        handler.setLightLevel(
+            location.world!!.name,
+            location.x.toInt(),
+            location.y.toInt(),
+            location.z.toInt(),
+            0,
+            LightFlag.BLOCK_LIGHTING,
+            EditPolicy.DEFERRED,
+            SendPolicy.DEFERRED,
+            null
+        )
     }
 }
