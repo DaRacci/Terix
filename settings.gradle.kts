@@ -1,4 +1,5 @@
 enableFeaturePreview("VERSION_CATALOGS")
+
 pluginManagement {
     repositories {
         mavenCentral()
@@ -6,15 +7,20 @@ pluginManagement {
         maven("https://repo.racci.dev/releases")
         maven("https://papermc.io/repo/repository/maven-public/")
     }
+
     plugins {
         val kotlinVersion: String by settings
         kotlin("plugin.serialization") version kotlinVersion
     }
-    val minixConventions: String by settings
+
     resolutionStrategy {
+        val kotlinVersion: String by settings
+        val minixConventions: String by settings
+        val conventionsVersion = "$kotlinVersion-$minixConventions"
+
         eachPlugin {
             if (requested.id.id.startsWith("dev.racci.minix")) {
-                useVersion(minixConventions)
+                useVersion(conventionsVersion)
             }
         }
     }
@@ -25,9 +31,11 @@ dependencyResolutionManagement {
         maven("https://repo.racci.dev/releases")
     }
 
-    val minixConventions: String by settings
     versionCatalogs.create("libs") {
-        from("dev.racci:catalog:$minixConventions")
+        val kotlinVersion: String by settings
+        val minixConventions: String by settings
+        val conventionsVersion = "$kotlinVersion-$minixConventions"
+        from("dev.racci:catalog:$conventionsVersion")
     }
 }
 
