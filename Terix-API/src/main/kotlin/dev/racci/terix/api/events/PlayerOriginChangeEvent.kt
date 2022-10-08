@@ -1,10 +1,9 @@
 package dev.racci.terix.api.events
 
-import dev.racci.minix.api.events.KEvent
+import dev.racci.minix.api.events.CompanionEventHandler
 import dev.racci.minix.api.events.KPlayerEvent
 import dev.racci.terix.api.origins.origin.Origin
 import org.bukkit.entity.Player
-import org.bukkit.event.HandlerList
 
 /**
  * Called when a player tries to change origin.
@@ -28,8 +27,7 @@ class PlayerOriginChangeEvent(
 
     enum class Result { CURRENT_ORIGIN, ON_COOLDOWN, NO_PERMISSION, SUCCESS }
 
-    companion object {
-        @JvmStatic
-        fun getHandlerList(): HandlerList = KEvent.handlerMap[PlayerOriginChangeEvent::class]
+    companion object : CompanionEventHandler() {
+        @JvmStatic override fun getHandlerList() = super.getHandlerList()
     }
 }

@@ -1,5 +1,6 @@
 package dev.racci.terix.api.events
 
+import dev.racci.minix.api.events.CompanionEventHandler
 import dev.racci.terix.api.origins.origin.Origin
 import org.bukkit.entity.Player
 
