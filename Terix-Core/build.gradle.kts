@@ -22,6 +22,7 @@ dependencies {
 
     compileOnly("com.willfp:libreforge:3.104.0")
     compileOnly("com.willfp:EcoEnchants:9.0.0-b3")
+    compileOnly("com.frengor:ultimateadvancementapi-shadeable:2.2.1")
 
     testImplementation(project(":Terix-API"))
 }
