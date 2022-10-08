@@ -8,6 +8,7 @@ import dev.racci.terix.api.annotations.OriginEventSelector
 import dev.racci.terix.api.dsl.FoodPropertyBuilder
 import dev.racci.terix.api.dsl.dslMutator
 import dev.racci.terix.api.events.PlayerOriginChangeEvent
+import dev.racci.terix.api.origins.enums.EventSelector
 import dev.racci.terix.api.origins.origin.Origin
 import dev.racci.terix.api.origins.sounds.SoundEffect
 import dev.racci.terix.api.origins.states.State
@@ -38,7 +39,7 @@ class MerlingOrigin(override val plugin: Terix) : Origin() {
     override val name = "Merling"
     override val colour = TextColor.fromHexString("#47d7ff")!!
 
-    override suspend fun onRegister() {
+    override suspend fun handleRegister() {
         sounds.hurtSound = SoundEffect("entity.salmon.hurt")
         sounds.deathSound = SoundEffect("entity.salmon.death")
         sounds.ambientSound = SoundEffect("entity.salmon.ambient")
@@ -91,49 +92,53 @@ class MerlingOrigin(override val plugin: Terix) : Origin() {
         }
     }
 
-    override suspend fun onTarget(event: EntityTargetLivingEntityEvent) {
-        if (event.entity.type !in MARINE_FRIENDS) return
-        if (event.reason !in TARGET_REASONS) return
-        event.cancel()
-    }
-
-    override suspend fun onBecomeOrigin(event: PlayerOriginChangeEvent) {
+    override suspend fun handleBecomeOrigin(event: PlayerOriginChangeEvent) {
         event.player.isReverseOxygen = true
         plugin.log.debug { "oxygen: ${event.player.isReverseOxygen}" }
     }
 
-    override suspend fun onChangeOrigin(event: PlayerOriginChangeEvent) {
+    override suspend fun handleChangeOrigin(event: PlayerOriginChangeEvent) {
         event.player.isReverseOxygen = false
         plugin.log.debug { "oxygen: ${event.player.isReverseOxygen}" }
     }
 
-    override suspend fun onDamageByEntity(event: EntityDamageByEntityEvent) {
-        if (event.damager is Projectile) {
-            val projectile = event.damager as Projectile
+    @OriginEventSelector(EventSelector.TARGET)
+    fun EntityTargetLivingEntityEvent.handle() {
+        if (entity.type !in MARINE_FRIENDS) return
+        if (reason !in TARGET_REASONS) return
+        cancel()
+    }
+
+    @OriginEventSelector(EventSelector.ENTITY)
+    fun EntityDamageByEntityEvent.handle() {
+        if (damager is Projectile) {
+            val projectile = damager as Projectile
             plugin.log.debug { "projectile fire: ${projectile.fireTicks}" }
-            if (projectile.fireTicks > 0) event.damage *= 2.0
+            if (projectile.fireTicks > 0) damage *= 2.0
             val bow = ListenerService.getService().bowTracker[projectile.shooter] ?: return
             return
         }
 
-        val damager = event.damager as? LivingEntity ?: return
+        val damager = damager as? LivingEntity ?: return
         val weapon = damager.equipment?.itemInMainHand ?: return
 
-        if (weapon.enchantments.contains(Enchantment.FIRE_ASPECT)) event.damage *= 2.0
+        if (weapon.enchantments.contains(Enchantment.FIRE_ASPECT)) damage *= 2.0
     }
 
-    override suspend fun onRiptide(event: PlayerRiptideEvent) {
-        event.player.velocity = event.player.velocity.multiply(1.5)
+    @OriginEventSelector(EventSelector.PLAYER)
+    fun PlayerRiptideEvent.handle() {
+        player.velocity = player.velocity.multiply(1.5)
     }
 
-    override suspend fun onItemConsume(event: PlayerItemConsumeEvent) {
-        if ((event.item.itemMeta as? PotionMeta)?.basePotionData?.type != PotionType.WATER) return
+    @OriginEventSelector(EventSelector.PLAYER)
+    fun PlayerItemConsumeEvent.handle() {
+        if ((item.itemMeta as? PotionMeta)?.basePotionData?.type != PotionType.WATER) return
 
-        event.player.remainingAir = (event.player.remainingAir + 2).coerceAtMost(event.player.maximumAir)
+        player.remainingAir = (player.remainingAir + 2).coerceAtMost(player.maximumAir)
     }
 
-    // TODO -> Move into tentacles then remove here
-    override suspend fun onAirChange(event: EntityAirChangeEvent) {
+    @OriginEventSelector(EventSelector.ENTITY)
+    fun onAirChange(event: EntityAirChangeEvent) {
         val player = event.entity as? Player ?: return
 
         if (player.hasPotionEffect(PotionEffectType.WATER_BREATHING)) return event.cancel()

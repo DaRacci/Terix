@@ -3,12 +3,15 @@ package dev.racci.terix.core.origins
 import dev.racci.minix.api.annotations.RunAsync
 import dev.racci.minix.api.collections.PlayerMap
 import dev.racci.minix.api.extensions.cancel
+import dev.racci.minix.api.extensions.reflection.castOrThrow
+import dev.racci.minix.api.extensions.reflection.safeCast
 import dev.racci.minix.api.utils.adventure.PartialComponent.Companion.message
 import dev.racci.minix.api.utils.now
-import dev.racci.minix.api.utils.unsafeCast
 import dev.racci.terix.api.Terix
-import dev.racci.terix.api.dsl.TimedAttributeBuilder
-import dev.racci.terix.api.dsl.TitleBuilder
+import dev.racci.terix.api.annotations.OriginEventSelector
+import dev.racci.terix.api.dsl.PotionEffectBuilder
+import dev.racci.terix.api.dsl.dslMutator
+import dev.racci.terix.api.origins.enums.EventSelector
 import dev.racci.terix.api.origins.origin.Origin
 import dev.racci.terix.api.origins.sounds.SoundEffect
 import dev.racci.terix.core.data.Lang
@@ -37,7 +40,7 @@ class BeeOrigin(override val plugin: Terix) : Origin() {
     override val name = "Bee"
     override val colour = TextColor.fromHexString("#fc9f2f")!!
 
-    override suspend fun onRegister() {
+    override suspend fun handleRegister() {
         sounds.hurtSound = SoundEffect("entity.bee.hurt")
         sounds.deathSound = SoundEffect("entity.bee.death")
         sounds.ambientSound = SoundEffect("entity.bee.ambient")
@@ -104,24 +107,59 @@ class BeeOrigin(override val plugin: Terix) : Origin() {
                 amplifier = 2
             }
 
-    override suspend fun onDamageEntity(event: EntityDamageByEntityEvent) {
-        val attacker = event.damager as Player
-        val victim = event.entity as? LivingEntity ?: return
-        stingerAttack(attacker, victim)
+            Material.CORNFLOWER += dslMutator<PotionEffectBuilder> {
+                type = PotionEffectType.SPEED
+            }
+
+            Material.LILY_OF_THE_VALLEY += dslMutator<PotionEffectBuilder> {
+                type = PotionEffectType.INVISIBILITY
+            }
+
+            Material.LILAC += dslMutator<PotionEffectBuilder> {
+                type = PotionEffectType.ABSORPTION
+            }
+
+            Material.PEONY += dslMutator<PotionEffectBuilder> {
+                type = PotionEffectType.FAST_DIGGING
+            }
+
+            Material.WITHER_ROSE += { player: Player ->
+                player.health = 0.0
+            }
+
+            Material.SUNFLOWER += dslMutator<PotionEffectBuilder> {
+                type = PotionEffectType.NIGHT_VISION
+            }
+
+            Material.SUNFLOWER += dslMutator<PotionEffectBuilder> {
+                type = PotionEffectType.HUNGER
+                amplifier = 2
+            }
+        }
     }
 
-    override suspend fun onPotionEffect(event: EntityPotionEffectEvent) {
-        if (event.action != EntityPotionEffectEvent.Action.ADDED) return
-        if (event.cause in BANNED_POTION_CAUSES) event.cancel()
+    @RunAsync
+    @OriginEventSelector(EventSelector.ENTITY)
+    fun EntityDamageByEntityEvent.handle() {
+        val attacker = damager.safeCast<Player>() ?: return
+        stingerAttack(damager.castOrThrow(), attacker)
     }
 
-    override suspend fun onFoodChange(event: FoodLevelChangeEvent) {
-        if (lowerFood.remove(event.entity.unsafeCast())) event.cancel()
+    @OriginEventSelector(EventSelector.ENTITY)
+    fun EntityPotionEffectEvent.handle() {
+        if (action != EntityPotionEffectEvent.Action.ADDED) return
+        if (cause in BANNED_POTION_CAUSES) cancel()
     }
 
-    override suspend fun onItemConsume(event: PlayerItemConsumeEvent) {
-        if (antiPotion(event)) return
-        lowerFood.add(event.player)
+    @OriginEventSelector(EventSelector.ENTITY)
+    fun FoodLevelChangeEvent.handle() {
+        if (lowerFood.remove(entity.castOrThrow())) cancel()
+    }
+
+    @OriginEventSelector(EventSelector.PLAYER)
+    fun PlayerItemConsumeEvent.handle() {
+        if (antiPotion(this)) return
+        lowerFood.add(player)
     }
 
     private fun stingerAttack(
@@ -137,9 +175,11 @@ class BeeOrigin(override val plugin: Terix) : Origin() {
 
         if (now === current) return
 
-        attacker.damage(0.5)
-        victim.damage(0.5)
-        victim.addPotionEffect(PotionEffect(PotionEffectType.POISON, 60, 0))
+        sync {
+            attacker.damage(0.5)
+            victim.damage(0.5)
+            victim.addPotionEffect(PotionEffect(PotionEffectType.POISON, 60, 0))
+        }
     }
 
     private fun antiPotion(event: PlayerItemConsumeEvent): Boolean {

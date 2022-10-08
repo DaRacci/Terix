@@ -20,7 +20,7 @@ class TestOrigin : Origin() {
     override val permission = "test.permission"
     override val becomeOriginTitle = TitleBuilder("<white><bold>Test".parse(), "<aqua><italic>Subtitle".parse())
 
-    override suspend fun onRegister() {
+    override suspend fun handleRegister() {
         attributes {
             Attribute.GENERIC_MAX_HEALTH *= 0.5
             Attribute.GENERIC_MOVEMENT_SPEED /= 4

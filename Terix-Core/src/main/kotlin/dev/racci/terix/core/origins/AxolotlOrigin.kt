@@ -17,7 +17,7 @@ class AxolotlOrigin(override val plugin: Terix) : Origin() {
 
     override var waterBreathing = true
 
-    override suspend fun onRegister() {
+    override suspend fun handleRegister() {
         sounds.hurtSound = SoundEffect("entity.axolotl.hurt")
         sounds.deathSound = SoundEffect("entity.axolotl.death")
         sounds.ambientSound = SoundEffect("entity.axolotl.ambient")
@@ -38,9 +38,10 @@ class AxolotlOrigin(override val plugin: Terix) : Origin() {
         }
     }
 
-    override suspend fun onDamageByEntity(event: EntityDamageByEntityEvent) {
-        val damager = event.damager as? LivingEntity ?: return
+    @OriginEventSelector(EventSelector.ENTITY)
+    fun EntityDamageByEntityEvent.handle() {
+        val damager = damager as? LivingEntity ?: return
         if (damager.equipment?.itemInMainHand?.type != Material.FISHING_ROD) return
-        event.damage += 5
+        damage += 5
     }
 }

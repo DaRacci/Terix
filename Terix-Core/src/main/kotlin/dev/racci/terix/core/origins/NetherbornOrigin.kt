@@ -2,6 +2,7 @@ package dev.racci.terix.core.origins
 
 import dev.racci.minix.api.utils.minecraft.MaterialTagsExtension
 import dev.racci.terix.api.Terix
+import dev.racci.terix.api.annotations.OriginEventSelector
 import dev.racci.terix.api.dsl.FoodPropertyBuilder
 import dev.racci.terix.api.dsl.dslMutator
 import dev.racci.terix.api.origins.enums.EventSelector
@@ -25,7 +26,7 @@ class NetherbornOrigin(override val plugin: Terix) : Origin() {
 
     override var fireImmunity = true
 
-    override suspend fun onRegister() {
+    override suspend fun handleRegister() {
         sounds.hurtSound = SoundEffect("entity.ravager.hurt")
         sounds.deathSound = SoundEffect("entity.shulker.death")
         sounds.ambientSound = SoundEffect("entity.polar_bear.ambient")
@@ -63,9 +64,10 @@ class NetherbornOrigin(override val plugin: Terix) : Origin() {
         }
     }
 
-    override suspend fun onDamageEntity(event: EntityDamageByEntityEvent) {
-        if (event.damager.fireTicks <= 0) return
+    @OriginEventSelector(EventSelector.OFFENDER)
+    fun EntityDamageByEntityEvent.handle() {
+        if (damager.fireTicks <= 0) return
 
-        event.damage *= 1.2
+        damage *= 1.2
     }
 }

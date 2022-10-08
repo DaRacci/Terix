@@ -1,5 +1,6 @@
 package dev.racci.terix.core.origins
 
+import dev.racci.minix.api.annotations.RunAsync
 import dev.racci.minix.api.collections.PlayerMap
 import dev.racci.minix.api.destructors.component1
 import dev.racci.minix.api.destructors.component2
@@ -8,17 +9,20 @@ import dev.racci.minix.api.destructors.component4
 import dev.racci.minix.api.events.PlayerDoubleRightClickEvent
 import dev.racci.minix.api.events.PlayerMoveFullXYZEvent
 import dev.racci.minix.api.extensions.cancel
+import dev.racci.minix.api.extensions.collections.computeAndRemove
 import dev.racci.minix.api.extensions.dropItem
 import dev.racci.minix.api.extensions.parse
 import dev.racci.minix.api.extensions.playSound
-import dev.racci.minix.api.extensions.sync
 import dev.racci.minix.api.extensions.toItemStack
-import dev.racci.minix.api.utils.collections.CollectionUtils.computeAndRemove
 import dev.racci.minix.api.utils.minecraft.MaterialTagsExtension
 import dev.racci.minix.api.utils.now
 import dev.racci.minix.nms.aliases.toNMS
 import dev.racci.terix.api.Terix
+import dev.racci.terix.api.annotations.OriginEventSelector
+import dev.racci.terix.api.dsl.dslMutator
+import dev.racci.terix.api.events.PlayerOriginChangeEvent
 import dev.racci.terix.api.origins.abilities.Levitate
+import dev.racci.terix.api.origins.enums.EventSelector
 import dev.racci.terix.api.origins.enums.KeyBinding
 import dev.racci.terix.api.origins.origin.Origin
 import dev.racci.terix.api.origins.sounds.SoundEffect
@@ -56,7 +60,12 @@ class AethenOrigin(override val plugin: Terix) : Origin() {
     private val regenCache = mutableMapOf<UUID, Instant>()
     private val regenCooldown = 3.minutes
 
-    override suspend fun onRegister() {
+    override suspend fun hasPermission(player: Player): Boolean {
+        // TODO -> Aethen boss achievement
+        return true
+    }
+
+    override suspend fun handleRegister() {
         sounds.hurtSound = SoundEffect("entity.silverfish.hurt")
         sounds.deathSound = SoundEffect("entity.turtle.death_baby")
         sounds.ambientSound = SoundEffect("entity.vex.ambient")
@@ -130,33 +139,38 @@ class AethenOrigin(override val plugin: Terix) : Origin() {
         this.player.sendActionBar("<red>You need fresh air to sleep!".parse())
     }
 
-    override suspend fun onToggleSneak(event: PlayerToggleSneakEvent) {
-        if (event.isSneaking) {
-            missingPotion[event.player] = event.player.activePotionEffects.first { it.type == PotionEffectType.SLOW_FALLING && it.fromOrigin() }
-            event.player.removePotionEffect(PotionEffectType.SLOW_FALLING)
+    @RunAsync
+    @OriginEventSelector(EventSelector.PLAYER)
+    fun PlayerToggleSneakEvent.handle() {
+        if (this.isSneaking) {
+            missingPotion[this.player] = this.player.activePotionEffects.first { it.type == PotionEffectType.SLOW_FALLING && it.fromOrigin() }
+
+            sync { player.removePotionEffect(PotionEffectType.SLOW_FALLING) }
             return
         }
 
-        missingPotion.computeAndRemove(event.player, event.player::addPotionEffect)
+        missingPotion.computeAndRemove(this.player, this.player::addPotionEffect)
     }
 
-    override suspend fun onDoubleRightClick(event: PlayerDoubleRightClickEvent) {
-        val lastTime = regenCache[event.player.uniqueId]
+    @RunAsync
+    @OriginEventSelector(EventSelector.PLAYER)
+    fun PlayerDoubleRightClickEvent.handle() {
+        val lastTime = regenCache[this.player.uniqueId]
         val now = now()
 
         if (lastTime != null && lastTime.plus(regenCooldown) > now) {
-            event.player.sendActionBar("<red>You must wait ${((lastTime + regenCooldown) - now).inWholeSeconds} seconds before using this again!".parse())
+            this.player.sendActionBar("<red>You must wait ${((lastTime + regenCooldown) - now).inWholeSeconds} seconds before using this again!".parse())
             return
         }
 
-        val target = event.player.getTargetEntity(10) as? LivingEntity ?: run {
-            return@run if (event.player.getTargetBlock(3) != null) {
-                event.player
+        val target = this.player.getTargetEntity(10) as? LivingEntity ?: run {
+            return@run if (this.player.getTargetBlock(3) != null) {
+                this.player
             } else null
         }
 
         if (target == null || target.isDead) return
-        regenCache[event.player.uniqueId] = now
+        regenCache[this.player.uniqueId] = now
         sync { target.addPotionEffect(regenPotion) }
     }
 

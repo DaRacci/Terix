@@ -17,7 +17,7 @@ class FairyOrigin(override val plugin: Terix) : Origin() {
     override val name = "Fairy"
     override val colour = TextColor.fromHexString("#86ff93")!!
 
-    override suspend fun onRegister() {
+    override suspend fun handleRegister() {
         sounds.hurtSound = SoundEffect("entity.puffer_fish.death")
         sounds.deathSound = SoundEffect("entity.glow_squid.squirt")
 
