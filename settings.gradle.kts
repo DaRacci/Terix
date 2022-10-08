@@ -14,13 +14,12 @@ pluginManagement {
     }
 
     resolutionStrategy {
+        val minixVersion: String by settings
         val kotlinVersion: String by settings
-        val minixConventions: String by settings
-        val conventionsVersion = "$kotlinVersion-$minixConventions"
-
+        val conventions = kotlinVersion.plus("-").plus(minixVersion.substringAfterLast('.'))
         eachPlugin {
             if (requested.id.id.startsWith("dev.racci.minix")) {
-                useVersion(conventionsVersion)
+                useVersion(conventions)
             }
         }
     }
@@ -32,10 +31,10 @@ dependencyResolutionManagement {
     }
 
     versionCatalogs.create("libs") {
+        val minixVersion: String by settings
         val kotlinVersion: String by settings
-        val minixConventions: String by settings
-        val conventionsVersion = "$kotlinVersion-$minixConventions"
-        from("dev.racci:catalog:$conventionsVersion")
+        val conventions = kotlinVersion.plus("-").plus(minixVersion.substringAfterLast('.'))
+        from("dev.racci:catalog:$conventions")
     }
 }
 
