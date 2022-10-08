@@ -19,7 +19,7 @@ abstract class Origin : OriginBuilder(), OriginEventListener, WithPlugin<MinixPl
 
     override fun toString(): String {
         return "Origin(name='$name', item=$item, " +
-            "abilities=$abilities, stateBlock=$stateBlocks, damageTicks=$damageTicks, " +
-            "damageActions=$damageActions, foodPotions=foodPotions, foodAttributes=$foodAttributes, foodMultipliers=foodMultipliers)"
+            "abilities=$abilities, stateBlock=$stateBlocks, stateDamageTicks=$stateDamageTicks, " +
+            "damageActions=$damageActions, customFoodProperties=$customFoodProperties, customFoodActions=$customFoodActions)"
     }
 }

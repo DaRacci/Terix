@@ -1,11 +1,9 @@
 package dev.racci.terix.api.origins.states
 
+import dev.racci.minix.api.data.enums.LiquidType.Companion.liquidType
 import dev.racci.minix.api.events.LiquidType
-import dev.racci.minix.api.events.LiquidType.Companion.liquidType
 import dev.racci.minix.api.extensions.WithPlugin
-import dev.racci.minix.api.extensions.async
 import dev.racci.minix.api.extensions.isNight
-import dev.racci.minix.api.extensions.sync
 import dev.racci.minix.api.utils.collections.multiMapOf
 import dev.racci.minix.api.utils.getKoin
 import dev.racci.minix.api.utils.unsafeCast
@@ -28,10 +26,9 @@ import org.bukkit.block.Block
 import org.bukkit.craftbukkit.v1_19_R1.block.CraftBlock
 import org.bukkit.entity.Player
 import org.bukkit.potion.PotionEffect
-import org.koin.core.component.KoinComponent
 import org.koin.core.component.inject
 
-sealed class State : KoinComponent, WithPlugin<Terix> {
+sealed class State : WithPlugin<Terix> {
     final override val plugin: Terix by inject()
 
     val ordinal: Int = ordinalInc.getAndIncrement()
@@ -217,7 +214,7 @@ sealed class State : KoinComponent, WithPlugin<Terix> {
         player: Player,
         origin: Origin
     ) = async {
-        origin.titles[this@State]?.let { title ->
+        origin.stateTitles[this@State]?.let { title ->
             plugin.log.trace(scope = CATEGORY) { "Invoking title $title" }
             title.invoke(player)
         }
@@ -254,7 +251,7 @@ sealed class State : KoinComponent, WithPlugin<Terix> {
         player: Player,
         origin: Origin
     ) = sync {
-        origin.potions[this@State]?.takeUnless(Collection<*>::isEmpty)?.forEach { potion ->
+        origin.statePotions[this@State]?.takeUnless(Collection<*>::isEmpty)?.forEach { potion ->
             plugin.log.trace(scope = CATEGORY) { "Adding potion ${potion.type}" }
             player.addPotionEffect(potion)
         }
@@ -264,7 +261,7 @@ sealed class State : KoinComponent, WithPlugin<Terix> {
         player: Player,
         origin: Origin
     ) = sync {
-        origin.potions[this@State]?.takeUnless(Collection<*>::isEmpty)?.map(PotionEffect::getType)?.forEach {
+        origin.statePotions[this@State]?.takeUnless(Collection<*>::isEmpty)?.map(PotionEffect::getType)?.forEach {
             plugin.log.trace(scope = CATEGORY) { "Removing potion $it" }
             player.removePotionEffect(it)
         }

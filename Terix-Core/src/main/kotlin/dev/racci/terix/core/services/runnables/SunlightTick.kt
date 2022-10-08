@@ -38,7 +38,7 @@ class SunlightTick(
     }
 
     override suspend fun handleRun() {
-        val ticks = origin.damageTicks[State.LightState.SUNLIGHT]?.toInt() ?: return
+        val ticks = origin.stateDamageTicks[State.LightState.SUNLIGHT]?.toInt() ?: return
         val helmet = player.inventory.helmet
 
         val event = OriginSunlightBurnEvent(player, origin, ticks)

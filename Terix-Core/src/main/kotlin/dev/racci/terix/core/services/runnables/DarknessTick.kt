@@ -25,7 +25,7 @@ class DarknessTick(
     player::inDarkness
 ) {
     private var lastTick = Instant.DISTANT_PAST
-    private val damage = origin.damageTicks[State.LightState.DARKNESS]
+    private val damage = origin.stateDamageTicks[State.LightState.DARKNESS]
 
     override suspend fun handleRun() {
         if (OriginHelper.shouldIgnorePlayer(player)) return
@@ -34,7 +34,7 @@ class DarknessTick(
 
         if (damage == null) return
 
-//        val damage = origin.damageTicks[State.LightState.DARKNESS] ?: return
+//        val damage = origin.stateDamageTicks[State.LightState.DARKNESS] ?: return
 //        if (false) return // TODO: Implement chance so it doesn't damage 4 times a second
 
         service.sync { player.damage(damage) }
