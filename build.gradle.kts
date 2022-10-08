@@ -10,6 +10,7 @@ plugins {
     id("dev.racci.minix.publication")
     id("net.minecrell.plugin-yml.bukkit") version "0.5.2"
 //    id("io.arrow-kt.analysis.kotlin") version "2.0"
+    id("dev.racci.slimjar") version "1.3.3"
 }
 
 bukkit {
@@ -44,7 +45,9 @@ val minixVersion: String by project
 dependencies {
     implementation(project(":Terix-Core"))
     implementation(project(":Terix-API"))
-    implementation(libs.minecraft.inventoryFramework)
+
+    slim(libs.minecraft.inventoryFramework)
+    slim("com.frengor:ultimateadvancementapi-shadeable:2.2.1")
 }
 
 subprojects {
@@ -53,7 +56,7 @@ subprojects {
     apply(plugin = "dev.racci.minix.purpurmc")
     apply(plugin = "org.jetbrains.kotlin.plugin.serialization")
     apply(plugin = "org.jetbrains.dokka")
-    apply(plugin = "kotlin-kapt")
+//    apply(plugin = "kotlin-kapt")
 //    apply(plugin = "io.arrow-kt.analysis.kotlin")
 
     repositories {
@@ -68,8 +71,8 @@ subprojects {
     }
 
     dependencies {
-        compileOnly("dev.racci:Minix:4.2.0-SNAPSHOT")
-        compileOnly("dev.racci:Minix-Core:4.2.0-SNAPSHOT")
+//        compileOnly("dev.racci:Minix:4.2.0-SNAPSHOT")
+//        compileOnly("dev.racci:Minix-Core:4.2.0-SNAPSHOT")
         compileOnly(rootProject.libs.minecraft.minix)
         compileOnly(rootProject.libs.minecraft.minix.core)
         compileOnly(rootProject.libs.minecraft.api.libsDisguises)
@@ -127,15 +130,10 @@ fun included(
 tasks {
 
     shadowJar {
-        val location = "dev.racci.terix.libs"
         dependencyFilter.include { dep ->
             dep.moduleName == "Terix-API" ||
-                dep.moduleName == "Terix-Core" ||
-                dep.module.id.module == libs.minecraft.inventoryFramework.get().module ||
-                dep.module.id.module == libs.minecraft.commandAPI.get().module
+                dep.moduleName == "Terix-Core"
         }
-
-        relocate("com.github.stefvanschie.inventoryframework", "$location.inventoryframework")
     }
 
     ktlintFormat {
@@ -156,7 +154,13 @@ tasks {
 }
 
 allprojects {
+    repositories {
+        maven("https://nexus.frengor.com/repository/public/")
+    }
+
     configurations.configureEach {
         exclude("me.carleslc.Simple-YAML", "Simple-Configuration")
+        exclude("me.carleslc.Simple-YAML", "Simple-Yaml")
+        exclude("com.github.technove", "Flare")
     }
 }
