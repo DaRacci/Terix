@@ -55,9 +55,20 @@ class Lang : LangConfig<Terix>() {
 
         var bee: Bee = Bee()
 
+        var descriptor: Descriptor = Descriptor()
+
         @ConfigSerializable
         class Bee : InnerLang() {
             var potion: PartialComponent = PartialComponent.of("<prefix:origins>The potion is too strong for you, try a flower instead.")
+        }
+
+        @ConfigSerializable
+        class Descriptor : InnerLang() {
+            var head: PartialComponent = PartialComponent.of("<prefix:origins> Information about <origin>:<category>")
+
+            var bodyLine: PartialComponent = PartialComponent.of("    <aqua><key> <white>»</white> <value></aqua>")
+
+            var footer: PartialComponent = PartialComponent.of("<prefix:origins>End of information.")
         }
     }
 
