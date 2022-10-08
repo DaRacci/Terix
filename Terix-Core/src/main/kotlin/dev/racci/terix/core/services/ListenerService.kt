@@ -1,20 +1,24 @@
 package dev.racci.terix.core.services
 
+import arrow.core.Either
 import com.destroystokyo.paper.event.block.BeaconEffectEvent
 import com.destroystokyo.paper.event.player.PlayerPostRespawnEvent
 import dev.racci.minix.api.annotations.MappedExtension
+import dev.racci.minix.api.collections.PlayerMap
 import dev.racci.minix.api.events.PlayerEnterLiquidEvent
-import dev.racci.minix.api.events.PlayerExitLiquidEvent
 import dev.racci.minix.api.events.PlayerMoveFullXYZEvent
 import dev.racci.minix.api.events.PlayerRightClickEvent
 import dev.racci.minix.api.events.WorldDayEvent
 import dev.racci.minix.api.events.WorldNightEvent
+import dev.racci.minix.api.events.player.PlayerLiquidExitEvent
 import dev.racci.minix.api.extension.Extension
 import dev.racci.minix.api.extensions.cancel
+import dev.racci.minix.api.extensions.collections.computeAndRemove
 import dev.racci.minix.api.extensions.event
 import dev.racci.minix.api.extensions.events
 import dev.racci.minix.api.extensions.inOverworld
 import dev.racci.minix.api.extensions.onlinePlayers
+import dev.racci.minix.api.extensions.reflection.safeCast
 import dev.racci.minix.api.extensions.scheduler
 import dev.racci.minix.api.services.DataService
 import dev.racci.minix.api.services.DataService.Companion.inject
@@ -44,15 +48,17 @@ import dev.racci.terix.core.extensions.message
 import dev.racci.terix.core.extensions.originTime
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.channels.Channel
+import kotlinx.coroutines.channels.onFailure
+import kotlinx.coroutines.channels.onSuccess
 import kotlinx.coroutines.delay
 import net.minecraft.advancements.CriteriaTriggers
 import net.minecraft.server.level.ServerPlayer
 import net.minecraft.stats.Stats
 import net.minecraft.world.InteractionHand
+import net.minecraft.world.effect.MobEffectInstance
 import net.minecraft.world.food.FoodProperties
 import org.bukkit.Sound
 import org.bukkit.attribute.Attribute
-import org.bukkit.craftbukkit.v1_19_R1.event.CraftEventFactory
 import org.bukkit.entity.LivingEntity
 import org.bukkit.entity.Player
 import org.bukkit.event.EventPriority
@@ -80,10 +86,9 @@ import kotlin.time.Duration.Companion.seconds
 class ListenerService(override val plugin: Terix) : Extension<Terix>() {
     private val terixConfig by inject<DataService>().inject<TerixConfig>()
     private val lang by inject<DataService>().inject<Lang>()
-    private val customEvent = mutableListOf<Player>()
+    private val finishEventAction: PlayerMap<Pair<FoodLevelChangeEvent, (FoodLevelChangeEvent) -> Unit>> by lazy(::PlayerMap)
     val bowTracker = mutableMapOf<LivingEntity, ItemStack>()
 
-    @OptIn(ExperimentalCoroutinesApi::class)
     @Suppress("kotlin:S3776")
     override suspend fun handleEnable() {
         event<BeaconEffectEvent>(priority = EventPriority.LOWEST) {
@@ -157,7 +162,7 @@ class ListenerService(override val plugin: Terix) : Extension<Terix>() {
         event<EntityPotionEffectEvent> { if (shouldCancel()) cancel() }
 
         event<PlayerEnterLiquidEvent> { convertLiquidToState(previousType).exchange(player, TerixPlayer.cachedOrigin(player), convertLiquidToState(newType)) }
-        event<PlayerExitLiquidEvent> { convertLiquidToState(previousType).exchange(player, TerixPlayer.cachedOrigin(player), convertLiquidToState(newType)) }
+        event<PlayerLiquidExitEvent> { convertLiquidToState(previousType).exchange(player, TerixPlayer.cachedOrigin(player), convertLiquidToState(newType)) }
 
         event<WorldNightEvent>(forceAsync = true) { switchTimeStates(State.TimeState.NIGHT) }
         event<WorldDayEvent>(forceAsync = true) { switchTimeStates(State.TimeState.DAY) }
@@ -180,7 +185,7 @@ class ListenerService(override val plugin: Terix) : Extension<Terix>() {
 
         event<EntityDamageEvent>(
             ignoreCancelled = true,
-            priority = EventPriority.LOWEST
+            priority = EventPriority.HIGHEST
         ) {
             val player = entity as? Player ?: return@event
             val origin = TerixPlayer.cachedOrigin(player)
@@ -195,21 +200,50 @@ class ListenerService(override val plugin: Terix) : Extension<Terix>() {
 
         event<PlayerDeathEvent>(
             ignoreCancelled = true,
-            priority = EventPriority.LOWEST
+            priority = EventPriority.HIGHEST
         ) { originSound(player, TerixPlayer.cachedOrigin(player), SoundEffects::hurtSound) }
 
-        event<FoodLevelChangeEvent>(
-            ignoreCancelled = true,
-            priority = EventPriority.LOWEST
-        ) {
+        event<FoodLevelChangeEvent>(EventPriority.LOWEST) {
             val player = entity as? Player ?: return@event
 
             when {
-                customEvent.contains(player) -> customEvent.remove(player)
-                item != null -> foodEvent(player, item!!, foodLevelChangeEvent = this)
+                finishEventAction.contains(player) -> return@event
+                item != null -> modifyFoodEvent(player, item!!, foodLevelChangeEvent = this)
                 else -> { /* Do nothing */
                 }
             }
+        }
+
+        event<FoodLevelChangeEvent>(EventPriority.MONITOR, false, forceAsync = true) {
+            val player = this.entity.safeCast<Player>() ?: run {
+                logger.debug { "FoodLevelChangeEvent was not a player" }
+                return@event
+            }
+            val (event, action) = finishEventAction[player] ?: run {
+                logger.debug { "finishEventAction didn't contain event." }
+                return@event
+            }
+
+            if (this !== event) {
+                logger.debug { "FoodLevelChangeEvent was not the same as the original event." }
+                return@event
+            } // Not our event. Ignore.
+            logger.debug { "Finishing food level change event for ${player.name}" }
+
+            finishEventAction.remove(player)
+            if (event.isCancelled) return@event
+
+            action(this)
+
+            val origin = TerixPlayer.cachedOrigin(player)
+
+            origin.customFoodActions[this.item!!.type]?.forEach { it.fold({ it(player) }, { it(player) }) }
+            origin.customFoodProperties[this.item!!.type]?.effects?.forEach { pair ->
+                if (player.world.toNMS().random.nextFloat() >= pair.second) return@forEach
+                player.toNMS().addEffect(MobEffectInstance(pair.first), EntityPotionEffectEvent.Cause.FOOD)
+            }
+
+            player.sendHealthUpdate()
         }
 
         event<PlayerOriginChangeEvent>(
@@ -255,75 +289,7 @@ class ListenerService(override val plugin: Terix) : Extension<Terix>() {
             ability.toggle(player)
         }
 
-        val channels = hashMapOf<UUID, Channel<Boolean>>()
-        val lasts = hashMapOf<UUID, Long>()
-        event<PlayerRightClickEvent> {
-            if (!this.hasItem || this.item!!.type.isEdible) return@event
-
-            var now = now().toEpochMilliseconds()
-            val origin = TerixPlayer.cachedOrigin(player)
-            val serverPlayer = player.toNMS()
-            val hand = serverPlayer.usedItemHand
-            val itemStack = serverPlayer.getItemInHand(hand)
-            val foodInfo = origin.customFoodProperties[item!!.type] ?: itemStack.item.foodProperties
-            if (serverPlayer.canEat(itemStack.item.foodProperties?.canAlwaysEat() == true)) return@event
-
-            val channel = channels.computeIfAbsent(player.uniqueId) {
-                val channel = Channel<Boolean>(2) // 2 So we can overflow in case of lag
-                lasts[player.uniqueId] = now
-
-                logger.debug { "PlayerRightClickEvent - channel created with empty state ${channel.isEmpty}" }
-
-                async {
-                    var required = 1600L
-                    do {
-                        delay(400)
-
-                        now = now().toEpochMilliseconds()
-                        val received = channel.tryReceive()
-
-                        when {
-                            received.isSuccess -> {
-                                logger.debug { "PlayerRightClickEvent - received ${received.getOrNull()}" }
-                                val elapsed = now - (lasts.replace(player.uniqueId, now) ?: 0L)
-                                required -= elapsed
-                                player.playSound(Sound.ENTITY_GENERIC_EAT.key.key)
-                            }
-                            received.isFailure -> {
-                                logger.debug { "Missed receiving." }
-                                continue
-                            }
-                            received.isClosed -> break
-                        }
-
-                        if (channel.isEmpty) {
-                            logger.debug { "PlayerRightClickEvent - Channel is empty" }
-                            continue
-                        }
-
-                        if (required == 0L) {
-                            logger.debug { "PlayerRightClickEvent - Consumed all required." }
-                            player.playSound(Sound.ENTITY_PLAYER_BURP.key.key)
-                            foodEvent(player, this@event.item!!, origin, serverPlayer, hand, itemStack, foodInfo)
-                            break
-                        }
-                    } while (!channel.isEmpty && !channel.isClosedForReceive)
-
-                    logger.debug { "PlayerRightClickEvent - Channel closed for receive." }
-                    channel.close()
-                    channels.remove(player.uniqueId, channel)
-                }
-                channel
-            }
-
-            if (channel.trySend(true).isSuccess) {
-                logger.debug { "PlayerRightClickEvent - Sent element" }
-            } else {
-                logger.debug { "PlayerRightClickEvent - Channel is full" }
-                channel.close()
-                channels.remove(player.uniqueId, channel)
-            }
-        }
+        event(EventPriority.HIGHEST, ignoreCancelled = true, forceAsync = false, block = ::handle)
 
         event<PlayerMoveFullXYZEvent>() {
             val lastState = State.getBiomeState(from)
@@ -345,7 +311,82 @@ class ListenerService(override val plugin: Terix) : Extension<Terix>() {
         }
     }
 
-    private suspend fun foodEvent(
+    private val channels = hashMapOf<UUID, Channel<Boolean>>()
+
+    @OptIn(ExperimentalCoroutinesApi::class)
+    private suspend fun handle(event: PlayerRightClickEvent) {
+        if (alreadyEdible(event)) return
+
+        val origin = TerixPlayer.cachedOrigin(event.player)
+        val serverPlayer = event.player.toNMS()
+        val hand = serverPlayer.usedItemHand
+        val itemStack = serverPlayer.getItemInHand(hand)
+
+        val foodInfo = origin.customFoodProperties[event.item!!.type] ?: itemStack.item.foodProperties
+        val foodActions = origin.customFoodActions[event.item!!.type]
+
+        if (foodInfo == null && foodActions == null) return
+        if (!serverPlayer.canEat(foodInfo?.canAlwaysEat() != false)) return // Always allow eating if there are only actions.
+
+        channels.computeIfAbsent(event.player.uniqueId) {
+            val channel = Channel<Boolean>(2)
+            val finishEatingTime = now() + (if (foodInfo?.isFastFood == true) 16 else 32).ticks
+
+            async {
+                do {
+                    delay(8.ticks)
+
+                    val result = channel.tryReceive()
+                    when {
+                        result.isSuccess -> {
+                            if (!result.getOrThrow()) {
+                                logger.debug { "Channel received false for ${event.player.name}" }
+                                break
+                            }
+
+                            logger.debug {
+                                "Channel received true for ${event.player.name}, remaining time ${(finishEatingTime - now()).inWholeMilliseconds})"
+                                event.player.playSound(Sound.ENTITY_GENERIC_EAT.key.key)
+                            }
+
+                            if (now() >= finishEatingTime) {
+                                logger.debug { "PlayerRightClickEvent - Consumed all required." }
+                                event.player.playSound(Sound.ENTITY_PLAYER_BURP.key.key)
+                                modifyFoodEvent(event.player, event.item!!, origin, serverPlayer, hand, itemStack, foodInfo)
+                                break
+                            }
+                        }
+                        result.isClosed -> {
+                            logger.debug { "Channel closed for ${event.player.name}" }
+                            serverPlayer.stopUsingItem()
+                            break
+                        }
+                        result.isFailure -> {
+                            logger.debug { "Channel failed for ${event.player.name}" }
+                            serverPlayer.stopUsingItem()
+                            break
+                        }
+                    }
+                } while (!channel.isEmpty && !channel.isClosedForReceive)
+
+                logger.debug { "PlayerRightClickEvent - Channel closed for receive." }
+                channels.computeAndRemove(event.player.uniqueId) { this.close() }
+            }
+            channel
+        }.trySend(true).onSuccess {
+            logger.debug { "PlayerRightClickEvent - Sent true to channel." }
+        }.onFailure {
+            logger.debug { "PlayerRightClickEvent - Failed to send true to channel." }
+            channels.computeAndRemove(event.player.uniqueId) { this.close() }
+        }
+    }
+
+    private fun alreadyEdible(event: PlayerRightClickEvent): Boolean {
+        if (!event.hasItem || event.item!!.type.isEdible) return true
+        return false
+    }
+
+    private fun modifyFoodEvent(
         player: Player,
         item: ItemStack,
         origin: Origin = TerixPlayer.cachedOrigin(player),
@@ -353,61 +394,42 @@ class ListenerService(override val plugin: Terix) : Extension<Terix>() {
         hand: InteractionHand = serverPlayer.usedItemHand,
         itemStack: net.minecraft.world.item.ItemStack = serverPlayer.getItemInHand(hand),
         foodInfo: FoodProperties? = origin.customFoodProperties[item.type],
-        attributes: Collection<TimedAttributeBuilder>? = origin.foodAttributes[item.type],
-        action: ActionPropBuilder? = origin.foodBlocks[item.type],
+        actions: Collection<Either<ActionPropBuilder, TimedAttributeBuilder>>? = origin.customFoodActions[item.type],
         foodLevelChangeEvent: FoodLevelChangeEvent? = null
     ) {
-        if (foodLevelChangeEvent?.isCancelled == true || (action == null && attributes == null && foodInfo == null)) {
+        if (foodLevelChangeEvent?.isCancelled == true || (actions.isNullOrEmpty() && foodInfo == null)) {
             return logger.debug { "Nothing to do with this item." }
         } // There's nothing to do here
 
-        if (foodInfo != null) {
-            val foodData = serverPlayer.foodData
+        (foodLevelChangeEvent ?: FoodLevelChangeEvent(player, player.foodLevel, item)).apply {
+            val nutrition = foodInfo?.nutrition ?: 0
+            val saturation = if (foodInfo != null) nutrition * foodInfo.saturationModifier else 0f
             val oldFoodLevel = serverPlayer.foodData.foodLevel
 
-            if (foodLevelChangeEvent != null) {
-                val newFoodLevel = foodData.foodLevel + foodInfo.nutrition
-                val newSaturationLevel = (foodData.saturationLevel + foodInfo.nutrition * foodInfo.saturationModifier * 2.0f).coerceAtMost(foodData.foodLevel.toFloat())
+            val newFoodLevel = oldFoodLevel + nutrition
+            val newSaturationLevel = (serverPlayer.foodData.saturationLevel + saturation * 2.0f).coerceAtMost(newFoodLevel.toFloat())
 
-                logger.debug { "Modifying existing foodLevelChangeEvent" }
-                logger.debug { "Old food level: $oldFoodLevel" }
-                logger.debug { "New food level: $newFoodLevel" }
-                logger.debug { "newSaturationLevel: $newSaturationLevel" }
+            logger.debug { "New food level: $newFoodLevel" }
+            logger.debug { "newSaturationLevel: $newSaturationLevel" }
 
-                foodLevelChangeEvent.foodLevel = newFoodLevel
-                scheduler {
-                    if (foodLevelChangeEvent.isCancelled) return@scheduler
-                    serverPlayer.foodData.setSaturation(newSaturationLevel)
-                }.runAsyncTaskLater(plugin, 1.ticks)
-                return halal(player, attributes, action)
+            this.foodLevel = newFoodLevel
+
+            val action = if (foodLevelChangeEvent == null) { event: FoodLevelChangeEvent ->
+                item.amount--
+                serverPlayer.foodData.eat(event.foodLevel - oldFoodLevel, foodInfo?.saturationModifier ?: 0f)
+
+                sync { serverPlayer.awardStat(Stats.ITEM_USED[itemStack.item]) }
+                CriteriaTriggers.CONSUME_ITEM.trigger(serverPlayer, itemStack)
+            } else { _ ->
+                serverPlayer.foodData.foodLevel = newFoodLevel
+                serverPlayer.foodData.saturationLevel = newSaturationLevel
             }
 
-            customEvent += player
-            val event = CraftEventFactory.callFoodLevelChangeEvent(serverPlayer, foodInfo.nutrition + oldFoodLevel, itemStack)
-            logger.debug { "Calling new FoodLevelChangeEvent" }
+            logger.debug { foodInfo?.effects?.joinToString(", ") { it.first.toString() } }
 
-            if (!event.isCancelled) {
-                logger.debug { "FoodLevelChangeEvent is not cancelled" }
-                logger.debug { "Old food level: $oldFoodLevel" }
-                logger.debug { "New food level: ${event.foodLevel}" }
-
-                serverPlayer.foodData.eat(serverPlayer.foodData.foodLevel - oldFoodLevel, foodInfo.saturationModifier)
-                serverPlayer.awardStat(Stats.ITEM_USED[itemStack.item])
-                CriteriaTriggers.CONSUME_ITEM.trigger(serverPlayer, itemStack)
-
-                player.sendHealthUpdate()
-                return halal(player, attributes, action)
-            } else customEvent -= player // Ensure that we don't have a ghost event.
+            finishEventAction[player] = this to action
+            if (foodLevelChangeEvent == null) sync { callEvent() }
         }
-    }
-
-    private suspend fun halal(
-        player: Player,
-        attributes: Collection<TimedAttributeBuilder>?,
-        action: ActionPropBuilder?
-    ) {
-        attributes?.forEach { it.invoke(player) }
-        action?.invoke(player)
     }
 
     private fun BeaconEffectEvent.shouldIgnore(): Boolean {
@@ -483,5 +505,5 @@ class ListenerService(override val plugin: Terix) : Extension<Terix>() {
         player.playSound(sound.resourceKey.asString(), sound.volume, sound.pitch, sound.distance)
     }
 
-    companion object : ExtensionCompanion<ListenerService>()
+    companion object : Extension.ExtensionCompanion<ListenerService>()
 }
