@@ -1,15 +1,16 @@
 import java.net.URL
 
 plugins {
-    id("dev.racci.minix.kotlin")
-    id("dev.racci.minix.copyjar")
-    id("dev.racci.minix.purpurmc")
-    id("dev.racci.minix.nms")
-    kotlin("plugin.serialization")
-//    kotlin("kapt") version "1.7.10"
-    id("dev.racci.minix.publication")
-    id("net.minecrell.plugin-yml.bukkit") version "0.5.2"
-//    id("io.arrow-kt.analysis.kotlin") version "2.0"
+    alias(libs.plugins.minix.nms)
+    alias(libs.plugins.minix.kotlin)
+    alias(libs.plugins.minix.copyJar)
+    alias(libs.plugins.minix.purpurmc)
+
+    alias(libs.plugins.serialization)
+    alias(libs.plugins.pluginYML)
+    alias(libs.plugins.dokka)
+
+    kotlin("plugin.atomicfu")
     id("dev.racci.slimjar") version "1.3.3"
 }
 

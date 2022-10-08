@@ -7,6 +7,10 @@ post_bump_hooks = [
 
 tag_prefix = "v"
 
+[commit_types]
+gradle = { changelog_title = "Build" }
+format = { changelog_title = "Formatting" }
+
 [changelog]
 path = "CHANGELOG.md"
 template = "remote"
