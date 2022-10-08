@@ -5,6 +5,10 @@ import com.destroystokyo.paper.MaterialTags
 import dev.racci.minix.api.extensions.cancel
 import dev.racci.minix.api.utils.minecraft.MaterialTagsExtension
 import dev.racci.terix.api.Terix
+import dev.racci.terix.api.annotations.OriginEventSelector
+import dev.racci.terix.api.dsl.FoodPropertyBuilder
+import dev.racci.terix.api.dsl.dslMutator
+import dev.racci.terix.api.origins.enums.EventSelector
 import dev.racci.terix.api.origins.origin.Origin
 import dev.racci.terix.api.origins.sounds.SoundEffect
 import dev.racci.terix.api.origins.states.State
@@ -38,22 +42,22 @@ class DragonOrigin(override val plugin: Terix) : Origin() {
 
         food {
             listOf(MaterialTagsExtension.RAW_MEATS, MaterialTagsExtension.COOKED_MEATS) *= 2
-            modifyFood(Material.EMERALD) {
-                it.nutrition = 7
-                it.saturationModifier = 3.5f
+            Material.EMERALD += dslMutator<FoodPropertyBuilder> {
+                nutrition = 7
+                saturationModifier = 3.5f
             }
-            modifyFood(Material.DIAMOND) {
-                it.nutrition = 5
-                it.saturationModifier = 3f
+            Material.DIAMOND += dslMutator<FoodPropertyBuilder> {
+                nutrition = 5
+                saturationModifier = 3f
             }
-            modifyFood(Material.GOLD_INGOT) {
-                it.nutrition = 3
-                it.saturationModifier = 1.5f
+            Material.GOLD_INGOT += dslMutator<FoodPropertyBuilder> {
+                nutrition = 3
+                saturationModifier = 1.5f
             }
         }
 
         potions {
-            State.CONSTANT += {
+            State.CONSTANT += dslMutator {
                 type = PotionEffectType.HUNGER
                 duration = Duration.INFINITE
                 amplifier = 1

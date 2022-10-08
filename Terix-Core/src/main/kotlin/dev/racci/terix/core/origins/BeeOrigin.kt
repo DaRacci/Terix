@@ -1,5 +1,6 @@
 package dev.racci.terix.core.origins
 
+import dev.racci.minix.api.annotations.RunAsync
 import dev.racci.minix.api.collections.PlayerMap
 import dev.racci.minix.api.extensions.cancel
 import dev.racci.minix.api.utils.adventure.PartialComponent.Companion.message
@@ -48,7 +49,60 @@ class BeeOrigin(override val plugin: Terix) : Origin() {
                 <gold>It is a type of bee.
             """.trimIndent()
         }
-    }
+
+        food {
+            listOf(
+                Material.OXEYE_DAISY,
+                Material.PINK_TULIP,
+                Material.WHITE_TULIP,
+                Material.ORANGE_TULIP,
+                Material.RED_TULIP,
+                Material.ALLIUM,
+                Material.BLUE_ORCHID,
+                Material.AZURE_BLUET,
+                Material.CORNFLOWER,
+                Material.LILY_OF_THE_VALLEY
+            ) + 3.0
+
+            listOf(
+                Material.POPPY,
+                Material.DANDELION
+            ) + 2.0
+
+            listOf(
+                Material.PEONY,
+                Material.LILAC
+            ) + 4.0
+
+            Material.DEAD_BUSH + 1.0
+
+            Material.ORANGE_TULIP += dslMutator<PotionEffectBuilder> {
+                type = PotionEffectType.FIRE_RESISTANCE
+            }
+
+            Material.RED_TULIP += dslMutator<PotionEffectBuilder> {
+                type = PotionEffectType.INCREASE_DAMAGE
+            }
+
+            Material.BLUE_ORCHID += dslMutator<PotionEffectBuilder> {
+                type = PotionEffectType.WATER_BREATHING
+            }
+
+            Material.DEAD_BUSH += dslMutator<PotionEffectBuilder> {
+                type = PotionEffectType.HUNGER
+            }
+
+            Material.ROSE_BUSH += dslMutator<PotionEffectBuilder> {
+                type = PotionEffectType.HUNGER
+                amplifier = 3
+            } // TODO -> Half heard of damage, 4 hunger and instant health??
+
+            Material.ROSE_BUSH += { player: Player -> player.damage(0.5) }
+
+            Material.ROSE_BUSH += dslMutator<PotionEffectBuilder> {
+                type = PotionEffectType.HEAL
+                amplifier = 2
+            }
 
     override suspend fun onDamageEntity(event: EntityDamageByEntityEvent) {
         val attacker = event.damager as Player
@@ -99,53 +153,6 @@ class BeeOrigin(override val plugin: Terix) : Origin() {
         return false
     }
 
-    // TODO: Possible groups
-    @Suppress("kotlin:S1151")
-    private val Material.isFlower
-        get() = when (this) {
-            Material.DANDELION,
-            Material.POPPY,
-            Material.BLUE_ORCHID,
-            Material.ALLIUM,
-            Material.AZURE_BLUET,
-            Material.RED_TULIP,
-            Material.ORANGE_TULIP,
-            Material.WHITE_TULIP,
-            Material.PINK_TULIP,
-            Material.OXEYE_DAISY,
-            Material.CORNFLOWER,
-            Material.LILY_OF_THE_VALLEY,
-            Material.WITHER_ROSE,
-            Material.LILAC,
-            Material.ROSE_BUSH,
-            Material.PEONY -> true
-            else -> false
-        }
-
-    private fun Material.getEffect(): FlowerEffect? {
-        if (!this.isFlower) return null
-
-        return when (this) {
-            Material.DANDELION -> TODO("Dandelion effect")
-            Material.POPPY -> TODO("Poppy effect")
-            Material.BLUE_ORCHID -> TODO("Blue Orchid effect")
-            Material.ALLIUM -> TODO("Allium effect")
-            Material.AZURE_BLUET -> TODO("Azure Bluet effect")
-            Material.RED_TULIP -> TODO("Red Tulip effect")
-            Material.ORANGE_TULIP -> TODO("Orange Tulip effect")
-            Material.WHITE_TULIP -> TODO("White Tulip effect")
-            Material.PINK_TULIP -> TODO("Pink Tulip effect")
-            Material.OXEYE_DAISY -> TODO("Oxeye Daisy effect")
-            Material.CORNFLOWER -> TODO("Cornflower effect")
-            Material.LILY_OF_THE_VALLEY -> TODO("Lily Of The Valley effect")
-            Material.WITHER_ROSE -> TODO("Wither Rose effect")
-            Material.LILAC -> TODO("Lilac effect")
-            Material.ROSE_BUSH -> TODO("Rose Bush effect")
-            Material.PEONY -> TODO("Peony effect")
-            else -> null
-        }
-    }
-
     companion object {
         val STINGER_COOLDOWN = 10.seconds
         val BANNED_POTION_CAUSES = arrayOf(
@@ -155,17 +162,5 @@ class BeeOrigin(override val plugin: Terix) : Origin() {
             Cause.POTION_DRINK,
             Cause.POTION_SPLASH
         )
-    }
-
-    private class FlowerEffect {
-        var potionEffect: PotionEffect? = null
-        var attribute: TimedAttributeBuilder? = null
-        var title: TitleBuilder? = null
-
-        fun apply(player: Player) {
-            attribute?.invoke(player)
-            potionEffect?.apply(player)
-            title?.invoke(player)
-        }
     }
 }

@@ -2,6 +2,7 @@ package dev.racci.terix.core.origins
 
 import dev.racci.terix.api.Terix
 import dev.racci.terix.api.dsl.TimedAttributeBuilder
+import dev.racci.terix.api.dsl.dslMutator
 import dev.racci.terix.api.origins.origin.Origin
 import dev.racci.terix.api.origins.sounds.SoundEffect
 import net.kyori.adventure.text.format.TextColor
@@ -29,9 +30,9 @@ class FairyOrigin(override val plugin: Terix) : Origin() {
         food {
             TOP_FOODS *= 2.25
             MID_FOODS *= 1.50
-            FAT_FOODS += { builder: TimedAttributeBuilder ->
-                builder.attribute = Attribute.GENERIC_MOVEMENT_SPEED
-                builder.amount = 0.8
+            FAT_FOODS += dslMutator<TimedAttributeBuilder> {
+                attribute = Attribute.GENERIC_MOVEMENT_SPEED
+                amount = 0.8
             }
         }
 

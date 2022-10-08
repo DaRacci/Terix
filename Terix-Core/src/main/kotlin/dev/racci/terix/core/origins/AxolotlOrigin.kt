@@ -1,6 +1,8 @@
 package dev.racci.terix.core.origins
 
 import dev.racci.terix.api.Terix
+import dev.racci.terix.api.annotations.OriginEventSelector
+import dev.racci.terix.api.origins.enums.EventSelector
 import dev.racci.terix.api.origins.origin.Origin
 import dev.racci.terix.api.origins.sounds.SoundEffect
 import net.kyori.adventure.text.format.TextColor

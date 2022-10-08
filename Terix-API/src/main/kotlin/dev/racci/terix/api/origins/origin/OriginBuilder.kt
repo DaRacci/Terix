@@ -1,5 +1,6 @@
 package dev.racci.terix.api.origins.origin
 
+import arrow.core.Either
 import com.destroystokyo.paper.MaterialSetTag
 import com.github.benmanes.caffeine.cache.Caffeine
 import com.github.benmanes.caffeine.cache.LoadingCache
@@ -7,10 +8,12 @@ import dev.racci.minix.api.annotations.MinixDsl
 import dev.racci.minix.api.utils.unsafeCast
 import dev.racci.terix.api.OriginService
 import dev.racci.terix.api.dsl.AttributeModifierBuilder
+import dev.racci.terix.api.dsl.DSLMutator
 import dev.racci.terix.api.dsl.FoodPropertyBuilder
 import dev.racci.terix.api.dsl.PotionEffectBuilder
 import dev.racci.terix.api.dsl.TimedAttributeBuilder
 import dev.racci.terix.api.dsl.TitleBuilder
+import dev.racci.terix.api.dsl.dslMutator
 import dev.racci.terix.api.origins.OriginItem
 import dev.racci.terix.api.origins.abilities.Ability
 import dev.racci.terix.api.origins.enums.KeyBinding
@@ -24,6 +27,7 @@ import org.bukkit.block.Biome
 import org.bukkit.entity.Player
 import org.bukkit.event.entity.EntityDamageEvent
 import java.time.Duration
+import kotlin.experimental.ExperimentalTypeInference
 import kotlin.reflect.KClass
 
 /** Handles the origins primary variables. */
@@ -94,12 +98,11 @@ sealed class OriginBuilder : OriginValues() {
          *
          * ### Note: The potion key will always be overwritten.
          */
-        operator fun State.plusAssign(builder: PotionEffectBuilder.() -> Unit) {
-            val pot = PotionEffectBuilder(builder).originKey(this@OriginBuilder, this)
-            potions.put(this, pot.build())
+        operator fun State.plusAssign(mutator: DSLMutator<PotionEffectBuilder>) {
+            statePotions.put(this, mutator.asNew().originKey(this@OriginBuilder, this).get())
         }
 
-        operator fun Collection<State>.plusAssign(builder: PotionEffectBuilder.() -> Unit) = this.forEach { it += builder }
+        operator fun Collection<State>.plusAssign(builder: DSLMutator<PotionEffectBuilder>) = this.forEach { it += builder }
     }
 
     /** A Utility class for building attribute modifiers. */
@@ -180,12 +183,12 @@ sealed class OriginBuilder : OriginValues() {
         ) {
             this@OriginBuilder.attributeModifiers.put(
                 state,
-                attribute to AttributeModifierBuilder {
+                attribute to dslMutator<AttributeModifierBuilder> {
                     originName(this@OriginBuilder, state)
                     this.attribute = attribute
                     this.operation = operation
                     this.amount = amount
-                }.build()
+                }.asNew().get()
             )
         }
     }
@@ -338,6 +341,7 @@ sealed class OriginBuilder : OriginValues() {
 
     // TODO -> Add a way to clear default potions.
     /** A Utility class for building food triggers. */
+    @OptIn(ExperimentalTypeInference::class)
     inner class FoodBuilder {
 
         @JvmName("exchangeFoodProperties")
@@ -360,30 +364,48 @@ sealed class OriginBuilder : OriginValues() {
         @JvmName("modifyFoodSingle")
         fun modifyFood(
             material: Material,
-            builder: FoodPropBuilder
+            builder: DSLMutator<FoodPropertyBuilder>
         ) {
-            val foodProps = Foods.DEFAULT_PROPERTIES[material.key.key]
-            val foodProp = FoodPropertyBuilder(foodProps)
-
-            builder(foodProp)
-            customFoodProperties[material] = foodProp.build()
+            val propBuilder = FoodPropertyBuilder(customFoodProperties[material] ?: Foods.DEFAULT_PROPERTIES[material.key.key])
+            customFoodProperties[material] = builder.on(propBuilder).get()
         }
 
         /** Modifies or Creates a Food Property on each item of the collection. */
         @JvmName("modifyFoodIterable")
         fun modifyFood(
             materials: Iterable<Material>,
-            builder: FoodPropBuilder
+            builder: DSLMutator<FoodPropertyBuilder>
         ): Unit = materials.forEach { modifyFood(it, builder) }
+
+        @JvmName("plusFoodSingle")
+        fun plusFood(
+            material: Material,
+            value: Number
+        ) = modifyFood(
+            material,
+            dslMutator {
+                nutrition += value.toInt()
+                saturationModifier += value.toInt() / 10 / 2
+            }
+        )
+
+        @JvmName("plusFoodIterable")
+        fun plusFood(
+            materials: Iterable<Material>,
+            value: Number
+        ) = materials.forEach { plusFood(it, value) }
 
         @JvmName("timesModifierSingle")
         fun timesModifier(
             material: Material,
             value: Number
-        ): Unit = modifyFood(material) {
-            it.nutrition *= value.toInt()
-            it.saturationModifier *= value.toFloat()
-        }
+        ): Unit = modifyFood(
+            material,
+            dslMutator {
+                nutrition *= value.toInt()
+                saturationModifier *= value.toFloat()
+            }
+        )
 
         @JvmName("timeModifierIterable")
         fun timesModifier(
@@ -395,10 +417,13 @@ sealed class OriginBuilder : OriginValues() {
         fun divModifier(
             material: Material,
             value: Number
-        ): Unit = modifyFood(material) {
-            it.nutrition /= value.toInt()
-            it.saturationModifier /= value.toFloat()
-        }
+        ): Unit = modifyFood(
+            material,
+            dslMutator {
+                nutrition /= value.toInt()
+                saturationModifier /= value.toFloat()
+            }
+        )
 
         @JvmName("divModifierIterable")
         fun divModifier(
@@ -409,30 +434,30 @@ sealed class OriginBuilder : OriginValues() {
         @JvmName("potionEffectSingle")
         fun potionEffect(
             material: Material,
-            builder: PotionPropBuilder
-        ): Unit = modifyFood(material) {
-            it.addEffect {
-                builder(this)
-                foodKey(material)
+            builder: DSLMutator<PotionEffectBuilder>
+        ): Unit = modifyFood(
+            material,
+            dslMutator {
+                addEffect(builder.asNew().foodKey(material).get())
             }
-        }
+        )
 
         @JvmName("potionEffectIterable")
         fun potionEffect(
             materials: Iterable<Material>,
-            builder: PotionPropBuilder
+            builder: DSLMutator<PotionEffectBuilder>
         ): Unit = materials.forEach { potionEffect(it, builder) }
 
         @JvmName("attributeModifierSingle")
         fun attributeModifier(
             material: Material,
-            builder: AttributePropBuilder
-        ): Unit = foodAttributes.put(material, TimedAttributeBuilder(builder).materialName(material, this@OriginBuilder))
+            builder: DSLMutator<TimedAttributeBuilder>
+        ): Unit = customFoodActions.put(material, Either.Right(builder.asNew().materialName(material, this@OriginBuilder)))
 
         @JvmName("attributeModifierIterable")
         fun attributeModifier(
             materials: Iterable<Material>,
-            builder: AttributePropBuilder
+            builder: DSLMutator<TimedAttributeBuilder>
         ): Unit = materials.forEach { attributeModifier(it, builder) }
 
         @JvmName("actionModifierSingle")
@@ -448,7 +473,7 @@ sealed class OriginBuilder : OriginValues() {
         ): Unit = materials.forEach { actionModifier(it, action) }
 
         @JvmName("plusAssignMaterial")
-        operator fun Material.plusAssign(builder: FoodPropBuilder) = modifyFood(this, builder)
+        operator fun Material.plusAssign(builder: DSLMutator<FoodPropertyBuilder>) = modifyFood(this, builder)
 
         @JvmName("timesAssignMaterial")
         operator fun Material.timesAssign(number: Number) = timesModifier(this, number)
@@ -457,16 +482,16 @@ sealed class OriginBuilder : OriginValues() {
         operator fun Material.divAssign(number: Number) = divModifier(this, number)
 
         @JvmName("potionEffectMaterial")
-        operator fun Material.plusAssign(builder: PotionPropBuilder) = potionEffect(this, builder)
+        operator fun Material.plusAssign(builder: DSLMutator<PotionEffectBuilder>) = potionEffect(this, builder)
 
         @JvmName("attributeModifierMaterial")
-        operator fun Material.plusAssign(builder: AttributePropBuilder) = attributeModifier(this, builder)
+        operator fun Material.plusAssign(builder: DSLMutator<TimedAttributeBuilder>) = attributeModifier(this, builder)
 
         @JvmName("actionModifierMaterial")
         operator fun Material.plusAssign(builder: ActionPropBuilder) = actionModifier(this, builder)
 
         @JvmName("plusAssignMaterialIterable")
-        operator fun Iterable<Material>.plusAssign(builder: FoodPropBuilder) = modifyFood(this, builder)
+        operator fun Iterable<Material>.plusAssign(builder: DSLMutator<FoodPropertyBuilder>) = modifyFood(this, builder)
 
         @JvmName("timesAssignMaterialIterable")
         operator fun Iterable<Material>.timesAssign(number: Number) = timesModifier(this, number)
@@ -475,16 +500,16 @@ sealed class OriginBuilder : OriginValues() {
         operator fun Iterable<Material>.divAssign(number: Number) = divModifier(this, number)
 
         @JvmName("potionEffectMaterialIterable")
-        operator fun Iterable<Material>.plusAssign(builder: PotionPropBuilder) = potionEffect(this, builder)
+        operator fun Iterable<Material>.plusAssign(builder: DSLMutator<PotionEffectBuilder>) = potionEffect(this, builder)
 
         @JvmName("attributeModifierMaterialIterable")
-        operator fun Iterable<Material>.plusAssign(builder: AttributePropBuilder) = attributeModifier(this, builder)
+        operator fun Iterable<Material>.plusAssign(builder: DSLMutator<TimedAttributeBuilder>) = attributeModifier(this, builder)
 
         @JvmName("actionModifierMaterialIterable")
         operator fun Iterable<Material>.plusAssign(builder: ActionPropBuilder) = actionModifier(this, builder)
 
         @JvmName("plusAssignMaterialSetTag")
-        operator fun MaterialSetTag.plusAssign(builder: FoodPropBuilder) = modifyFood(this.values, builder)
+        operator fun MaterialSetTag.plusAssign(builder: DSLMutator<FoodPropertyBuilder>) = modifyFood(this.values, builder)
 
         @JvmName("timesAssignMaterialSetTag")
         operator fun MaterialSetTag.timesAssign(number: Number) = timesModifier(this.values, number)
@@ -493,31 +518,45 @@ sealed class OriginBuilder : OriginValues() {
         operator fun MaterialSetTag.divAssign(number: Number) = divModifier(this.values, number)
 
         @JvmName("potionEffectMaterialSetTag")
-        operator fun MaterialSetTag.plusAssign(builder: PotionPropBuilder) = potionEffect(this.values, builder)
+        operator fun MaterialSetTag.plusAssign(builder: DSLMutator<PotionEffectBuilder>) = potionEffect(this.values, builder)
 
         @JvmName("attributeModifierMaterialSetTag")
-        operator fun MaterialSetTag.plusAssign(builder: AttributePropBuilder) = attributeModifier(this.values, builder)
+        operator fun MaterialSetTag.plusAssign(builder: DSLMutator<TimedAttributeBuilder>) = attributeModifier(this.values, builder)
 
         @JvmName("actionModifierMaterialSetTag")
         operator fun MaterialSetTag.plusAssign(builder: ActionPropBuilder) = actionModifier(this.values, builder)
 
+        @OverloadResolutionByLambdaReturnType
         @JvmName("plusAssignMaterialSetTagIterable")
-        operator fun Iterable<MaterialSetTag>.plusAssign(builder: FoodPropBuilder) = modifyFood(this.flatMap { it.values }, builder)
+        operator fun Iterable<MaterialSetTag>.plusAssign(builder: DSLMutator<FoodPropertyBuilder>) = modifyFood(this.flatMap { it.values }, builder)
 
+        @OverloadResolutionByLambdaReturnType
         @JvmName("timesAssignMaterialSetTagIterable")
         operator fun Iterable<MaterialSetTag>.timesAssign(number: Number) = timesModifier(this.flatMap { it.values }, number)
 
+        @OverloadResolutionByLambdaReturnType
         @JvmName("divAssignMaterialSetTagIterable")
         operator fun Iterable<MaterialSetTag>.divAssign(number: Number) = divModifier(this.flatMap { it.values }, number)
 
+        @OverloadResolutionByLambdaReturnType
         @JvmName("potionEffectMaterialSetTagIterable")
-        operator fun Iterable<MaterialSetTag>.plusAssign(builder: PotionPropBuilder) = potionEffect(this.flatMap { it.values }, builder)
+        operator fun Iterable<MaterialSetTag>.plusAssign(builder: DSLMutator<PotionEffectBuilder>) = potionEffect(this.flatMap { it.values }, builder)
 
+        @OverloadResolutionByLambdaReturnType
         @JvmName("attributeModifierMaterialSetTagIterable")
-        operator fun Iterable<MaterialSetTag>.plusAssign(builder: AttributePropBuilder) = attributeModifier(this.flatMap { it.values }, builder)
+        operator fun Iterable<MaterialSetTag>.plusAssign(builder: DSLMutator<TimedAttributeBuilder>) = attributeModifier(this.flatMap { it.values }, builder)
 
+        @OverloadResolutionByLambdaReturnType
         @JvmName("actionModifierMaterialSetTagIterable")
         operator fun Iterable<MaterialSetTag>.plusAssign(builder: ActionPropBuilder) = actionModifier(this.flatMap { it.values }, builder)
+
+        @OverloadResolutionByLambdaReturnType
+        @JvmName("plusMaterialIterable")
+        operator fun Iterable<Material>.plus(number: Number) = plusFood(this, number)
+
+        @OverloadResolutionByLambdaReturnType
+        @JvmName("plusMaterialSingle")
+        operator fun Material.plus(number: Number) = plusFood(this, number)
     }
 
     /** A Utility class for building abilities. */
@@ -537,7 +576,4 @@ sealed class OriginBuilder : OriginValues() {
     }
 }
 
-typealias FoodPropBuilder = (FoodPropertyBuilder) -> Unit
-typealias PotionPropBuilder = (PotionEffectBuilder) -> Unit
-typealias AttributePropBuilder = (TimedAttributeBuilder) -> Unit
 typealias ActionPropBuilder = suspend (Player) -> Unit

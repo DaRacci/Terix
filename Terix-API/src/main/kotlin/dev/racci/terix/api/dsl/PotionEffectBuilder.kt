@@ -14,20 +14,23 @@ import org.bukkit.potion.PotionEffectType
 import kotlin.reflect.KClass
 import kotlin.time.Duration
 
-class PotionEffectBuilder() {
+class PotionEffectBuilder(
+    amplifier: Int? = null,
+    duration: Duration? = null,
+    type: PotionEffectType? = null,
+    ambient: Boolean? = false,
+    particles: Boolean? = null,
+    icon: Boolean? = null,
+    key: NamespacedKey? = null
+) : CachingBuilder<PotionEffect>() {
 
-    constructor(builder: PotionEffectBuilder.() -> Unit) : this() {
-        builder(this)
-    }
-
-    var amplifier: Int = 1
-    var duration: Duration = 20.ticks
-    var durationInt: Int? = null
-    var type: PotionEffectType? = null
-    var ambient: Boolean = false
-    var particles: Boolean? = null
-    var icon: Boolean? = null
-    var key: NamespacedKey? = null
+    var amplifier by createWatcher(amplifier ?: 1)
+    var duration by createWatcher(duration ?: 20.ticks)
+    var type by createWatcher(type)
+    var ambient by createWatcher(ambient ?: false)
+    var particles by createWatcher(particles ?: ambient)
+    var icon by createWatcher(icon)
+    var key by createWatcher(key)
 
     inline fun <reified O : Origin> originKey(state: State) = originKey(OriginService.getOrigin(O::class), state)
 
@@ -60,19 +63,17 @@ class PotionEffectBuilder() {
         return this
     }
 
-    fun build(): PotionEffect = PotionEffect(
-        type ?: error("Type must be set for potion builder."),
-        durationInt ?: duration.inWholeTicks.coerceAtMost(Integer.MAX_VALUE.toLong()).toInt(),
+    override fun create() = PotionEffect(
+        ::type.watcherOrNull() ?: error("Type must be set for potion builder."),
+        duration.inWholeTicks.coerceAtMost(Integer.MAX_VALUE.toLong()).toInt(),
         amplifier,
         ambient,
-        particles ?: !ambient,
-        icon ?: particles ?: !ambient,
-        key.takeUnless { it == null || !it.toString().matches(regex) } ?: error("Invalid key. Was null or didn't match ${regex.pattern}: $key")
+        ::particles.watcherOrNull() ?: !ambient,
+        ::icon.watcherOrNull() ?: ::particles.watcherOrNull() ?: !ambient,
+        ::key.watcherOrNull().takeUnless { it == null || !it.toString().matches(regex) } ?: error("Invalid key. Was null or didn't match ${regex.pattern}: $key")
     )
 
     companion object {
         val regex by lazy { Regex("^terix:origin_(?<type>potion|ability|food)_(?<from>[a-z_-]+)?(/(?<state>[a-z_-]+))?$") }
-
-        fun build(builder: PotionEffectBuilder.() -> Unit): PotionEffect = PotionEffectBuilder(builder).build()
     }
 }

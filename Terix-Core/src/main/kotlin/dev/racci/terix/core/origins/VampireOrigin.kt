@@ -12,6 +12,7 @@ import dev.racci.minix.nms.aliases.toNMS
 import dev.racci.terix.api.OriginService
 import dev.racci.terix.api.Terix
 import dev.racci.terix.api.dsl.FoodPropertyBuilder
+import dev.racci.terix.api.dsl.dslMutator
 import dev.racci.terix.api.events.PlayerOriginChangeEvent
 import dev.racci.terix.api.origins.OriginHelper
 import dev.racci.terix.api.origins.abilities.Transform
@@ -55,13 +56,13 @@ class VampireOrigin(override val plugin: Terix) : Origin() {
         sounds.ambientSound = SoundEffect("entity.bat.ambient")
 
         food {
-            listOf(Material.ROTTEN_FLESH, Material.SPIDER_EYE) += { builder: FoodPropertyBuilder ->
-                builder.saturationModifier *= 1.75f
-                builder.nutrition *= 2
+            listOf(Material.ROTTEN_FLESH, Material.SPIDER_EYE) += dslMutator<FoodPropertyBuilder> {
+                saturationModifier *= 1.75f
+                nutrition *= 2
             }
-            listOf(MaterialTagsExtension.CARBS, MaterialTagsExtension.FRUITS, MaterialTagsExtension.VEGETABLES) += { builder: FoodPropertyBuilder ->
-                builder.saturationModifier = 0.3f
-                builder.nutrition = 1
+            listOf(MaterialTagsExtension.CARBS, MaterialTagsExtension.FRUITS, MaterialTagsExtension.VEGETABLES) += dslMutator<FoodPropertyBuilder> {
+                saturationModifier = 0.3f
+                nutrition = 1
             }
             exchangeFoodProperties(Material.COOKED_BEEF, Material.BEEF)
             exchangeFoodProperties(Material.COOKED_CHICKEN, Material.CHICKEN)
@@ -73,7 +74,7 @@ class VampireOrigin(override val plugin: Terix) : Origin() {
             exchangeFoodProperties(Material.COOKED_SALMON, Material.SALMON)
         }
         potions {
-            listOf(State.TimeState.NIGHT, State.WorldState.NETHER) += {
+            listOf(State.TimeState.NIGHT, State.WorldState.NETHER) += dslMutator {
                 type = PotionEffectType.NIGHT_VISION
                 duration = INFINITE
                 amplifier = 0
@@ -89,12 +90,12 @@ class VampireOrigin(override val plugin: Terix) : Origin() {
             }
         }
         potions {
-            State.LightState.SUNLIGHT += {
+            State.LightState.SUNLIGHT += dslMutator {
                 type = PotionEffectType.WEAKNESS
                 duration = INFINITE
                 ambient = true
             }
-            State.LightState.DARKNESS += {
+            State.LightState.DARKNESS += dslMutator {
                 type = PotionEffectType.INCREASE_DAMAGE
                 duration = INFINITE
                 ambient = true

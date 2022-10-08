@@ -75,7 +75,7 @@ class AethenOrigin(override val plugin: Terix) : Origin() {
             ) *= 2.0
         }
         potions {
-            State.CONSTANT += {
+            State.CONSTANT += dslMutator {
                 type = PotionEffectType.SLOW_FALLING
                 duration = Duration.INFINITE
                 amplifier = 0
