@@ -3,15 +3,10 @@ package dev.racci.terix.core.services
 import cloud.commandframework.arguments.CommandArgument
 import cloud.commandframework.arguments.flags.CommandFlag
 import cloud.commandframework.arguments.parser.ArgumentParseResult
-import cloud.commandframework.arguments.parser.ArgumentParser
 import cloud.commandframework.arguments.standard.IntegerArgument
 import cloud.commandframework.bukkit.parsers.PlayerArgument
-import cloud.commandframework.captions.Caption
-import cloud.commandframework.captions.CaptionVariable
 import cloud.commandframework.context.CommandContext
 import cloud.commandframework.exceptions.InvalidCommandSenderException
-import cloud.commandframework.exceptions.parsing.NoInputProvidedException
-import cloud.commandframework.exceptions.parsing.ParserException
 import cloud.commandframework.execution.AsynchronousCommandExecutionCoordinator
 import cloud.commandframework.kotlin.coroutines.extension.suspendingHandler
 import cloud.commandframework.kotlin.extension.buildAndRegister
@@ -32,16 +27,17 @@ import dev.racci.terix.api.Terix
 import dev.racci.terix.api.TerixPlayer
 import dev.racci.terix.api.events.PlayerOriginChangeEvent
 import dev.racci.terix.api.origins.origin.Origin
+import dev.racci.terix.core.commands.arguments.OriginArgument
+import dev.racci.terix.core.commands.arguments.OriginInfoArgument
 import dev.racci.terix.core.data.Lang
 import dev.racci.terix.core.extensions.freeChanges
+import dev.racci.terix.core.origins.OriginInfo
 import net.kyori.adventure.text.minimessage.MiniMessage
 import org.bukkit.command.CommandSender
 import org.bukkit.entity.Player
 import org.jetbrains.exposed.sql.transactions.transaction
 import org.koin.core.component.get
 import org.koin.core.component.inject
-import java.util.Queue
-import java.util.function.BiFunction
 import kotlin.properties.Delegates
 
 @MappedExtension(Terix::class, "Command Service", [OriginService::class, GUIService::class])
@@ -136,6 +132,46 @@ class CommandService(override val plugin: Terix) : Extension<Terix>() {
                     suspendingHandler(supervisor, dispatcher.get()) { context -> removeChoices(context.sender, getTargetOrThrow(context), context.get("amount")) }
                 }
             }
+
+            this.registerCopy(
+                "grant",
+                RichDescription.of(MiniMessage.miniMessage().deserialize("Grants an origin to a player."))
+            ) {
+                mutate { it.flag(playerFlag) }
+                permission(Permission.of("terix.command.origin.grant"))
+                argument(
+                    OriginArgument(
+                        "origin",
+                        true,
+                        RichDescription.of(MiniMessage.miniMessage().deserialize("The origin to grant the player.")),
+                        null
+                    )
+                )
+                suspendingHandler(supervisor, dispatcher.get()) { context -> grantOrigin(context.sender, getTargetOrThrow(context), context.get("origin")) }
+            }
+
+            this.registerCopy(
+                "describe",
+                RichDescription.of(MiniMessage.miniMessage().deserialize("Describes an origin."))
+            ) {
+                argument(
+                    OriginArgument(
+                        "origin",
+                        true,
+                        RichDescription.of(MiniMessage.miniMessage().deserialize("The origin to describe.")),
+                        null
+                    )
+                )
+                argument(
+                    OriginInfoArgument(
+                        "info",
+                        true,
+                        RichDescription.of(MiniMessage.miniMessage().deserialize("The info to describe.")),
+                        null
+                    )
+                )
+                suspendingHandler(supervisor, dispatcher.get()) { context -> describeOrigin(context.sender, context.get("origin"), context.get("info")) }
+            }
         }
 
         manager.buildAndRegister(
@@ -154,144 +190,6 @@ class CommandService(override val plugin: Terix) : Extension<Terix>() {
                 }
             }
         }
-
-//        command("testing") {
-//            subcommand("oxygen") {
-//                executePlayer { player, _ ->
-//                    player.isReverseOxygen = !player.isReverseOxygen
-//                    player.msg("oxygen.${if (player.isReverseOxygen) "enabled" else "disabled"}")
-//                }
-//            }
-//
-//            subcommand("debug") {
-//                arguments {
-//                    arg<BooleanArgument>("debug")
-//                }
-//                execute { _, a ->
-//                    val bool = a.getCast<Boolean>(0)
-//                    plugin.logger.level = if (bool) Level.OFF else Level.ALL
-//                }
-//            }
-//
-//            subcommand("stand") {
-//                arguments {
-//                    arg<EntitySelectorArgument<LivingEntity>>("entity")
-//                }
-//                executePlayer { _, anies ->
-//                    val entity = anies.getCast<LivingEntity>(0)
-//                    Fluid.values().forEach {
-//                        entity.addCanStandOnFluid(it)
-//                    }
-//                }
-//            }
-//
-//            subcommand("remove") {
-//                arguments {
-//                    arg<EntitySelectorArgument<LivingEntity>>("entity")
-//                }
-//                executePlayer { _, anies ->
-//                    val entity = anies.getCast<LivingEntity>(0)
-//                    Fluid.values().forEach {
-//                        entity.removeCanStandOnFluid(it)
-//                    }
-//                }
-//            }
-//
-//            subcommand("discount") {
-//                arguments {
-//                    arg<EntitySelectorArgument<Villager>>("villager")
-//                    arg<DoubleArgument>("value")
-//                }
-//
-//                executePlayer { player, anies ->
-//                    val villager = anies.getCast<Villager>(0)
-//                    val amount = anies.getCast<Double>(1)
-//
-//                    if (amount == -1.0) {
-//                        villager.recipes.forEach {
-//                            it.removePriceMultiplier(player.uniqueId)
-//                        }
-//                    } else {
-//                        villager.recipes.forEach {
-//                            it.setPriceMultiplier(player.uniqueId, amount)
-//                        }
-//                    }
-//                }
-//            }
-//
-//            subcommand("attribute") {
-//                arguments {
-//                    arg<StringArgument>("attribute").replaceSuggestions(ArgumentSuggestions.strings(*Attribute.values().map(Attribute::name).toTypedArray()))
-//                    arg<StringArgument>("operation").replaceSuggestions(ArgumentSuggestions.strings(*AttributeModifier.Operation.values().map(AttributeModifier.Operation::name).toTypedArray()))
-//                    arg<DoubleArgument>("value")
-//                }
-//
-//                executePlayer { player, anies ->
-//                    val attribute = Attribute.valueOf(anies.getCast(0))
-//                    val operation = AttributeModifier.Operation.valueOf(anies.getCast(1))
-//                    val value = anies.getCast<Double>(2)
-//
-//                    val uuid = UUID.randomUUID()
-//                    val modifier = AttributeModifier(uuid, uuid.toString(), value, operation)
-//                    player.getAttribute(attribute)?.addModifier(modifier)
-//                }
-//            }
-//
-//            subcommand("clearAttributes") {
-//                arguments {
-//                    arg<StringArgument>("attribute").replaceSuggestions(
-//                        ArgumentSuggestions.strings(
-//                            *Attribute.values()
-//                                .map(Attribute::name)
-//                                .toTypedArray()
-//                        )
-//                    )
-//                }
-//                executePlayer { player, anies ->
-//                    val inst = player.getAttribute(Attribute.valueOf(anies.getCast(0))) ?: return@executePlayer
-//                    inst.modifiers.forEach(inst::removeModifier)
-//                }
-//            }
-//
-//            subcommand("origin") {
-//                executePlayer { player, _ ->
-//                    TerixPlayer.cachedOrigin(player).toString() message player
-//                }
-//            }
-//
-//            subcommand("potions") {
-//                executePlayer { player, _ ->
-//                    player.activePotionEffects.forEach {
-//                        player.msg("${it.type.name} : ${it.key}")
-//                    }
-//                }
-//            }
-//
-//            subcommand("attributes") {
-//                executePlayer { player, _ ->
-//                    Attribute.values().forEach {
-//                        player.getAttribute(it)?.let { inst ->
-//                            inst.modifiers.forEach { modi ->
-//                                player.msg("${it.name} : ${modi.name} : ${modi.amount} : ${modi.operation.name}")
-//                            }
-//                        }
-//                    }
-//                }
-//            }
-//
-//            subcommand("remove") {
-//                executePlayer { player, _ ->
-//                    PotionEffectType.values().forEach {
-//                        player.removePotionEffect(it)
-//                    }
-//                    Attribute.values().forEach {
-//                        player.getAttribute(it)?.let { inst ->
-//                            inst.modifiers.forEach(inst::removeModifier)
-//                        }
-//                    }
-//                }
-//            }
-//        }
     }
 
     override suspend fun handleUnload() {
@@ -313,6 +211,7 @@ class CommandService(override val plugin: Terix) : Extension<Terix>() {
                 MiniMessage.miniMessage().deserialize("Invalid syntax: ${exception.currentChain.getOrNull(0)?.name} - ${exception.command?.arguments?.joinToString(", ")}")
             }
             .withHandler(MinecraftExceptionHandler.ExceptionType.COMMAND_EXECUTION) { _, e ->
+                logger.error(e) { "Error while executing command" }
                 MiniMessage.miniMessage().deserialize("An error occurred while executing this command: ${e.message}")
             }
             .withHandler(MinecraftExceptionHandler.ExceptionType.NO_PERMISSION) { _, e ->
@@ -458,47 +357,25 @@ class CommandService(override val plugin: Terix) : Extension<Terix>() {
         }
     }
 
-    class OriginArgument(
-        name: String,
-        required: Boolean,
-        description: RichDescription,
-        suggestionsProvider: BiFunction<CommandContext<CommandSender>, String, List<String>>?
-    ) : CommandArgument<CommandSender, Origin>(
-        required,
-        name,
-        OriginParser(),
-        "Human",
-        Origin::class.java,
-        suggestionsProvider,
-        description
+    private fun grantOrigin(
+        sender: CommandSender,
+        player: Player,
+        origin: Origin
     ) {
+    }
 
-        class OriginParser : ArgumentParser<CommandSender, Origin> {
-            override fun parse(
-                context: CommandContext<CommandSender>,
-                inputQueue: Queue<String>
-            ): ArgumentParseResult<Origin> {
-                val input = inputQueue.peek() ?: return ArgumentParseResult.failure(NoInputProvidedException(OriginParser::class.java, context))
-                val origin = OriginService.getOriginOrNull(input) ?: return ArgumentParseResult.failure(OriginParseException(input, context))
+    private fun describeOrigin(
+        sender: CommandSender,
+        origin: Origin,
+        info: OriginInfo.Info
+    ) {
+        lang.origin.descriptor.head[
+            "origin" to { origin.displayName },
+            "category" to { info.name }
+        ] message sender
 
-                inputQueue.remove()
-                return ArgumentParseResult.success(origin)
-            }
+        info.get(origin).children().forEach(sender::sendMessage)
 
-            override fun suggestions(
-                commandContext: CommandContext<CommandSender>,
-                input: String
-            ): MutableList<String> = OriginServiceImpl.getService().registeredOrigins.toMutableList()
-
-            class OriginParseException(
-                input: String,
-                context: CommandContext<CommandSender>
-            ) : ParserException(
-                OriginParser::class.java,
-                context,
-                Caption.of("argument.parse.failure.origin"),
-                CaptionVariable.of("input", input)
-            )
-        }
+        lang.origin.descriptor.footer.get() message sender
     }
 }
