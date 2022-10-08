@@ -10,11 +10,5 @@ class TerixImpl : Terix() {
         if (!dataFolder.exists()) {
             dataFolder.mkdir()
         }
-        // TODO: Fix this
-//        try {
-//            if (exists("com.willfp.ecoenchants.EcoEnchantsPlugin")) SunResistance()
-//        } catch (e: NullPointerException) {
-//            log.error(e) { "Failed to load EcoEnchants" }
-//        }
     }
 }
