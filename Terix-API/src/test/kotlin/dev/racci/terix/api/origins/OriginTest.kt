@@ -31,7 +31,7 @@ internal class OriginTest {
     @BeforeAll
     fun setUp() {
         origin = TestOrigin()
-        runBlocking { origin.onRegister() }
+        runBlocking { origin.handleRegister() }
     }
 
     @Test
@@ -109,7 +109,7 @@ internal class OriginTest {
 
     @Test
     fun getTitles() {
-        expectThat(origin.titles)
+        expectThat(origin.stateTitles)
             .hasSize(1)
             .get { this[State.TimeState.DAY] }
             .isNotNull()
@@ -119,7 +119,7 @@ internal class OriginTest {
 
     @Test
     fun getPotions() { // Note: If this fails, it prints a really useless stack trace.
-        expectThat(origin.potions[State.WorldState.NETHER])
+        expectThat(origin.statePotions[State.WorldState.NETHER])
             .isNotNull()
             .first()
             .assertThat("Potion is correct") { it.type == PotionEffectType.REGENERATION }
@@ -133,7 +133,7 @@ internal class OriginTest {
 
     @Test
     fun getDamageTicks() {
-        expectThat(origin.damageTicks[State.LiquidState.WATER])
+        expectThat(origin.stateDamageTicks[State.LiquidState.WATER])
             .isNotNull()
             .assertThat("Damage ticks is correct") { it == 2.0 }
     }

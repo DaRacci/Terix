@@ -2,9 +2,10 @@ package dev.racci.terix.core.origins
 
 import com.github.benmanes.caffeine.cache.Caffeine
 import com.github.benmanes.caffeine.cache.RemovalCause
-import dev.racci.minix.api.events.LiquidType
+import dev.racci.minix.api.data.enums.LiquidType
 import dev.racci.minix.api.events.PlayerEnterLiquidEvent
-import dev.racci.minix.api.events.PlayerExitLiquidEvent
+import dev.racci.minix.api.events.player.PlayerLiquidExitEvent
+import dev.racci.minix.api.extensions.cancel
 import dev.racci.minix.api.extensions.dropItem
 import dev.racci.minix.api.utils.now
 import dev.racci.minix.api.utils.unsafeCast
@@ -16,7 +17,6 @@ import dev.racci.terix.api.origins.enums.EventSelector
 import dev.racci.terix.api.origins.origin.Origin
 import dev.racci.terix.api.origins.sounds.SoundEffect
 import dev.racci.terix.api.origins.states.State
-import kotlinx.coroutines.NonCancellable.cancel
 import kotlinx.coroutines.delay
 import kotlinx.datetime.Instant
 import net.kyori.adventure.text.format.TextColor
@@ -64,7 +64,7 @@ class SlimeOrigin(override val plugin: Terix) : Origin() {
             else -> Unit
         }
 
-    override suspend fun onRegister() {
+    override suspend fun handleRegister() {
         sounds.hurtSound = SoundEffect("entity.slime.hurt")
         sounds.deathSound = SoundEffect("entity.slime.death")
         sounds.ambientSound = SoundEffect("entity.slime.ambient")
@@ -83,7 +83,9 @@ class SlimeOrigin(override val plugin: Terix) : Origin() {
         damage {
             EntityDamageEvent.DamageCause.FALL
             EntityDamageEvent.DamageCause.FALL += { cause ->
-                if (cause.entity.unsafeCast<Player>().toNMS().random.nextBoolean()) { cancel() }
+                if (cause.entity.unsafeCast<Player>().toNMS().random.nextBoolean()) {
+                    cause.cancel()
+                }
             }
         }
         item {
@@ -92,51 +94,54 @@ class SlimeOrigin(override val plugin: Terix) : Origin() {
         }
     }
 
-    override suspend fun onEnterLiquid(event: PlayerEnterLiquidEvent) {
-        if (event.newType != LiquidType.WATER) return
-        val cache = playerCache[event.player]
+    // TODO -> Fix this shit code
+    @OriginEventSelector(EventSelector.PLAYER)
+    suspend fun PlayerEnterLiquidEvent.handle() {
+        if (newType != LiquidType.WATER) return
+        val cache = playerCache[player]
         if (cache["in-water"] == true) return
         cache["in-water"] = true
-        while (playerHealthCache[event.player.uniqueId] < 5.0) {
-            if (LiquidType.convert(event.player.location.block) != LiquidType.WATER) break
+        while (playerHealthCache[player.uniqueId] < 5.0) {
+            if (LiquidType.convert(player.location.block) != LiquidType.WATER) break
 
-            val modifier = event.player.getAttribute(Attribute.GENERIC_MAX_HEALTH)!!.modifiers.find { it.name == "ORIGIN_SLIME_HEALTH" }
+            val modifier = player.getAttribute(Attribute.GENERIC_MAX_HEALTH)!!.modifiers.find { it.name == "ORIGIN_SLIME_HEALTH" }
             val bonus = (modifier?.amount ?: 0.0) + 1.0
 
             if (bonus <= 5.0) {
-                modifier?.let { event.player.getAttribute(Attribute.GENERIC_MAX_HEALTH)!!.removeModifier(it) }
-                event.player.getAttribute(Attribute.GENERIC_MAX_HEALTH)!!.addModifier(
+                modifier?.let { player.getAttribute(Attribute.GENERIC_MAX_HEALTH)!!.removeModifier(it) }
+                player.getAttribute(Attribute.GENERIC_MAX_HEALTH)!!.addModifier(
                     AttributeModifier(
                         "ORIGIN_SLIME_HEALTH",
                         bonus,
                         AttributeModifier.Operation.ADD_NUMBER
                     )
                 )
-                event.player.health += 1
+                player.health += 1
             }
 
-            playerHealthCache.put(event.player.uniqueId, bonus)
+            playerHealthCache.put(player.uniqueId, bonus)
             delay(1.seconds)
         }
     }
 
-    override suspend fun onExitLiquid(event: PlayerExitLiquidEvent) {
-        if (event.previousType != LiquidType.WATER) return
-        val cache = playerCache[event.player]
+    @OriginEventSelector(EventSelector.PLAYER)
+    suspend fun PlayerLiquidExitEvent.onExitLiquid() {
+        if (previousType != LiquidType.WATER) return
+        val cache = playerCache[player]
         if (cache["in-water"] == false) return
         cache["in-water"] = false
 
-        while (playerHealthCache[event.player.uniqueId] > 0.0) {
-            if (LiquidType.convert(event.player.location.block) == LiquidType.WATER) break
+        while (playerHealthCache[player.uniqueId] > 0.0) {
+            if (LiquidType.convert(player.location.block) == LiquidType.WATER) break
 
-            val modifier = event.player.getAttribute(Attribute.GENERIC_MAX_HEALTH)!!.modifiers.find { it.name == "ORIGIN_SLIME_HEALTH" }
+            val modifier = player.getAttribute(Attribute.GENERIC_MAX_HEALTH)!!.modifiers.find { it.name == "ORIGIN_SLIME_HEALTH" }
             val bonus = (modifier?.amount ?: 0.0) - 1.0
 
-            event.player.health = if (event.player.health - 1.0 <= 0.5) 0.5 else event.player.health - 1
+            player.health = if (player.health - 1.0 <= 0.5) 0.5 else player.health - 1
 
-            modifier?.let { event.player.getAttribute(Attribute.GENERIC_MAX_HEALTH)!!.removeModifier(it) }
+            modifier?.let { player.getAttribute(Attribute.GENERIC_MAX_HEALTH)!!.removeModifier(it) }
             if (bonus > 0.0) {
-                event.player.getAttribute(Attribute.GENERIC_MAX_HEALTH)!!.addModifier(
+                player.getAttribute(Attribute.GENERIC_MAX_HEALTH)!!.addModifier(
                     AttributeModifier(
                         "ORIGIN_SLIME_HEALTH",
                         bonus,
@@ -145,7 +150,7 @@ class SlimeOrigin(override val plugin: Terix) : Origin() {
                 )
             }
 
-            playerHealthCache.put(event.player.uniqueId, bonus)
+            playerHealthCache.put(player.uniqueId, bonus)
             delay(1.seconds)
         }
     }
@@ -154,7 +159,8 @@ class SlimeOrigin(override val plugin: Terix) : Origin() {
         .expireAfterWrite(Duration.ofSeconds(15))
         .build<Player, Instant>()
 
-    override suspend fun onDamage(event: EntityDamageEvent) {
+    @OriginEventSelector(EventSelector.ENTITY)
+    fun onDamage(event: EntityDamageEvent) {
         val last = lastDamage.getIfPresent(event.entity.unsafeCast<Player>())
         val now = now()
 

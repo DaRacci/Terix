@@ -26,8 +26,13 @@ import org.bukkit.entity.Player
 import org.bukkit.event.entity.EntityDamageEvent
 import org.bukkit.potion.PotionEffect
 
-sealed class OriginValues {
+sealed class OriginValues : WithPlugin<MinixPlugin> {
     private val specials = arrayOfNulls<Boolean>(2)
+
+    @MinixInternal
+    val eventListener = object : KListener<MinixPlugin> {
+        override val plugin get() = this@OriginValues.plugin
+    }
 
     open val name: String = this::class.simpleName
         ?.withIndex()

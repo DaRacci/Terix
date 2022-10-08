@@ -35,7 +35,7 @@ class DragonOrigin(override val plugin: Terix) : Origin() {
         return player.getAdvancementProgress(ADVANCEMENT).isDone
     }
 
-    override suspend fun onRegister() {
+    override suspend fun handleRegister() {
         sounds.hurtSound = SoundEffect("entity.hoglin.angry")
         sounds.deathSound = SoundEffect("entity.ravager.stunned")
         sounds.ambientSound = SoundEffect("entity.strider.ambient")
@@ -71,17 +71,20 @@ class DragonOrigin(override val plugin: Terix) : Origin() {
         }
     }
 
-    override suspend fun onDamageByBlock(event: EntityDamageByBlockEvent) {
-        bedExplosion(event)
+    @OriginEventSelector(EventSelector.ENTITY)
+    fun EntityDamageByBlockEvent.handle() {
+        bedExplosion(this)
     }
 
-    override suspend fun onDamageByEntity(event: EntityDamageByEntityEvent) {
-        bedDamage(event)
-        shieldExplosion(event)
+    @OriginEventSelector(EventSelector.ENTITY)
+    fun EntityDamageByEntityEvent.handle() {
+        bedDamage(this)
+        shieldExplosion(this)
     }
 
-    override suspend fun onBedEnter(event: PlayerBedEnterEvent) {
-        event.cancel()
+    @OriginEventSelector(EventSelector.PLAYER)
+    fun PlayerBedEnterEvent.handle() {
+        cancel()
     }
 
     private fun bedExplosion(event: EntityDamageByBlockEvent) {

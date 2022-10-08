@@ -20,7 +20,7 @@ class BlizzOrigin(override val plugin: Terix) : Origin() {
     override val name = "Blizz"
     override val colour = TextColor.fromHexString("#7ac2ff")!!
 
-    override suspend fun onRegister() {
+    override suspend fun handleRegister() {
         sounds.hurtSound = SoundEffect("entity.panda.bite")
         sounds.deathSound = SoundEffect("entity.squid.death")
         sounds.ambientSound = SoundEffect("entity.skeleton_horse.ambient")

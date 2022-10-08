@@ -21,7 +21,7 @@ class HumanOrigin(override val plugin: Terix) : Origin() {
     override val name = "Human"
     override val colour = TextColor.fromHexString("#ff3838")!!
 
-    override suspend fun onRegister() {
+    override suspend fun handleRegister() {
         sounds.hurtSound = SoundEffect("entity.player.hurt")
         sounds.deathSound = SoundEffect("entity.player.death")
         sounds.ambientSound = SoundEffect("entity.player.burp")

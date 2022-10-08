@@ -59,33 +59,33 @@ package dev.racci.terix.core.services
 //
 //    @Test
 //    fun `player receives 1 task`() {
-//        every { mockOrigin.titles } returns mutableMapOf(Pair(Trigger.SUNLIGHT, mockk()))
-//        every { mockOrigin.damageTicks } returns mutableMapOf(Pair(Trigger.SUNLIGHT, mockk()))
+//        every { mockOrigin.stateTitles } returns mutableMapOf(Pair(Trigger.SUNLIGHT, mockk()))
+//        every { mockOrigin.stateDamageTicks } returns mutableMapOf(Pair(Trigger.SUNLIGHT, mockk()))
 //
 //        expectThat(instance.getTasks(mockOrigin)) {
 //            hasSize(1)
 //            first().isEqualTo(RunnableService::doSunlightTick)
 //        }
 //
-//        verify { mockOrigin.titles }
-//        verify { mockOrigin.damageTicks }
+//        verify { mockOrigin.stateTitles }
+//        verify { mockOrigin.stateDamageTicks }
 //    }
 //
 //    @Test
 //    fun `player receives water and rain task`() {
-//        every { mockOrigin.titles } returns mutableMapOf(Pair(Trigger.WET, mockk()))
+//        every { mockOrigin.stateTitles } returns mutableMapOf(Pair(Trigger.WET, mockk()))
 //
 //        expectThat(instance.getTasks(mockOrigin)) {
 //            hasSize(2)
 //            containsExactlyInAnyOrder(RunnableService::doWaterTick, RunnableService::doRainTick)
 //        }
 //
-//        verify { mockOrigin.titles }
+//        verify { mockOrigin.stateTitles }
 //    }
 //
 //    private fun genericSunlightSetup() {
 //        coEvery { instance.shouldTickSunlight(any()) } returns true
-//        every { mockOrigin.damageTicks[Trigger.SUNLIGHT] } returns 10.0
+//        every { mockOrigin.stateDamageTicks[Trigger.SUNLIGHT] } returns 10.0
 //        every { mockPlayer.wasInSunlight } returns false
 //        every { mockPlayer.inSunlight } returns true
 //        every { mockPlayer.inventory } returns mockk {
@@ -100,7 +100,7 @@ package dev.racci.terix.core.services
 //        genericSunlightSetup()
 //        runBlocking { instance.doSunlightTick(mockPlayer, mockOrigin) }
 //
-//        verify { mockOrigin.damageTicks[Trigger.SUNLIGHT] }
+//        verify { mockOrigin.stateDamageTicks[Trigger.SUNLIGHT] }
 //        verify { mockPlayer.wasInSunlight }
 //        verify { mockPlayer.inSunlight }
 //        verify { mockPlayer.inventory }
