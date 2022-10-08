@@ -32,7 +32,7 @@ class WaterTick(
     }
 
     override suspend fun handleRun() {
-        val water = origin.damageTicks[State.LiquidState.WATER] ?: return
+        val water = origin.stateDamageTicks[State.LiquidState.WATER] ?: return
         val event = OriginWaterBurnEvent(player, origin, water)
 
         if (!event.callEvent()) return

@@ -1,8 +1,8 @@
 package dev.racci.terix.core.services
 
 import dev.racci.minix.api.annotations.MappedExtension
-import dev.racci.minix.api.events.LiquidType
-import dev.racci.minix.api.events.LiquidType.Companion.liquidType
+import dev.racci.minix.api.data.enums.LiquidType
+import dev.racci.minix.api.data.enums.LiquidType.Companion.liquidType
 import dev.racci.minix.api.extension.Extension
 import dev.racci.minix.api.extensions.event
 import dev.racci.minix.api.extensions.onlinePlayers

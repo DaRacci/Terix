@@ -1,6 +1,11 @@
 package dev.racci.terix.api.origins.origin
 
-import dev.racci.minix.api.utils.collections.MultiMap
+import arrow.core.Either
+import dev.racci.minix.api.annotations.MinixInternal
+import dev.racci.minix.api.extensions.KListener
+import dev.racci.minix.api.extensions.WithPlugin
+import dev.racci.minix.api.plugin.MinixPlugin
+import dev.racci.minix.api.utils.collections.muiltimap.MutableMultiMap
 import dev.racci.minix.api.utils.collections.multiMapOf
 import dev.racci.terix.api.dsl.TimedAttributeBuilder
 import dev.racci.terix.api.dsl.TitleBuilder
@@ -50,14 +55,16 @@ sealed class OriginValues {
     val sounds: SoundEffects = SoundEffects()
     val displayName: Component by lazy { Component.text(name).color(colour) }
 
-    val potions: MultiMap<State, PotionEffect> by lazy(::multiMapOf)
-    val damageTicks: MutableMap<State, Double> by lazy(::mutableMapOf)
-    val titles: MutableMap<State, TitleBuilder> by lazy(::mutableMapOf)
-    val abilities: MutableMap<KeyBinding, Ability> by lazy(::mutableMapOf)
-    val customFoodProperties: HashMap<Material, FoodProperties> by lazy(::hashMapOf)
-    val foodAttributes: MultiMap<Material, TimedAttributeBuilder> by lazy(::multiMapOf)
-    val foodBlocks: MutableMap<Material, suspend (Player) -> Unit> by lazy(::mutableMapOf)
+    val statePotions: MutableMultiMap<State, PotionEffect> by lazy(::multiMapOf)
+    val stateDamageTicks: MutableMap<State, Double> by lazy(::mutableMapOf)
+    val stateTitles: MutableMap<State, TitleBuilder> by lazy(::mutableMapOf)
     val stateBlocks: MutableMap<State, suspend (Player) -> Unit> by lazy(::mutableMapOf)
-    val attributeModifiers: MultiMap<State, Pair<Attribute, AttributeModifier>> by lazy(::multiMapOf)
+
+    val abilities: MutableMap<KeyBinding, Ability> by lazy(::mutableMapOf)
+
+    val customFoodProperties: HashMap<Material, FoodProperties> by lazy(::hashMapOf)
+    val customFoodActions: MutableMultiMap<Material, Either<ActionPropBuilder, TimedAttributeBuilder>> by lazy(::multiMapOf)
+
+    val attributeModifiers: MutableMultiMap<State, Pair<Attribute, AttributeModifier>> by lazy(::multiMapOf)
     val damageActions: MutableMap<EntityDamageEvent.DamageCause, suspend EntityDamageEvent.() -> Unit> by lazy(::mutableMapOf)
 }

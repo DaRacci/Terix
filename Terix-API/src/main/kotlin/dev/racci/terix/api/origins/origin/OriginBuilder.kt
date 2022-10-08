@@ -190,7 +190,7 @@ sealed class OriginBuilder : OriginValues() {
         }
     }
 
-    /** A Utility class for building time based titles. */
+    /** A Utility class for building time based stateTitles. */
     inner class TimeTitleBuilder {
 
         /**
@@ -202,7 +202,7 @@ sealed class OriginBuilder : OriginValues() {
         operator fun State.plusAssign(builder: TitleBuilder.() -> Unit) {
             val title = TitleBuilder()
             builder(title)
-            this@OriginBuilder.titles[this] = title
+            this@OriginBuilder.stateTitles[this] = title
         }
 
         // TODO: Title on deactivation of trigger.
@@ -230,7 +230,7 @@ sealed class OriginBuilder : OriginValues() {
          * @receiver The trigger to activate the damage.
          */
         operator fun State.plusAssign(number: Number) {
-            damageTicks[this] = number.toDouble()
+            stateDamageTicks[this] = number.toDouble()
         }
 
         /**
@@ -439,9 +439,7 @@ sealed class OriginBuilder : OriginValues() {
         fun actionModifier(
             material: Material,
             action: ActionPropBuilder
-        ) {
-            foodBlocks[material] = action
-        }
+        ) = customFoodActions.put(material, Either.Left(action))
 
         @JvmName("actionModifierIterable")
         fun actionModifier(
