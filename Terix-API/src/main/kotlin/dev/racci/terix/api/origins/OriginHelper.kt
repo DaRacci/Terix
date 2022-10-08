@@ -61,7 +61,7 @@ object OriginHelper : KoinComponent, WithPlugin<Terix> {
 
         sync {
             removePotions.forEach(player::removePotionEffect)
-            activeStates.forEach { newOrigin.potions[it]?.let(player::addPotionEffects) }
+            activeStates.forEach { newOrigin.statePotions[it]?.let(player::addPotionEffects) }
 //            when {
 //                oldOrigin?.nightVision == true && !newOrigin.nightVision -> {
 //                    removePotions += PotionEffectType.NIGHT_VISION

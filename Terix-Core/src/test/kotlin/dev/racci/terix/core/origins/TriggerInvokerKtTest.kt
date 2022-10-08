@@ -1,6 +1,7 @@
 package dev.racci.terix.core.origins
 
 import Bootstrap.mockOrigin
+import dev.racci.terix.api.dsl.DSLMutator
 import dev.racci.terix.api.dsl.PotionEffectBuilder
 import dev.racci.terix.api.origins.states.State
 import io.mockk.Runs
@@ -27,7 +28,7 @@ internal class TriggerInvokerKtTest {
     } */
 
     private fun mockTitles() {
-        every { mockOrigin.titles[State.LightState.SUNLIGHT] } returns mockk {
+        every { mockOrigin.stateTitles[State.LightState.SUNLIGHT] } returns mockk {
             every { this@mockk.invoke(any<Player>()) } just Runs
         }
     }
@@ -42,16 +43,16 @@ internal class TriggerInvokerKtTest {
         every { mockOrigin.attributeModifiers[State.LightState.SUNLIGHT] } returns mockk()
     }
 
-    private fun mockPotions() {
-        every { mockOrigin.potions[State.LightState.SUNLIGHT] } returns mutableListOf(
-            PotionEffectBuilder.build {
+    private suspend fun mockPotions() {
+        every { mockOrigin.statePotions[State.LightState.SUNLIGHT] } returns mutableListOf(
+            DSLMutator<PotionEffectBuilder> {
                 type = PotionEffectType.REGENERATION
                 originKey("origin", "sunlight")
-            },
-            PotionEffectBuilder.build {
+            }.asNew().get(),
+            DSLMutator<PotionEffectBuilder> {
                 type = PotionEffectType.SPEED
                 originKey("origin", "sunlight")
-            }
+            }.asNew().get()
         )
     }
 

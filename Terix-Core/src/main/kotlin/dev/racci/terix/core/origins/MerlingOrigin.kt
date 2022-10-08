@@ -4,6 +4,9 @@ import com.destroystokyo.paper.MaterialTags
 import dev.racci.minix.api.extensions.cancel
 import dev.racci.minix.api.utils.minecraft.MaterialTagsExtension
 import dev.racci.terix.api.Terix
+import dev.racci.terix.api.annotations.OriginEventSelector
+import dev.racci.terix.api.dsl.FoodPropertyBuilder
+import dev.racci.terix.api.dsl.dslMutator
 import dev.racci.terix.api.events.PlayerOriginChangeEvent
 import dev.racci.terix.api.origins.origin.Origin
 import dev.racci.terix.api.origins.sounds.SoundEffect
@@ -60,7 +63,7 @@ class MerlingOrigin(override val plugin: Terix) : Origin() {
         }
 
         potions {
-            State.LiquidState.WATER += {
+            State.LiquidState.WATER += dslMutator {
                 type = PotionEffectType.NIGHT_VISION
                 duration = Duration.INFINITE
                 amplifier = 0
@@ -69,13 +72,13 @@ class MerlingOrigin(override val plugin: Terix) : Origin() {
         }
 
         food {
-            modifyFood(listOf(*MaterialTags.RAW_FISH.values.toTypedArray(), Material.DRIED_KELP, Material.GLOW_BERRIES)) {
-                it.nutrition *= 3
-                it.saturationModifier = 0.6f
+            listOf(*MaterialTags.RAW_FISH.values.toTypedArray(), Material.DRIED_KELP, Material.GLOW_BERRIES) += dslMutator<FoodPropertyBuilder> {
+                nutrition *= 3
+                saturationModifier = 0.6f
             }
-            modifyFood(MaterialTagsExtension.COOKED_MEATS.values + MaterialTags.COOKED_FISH.values) {
-                it.nutrition /= 2
-                it.saturationModifier = 0.2f
+            MaterialTagsExtension.COOKED_MEATS.values + MaterialTags.COOKED_FISH.values += dslMutator<FoodPropertyBuilder> {
+                nutrition /= 2
+                saturationModifier = 0.2f
             }
         }
 

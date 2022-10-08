@@ -76,14 +76,14 @@ internal class PotionEffectBuilderTest {
 
     @Test
     fun `builder returns same as normal constructor`() {
-        val builder = PotionEffectBuilder {
+        val builder = DSLMutator<PotionEffectBuilder> {
             type = PotionEffectType.LEVITATION
             duration = 35.ticks
             amplifier = 1
             ambient = true
             particles = false
             key = originKey
-        }.build()
+        }.asNew().get()
         val actual = PotionEffect(PotionEffectType.LEVITATION, 35, 1, true, false, originKey)
 
         assertEquals(actual, builder)

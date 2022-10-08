@@ -1,32 +1,31 @@
 package dev.racci.terix.api.dsl
 
-import kotlinx.serialization.Serializable
 import net.kyori.adventure.key.Key
 import net.kyori.adventure.sound.Sound
 import net.kyori.adventure.text.Component
 import net.kyori.adventure.title.Title
 import org.bukkit.entity.Player
 
-@Serializable
 class TitleBuilder(
-    var title: Component? = null,
-    var subtitle: Component? = null,
-    var times: Title.Times? = null,
-    var sound: Key? = null
-) {
-    private var cachedTitle: Title? = null
+    title: Component? = null,
+    subtitle: Component? = null,
+    times: Title.Times? = null,
+    sound: Key? = null
+) : CachingBuilder<Title>() {
 
-    fun build(): Title {
-        cachedTitle = Title.title(
-            title ?: Component.empty(),
-            subtitle ?: Component.empty(),
-            times ?: Title.DEFAULT_TIMES
-        )
-        return cachedTitle!!
-    }
+    var title by createWatcher(title ?: Component.empty())
+    var subtitle by createWatcher(subtitle ?: Component.empty())
+    var times by createWatcher(times ?: Title.DEFAULT_TIMES)
+    var sound by createWatcher(sound)
+
+    override fun create() = Title.title(
+        title,
+        subtitle,
+        times
+    )
 
     fun invoke(player: Player) {
-        player.showTitle(build())
-        sound?.let { player.playSound(Sound.sound(it, Sound.Source.AMBIENT, 1f, 1f)) }
+        player.showTitle(get())
+        ::sound.watcherOrNull()?.let { player.playSound(Sound.sound(it, Sound.Source.AMBIENT, 1f, 1f)) }
     }
 }

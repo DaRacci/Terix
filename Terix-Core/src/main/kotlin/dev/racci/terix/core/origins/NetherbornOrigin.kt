@@ -3,6 +3,8 @@ package dev.racci.terix.core.origins
 import dev.racci.minix.api.utils.minecraft.MaterialTagsExtension
 import dev.racci.terix.api.Terix
 import dev.racci.terix.api.dsl.FoodPropertyBuilder
+import dev.racci.terix.api.dsl.dslMutator
+import dev.racci.terix.api.origins.enums.EventSelector
 import dev.racci.terix.api.origins.origin.Origin
 import dev.racci.terix.api.origins.sounds.SoundEffect
 import dev.racci.terix.api.origins.states.State
@@ -29,9 +31,9 @@ class NetherbornOrigin(override val plugin: Terix) : Origin() {
         sounds.ambientSound = SoundEffect("entity.polar_bear.ambient")
 
         food {
-            listOf(MaterialTagsExtension.VEGETABLES, MaterialTagsExtension.CARBS, MaterialTagsExtension.FRUITS) += { builder: FoodPropertyBuilder ->
-                builder.saturationModifier = 0.3f
-                builder.nutrition = 1
+            listOf(MaterialTagsExtension.VEGETABLES, MaterialTagsExtension.CARBS, MaterialTagsExtension.FRUITS) += dslMutator<FoodPropertyBuilder> {
+                saturationModifier = 0.3f
+                nutrition = 1
             }
             exchangeFoodProperties(Material.COOKED_BEEF, Material.BEEF)
             exchangeFoodProperties(Material.COOKED_CHICKEN, Material.CHICKEN)

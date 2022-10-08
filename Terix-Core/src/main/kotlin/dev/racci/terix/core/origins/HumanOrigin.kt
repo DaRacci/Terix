@@ -2,12 +2,14 @@ package dev.racci.terix.core.origins
 
 import dev.racci.minix.api.extensions.parse
 import dev.racci.terix.api.Terix
+import dev.racci.terix.api.dsl.dslMutator
 import dev.racci.terix.api.origins.origin.Origin
 import dev.racci.terix.api.origins.sounds.SoundEffect
 import dev.racci.terix.api.origins.states.State
 import net.kyori.adventure.text.format.TextColor
 import org.bukkit.Material
 import org.bukkit.potion.PotionEffectType
+import kotlin.time.Duration
 
 // TODO -> Better trades with villagers
 // TODO -> Tames animals faster
@@ -25,9 +27,9 @@ class HumanOrigin(override val plugin: Terix) : Origin() {
         sounds.ambientSound = SoundEffect("entity.player.burp")
 
         potions {
-            State.CONSTANT += {
+            State.CONSTANT += dslMutator {
                 type = PotionEffectType.DAMAGE_RESISTANCE
-                durationInt = Int.MAX_VALUE
+                duration = Duration.INFINITE
                 amplifier = 1
                 ambient = true
             }

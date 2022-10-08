@@ -9,22 +9,25 @@ import org.bukkit.attribute.Attribute
 import org.bukkit.attribute.AttributeModifier
 import org.bukkit.entity.Player
 import java.util.UUID
-import kotlin.properties.Delegates
 import kotlin.time.Duration
 
 // TODO: Test but like this requires being able to use the scheduler so i can't test it
-class TimedAttributeBuilder() {
+// TODO -> Account for changes while activated.
+class TimedAttributeBuilder(
+    uuid: UUID = UUID.randomUUID(),
+    attribute: Attribute? = null,
+    name: String? = null,
+    amount: Double? = null,
+    duration: Duration? = null,
+    operation: AttributeModifier.Operation? = null
+) : CachingBuilder<AttributeModifier>() {
 
-    constructor(builder: TimedAttributeBuilder.() -> Unit) : this() {
-        builder(this)
-    }
-
-    var uuid: UUID? = null
-    var attribute by Delegates.notNull<Attribute>()
-    var name by Delegates.notNull<String>()
-    var duration by Delegates.notNull<Duration>()
-    var amount by Delegates.notNull<Double>()
-    var operation by Delegates.notNull<AttributeModifier.Operation>()
+    var uuid by createWatcher(uuid)
+    var attribute by createWatcher(attribute)
+    var name by createWatcher(name)
+    var amount by createWatcher(amount)
+    var duration by createWatcher(duration)
+    var operation by createWatcher(operation)
 
     fun materialName(
         material: Material,
@@ -38,12 +41,13 @@ class TimedAttributeBuilder() {
         return this
     }
 
-    fun invoke(player: Player) {
-        val modifier = AttributeModifier(uuid ?: UUID.randomUUID(), name, amount, operation)
-        player.getAttribute(attribute)?.addModifier(modifier)
+    operator fun invoke(player: Player) {
+        player.getAttribute(attribute)?.addModifier(get())
 
         scheduler {
-            player.getAttribute(attribute)?.removeModifier(modifier)
+            player.getAttribute(attribute)?.removeModifier(get()) // TODO -> If this changes while activated, it will not be removed.
         }.runAsyncTaskLater(getKoin().get<Terix>(), duration)
     }
+
+    override fun create() = AttributeModifier(uuid, name, amount, operation)
 }

@@ -10,6 +10,9 @@ import dev.racci.minix.api.utils.now
 import dev.racci.minix.api.utils.unsafeCast
 import dev.racci.minix.nms.aliases.toNMS
 import dev.racci.terix.api.Terix
+import dev.racci.terix.api.annotations.OriginEventSelector
+import dev.racci.terix.api.dsl.dslMutator
+import dev.racci.terix.api.origins.enums.EventSelector
 import dev.racci.terix.api.origins.origin.Origin
 import dev.racci.terix.api.origins.sounds.SoundEffect
 import dev.racci.terix.api.origins.states.State
@@ -67,10 +70,10 @@ class SlimeOrigin(override val plugin: Terix) : Origin() {
         sounds.ambientSound = SoundEffect("entity.slime.ambient")
 
         potions {
-            State.CONSTANT += {
+            State.CONSTANT += dslMutator {
                 type = PotionEffectType.JUMP
                 amplifier = 4
-                durationInt = Int.MAX_VALUE
+                duration = kotlin.time.Duration.INFINITE
                 ambient = true
             }
         }

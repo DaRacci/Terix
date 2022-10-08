@@ -7,19 +7,20 @@ import dev.racci.terix.api.origins.states.State
 import org.bukkit.attribute.Attribute
 import org.bukkit.attribute.AttributeModifier
 import java.util.UUID
-import kotlin.properties.Delegates
 
-class AttributeModifierBuilder() {
+class AttributeModifierBuilder(
+    uuid: UUID? = null,
+    attribute: Attribute? = null,
+    name: String? = null,
+    amount: Number? = null,
+    operation: AttributeModifier.Operation? = null
+) : CachingBuilder<AttributeModifier>() {
 
-    constructor(builder: AttributeModifierBuilder.() -> Unit) : this() {
-        builder(this)
-    }
-
-    var uuid: UUID? = null
-    var attribute by Delegates.notNull<Attribute>()
-    var name by Delegates.notNull<String>()
-    var amount by Delegates.notNull<Number>()
-    var operation by Delegates.notNull<AttributeModifier.Operation>()
+    var uuid: UUID by createWatcher(uuid ?: UUID.randomUUID())
+    var attribute: Attribute by createWatcher(attribute)
+    var name: String by createWatcher(name)
+    var amount: Number by createWatcher(amount)
+    var operation: AttributeModifier.Operation by createWatcher(operation)
 
     inline fun <reified O : Origin> originName(state: State) = originName(OriginService.getOrigin(O::class), state)
 
@@ -36,8 +37,8 @@ class AttributeModifierBuilder() {
         return this
     }
 
-    fun build(): AttributeModifier = AttributeModifier(
-        uuid ?: UUID.randomUUID(),
+    override fun create() = AttributeModifier(
+        uuid,
         name.takeUnless { it.isBlank() || !it.matches(regex) } ?: error("Invalid name. Was blank or didn't match ${regex.pattern}: $name"),
         amount as? Double ?: amount.toDouble(),
         operation
