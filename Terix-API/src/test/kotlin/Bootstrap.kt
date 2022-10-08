@@ -1,9 +1,10 @@
 import com.mojang.datafixers.DataFixerBuilder
-import dev.racci.minix.api.coroutine.contract.CoroutineService
 import dev.racci.minix.api.scheduler.CoroutineRunnable
 import dev.racci.minix.api.scheduler.CoroutineScheduler
 import dev.racci.minix.api.scheduler.CoroutineTask
+import dev.racci.minix.api.utils.KoinUtils
 import dev.racci.minix.api.utils.collections.multiMapOf
+import dev.racci.minix.core.services.PluginServiceImpl
 import dev.racci.terix.api.OriginService
 import dev.racci.terix.api.Terix
 import dev.racci.terix.api.TerixPlayer
@@ -31,6 +32,7 @@ import org.bukkit.entity.Player
 import org.koin.core.KoinApplication
 import org.koin.core.context.startKoin
 import org.koin.dsl.bind
+import org.koin.dsl.binds
 import org.koin.dsl.module
 import java.util.UUID
 import java.util.function.Supplier
@@ -81,9 +83,9 @@ object Bootstrap {
         startKoin()
         mockkPlugin()
 
-        every { mockOrigin.titles } returns mutableMapOf()
-        every { mockOrigin.potions } returns multiMapOf()
-        every { mockOrigin.damageTicks } returns mutableMapOf()
+        every { mockOrigin.stateTitles } returns mutableMapOf()
+        every { mockOrigin.statePotions } returns multiMapOf()
+        every { mockOrigin.stateDamageTicks } returns mutableMapOf()
         every { mockOrigin.stateBlocks } returns mutableMapOf()
         every { mockOrigin.attributeModifiers } returns multiMapOf()
 
@@ -128,19 +130,20 @@ object Bootstrap {
                     single { mockPlugin } bind Terix::class
                     single { mockOriginService } bind OriginService::class
                     single { mockkScheduler } bind CoroutineScheduler::class
-                    single {
-                        mockk<CoroutineService>() {
-                            every { getCoroutineSession(mockPlugin) } returns mockk {
-                                every { dispatcherMinecraft } returns Dispatchers.Unconfined
-                                every { dispatcherAsync } returns Dispatchers.Unconfined
-                                every { launch(any(), any(), any()) } answers {
-                                    val block = it.invocation.args.filterIsInstance<suspend CoroutineScope.() -> Unit>().first()
-                                    runBlocking(block = block)
-                                    mockk()
-                                }
+                    val pluginServiceMock = mockk<PluginServiceImpl>() {
+                        every { coroutineSession[mockPlugin] } returns mockk {
+                            every { minecraftDispatcher } returns Dispatchers.Unconfined
+                            every { asyncDispatcher } returns Dispatchers.Unconfined
+                            every { launch(any(), any(), any(), any()) } answers {
+                                val block = it.invocation.args.filterIsInstance<suspend CoroutineScope.() -> Unit>().first()
+                                runBlocking(block = block)
+                                mockk()
                             }
                         }
-                    } bind CoroutineService::class
+                    }
+                    single {
+                        pluginServiceMock
+                    } binds KoinUtils.getBinds(pluginServiceMock)
                 }
             )
         }

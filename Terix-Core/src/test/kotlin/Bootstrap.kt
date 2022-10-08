@@ -64,9 +64,9 @@ object Bootstrap {
             }
         }
 
-        every { mockOrigin.titles } returns mutableMapOf()
-        every { mockOrigin.potions } returns multiMapOf()
-        every { mockOrigin.damageTicks } returns mutableMapOf()
+        every { mockOrigin.stateTitles } returns mutableMapOf()
+        every { mockOrigin.statePotions } returns multiMapOf()
+        every { mockOrigin.stateDamageTicks } returns mutableMapOf()
         every { mockOrigin.stateBlocks } returns mutableMapOf()
         every { mockOrigin.attributeModifiers } returns multiMapOf()
 
