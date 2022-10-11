@@ -19,7 +19,7 @@ class AttributeModifierBuilder(
     var uuid: UUID by createWatcher(uuid ?: UUID.randomUUID())
     var attribute: Attribute by createWatcher(attribute)
     var name: String by createWatcher(name)
-    var amount: Number by createWatcher(amount)
+    var amount: Double by createWatcher(amount?.toDouble())
     var operation: AttributeModifier.Operation by createWatcher(operation)
 
     inline fun <reified O : Origin> originName(state: State) = originName(OriginService.getOrigin(O::class), state)
