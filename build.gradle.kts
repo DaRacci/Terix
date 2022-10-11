@@ -3,14 +3,14 @@ import java.net.URL
 plugins {
     alias(libs.plugins.minix.nms)
     alias(libs.plugins.minix.kotlin)
-    alias(libs.plugins.minix.copyJar)
+    alias(libs.plugins.minix.copyjar)
     alias(libs.plugins.minix.purpurmc)
 
-    alias(libs.plugins.serialization)
-    alias(libs.plugins.pluginYML)
+    alias(libs.plugins.kotlin.serialization)
+    alias(libs.plugins.minecraft.pluginYML)
     alias(libs.plugins.dokka)
 
-    kotlin("plugin.atomicfu")
+//    alias(libs.plugins.kotlin.atomicfu)
     id("dev.racci.slimjar") version "1.3.3"
 }
 
@@ -103,8 +103,6 @@ subprojects {
 
     tasks {
 
-//        test.get().useJUnitPlatform()
-
         dokkaHtml.get().dokkaSourceSets.configureEach {
             includeNonPublic.set(false)
             skipEmptyPackages.set(true)
@@ -122,11 +120,6 @@ subprojects {
         }
     }
 }
-
-fun included(
-    build: String,
-    task: String
-) = gradle.includedBuild(build).task(task)
 
 tasks {
 
