@@ -113,8 +113,8 @@ internal class OriginTest {
             .hasSize(1)
             .get { this[State.TimeState.DAY] }
             .isNotNull()
-            .assertThat("Title is correct") { MiniMessage.miniMessage().serialize(it.title!!) == "<green>Title" }
-            .assertThat("Subtitle is correct") { MiniMessage.miniMessage().serialize(it.subtitle!!) == "<green>Subtitle" }
+            .assertThat("Title is correct") { MiniMessage.miniMessage().serialize(it.title) == "<green>Title" }
+            .assertThat("Subtitle is correct") { MiniMessage.miniMessage().serialize(it.subtitle) == "<green>Subtitle" }
     }
 
     @Test

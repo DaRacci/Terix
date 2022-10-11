@@ -1,6 +1,6 @@
 package dev.racci.terix.api.events
 
-import dev.racci.minix.api.events.KPlayerEvent
+import dev.racci.minix.api.events.player.KPlayerEvent
 import dev.racci.terix.api.origins.origin.Origin
 import org.bukkit.entity.Player
 

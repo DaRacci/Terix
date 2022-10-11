@@ -5,7 +5,7 @@ import com.destroystokyo.paper.MaterialSetTag
 import com.github.benmanes.caffeine.cache.Caffeine
 import com.github.benmanes.caffeine.cache.LoadingCache
 import dev.racci.minix.api.annotations.MinixDsl
-import dev.racci.minix.api.utils.unsafeCast
+import dev.racci.minix.api.extensions.reflection.castOrThrow
 import dev.racci.terix.api.OriginService
 import dev.racci.terix.api.dsl.AttributeModifierBuilder
 import dev.racci.terix.api.dsl.DSLMutator
@@ -38,12 +38,7 @@ sealed class OriginBuilder : OriginValues() {
         .expireAfterAccess(Duration.ofSeconds(15)) // Unneeded after the origin's registered & built.
         .build { kClass -> kClass.constructors.first().call(this) }
 
-    private inline fun <reified T> builder(): T = builderCache[T::class].unsafeCast()
-
-//    fun nightvision(nightVision: Boolean = true): OriginBuilder {
-//        this.nightVision = nightVision
-//        return this
-//    }
+    private inline fun <reified T : Any> builder(): T = builderCache[T::class].castOrThrow()
 
     fun fireImmunity(fireImmunity: Boolean = true): OriginBuilder {
         this.fireImmunity = fireImmunity
@@ -109,7 +104,7 @@ sealed class OriginBuilder : OriginValues() {
     inner class AttributeBuilder {
 
         /**
-         * Removes this number from the players base attributes.
+         * Removes this number from the players' base attributes.
          *
          * @param value The amount to remove.
          * @receiver The attribute to remove from.
@@ -117,7 +112,7 @@ sealed class OriginBuilder : OriginValues() {
         operator fun Attribute.minusAssign(value: Number) = addAttribute(this, AttributeModifier.Operation.ADD_NUMBER, value, State.CONSTANT)
 
         /**
-         * Adds this number to the players base attributes.
+         * Adds this number to the players' base attributes.
          *
          * @param value The amount to add.
          * @receiver The attribute to add to.
@@ -125,7 +120,7 @@ sealed class OriginBuilder : OriginValues() {
         operator fun Attribute.plusAssign(value: Number) = addAttribute(this, AttributeModifier.Operation.ADD_NUMBER, value, State.CONSTANT)
 
         /**
-         * Multiplies the players base attribute by this number.
+         * Multiplies the players' base attribute by this number.
          *
          * @param value The amount to multiply by.
          * @receiver The attribute to multiply.
@@ -141,8 +136,7 @@ sealed class OriginBuilder : OriginValues() {
         operator fun Attribute.divAssign(value: Number) = addAttribute(this, AttributeModifier.Operation.MULTIPLY_SCALAR_1, (1.0 / value.toDouble()) - 1, State.CONSTANT)
 
         /**
-         * Removes this number from the players attribute when this trigger is
-         * active.
+         * Removes this number from the players' attribute when this trigger is active.
          *
          * @param value The amount to remove.
          * @receiver The Trigger and Attribute to remove from.
@@ -150,7 +144,7 @@ sealed class OriginBuilder : OriginValues() {
         operator fun Pair<State, Attribute>.minusAssign(value: Number) = addAttribute(this.second, AttributeModifier.Operation.ADD_NUMBER, value, this.first)
 
         /**
-         * Adds this number to the players attribute when this trigger is active.
+         * Adds this number to the players' attribute when this trigger is active.
          *
          * @param value The amount to add.
          * @receiver The Trigger and Attribute to add to.
@@ -158,8 +152,7 @@ sealed class OriginBuilder : OriginValues() {
         operator fun Pair<State, Attribute>.plusAssign(value: Number) = addAttribute(this.second, AttributeModifier.Operation.ADD_NUMBER, value, this.first)
 
         /**
-         * Multiplies the players attribute by this number when this trigger is
-         * active.
+         * Multiplies the players attribute by this number when this trigger is active.
          *
          * @param value The amount to multiply by.
          * @receiver The Trigger and Attribute to multiply.
@@ -167,8 +160,7 @@ sealed class OriginBuilder : OriginValues() {
         operator fun Pair<State, Attribute>.timesAssign(value: Number) = addAttribute(this.second, AttributeModifier.Operation.MULTIPLY_SCALAR_1, value.toDouble() - 1, this.first)
 
         /**
-         * Divides the players attribute by this number when this trigger is
-         * active.
+         * Divides the players attribute by this number when this trigger is active.
          *
          * @param value The amount to divide by.
          * @receiver The Trigger and Attribute to divide.
@@ -193,7 +185,7 @@ sealed class OriginBuilder : OriginValues() {
         }
     }
 
-    /** A Utility class for building time based stateTitles. */
+    /** A Utility class for building time-based stateTitles. */
     inner class TimeTitleBuilder {
 
         /**
@@ -226,7 +218,7 @@ sealed class OriginBuilder : OriginValues() {
         }
 
         /**
-         * Deals the number of damage to the player when the given trigger is
+         * Deals the amount of damage to the player when the given trigger is
          * activated.
          *
          * @param number The amount of damage to deal.
@@ -281,7 +273,7 @@ sealed class OriginBuilder : OriginValues() {
         }
 
         /**
-         * Runs this lambda async when the player takes damage from this causes.
+         * Runs this lambda async when the player takes damage from these causes.
          *
          * @param block The lambda to run.
          * @receiver The damage cause that is affected.
@@ -291,7 +283,7 @@ sealed class OriginBuilder : OriginValues() {
         }
 
         /**
-         * Adds all elements for [Trigger.plusAssign]
+         * Adds all elements for [State.plusAssign]
          *
          * @param builder The damage builder to use.
          * @receiver The triggers that activate the damage.
@@ -300,7 +292,7 @@ sealed class OriginBuilder : OriginValues() {
         operator fun Collection<State>.plusAssign(builder: suspend (Player) -> Unit) = forEach { it += builder }
 
         /**
-         * Adds all elements to [Trigger.plusAssign]
+         * Adds all elements to [State.plusAssign]
          *
          * @param number The amount of damage to deal.
          * @receiver The triggers that activate the damage.

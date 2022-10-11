@@ -10,7 +10,6 @@ import dev.racci.minix.api.extensions.reflection.castOrThrow
 import dev.racci.minix.api.services.DataService
 import dev.racci.minix.api.utils.collections.CollectionUtils.cacheOf
 import dev.racci.minix.api.utils.collections.multiMapOf
-import dev.racci.minix.api.utils.unsafeCast
 import dev.racci.terix.api.OriginService
 import dev.racci.terix.api.Terix
 import dev.racci.terix.api.TerixPlayer
@@ -119,11 +118,11 @@ class OriginServiceImpl(override val plugin: Terix) : OriginService, Extension<T
     }
 
     @MinixDsl
-    suspend fun registry(block: suspend RegistryModifier.() -> Unit) { block(modifierCache.get(RegistryModifier::class).unsafeCast()) }
+    suspend fun registry(block: suspend RegistryModifier.() -> Unit) { block(modifierCache.get(RegistryModifier::class).castOrThrow()) }
 
     @MinixDsl
     suspend fun abilities(block: suspend AbilityModifier.() -> Unit) {
-        block(modifierCache.get(AbilityModifier::class).unsafeCast())
+        block(modifierCache.get(AbilityModifier::class).castOrThrow())
     }
 
     private val eventMap = multiMapOf<Origin, Pair<KFunction<Event>, suspend Event.(EventSelector) -> Unit>>()
@@ -206,5 +205,5 @@ class OriginServiceImpl(override val plugin: Terix) : OriginService, Extension<T
         }
     }
 
-    companion object : Extension.ExtensionCompanion<OriginServiceImpl>()
+    companion object : ExtensionCompanion<OriginServiceImpl>()
 }

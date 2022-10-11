@@ -1,44 +1,42 @@
 package dev.racci.terix.api.origins.enums
 
-import dev.racci.minix.api.events.AbstractComboEvent
-import dev.racci.minix.api.events.PlayerDoubleLeftClickEvent
-import dev.racci.minix.api.events.PlayerDoubleOffhandEvent
-import dev.racci.minix.api.events.PlayerDoubleRightClickEvent
-import dev.racci.minix.api.events.PlayerLeftClickEvent
-import dev.racci.minix.api.events.PlayerOffhandEvent
-import dev.racci.minix.api.events.PlayerRightClickEvent
-import dev.racci.minix.api.events.PlayerShiftDoubleLeftClickEvent
-import dev.racci.minix.api.events.PlayerShiftDoubleOffhandEvent
-import dev.racci.minix.api.events.PlayerShiftDoubleRightClickEvent
-import dev.racci.minix.api.events.PlayerShiftLeftClickEvent
-import dev.racci.minix.api.events.PlayerShiftOffhandEvent
-import dev.racci.minix.api.events.PlayerShiftRightClickEvent
+import dev.racci.minix.api.events.keybind.ComboEvent
+import dev.racci.minix.api.events.keybind.PlayerDoublePrimaryEvent
+import dev.racci.minix.api.events.keybind.PlayerDoubleSecondaryEvent
+import dev.racci.minix.api.events.keybind.PlayerPrimaryEvent
+import dev.racci.minix.api.events.keybind.PlayerSecondaryEvent
+import dev.racci.minix.api.events.keybind.PlayerSneakDoubleOffhandEvent
+import dev.racci.minix.api.events.keybind.PlayerSneakDoublePrimaryEvent
+import dev.racci.minix.api.events.keybind.PlayerSneakDoubleSecondaryEvent
+import dev.racci.minix.api.events.keybind.PlayerSneakOffhandEvent
+import dev.racci.minix.api.events.keybind.PlayerSneakPrimaryEvent
+import dev.racci.minix.api.events.keybind.PlayerSneakSecondaryEvent
 import kotlin.reflect.KClass
 
-enum class KeyBinding(val event: KClass<out AbstractComboEvent>) {
-    DOUBLE_OFFHAND(PlayerDoubleOffhandEvent::class),
+enum class KeyBinding(val event: KClass<out ComboEvent>) {
+    DOUBLE_OFFHAND(dev.racci.minix.api.events.keybind.PlayerDoubleOffhandEvent::class),
 
     // DOUBLE_SNEAK(), // TODO: Event
-    DOUBLE_RIGHT_CLICK(PlayerDoubleRightClickEvent::class),
-    DOUBLE_LEFT_CLICK(PlayerDoubleLeftClickEvent::class),
+    DOUBLE_RIGHT_CLICK(PlayerDoubleSecondaryEvent::class),
+    DOUBLE_LEFT_CLICK(PlayerDoublePrimaryEvent::class),
 
-    SINGLE_OFFHAND(PlayerOffhandEvent::class),
+    SINGLE_OFFHAND(dev.racci.minix.api.events.keybind.PlayerOffhandEvent::class),
 
     // SINGLE_SNEAK, // TODO: Event
-    SINGLE_RIGHT_CLICK(PlayerRightClickEvent::class),
-    SINGLE_LEFT_CLICK(PlayerLeftClickEvent::class),
+    SINGLE_RIGHT_CLICK(PlayerSecondaryEvent::class),
+    SINGLE_LEFT_CLICK(PlayerPrimaryEvent::class),
 
-    SNEAK_OFFHAND(PlayerShiftOffhandEvent::class),
-    SNEAK_RIGHT_CLICK(PlayerShiftRightClickEvent::class),
-    SNEAK_LEFT_CLICK(PlayerShiftLeftClickEvent::class),
+    SNEAK_OFFHAND(PlayerSneakOffhandEvent::class),
+    SNEAK_RIGHT_CLICK(PlayerSneakSecondaryEvent::class),
+    SNEAK_LEFT_CLICK(PlayerSneakPrimaryEvent::class),
 
-    SNEAK_DOUBLE_OFFHAND(PlayerShiftDoubleOffhandEvent::class),
-    SNEAK_DOUBLE_RIGHT_CLICK(PlayerShiftDoubleRightClickEvent::class),
-    SNEAK_DOUBLE_LEFT_CLICK(PlayerShiftDoubleLeftClickEvent::class);
+    SNEAK_DOUBLE_OFFHAND(PlayerSneakDoubleOffhandEvent::class),
+    SNEAK_DOUBLE_RIGHT_CLICK(PlayerSneakDoubleSecondaryEvent::class),
+    SNEAK_DOUBLE_LEFT_CLICK(PlayerSneakDoublePrimaryEvent::class);
 
     companion object {
-        fun fromEvent(clazz: KClass<out AbstractComboEvent>): KeyBinding = values().find { it.event === clazz } ?: throw IllegalArgumentException("Unknown event class $clazz")
+        fun fromEvent(clazz: KClass<out ComboEvent>): KeyBinding = values().find { it.event === clazz } ?: throw IllegalArgumentException("Unknown event class $clazz")
 
-        inline fun <reified T : AbstractComboEvent> fromEvent(): KeyBinding = fromEvent(T::class)
+        inline fun <reified T : ComboEvent> fromEvent(): KeyBinding = fromEvent(T::class)
     }
 }

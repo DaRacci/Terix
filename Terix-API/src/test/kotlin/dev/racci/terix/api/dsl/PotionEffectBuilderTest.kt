@@ -32,11 +32,11 @@ internal class PotionEffectBuilderTest {
         Bootstrap.startUp()
         angel = TestOrigin()
         originKey = NamespacedKey("terix", "origin_potion_testorigin/darkness")
-        originKeyO = PotionEffectBuilder().originKey(angel, State.LightState.DARKNESS).key!!
+        originKeyO = PotionEffectBuilder().originKey(angel, State.LightState.DARKNESS).key
         abilityKey = NamespacedKey("terix", "origin_ability_levitate")
-        abilityKeyO = PotionEffectBuilder().abilityKey(Levitate::class).key!!
+        abilityKeyO = PotionEffectBuilder().abilityKey(Levitate::class).key
         foodKey = NamespacedKey("terix", "origin_food_cod")
-        foodKeyO = PotionEffectBuilder().foodKey(Material.COD).key!!
+        foodKeyO = PotionEffectBuilder().foodKey(Material.COD).key
     }
 
     @AfterAll

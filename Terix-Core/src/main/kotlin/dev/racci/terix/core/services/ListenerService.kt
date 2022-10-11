@@ -5,7 +5,7 @@ import com.destroystokyo.paper.event.block.BeaconEffectEvent
 import com.destroystokyo.paper.event.player.PlayerPostRespawnEvent
 import dev.racci.minix.api.annotations.MappedExtension
 import dev.racci.minix.api.collections.PlayerMap
-import dev.racci.minix.api.events.PlayerRightClickEvent
+import dev.racci.minix.api.events.keybind.PlayerSecondaryEvent
 import dev.racci.minix.api.events.player.PlayerLiquidEnterEvent
 import dev.racci.minix.api.events.player.PlayerLiquidExitEvent
 import dev.racci.minix.api.events.player.PlayerMoveFullXYZEvent
@@ -294,7 +294,7 @@ class ListenerService(override val plugin: Terix) : Extension<Terix>() {
 
         event(EventPriority.HIGHEST, ignoreCancelled = true, forceAsync = false, block = ::handle)
 
-        event<PlayerMoveFullXYZEvent>() {
+        event<PlayerMoveFullXYZEvent> {
             val lastState = State.getBiomeState(from)
             val currentState = State.getBiomeState(to)
             if (lastState == currentState) return@event
@@ -305,7 +305,7 @@ class ListenerService(override val plugin: Terix) : Extension<Terix>() {
             currentState?.activate(player, origin)
         }
 
-        event<PlayerGameModeChangeEvent>() {
+        event<PlayerGameModeChangeEvent> {
             if (this.newGameMode.ordinal in 1..2) {
                 return@event activateOrigin(player)
             }
@@ -325,7 +325,7 @@ class ListenerService(override val plugin: Terix) : Extension<Terix>() {
     private val channels = hashMapOf<UUID, Channel<Boolean>>()
 
     @OptIn(ExperimentalCoroutinesApi::class)
-    private suspend fun handle(event: PlayerRightClickEvent) {
+    private suspend fun handle(event: PlayerSecondaryEvent) {
         if (alreadyEdible(event)) return
 
         val origin = TerixPlayer.cachedOrigin(event.player)
@@ -392,7 +392,7 @@ class ListenerService(override val plugin: Terix) : Extension<Terix>() {
         }
     }
 
-    private fun alreadyEdible(event: PlayerRightClickEvent): Boolean {
+    private fun alreadyEdible(event: PlayerSecondaryEvent): Boolean {
         if (!event.hasItem || event.item!!.type.isEdible) return true
         return false
     }
@@ -516,5 +516,5 @@ class ListenerService(override val plugin: Terix) : Extension<Terix>() {
         player.playSound(sound.resourceKey.asString(), sound.volume, sound.pitch, sound.distance)
     }
 
-    companion object : Extension.ExtensionCompanion<ListenerService>()
+    companion object : ExtensionCompanion<ListenerService>()
 }

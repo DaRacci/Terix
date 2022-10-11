@@ -4,7 +4,7 @@ import dev.racci.minix.api.scheduler.CoroutineScheduler
 import dev.racci.minix.api.scheduler.CoroutineTask
 import dev.racci.minix.api.utils.collections.multiMapOf
 import dev.racci.terix.api.Terix
-import dev.racci.terix.api.origin
+import dev.racci.terix.api.TerixPlayer
 import dev.racci.terix.api.origins.origin.Origin
 import io.mockk.MockKAnnotations
 import io.mockk.Runs
@@ -78,7 +78,7 @@ object Bootstrap {
 
         mockkStatic("dev.racci.terix.core.extensions.ExPlayerKt")
         mockkObject(CoroutineScheduler)
-        every { origin(mockPlayer) } returns mockOrigin
+        every { TerixPlayer.cachedOrigin(mockPlayer) } returns mockOrigin
 
         every { CoroutineScheduler.runAsyncTaskTimer(allAny(), allAny<CoroutineRunnable>(), allAny(), allAny()) } answers {
             mockk {
