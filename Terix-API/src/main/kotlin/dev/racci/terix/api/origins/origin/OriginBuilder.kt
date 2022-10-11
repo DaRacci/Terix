@@ -187,7 +187,7 @@ sealed class OriginBuilder : OriginValues() {
                     originName(this@OriginBuilder, state)
                     this.attribute = attribute
                     this.operation = operation
-                    this.amount = amount
+                    this.amount = amount.toDouble()
                 }.asNew().get()
             )
         }

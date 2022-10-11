@@ -237,17 +237,6 @@ object OriginInfo {
 
                 builder.appendKeyValue(keyName, formatted)
             }
-//
-//            while (iterator.hasNext()) {
-//                val (key, _) = iterator.next()
-//
-//                builder.append {
-//                    text {
-//                        append { Component.text(getName.get(key)) }
-//                        if (iterator.hasNext()) append(COMP_COM) else append(COMP_CLOSE)
-//                    }
-//                }
-//            }
         }
 
         private fun formatModifier(pair: Pair<Attribute, AttributeModifier>) = buildString {

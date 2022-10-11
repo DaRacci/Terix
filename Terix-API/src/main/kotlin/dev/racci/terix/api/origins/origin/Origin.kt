@@ -18,8 +18,19 @@ abstract class Origin : OriginBuilder() {
     /** Called when Terix first registers this origin. */
     open suspend fun handleRegister() = Unit
 
+    /**
+     * Called when the player loads|joins|respawns as this origin.
+     * Called after [handleBecomeOrigin] if the player is becoming this origin.
+     */
+    open suspend fun handleLoad(player: Player) = Unit
+
+    /**
+     * Called when the player first becomes this origin.
+     * Called before [handleLoad].
+     */
     open suspend fun handleBecomeOrigin(event: PlayerOriginChangeEvent) = Unit
 
+    /** Called when the player changes from this origin. */
     open suspend fun handleChangeOrigin(event: PlayerOriginChangeEvent) = Unit
 
     /** Called each game tick. */
