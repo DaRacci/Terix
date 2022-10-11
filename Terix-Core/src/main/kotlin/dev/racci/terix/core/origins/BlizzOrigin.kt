@@ -1,16 +1,17 @@
 package dev.racci.terix.core.origins
 
-import dev.racci.minix.api.events.PlayerMoveXYZEvent
 import dev.racci.terix.api.Terix
 import dev.racci.terix.api.annotations.OriginEventSelector
 import dev.racci.terix.api.dsl.FoodPropertyBuilder
 import dev.racci.terix.api.dsl.dslMutator
+import dev.racci.terix.api.events.PlayerOriginChangeEvent
 import dev.racci.terix.api.origins.enums.EventSelector
 import dev.racci.terix.api.origins.origin.Origin
 import dev.racci.terix.api.origins.sounds.SoundEffect
 import net.kyori.adventure.text.format.TextColor
 import org.bukkit.Material
-import org.bukkit.block.BlockFace
+import org.bukkit.entity.Player
+import org.bukkit.event.entity.EntityDamageByEntityEvent
 import org.bukkit.event.entity.EntityDamageEvent.DamageCause
 
 // TODO -> Walk on powdered snow.
@@ -57,12 +58,17 @@ class BlizzOrigin(override val plugin: Terix) : Origin() {
         }
     }
 
-    @OriginEventSelector(EventSelector.PLAYER)
-    fun PlayerMoveXYZEvent.handle() {
-        val belowBlock = player.location.block.getRelative(BlockFace.DOWN)
-        if (belowBlock.type != Material.POWDER_SNOW) return
-        logger.debug { "PlayerY: ${player.location.y} | BlockY: ${belowBlock.location.y}" }
+    override suspend fun handleLoad(player: Player) {
+        player.freezeTicks = 0
+        player.lockFreezeTicks(true)
+    }
 
-        val keepAboveLocation = player.location.clone()
+    override suspend fun handleChangeOrigin(event: PlayerOriginChangeEvent) {
+        event.player.lockFreezeTicks(false)
+    }
+
+    @OriginEventSelector(EventSelector.PLAYER)
+    fun EntityDamageByEntityEvent.handle() {
+        entity.freezeTicks += 20
     }
 }
