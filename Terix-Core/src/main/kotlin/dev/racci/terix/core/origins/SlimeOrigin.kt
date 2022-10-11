@@ -12,7 +12,6 @@ import dev.racci.minix.api.extensions.reflection.castOrThrow
 import dev.racci.minix.api.extensions.taskAsync
 import dev.racci.minix.api.scheduler.CoroutineTask
 import dev.racci.minix.api.utils.now
-import dev.racci.minix.api.utils.unsafeCast
 import dev.racci.minix.nms.aliases.toNMS
 import dev.racci.terix.api.Terix
 import dev.racci.terix.api.annotations.OriginEventSelector
@@ -133,12 +132,12 @@ class SlimeOrigin(override val plugin: Terix) : Origin() {
 
     @OriginEventSelector(EventSelector.ENTITY)
     fun onDamage(event: EntityDamageEvent) {
-        val last = lastDamage.getIfPresent(event.entity.unsafeCast<Player>())
+        val last = lastDamage.getIfPresent(event.entity.castOrThrow())
         val now = now()
 
         if (last != null && (last + 15.seconds) > now()) return
 
-        lastDamage.put(event.entity.unsafeCast<Player>(), now)
+        lastDamage.put(event.entity.castOrThrow(), now)
         event.entity.location.dropItem(ItemStack(Material.SLIME_BALL))
     }
 

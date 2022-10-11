@@ -5,6 +5,7 @@ import dev.racci.terix.api.origins.states.State
 import org.bukkit.entity.Player
 import kotlin.reflect.KProperty0
 
+@Suppress("LeakingThis")
 sealed class ChildCoroutineRunnable(
     mother: MotherCoroutineRunnable,
     val player: Player,

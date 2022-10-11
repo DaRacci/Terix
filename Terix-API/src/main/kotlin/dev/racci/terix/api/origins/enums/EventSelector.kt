@@ -17,6 +17,7 @@ import kotlin.reflect.KFunction
 import kotlin.reflect.full.extensionReceiverParameter
 import kotlin.reflect.full.valueParameters
 
+@Suppress("UnusedReceiverParameter")
 @API(status = API.Status.EXPERIMENTAL, since = "1.0.0")
 enum class EventSelector(val selector: TargetSelector<Any, *>) {
     /** Selects the entity from an [EntityEvent]. */

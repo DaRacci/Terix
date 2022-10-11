@@ -1,13 +1,13 @@
 package dev.racci.terix.core.origins
 
-import dev.racci.minix.api.events.PlayerShiftRightClickEvent
+import dev.racci.minix.api.events.keybind.PlayerSneakSecondaryEvent
 import dev.racci.minix.api.extensions.cancel
 import dev.racci.minix.api.extensions.parse
 import dev.racci.minix.api.extensions.playSound
+import dev.racci.minix.api.extensions.reflection.castOrThrow
+import dev.racci.minix.api.extensions.reflection.safeCast
 import dev.racci.minix.api.utils.minecraft.MaterialTagsExtension
 import dev.racci.minix.api.utils.now
-import dev.racci.minix.api.utils.safeCast
-import dev.racci.minix.api.utils.unsafeCast
 import dev.racci.minix.nms.aliases.toNMS
 import dev.racci.terix.api.OriginService
 import dev.racci.terix.api.Terix
@@ -117,12 +117,12 @@ class VampireOrigin(override val plugin: Terix) : Origin() {
 
     @OriginEventSelector(EventSelector.PLAYER)
     fun PlayerJoinEvent.onJoin() {
-        OriginService.getAbility(Transform::class).unsafeCast<Transform>().disguises[player] = MobDisguise(DisguiseType.BAT)
+        OriginService.getAbility(Transform::class).castOrThrow<Transform>().disguises[player] = MobDisguise(DisguiseType.BAT)
     }
 
     @OriginEventSelector(EventSelector.PLAYER)
     fun PlayerOriginChangeEvent.onChangeOrigin() {
-        OriginService.getAbility(Transform::class).unsafeCast<Transform>().disguises -= player
+        OriginService.getAbility(Transform::class).castOrThrow<Transform>().disguises -= player
     }
 
     @OriginEventSelector(EventSelector.ENTITY)
@@ -131,7 +131,7 @@ class VampireOrigin(override val plugin: Terix) : Origin() {
             DamageCause.WITHER.ordinal -> event.cancel()
             in 17..18 -> {
                 event.cancel()
-                OriginHelper.increaseHealth(event.entity.unsafeCast(), event.damage)
+                OriginHelper.increaseHealth(event.entity.castOrThrow<Player>(), event.damage)
             }
         }
     }
@@ -141,7 +141,7 @@ class VampireOrigin(override val plugin: Terix) : Origin() {
         when (regainReason.ordinal) {
             in 4..5 -> {
                 cancel()
-                entity.unsafeCast<Player>().damage(amount)
+                entity.castOrThrow<Player>().damage(amount)
             }
         }
     }
@@ -151,7 +151,7 @@ class VampireOrigin(override val plugin: Terix) : Origin() {
         if (action != EntityPotionEffectEvent.Action.ADDED) return
         if (cause != EntityPotionEffectEvent.Cause.FOOD) return
 
-        if (potionWatch.remove(entity.unsafeCast())) cancel()
+        if (potionWatch.remove(entity.castOrThrow<Player>())) cancel()
     }
 
     @OriginEventSelector(EventSelector.PLAYER)
@@ -164,7 +164,7 @@ class VampireOrigin(override val plugin: Terix) : Origin() {
 
     // TODO: Sucking sound
     @OriginEventSelector(EventSelector.PLAYER)
-    fun PlayerShiftRightClickEvent.onSneakRightClick() {
+    fun PlayerSneakSecondaryEvent.onSneakRightClick() {
         val now = now()
         if (player in cooldowns) {
             val inst = cooldowns[player]!!

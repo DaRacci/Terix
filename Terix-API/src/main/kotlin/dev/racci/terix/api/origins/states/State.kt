@@ -1,12 +1,12 @@
 package dev.racci.terix.api.origins.states
 
+import dev.racci.minix.api.data.enums.LiquidType
 import dev.racci.minix.api.data.enums.LiquidType.Companion.liquidType
-import dev.racci.minix.api.events.LiquidType
 import dev.racci.minix.api.extensions.WithPlugin
 import dev.racci.minix.api.extensions.isNight
+import dev.racci.minix.api.extensions.reflection.castOrThrow
 import dev.racci.minix.api.utils.collections.multiMapOf
 import dev.racci.minix.api.utils.getKoin
-import dev.racci.minix.api.utils.unsafeCast
 import dev.racci.minix.nms.aliases.toNMS
 import dev.racci.terix.api.Terix
 import dev.racci.terix.api.origins.OriginHelper
@@ -405,7 +405,7 @@ sealed class State : WithPlugin<Terix> {
                 return null
             }
 
-            val blockPos = location.block.unsafeCast<CraftBlock>().position
+            val blockPos = location.block.castOrThrow<CraftBlock>().position
             val level = location.world.toNMS()
 
             if (!location.world.hasStorm() || !level.canSeeSky(blockPos) || level.getHeightmapPos(Heightmap.Types.MOTION_BLOCKING, blockPos).y > blockPos.y) return null
@@ -430,7 +430,7 @@ sealed class State : WithPlugin<Terix> {
                 }
             }
 
-            val blockPos = location.block.unsafeCast<CraftBlock>().position
+            val blockPos = location.block.castOrThrow<CraftBlock>().position
             val level = location.world.toNMS()
             val biome = level.getBiome(blockPos).value()
             return when (biome.precipitation) {

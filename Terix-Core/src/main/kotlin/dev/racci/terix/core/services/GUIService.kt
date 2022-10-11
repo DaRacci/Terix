@@ -16,12 +16,12 @@ import dev.racci.minix.api.extension.Extension
 import dev.racci.minix.api.extensions.cancel
 import dev.racci.minix.api.extensions.message
 import dev.racci.minix.api.extensions.parse
+import dev.racci.minix.api.extensions.reflection.castOrThrow
 import dev.racci.minix.api.extensions.scheduler
 import dev.racci.minix.api.services.DataService
 import dev.racci.minix.api.services.DataService.Companion.inject
 import dev.racci.minix.api.utils.adventure.PartialComponent.Companion.message
 import dev.racci.minix.api.utils.now
-import dev.racci.minix.api.utils.unsafeCast
 import dev.racci.minix.nms.aliases.toNMS
 import dev.racci.terix.api.OriginService
 import dev.racci.terix.api.Terix
@@ -144,13 +144,13 @@ class GUIService(override val plugin: Terix) : Extension<Terix>() {
                     event.packet.integers.write(1, nms.containerMenu.incrementStateId())
                     event.packet.integers.write(0, nms.containerMenu.containerId)
 
-                    if (cache[2].unsafeCast()) {
-                        event.packet.itemModifier.write(0, cache[1].unsafeCast())
+                    if (cache[2].castOrThrow()) {
+                        event.packet.itemModifier.write(0, cache[1].castOrThrow())
                     } else event.packet.itemModifier.write(0, borderItems.value[Material.LIME_STAINED_GLASS_PANE].item)
 
                     if (cache.getOrNull(3) != null) {
                         cache[3] = null
-                    } else cache[2] = !cache[2].unsafeCast<Boolean>()
+                    } else cache[2] = !cache[2].castOrThrow<Boolean>()
                 }
 
                 override fun onPacketReceiving(event: PacketEvent) {
@@ -180,13 +180,13 @@ class GUIService(override val plugin: Terix) : Extension<Terix>() {
             }
 
             selectedOrigin.put(whoClicked, this@createItem)
-            packetModifierCache[whoClicked.unsafeCast()] = arrayOf(rawSlot, this.clickedInventory!!.getItem(rawSlot), false)
+            packetModifierCache[whoClicked.castOrThrow()] = arrayOf(rawSlot, this.clickedInventory!!.getItem(rawSlot), false)
             whoClicked.playSound(Sound.sound(Key.key("block.beehive.enter"), Sound.Source.MASTER, 1f, 0.8f))
 
             scheduler {
                 if (!packetModifierCache.contains(whoClicked)) return@scheduler it.cancel()
 
-                sendPacket(whoClicked.unsafeCast(), rawSlot)
+                sendPacket(whoClicked.castOrThrow(), rawSlot)
             }.runTaskTimer(plugin, 0.1.seconds, 1.seconds)
         }
     }

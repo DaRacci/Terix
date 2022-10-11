@@ -40,7 +40,7 @@ class AttributeModifierBuilder(
     override fun create() = AttributeModifier(
         uuid,
         name.takeUnless { it.isBlank() || !it.matches(regex) } ?: error("Invalid name. Was blank or didn't match ${regex.pattern}: $name"),
-        amount as? Double ?: amount.toDouble(),
+        amount as? Double ?: amount,
         operation
     )
 

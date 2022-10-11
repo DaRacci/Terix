@@ -27,26 +27,12 @@ class FoodPropertyBuilder(
         foodProperties.effects.mapTo(effects) { it.first to it.second }
     }
 
-    constructor(existing: FoodPropertyBuilder) : this(null, null, null, null, null, null) {
-        this.effects.addAll(existing.effects)
-        this.nutrition = existing.nutrition
-        this.saturationModifier = existing.saturationModifier
-        this.isMeat = existing.isMeat
-        this.canAlwaysEat = existing.canAlwaysEat
-        this.fastFood = existing.fastFood
-    }
-
     var nutrition by createWatcher(nutrition ?: 0)
     var saturationModifier by createWatcher(saturationModifier ?: 0.0f)
     var isMeat by createWatcher(isMeat ?: false)
     var canAlwaysEat by createWatcher(canAlwaysEat ?: false)
     var fastFood by createWatcher(fastFood ?: false)
     var effects by createWatcher(effects ?: arrayListOf())
-
-    fun clearEffects() {
-        effects.clear()
-        dirty = true
-    }
 
     fun addEffect(effect: PotionEffect) {
         effects.add(
