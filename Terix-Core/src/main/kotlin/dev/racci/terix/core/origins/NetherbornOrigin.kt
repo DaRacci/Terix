@@ -11,8 +11,10 @@ import dev.racci.terix.api.origins.sounds.SoundEffect
 import dev.racci.terix.api.origins.states.State
 import net.kyori.adventure.text.format.TextColor
 import org.bukkit.Material
+import org.bukkit.entity.Player
 import org.bukkit.event.entity.EntityDamageByEntityEvent
 import org.bukkit.event.entity.EntityDamageEvent
+import org.bukkit.event.entity.EntityPickupItemEvent
 
 // TODO -> Spawn in the nether.
 // TODO -> Flame particles.
@@ -64,10 +66,30 @@ class NetherbornOrigin(override val plugin: Terix) : Origin() {
         }
     }
 
+    override suspend fun handleLoad(player: Player) = ensureDrySponge(player)
+
     @OriginEventSelector(EventSelector.OFFENDER)
     fun EntityDamageByEntityEvent.handle() {
         if (damager.fireTicks <= 0) return
 
         damage *= 1.2
+    }
+
+    @OriginEventSelector(EventSelector.ENTITY)
+    fun EntityPickupItemEvent.handle() {
+        if (this.item.itemStack.type != Material.WET_SPONGE) return
+        this.item.itemStack.type = Material.SPONGE
+    }
+
+    private fun ensureDrySponge(player: Player) {
+        var update = false
+
+        for (item in player.inventory) {
+            if (item.type != Material.WET_SPONGE) continue
+            item.type = Material.SPONGE
+            update = true
+        }
+
+        if (update) player.updateInventory()
     }
 }
