@@ -6,8 +6,8 @@ import dev.racci.minix.api.destructors.component1
 import dev.racci.minix.api.destructors.component2
 import dev.racci.minix.api.destructors.component3
 import dev.racci.minix.api.destructors.component4
-import dev.racci.minix.api.events.PlayerDoubleRightClickEvent
-import dev.racci.minix.api.events.PlayerMoveFullXYZEvent
+import dev.racci.minix.api.events.keybind.PlayerDoubleSecondaryEvent
+import dev.racci.minix.api.events.player.PlayerMoveFullXYZEvent
 import dev.racci.minix.api.extensions.cancel
 import dev.racci.minix.api.extensions.collections.computeAndRemove
 import dev.racci.minix.api.extensions.dropItem
@@ -154,7 +154,15 @@ class AethenOrigin(override val plugin: Terix) : Origin() {
 
     @RunAsync
     @OriginEventSelector(EventSelector.PLAYER)
-    fun PlayerDoubleRightClickEvent.handle() {
+    fun PlayerDoubleSecondaryEvent.handle() {
+        if (this.player.activeItem.type != Material.AIR) {
+            return logger.debug { "Player is using item cancelling." }
+        }
+
+        if (this.isBlockEvent && this.item?.type?.isBlock == true) {
+            return logger.debug { "Player is placing block cancelling." }
+        }
+
         val lastTime = regenCache[this.player.uniqueId]
         val now = now()
 
