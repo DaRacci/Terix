@@ -36,7 +36,7 @@ abstract class Origin : OriginBuilder() {
     /** Called each game tick. */
     open suspend fun onTick(player: Player) = Unit
 
-    override fun toString(): String {
+    final override fun toString(): String {
         return "Origin(name='$name', item=$item, " +
             "abilities=$abilities, stateBlock=$stateBlocks, stateDamageTicks=$stateDamageTicks, " +
             "damageActions=$damageActions, customFoodProperties=$customFoodProperties, customFoodActions=$customFoodActions)"

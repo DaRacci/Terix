@@ -5,12 +5,12 @@ import com.destroystokyo.paper.event.block.BeaconEffectEvent
 import com.destroystokyo.paper.event.player.PlayerPostRespawnEvent
 import dev.racci.minix.api.annotations.MappedExtension
 import dev.racci.minix.api.collections.PlayerMap
-import dev.racci.minix.api.events.PlayerEnterLiquidEvent
-import dev.racci.minix.api.events.PlayerMoveFullXYZEvent
 import dev.racci.minix.api.events.PlayerRightClickEvent
-import dev.racci.minix.api.events.WorldDayEvent
-import dev.racci.minix.api.events.WorldNightEvent
+import dev.racci.minix.api.events.player.PlayerLiquidEnterEvent
 import dev.racci.minix.api.events.player.PlayerLiquidExitEvent
+import dev.racci.minix.api.events.player.PlayerMoveFullXYZEvent
+import dev.racci.minix.api.events.world.WorldDayEvent
+import dev.racci.minix.api.events.world.WorldNightEvent
 import dev.racci.minix.api.extension.Extension
 import dev.racci.minix.api.extensions.cancel
 import dev.racci.minix.api.extensions.collections.computeAndRemove
@@ -161,7 +161,7 @@ class ListenerService(override val plugin: Terix) : Extension<Terix>() {
 
         event<EntityPotionEffectEvent> { if (shouldCancel()) cancel() }
 
-        event<PlayerEnterLiquidEvent> { convertLiquidToState(previousType).exchange(player, TerixPlayer.cachedOrigin(player), convertLiquidToState(newType)) }
+        event<PlayerLiquidEnterEvent> { convertLiquidToState(previousType).exchange(player, TerixPlayer.cachedOrigin(player), convertLiquidToState(newType)) }
         event<PlayerLiquidExitEvent> { convertLiquidToState(previousType).exchange(player, TerixPlayer.cachedOrigin(player), convertLiquidToState(newType)) }
 
         event<WorldNightEvent>(forceAsync = true) { switchTimeStates(State.TimeState.NIGHT) }
@@ -279,6 +279,9 @@ class ListenerService(override val plugin: Terix) : Extension<Terix>() {
             ] message onlinePlayers
 
             if (terixConfig.showTitleOnChange) newOrigin.becomeOriginTitle?.invoke(player)
+
+            preOrigin.handleChangeOrigin(this)
+            newOrigin.handleBecomeOrigin(this)
         }
 
         events(*KeyBinding.values().map(KeyBinding::event).toTypedArray()) {
@@ -309,6 +312,14 @@ class ListenerService(override val plugin: Terix) : Extension<Terix>() {
 
             deactivateOrigin(player)
         }
+
+        events(
+            PlayerJoinEvent::class,
+            PlayerPostRespawnEvent::class,
+            PlayerOriginChangeEvent::class,
+            priority = EventPriority.MONITOR,
+            ignoreCancelled = true
+        ) { TerixPlayer.cachedOrigin(player).handleLoad(player) }
     }
 
     private val channels = hashMapOf<UUID, Channel<Boolean>>()
