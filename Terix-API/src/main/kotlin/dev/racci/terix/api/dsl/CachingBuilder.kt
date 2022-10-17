@@ -56,9 +56,10 @@ abstract class CachingBuilder<T> {
 
             watcherSet.forEachIndexed { index, watcher ->
                 if (index != 0) append(", ")
+
                 append(watcher.property.name)
                 append("=")
-                append(watcher.property.getter.call(this@CachingBuilder))
+                append(watcher.value)
             }
 
             append("]")

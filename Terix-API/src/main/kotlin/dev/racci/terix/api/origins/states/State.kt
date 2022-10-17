@@ -215,19 +215,19 @@ sealed class State : WithPlugin<Terix> {
         origin: Origin
     ) = async {
         origin.stateTitles[this@State]?.let { title ->
-            plugin.log.trace(scope = CATEGORY) { "Invoking title $title" }
+            logger.trace(scope = CATEGORY) { "Invoking title $title" }
             title.invoke(player)
         }
 
         origin.stateBlocks[this@State]?.let { block ->
-            plugin.log.trace(scope = CATEGORY) { "Invoking state block" }
+            logger.trace(scope = CATEGORY) { "Invoking state block" }
             block.invoke(player)
         }
 
         origin.attributeModifiers[this@State]?.takeUnless(Collection<*>::isEmpty)?.forEach { (attribute, modifier) ->
             with(player.getAttribute(attribute)) {
-                if (this == null) return@forEach plugin.log.debug(scope = CATEGORY) { "Attribute instance $attribute not found" }
-                plugin.log.trace(scope = CATEGORY) { "Adding modifier $modifier to $this" }
+                if (this == null) return@forEach logger.debug(scope = CATEGORY) { "Attribute instance $attribute not found" }
+                logger.trace(scope = CATEGORY) { "Adding modifier $modifier to $this" }
                 addModifier(modifier)
             }
         }
@@ -276,17 +276,6 @@ sealed class State : WithPlugin<Terix> {
                 stream.skip(2).map { it.methodName.substringBefore('$') }.findFirst().get()
             }
             append(origin.name)
-
-//            if (otherOrigin != null) {
-//                append('.')
-//                append(functionName)
-//                append('.')
-//                append(otherOrigin.name)
-//            }
-//
-//            if (otherOrigin != null && this.endsWith(otherOrigin.name)) {
-//                this.append(" | ")
-//            }
 
             append('.')
             append(this@State.name)
