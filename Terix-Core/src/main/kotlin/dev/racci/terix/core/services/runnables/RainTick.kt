@@ -7,17 +7,13 @@ import dev.racci.terix.api.origins.origin.Origin
 import dev.racci.terix.api.origins.states.State
 import dev.racci.terix.core.extensions.inRain
 import dev.racci.terix.core.extensions.wasInRain
-import dev.racci.terix.core.services.RunnableService
 import kotlinx.datetime.Instant
 import org.bukkit.entity.Player
 
 class RainTick(
     player: Player,
-    origin: Origin,
-    private val service: RunnableService,
-    mother: MotherCoroutineRunnable
-) : ChildCoroutineRunnable(
-    mother,
+    origin: Origin
+) : ChildTicker(
     player,
     origin,
     State.WeatherState.RAIN,
@@ -36,6 +32,6 @@ class RainTick(
         val rain = origin.stateDamageTicks[State.WeatherState.RAIN] ?: return
 
         lastTick = now()
-        service.sync { player.damage(rain) }
+        sync { player.damage(rain) }
     }
 }

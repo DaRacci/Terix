@@ -1,7 +1,5 @@
 package dev.racci.terix.core.services.runnables
 
-import dev.racci.minix.api.integrations.IntegrationManager
-import dev.racci.minix.core.integrations.regions.LandsRegionIntegration
 import dev.racci.minix.nms.aliases.toNMS
 import dev.racci.terix.api.events.OriginSunlightBurnEvent
 import dev.racci.terix.api.origins.OriginHelper
@@ -44,7 +42,7 @@ class SunlightTick(
         val event = OriginSunlightBurnEvent(player, origin, ticks)
         if (!event.callEvent()) return
 
-        if (!IntegrationManager.isRegistered<LandsRegionIntegration>() && helmet != null) {
+        if (helmet != null) {
             val nms = player.toNMS()
             val amount = nms.random.nextInt(0, 2).takeIf { it != 0 } ?: return
             if (helmet.damage + amount > helmet.maxItemUseDuration) (helmet as CraftItemStack).handle.hurtAndBreak(amount, nms) {}
@@ -53,29 +51,30 @@ class SunlightTick(
             return
         }
 
-        if (helmet != null) return
         if (player.fireTicks > ticks || player.fireTicks > 0 && !shouldTickSunlight(player)) return
         player.fireTicks = ticks
     }
 
     private fun calculateBar() {
-        when {
-            !player.inSunlight && exposedTime > 0 -> exposedTime += 5
-            exposedTime < GRACE_PERIOD -> exposedTime -= 5
+        exposedTime += when {
+            !player.inSunlight && exposedTime > 0 -> -TickService.TICK_RATE
+            player.inSunlight && exposedTime < GRACE_PERIOD -> TickService.TICK_RATE
+            else -> 0
         }
+
         this.showBar()
     }
 
     private fun showBar() {
-        if (exposedTime < 20 || exposedTime > (GRACE_PERIOD - 1)) return player.sendActionBar(Component.empty())
+        if (exposedTime < TickService.TICK_RATE || exposedTime == GRACE_PERIOD) return player.sendActionBar(Component.empty())
         val index = (exposedTime / 20 - 1).coerceIn(cachedComponents.indices)
         player.sendActionBar(cachedComponents[index])
     }
 
-    companion object {
+    private companion object {
         const val GRACE_CHAR = "▇"
         const val GRACE_PERIOD = 10 * 20
-        private var cachedComponents = run {
+        var cachedComponents = run {
             val multiplier = 20 / (GRACE_PERIOD / 20)
             Array<Component>(GRACE_PERIOD / 20) {
                 text {

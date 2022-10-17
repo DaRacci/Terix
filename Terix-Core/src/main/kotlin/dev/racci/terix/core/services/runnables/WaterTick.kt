@@ -7,17 +7,13 @@ import dev.racci.terix.api.origins.OriginHelper
 import dev.racci.terix.api.origins.origin.Origin
 import dev.racci.terix.api.origins.states.State
 import dev.racci.terix.core.extensions.inWater
-import dev.racci.terix.core.services.RunnableService
 import kotlinx.datetime.Instant
 import org.bukkit.entity.Player
 
 class WaterTick(
     player: Player,
-    origin: Origin,
-    private val service: RunnableService,
-    mother: MotherCoroutineRunnable
-) : ChildCoroutineRunnable(
-    mother,
+    origin: Origin
+) : ChildTicker(
     player,
     origin,
     null,
@@ -38,6 +34,6 @@ class WaterTick(
         if (!event.callEvent()) return
 
         lastTick = now()
-        service.sync { player.damage(event.damage) }
+        sync { player.damage(event.damage) }
     }
 }

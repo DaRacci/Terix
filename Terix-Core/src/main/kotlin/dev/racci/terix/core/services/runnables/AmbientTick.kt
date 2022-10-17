@@ -12,11 +12,8 @@ import kotlin.time.Duration.Companion.seconds
 
 class AmbientTick(
     player: Player,
-    origin: Origin,
-    mother: MotherCoroutineRunnable,
-    private val sound: SoundEffect
-) : ChildCoroutineRunnable(
-    mother,
+    origin: Origin
+) : ChildTicker(
     player,
     origin,
     null,
@@ -26,6 +23,7 @@ class AmbientTick(
 
     private var disabled: Boolean = false
     private var nextAmbient: Instant = Instant.DISTANT_FUTURE
+    private val sound: SoundEffect = origin.sounds.ambientSound ?: error("No ambient sound for origin ${origin.name}")
 
     private fun ambientTime(): Boolean {
         if (now() < nextAmbient) return false
