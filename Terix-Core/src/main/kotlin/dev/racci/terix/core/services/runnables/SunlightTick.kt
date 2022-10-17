@@ -7,6 +7,7 @@ import dev.racci.terix.api.origins.origin.Origin
 import dev.racci.terix.api.origins.states.State
 import dev.racci.terix.core.extensions.inSunlight
 import dev.racci.terix.core.extensions.wasInSunlight
+import dev.racci.terix.core.services.TickService
 import net.kyori.adventure.extra.kotlin.text
 import net.kyori.adventure.text.Component
 import net.kyori.adventure.text.format.NamedTextColor
@@ -15,10 +16,8 @@ import org.bukkit.entity.Player
 
 class SunlightTick(
     player: Player,
-    origin: Origin,
-    mother: MotherCoroutineRunnable
-) : ChildCoroutineRunnable(
-    mother,
+    origin: Origin
+) : ChildTicker(
     player,
     origin,
     State.LightState.SUNLIGHT,
