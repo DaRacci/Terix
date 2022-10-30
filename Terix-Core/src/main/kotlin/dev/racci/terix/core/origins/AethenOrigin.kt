@@ -9,6 +9,7 @@ import dev.racci.minix.api.destructors.component4
 import dev.racci.minix.api.events.keybind.PlayerDoubleSecondaryEvent
 import dev.racci.minix.api.events.player.PlayerMoveFullXYZEvent
 import dev.racci.minix.api.extensions.cancel
+import dev.racci.minix.api.extensions.collections.clear
 import dev.racci.minix.api.extensions.collections.computeAndRemove
 import dev.racci.minix.api.extensions.dropItem
 import dev.racci.minix.api.extensions.parse
@@ -28,9 +29,11 @@ import dev.racci.terix.api.origins.origin.Origin
 import dev.racci.terix.api.origins.sounds.SoundEffect
 import dev.racci.terix.api.origins.states.State
 import dev.racci.terix.core.extensions.fromOrigin
+import kotlinx.collections.immutable.PersistentList
 import kotlinx.collections.immutable.persistentListOf
 import kotlinx.datetime.Instant
 import net.kyori.adventure.text.Component
+import net.kyori.adventure.text.TextComponent
 import net.kyori.adventure.text.format.TextColor
 import org.bukkit.Location
 import org.bukkit.Material
@@ -40,6 +43,7 @@ import org.bukkit.entity.LivingEntity
 import org.bukkit.entity.Player
 import org.bukkit.event.entity.EntityDamageEvent
 import org.bukkit.event.player.PlayerBedEnterEvent
+import org.bukkit.event.player.PlayerQuitEvent
 import org.bukkit.event.player.PlayerToggleSneakEvent
 import org.bukkit.potion.PotionEffect
 import org.bukkit.potion.PotionEffectType
@@ -48,21 +52,22 @@ import ru.beykerykt.minecraft.lightapi.common.api.engine.EditPolicy
 import ru.beykerykt.minecraft.lightapi.common.api.engine.LightFlag
 import ru.beykerykt.minecraft.lightapi.common.api.engine.SendPolicy
 import java.util.UUID
+import java.util.concurrent.ConcurrentHashMap
 import kotlin.time.Duration
 import kotlin.time.Duration.Companion.minutes
 
-class AethenOrigin(override val plugin: Terix) : Origin() {
+public class AethenOrigin(override val plugin: Terix) : Origin() {
 
-    override val name = "Aethen"
-    override val colour = TextColor.fromHexString("#ffc757")!!
+    override val name: String = "Aethen"
+    override val colour: TextColor = TextColor.fromHexString("#ffc757")!!
 
-    private val playerLocations = PlayerMap<Location>()
+    private val playerLocations = ConcurrentHashMap<Player, LightLocation>()
     private val missingPotion = PlayerMap<PotionEffect>()
     private val regenPotion = PotionEffect(PotionEffectType.REGENERATION, 10 * 20, 1, true)
     private val regenCache = mutableMapOf<UUID, Instant>()
     private val regenCooldown = 3.minutes
 
-    override val requirements = persistentListOf(
+    override val requirements: PersistentList<Pair<TextComponent, (Player) -> Boolean>> = persistentListOf(
         Component.text("Slay Lycer. (Currently Unimplemented)") to { _: Player -> true }
     )
 
@@ -128,12 +133,23 @@ class AethenOrigin(override val plugin: Terix) : Origin() {
         }
     }
 
+    override suspend fun handleUnload() {
+        regenCache.clear()
+        missingPotion.clear()
+        playerLocations.clear { _, location -> resetLightLevel(location) } // Ensures that we don't have ghost lights
+    }
+
     override suspend fun handleChangeOrigin(event: PlayerOriginChangeEvent) {
         playerLocations.computeAndRemove(event.player) { resetLightLevel(this) }
     }
 
     @OriginEventSelector(EventSelector.PLAYER)
-    fun PlayerBedEnterEvent.handle() {
+    public fun PlayerQuitEvent.handle() {
+        playerLocations.computeAndRemove(player) { resetLightLevel(this) }
+    }
+
+    @OriginEventSelector(EventSelector.PLAYER)
+    public fun PlayerBedEnterEvent.handle() {
         if (this.bed.location.y > 91) return
 
         this.cancel()
@@ -142,7 +158,7 @@ class AethenOrigin(override val plugin: Terix) : Origin() {
 
     @RunAsync
     @OriginEventSelector(EventSelector.PLAYER)
-    fun PlayerToggleSneakEvent.handle() {
+    public fun PlayerToggleSneakEvent.handle() {
         if (this.isSneaking) {
             missingPotion[this.player] = this.player.activePotionEffects.first { it.type == PotionEffectType.SLOW_FALLING && it.fromOrigin() }
 
@@ -155,7 +171,7 @@ class AethenOrigin(override val plugin: Terix) : Origin() {
 
     @RunAsync
     @OriginEventSelector(EventSelector.PLAYER)
-    fun PlayerDoubleSecondaryEvent.handle() {
+    public fun PlayerDoubleSecondaryEvent.handle() {
         if (this.player.activeItem.type != Material.AIR) {
             return logger.debug { "Player is using item cancelling." }
         }
@@ -187,44 +203,58 @@ class AethenOrigin(override val plugin: Terix) : Origin() {
 
     @RunAsync
     @OriginEventSelector(EventSelector.PLAYER)
-    fun PlayerMoveFullXYZEvent.handle() {
+    public fun PlayerMoveFullXYZEvent.handle() {
         if (handler == null) {
             plugin.log.warn { "LightAPI is not installed, disabling Aethen's ability" }
             return
         }
 
         playerLocations.compute(this.player) { _, oldLocation ->
-            val (newX, newY, newZ, newWorld) = this.player.location
+            val lightLocation = LightLocation(this.player.location)
+            val (newX, newY, newZ, newWorld) = lightLocation
 
             if (oldLocation != null) resetLightLevel(oldLocation)
 
             handler.setLightLevel(
-                newWorld!!.name,
-                newX.toInt(),
-                newY.toInt(),
-                newZ.toInt(),
-                9,
+                newWorld,
+                newX,
+                newY,
+                newZ,
+                EMISSION_LEVEL,
                 LightFlag.BLOCK_LIGHTING,
                 EditPolicy.DEFERRED,
                 SendPolicy.DEFERRED,
                 null
             )
 
-            this.player.location
+            lightLocation
         }
     }
 
-    private fun resetLightLevel(location: Location) {
+    private fun resetLightLevel(location: LightLocation) {
         handler.setLightLevel(
-            location.world!!.name,
-            location.x.toInt(),
-            location.y.toInt(),
-            location.z.toInt(),
+            location.world,
+            location.x,
+            location.y,
+            location.z,
             0,
             LightFlag.BLOCK_LIGHTING,
             EditPolicy.DEFERRED,
             SendPolicy.DEFERRED,
             null
         )
+    }
+
+    private data class LightLocation(
+        val x: Int,
+        val y: Int,
+        val z: Int,
+        val world: String
+    ) {
+        constructor(location: Location) : this(location.blockX, location.blockY, location.blockZ, location.world!!.name)
+    }
+
+    private companion object {
+        const val EMISSION_LEVEL: Int = 9
     }
 }
