@@ -333,12 +333,8 @@ sealed class State : WithPlugin<Terix> {
                     continue
                 }
 
-                if (state.incompatibleStates.any { activeStates[player]?.contains(it) == true }) {
-                    plugin.log.debug { "Skipping state $state because an incompatible state was already present." }
-                    continue
-                }
-
-                if (!state.fromPlayer(player)) return
+                if (state.incompatibleStates.any { activeStates[player]?.contains(it) == true }) continue
+                if (!state.fromPlayer(player)) continue
 
                 plugin.log.debug { "Adding state $state" }
                 activeStates.put(player, state)
