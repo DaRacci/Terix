@@ -46,7 +46,7 @@ internal class AttributeModifierBuilderTest {
     @Test
     fun `builder returns the same as normal constructor`() {
         val uuid = UUID.randomUUID()
-        val builder = DSLMutator<AttributeModifierBuilder> {
+        val builder = dslMutator<AttributeModifierBuilder> {
             attribute = Attribute.GENERIC_MAX_HEALTH
             operation = AttributeModifier.Operation.ADD_NUMBER
             amount = 7.3

@@ -3,6 +3,7 @@ package dev.racci.terix.api
 import dev.racci.minix.api.extensions.parse
 import dev.racci.minix.api.plugin.MinixPlugin
 import dev.racci.terix.api.dsl.TitleBuilder
+import dev.racci.terix.api.dsl.dslMutator
 import dev.racci.terix.api.origins.origin.Origin
 import dev.racci.terix.api.origins.states.State
 import net.kyori.adventure.text.format.NamedTextColor
@@ -33,13 +34,13 @@ class TestOrigin : Origin() {
             }
         }
         potions {
-            State.WorldState.NETHER += {
+            State.WorldState.NETHER += dslMutator {
                 type = PotionEffectType.REGENERATION
                 duration = 5.seconds
                 amplifier = 1
                 ambient = true
             }
-            State.BiomeState.COLD += {
+            State.BiomeState.COLD += dslMutator {
                 type = PotionEffectType.FIRE_RESISTANCE
                 duration = 5.seconds
                 amplifier = 1
