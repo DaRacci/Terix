@@ -1,0 +1,451 @@
+<!doctype html>
+<html>
+<head>
+    <meta name="viewport" content="width=device-width, initial-scale=1" charset="UTF-8">
+    <title>TerixPlayer</title>
+<link href="../../../images/logo-icon.svg" rel="icon" type="image/svg"><script>var pathToRoot = "../../../";</script>    <script>const storage = localStorage.getItem("dokka-dark-mode")
+    if (storage == null) {
+        const osDarkSchemePreferred = window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches
+        if (osDarkSchemePreferred === true) {
+            document.getElementsByTagName("html")[0].classList.add("theme-dark")
+        }
+    } else {
+        const savedDarkMode = JSON.parse(storage)
+        if(savedDarkMode === true) {
+            document.getElementsByTagName("html")[0].classList.add("theme-dark")
+        }
+    }
+    </script>
+<script type="text/javascript" src="../../../scripts/sourceset_dependencies.js" async></script>
+<link href="../../../styles/style.css" rel="Stylesheet">
+<link href="../../../styles/jetbrains-mono.css" rel="Stylesheet">
+<link href="../../../styles/main.css" rel="Stylesheet">
+<link href="../../../styles/prism.css" rel="Stylesheet">
+<link href="../../../styles/logo-styles.css" rel="Stylesheet">
+<script type="text/javascript" src="../../../scripts/clipboard.js" async></script>
+<script type="text/javascript" src="../../../scripts/navigation-loader.js" async></script>
+<script type="text/javascript" src="../../../scripts/platform-content-handler.js" async></script>
+<script type="text/javascript" src="../../../scripts/main.js" defer></script>
+<script type="text/javascript" src="../../../scripts/prism.js" async></script>
+<script type="text/javascript" src="../../../scripts/symbol-parameters-wrapper_deferred.js" defer></script></head>
+<body>
+<div class="navigation-wrapper" id="navigation-wrapper">
+    <div id="leftToggler"><span class="icon-toggler"></span></div>
+    <div class="library-name">
+<a href="../../../index.html">
+<span>Terix</span>            </a>    </div>
+    <div>1.0.0-SNAPSHOT
+    </div>
+    <div class="pull-right d-flex">
+        <button id="theme-toggle-button"><span id="theme-toggle"></span></button>
+        <div id="searchBar"></div>
+    </div>
+</div>
+<div id="container">
+    <div id="leftColumn">
+        <div id="sideMenu"></div>
+    </div>
+    <div id="main">
+<div class="main-content" id="content" pageids="Terix-API::dev.racci.terix.api/TerixPlayer///PointingToDeclaration//-1922089379">
+  <div class="breadcrumbs"><a href="../../index.html">Terix-API</a><span class="delimiter">/</span><a href="../index.html">dev.racci.terix.api</a><span class="delimiter">/</span><span class="current">TerixPlayer</span></div>
+  <div class="cover ">
+    <h1 class="cover"><span>Terix</span><wbr><span><span>Player</span></span></h1>
+    <div class="platform-hinted " data-platform-hinted="data-platform-hinted"><div class="content sourceset-dependent-content" data-active="" data-togglable=":Terix-API:dokkaHtmlPartial/main"><div class="symbol monospace"><span class="token keyword">class </span><a href="index.html">TerixPlayer</a><span class="token punctuation">(</span><span class="parameters "><span class="parameter "><span class="token keyword">val </span>uuid<span class="token operator">: </span><span data-unresolved-link="org.jetbrains.exposed.dao.id/EntityID///PointingToDeclaration/">EntityID</span><span class="token operator">&lt;</span><span class="token keyword"></span><a href="https://docs.oracle.com/javase/8/docs/api/java/util/UUID.html">UUID</a><span class="token operator">&gt;</span></span></span><span class="token punctuation">)</span> : <span data-unresolved-link="org.jetbrains.exposed.dao/UUIDEntity///PointingToDeclaration/">UUIDEntity</span></div></div></div>
+  </div>
+  <div class="tabbedcontent">
+    <div class="tabs-section" tabs-section="tabs-section"><button class="section-tab" data-active="" data-togglable="Types">Types</button><button class="section-tab" data-togglable="Constructors">Constructors</button><button class="section-tab" data-togglable="Functions">Functions</button><button class="section-tab" data-togglable="Properties">Properties</button></div>
+    <div class="tabs-section-body">
+      <h2 class="tabbedcontent">Constructors</h2>
+      <div class="table" data-togglable="Constructors"><a data-name="1204259308%2FConstructors%2F-1922089379" anchor-label="TerixPlayer" id="1204259308%2FConstructors%2F-1922089379" data-filterable-set=":Terix-API:dokkaHtmlPartial/main"></a>
+        <div class="table-row" data-filterable-current=":Terix-API:dokkaHtmlPartial/main" data-filterable-set=":Terix-API:dokkaHtmlPartial/main">
+          <div class="main-subrow keyValue TabbedContent">
+            <div class=""><span class="inline-flex">
+                <div><a href="-terix-player.html"><span>Terix</span><wbr><span><span>Player</span></span></a></div>
+<span class="anchor-wrapper"><span class="anchor-icon" pointing-to="1204259308%2FConstructors%2F-1922089379"></span>
+                  <div class="copy-popup-wrapper "><span class="copy-popup-icon"></span><span>Link copied to clipboard</span></div>
+                </span></span></div>
+            <div>
+              <div class="title">
+                <div class="platform-hinted " data-platform-hinted="data-platform-hinted"><div class="content sourceset-dependent-content" data-active="" data-togglable=":Terix-API:dokkaHtmlPartial/main"><div class="symbol monospace"><span class="token keyword"></span><span class="token keyword">fun </span><a href="-terix-player.html"><span class="token function">TerixPlayer</span></a><span class="token punctuation">(</span><span class="parameters "><span class="parameter ">uuid<span class="token operator">: </span><span data-unresolved-link="org.jetbrains.exposed.dao.id/EntityID///PointingToDeclaration/">EntityID</span><span class="token operator">&lt;</span><span class="token keyword"></span><a href="https://docs.oracle.com/javase/8/docs/api/java/util/UUID.html">UUID</a><span class="token operator">&gt;</span></span></span><span class="token punctuation">)</span></div></div></div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+      <h2 class="">Types</h2>
+      <div class="table" data-togglable="Types"><a data-name="-783187508%2FClasslikes%2F-1922089379" anchor-label="Cache" id="-783187508%2FClasslikes%2F-1922089379" data-filterable-set=":Terix-API:dokkaHtmlPartial/main"></a>
+        <div class="table-row" data-filterable-current=":Terix-API:dokkaHtmlPartial/main" data-filterable-set=":Terix-API:dokkaHtmlPartial/main">
+          <div class="main-subrow keyValue ">
+            <div class=""><span class="inline-flex">
+                <div><a href="-cache/index.html"><span><span>Cache</span></span></a></div>
+<span class="anchor-wrapper"><span class="anchor-icon" pointing-to="-783187508%2FClasslikes%2F-1922089379"></span>
+                  <div class="copy-popup-wrapper "><span class="copy-popup-icon"></span><span>Link copied to clipboard</span></div>
+                </span></span></div>
+            <div>
+              <div class="title">
+                <div class="platform-hinted " data-platform-hinted="data-platform-hinted"><div class="content sourceset-dependent-content" data-active="" data-togglable=":Terix-API:dokkaHtmlPartial/main"><div class="symbol monospace"><span class="token keyword">interface </span><a href="-cache/index.html">Cache</a></div></div></div>
+              </div>
+            </div>
+          </div>
+        </div>
+<a data-name="807847682%2FClasslikes%2F-1922089379" anchor-label="Companion" id="807847682%2FClasslikes%2F-1922089379" data-filterable-set=":Terix-API:dokkaHtmlPartial/main"></a>
+        <div class="table-row" data-filterable-current=":Terix-API:dokkaHtmlPartial/main" data-filterable-set=":Terix-API:dokkaHtmlPartial/main">
+          <div class="main-subrow keyValue ">
+            <div class=""><span class="inline-flex">
+                <div><a href="-companion/index.html"><span><span>Companion</span></span></a></div>
+<span class="anchor-wrapper"><span class="anchor-icon" pointing-to="807847682%2FClasslikes%2F-1922089379"></span>
+                  <div class="copy-popup-wrapper "><span class="copy-popup-icon"></span><span>Link copied to clipboard</span></div>
+                </span></span></div>
+            <div>
+              <div class="title">
+                <div class="platform-hinted " data-platform-hinted="data-platform-hinted"><div class="content sourceset-dependent-content" data-active="" data-togglable=":Terix-API:dokkaHtmlPartial/main"><div class="symbol monospace"><span class="token keyword">object </span><a href="-companion/index.html">Companion</a> : <span data-unresolved-link="org.jetbrains.exposed.dao/UUIDEntityClass///PointingToDeclaration/">UUIDEntityClass</span><span class="token operator">&lt;</span><span class="token keyword"></span><a href="index.html">TerixPlayer</a><span class="token operator">&gt; </span>, <a href="-cache/index.html">TerixPlayer.Cache</a></div></div></div>
+              </div>
+            </div>
+          </div>
+        </div>
+<a data-name="24829258%2FClasslikes%2F-1922089379" anchor-label="PlayerTickCache" id="24829258%2FClasslikes%2F-1922089379" data-filterable-set=":Terix-API:dokkaHtmlPartial/main"></a>
+        <div class="table-row" data-filterable-current=":Terix-API:dokkaHtmlPartial/main" data-filterable-set=":Terix-API:dokkaHtmlPartial/main">
+          <div class="main-subrow keyValue ">
+            <div class=""><span class="inline-flex">
+                <div><a href="-player-tick-cache/index.html"><span>Player</span><wbr><span>Tick</span><wbr><span><span>Cache</span></span></a></div>
+<span class="anchor-wrapper"><span class="anchor-icon" pointing-to="24829258%2FClasslikes%2F-1922089379"></span>
+                  <div class="copy-popup-wrapper "><span class="copy-popup-icon"></span><span>Link copied to clipboard</span></div>
+                </span></span></div>
+            <div>
+              <div class="title">
+                <div class="platform-hinted " data-platform-hinted="data-platform-hinted"><div class="content sourceset-dependent-content" data-active="" data-togglable=":Terix-API:dokkaHtmlPartial/main"><div class="symbol monospace"><span class="token keyword">class </span><a href="-player-tick-cache/index.html">PlayerTickCache</a></div></div></div>
+              </div>
+            </div>
+          </div>
+        </div>
+<a data-name="-137142199%2FClasslikes%2F-1922089379" anchor-label="User" id="-137142199%2FClasslikes%2F-1922089379" data-filterable-set=":Terix-API:dokkaHtmlPartial/main"></a>
+        <div class="table-row" data-filterable-current=":Terix-API:dokkaHtmlPartial/main" data-filterable-set=":Terix-API:dokkaHtmlPartial/main">
+          <div class="main-subrow keyValue ">
+            <div class=""><span class="inline-flex">
+                <div><a href="-user/index.html"><span><span>User</span></span></a></div>
+<span class="anchor-wrapper"><span class="anchor-icon" pointing-to="-137142199%2FClasslikes%2F-1922089379"></span>
+                  <div class="copy-popup-wrapper "><span class="copy-popup-icon"></span><span>Link copied to clipboard</span></div>
+                </span></span></div>
+            <div>
+              <div class="title">
+                <div class="platform-hinted " data-platform-hinted="data-platform-hinted"><div class="content sourceset-dependent-content" data-active="" data-togglable=":Terix-API:dokkaHtmlPartial/main"><div class="symbol monospace"><span class="token keyword">object </span><a href="-user/index.html">User</a> : <span data-unresolved-link="org.jetbrains.exposed.dao.id/UUIDTable///PointingToDeclaration/">UUIDTable</span></div></div></div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+      <h2 class="">Functions</h2>
+      <div class="table" data-togglable="Functions"><a data-name="-1796355917%2FFunctions%2F-1922089379" anchor-label="delete" id="-1796355917%2FFunctions%2F-1922089379" data-filterable-set=":Terix-API:dokkaHtmlPartial/main"></a>
+        <div class="table-row" data-filterable-current=":Terix-API:dokkaHtmlPartial/main" data-filterable-set=":Terix-API:dokkaHtmlPartial/main">
+          <div class="main-subrow keyValue ">
+            <div class=""><span class="inline-flex">
+                <div><a href="index.html#-1796355917%2FFunctions%2F-1922089379"><span><span>delete</span></span></a></div>
+<span class="anchor-wrapper"><span class="anchor-icon" pointing-to="-1796355917%2FFunctions%2F-1922089379"></span>
+                  <div class="copy-popup-wrapper "><span class="copy-popup-icon"></span><span>Link copied to clipboard</span></div>
+                </span></span></div>
+            <div>
+              <div class="title">
+                <div class="platform-hinted " data-platform-hinted="data-platform-hinted"><div class="content sourceset-dependent-content" data-active="" data-togglable=":Terix-API:dokkaHtmlPartial/main"><div class="symbol monospace"><span class="token keyword">open </span><span class="token keyword"></span><span class="token keyword">fun </span><a href="index.html#-1796355917%2FFunctions%2F-1922089379"><span class="token function">delete</span></a><span class="token punctuation">(</span><span class="token punctuation">)</span></div></div></div>
+              </div>
+            </div>
+          </div>
+        </div>
+<a data-name="-583453363%2FFunctions%2F-1922089379" anchor-label="flush" id="-583453363%2FFunctions%2F-1922089379" data-filterable-set=":Terix-API:dokkaHtmlPartial/main"></a>
+        <div class="table-row" data-filterable-current=":Terix-API:dokkaHtmlPartial/main" data-filterable-set=":Terix-API:dokkaHtmlPartial/main">
+          <div class="main-subrow keyValue ">
+            <div class=""><span class="inline-flex">
+                <div><a href="index.html#-583453363%2FFunctions%2F-1922089379"><span><span>flush</span></span></a></div>
+<span class="anchor-wrapper"><span class="anchor-icon" pointing-to="-583453363%2FFunctions%2F-1922089379"></span>
+                  <div class="copy-popup-wrapper "><span class="copy-popup-icon"></span><span>Link copied to clipboard</span></div>
+                </span></span></div>
+            <div>
+              <div class="title">
+                <div class="platform-hinted " data-platform-hinted="data-platform-hinted"><div class="content sourceset-dependent-content" data-active="" data-togglable=":Terix-API:dokkaHtmlPartial/main"><div class="symbol monospace"><span class="token keyword">open </span><span class="token keyword"></span><span class="token keyword">fun </span><a href="index.html#-583453363%2FFunctions%2F-1922089379"><span class="token function">flush</span></a><span class="token punctuation">(</span><span class="parameters "><span class="parameter ">batch<span class="token operator">: </span><span data-unresolved-link="org.jetbrains.exposed.dao/EntityBatchUpdate///PointingToDeclaration/">EntityBatchUpdate</span><span class="token operator">?</span></span></span><span class="token punctuation">)</span><span class="token operator">: </span><a href="https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-boolean/index.html">Boolean</a></div></div></div>
+              </div>
+            </div>
+          </div>
+        </div>
+<a data-name="1338522101%2FFunctions%2F-1922089379" anchor-label="getValue" id="1338522101%2FFunctions%2F-1922089379" data-filterable-set=":Terix-API:dokkaHtmlPartial/main"></a>
+        <div class="table-row" data-filterable-current=":Terix-API:dokkaHtmlPartial/main" data-filterable-set=":Terix-API:dokkaHtmlPartial/main">
+          <div class="main-subrow keyValue ">
+            <div class=""><span class="inline-flex">
+                <div><a href="index.html#2001769948%2FFunctions%2F-1922089379"><span>get</span><wbr><span><span>Value</span></span></a></div>
+<span class="anchor-wrapper"><span class="anchor-icon" pointing-to="1338522101%2FFunctions%2F-1922089379"></span>
+                  <div class="copy-popup-wrapper "><span class="copy-popup-icon"></span><span>Link copied to clipboard</span></div>
+                </span></span></div>
+            <div>
+              <div class="title">
+                <div class="platform-hinted " data-platform-hinted="data-platform-hinted"><div class="content sourceset-dependent-content" data-active="" data-togglable=":Terix-API:dokkaHtmlPartial/main"><div class="symbol monospace"><span class="token keyword">operator </span><span class="token keyword">fun </span><span class="token operator">&lt;</span><span class="token keyword"></span><a href="index.html#2001769948%2FFunctions%2F-1922089379">TColumn</a><span class="token punctuation">, </span><span class="token keyword"></span><a href="index.html#2001769948%2FFunctions%2F-1922089379">TReal</a><span class="token operator">&gt; </span><span data-unresolved-link="org.jetbrains.exposed.dao/ColumnWithTransform///PointingToDeclaration/">ColumnWithTransform</span><span class="token operator">&lt;</span><span class="token keyword"></span><a href="index.html#2001769948%2FFunctions%2F-1922089379">TColumn</a><span class="token punctuation">, </span><span class="token keyword"></span><a href="index.html#2001769948%2FFunctions%2F-1922089379">TReal</a><span class="token operator">&gt;</span><span class="token punctuation">.</span><a href="index.html#2001769948%2FFunctions%2F-1922089379"><span class="token function">getValue</span></a><span class="token punctuation">(</span><span class="parameters "><span class="parameter ">o<span class="token operator">: </span><span data-unresolved-link="org.jetbrains.exposed.dao/Entity///PointingToDeclaration/">Entity</span><span class="token operator">&lt;</span><span class="token keyword"></span><a href="https://docs.oracle.com/javase/8/docs/api/java/util/UUID.html">UUID</a><span class="token operator">&gt;</span><span class="token punctuation">, </span></span><span class="parameter ">desc<span class="token operator">: </span><a href="https://kotlinlang.org/api/latest/jvm/stdlib/kotlin.reflect/-k-property/index.html">KProperty</a><span class="token operator">&lt;</span><span class="token operator">*</span><span class="token operator">&gt;</span></span></span><span class="token punctuation">)</span><span class="token operator">: </span><a href="index.html#2001769948%2FFunctions%2F-1922089379">TReal</a></div><div class="symbol monospace"><span class="token keyword">operator </span><span class="token keyword">fun </span><span class="token operator">&lt;</span><span class="token keyword"></span><a href="index.html#-1523337219%2FFunctions%2F-1922089379">REF</a><span class="token operator"> : </span><a href="https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-comparable/index.html">Comparable</a><span class="token operator">&lt;</span><span class="token keyword"></span><a href="index.html#-1523337219%2FFunctions%2F-1922089379">REF</a><span class="token operator">&gt;</span><span class="token punctuation">, </span><span class="token keyword"></span><a href="index.html#-1523337219%2FFunctions%2F-1922089379">RID</a><span class="token operator"> : </span><a href="https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-comparable/index.html">Comparable</a><span class="token operator">&lt;</span><span class="token keyword"></span><a href="index.html#-1523337219%2FFunctions%2F-1922089379">RID</a><span class="token operator">&gt;</span><span class="token punctuation">, </span><span class="token keyword"></span><a href="index.html#-1523337219%2FFunctions%2F-1922089379">T</a><span class="token operator"> : </span><span data-unresolved-link="org.jetbrains.exposed.dao/Entity///PointingToDeclaration/">Entity</span><span class="token operator">&lt;</span><span class="token keyword"></span><a href="index.html#-1523337219%2FFunctions%2F-1922089379">RID</a><span class="token operator">&gt;</span><span class="token operator">&gt; </span><span data-unresolved-link="org.jetbrains.exposed.dao/OptionalReference///PointingToDeclaration/">OptionalReference</span><span class="token operator">&lt;</span><span class="token keyword"></span><a href="index.html#-1523337219%2FFunctions%2F-1922089379">REF</a><span class="token punctuation">, </span><span class="token keyword"></span><a href="index.html#-1523337219%2FFunctions%2F-1922089379">RID</a><span class="token punctuation">, </span><span class="token keyword"></span><a href="index.html#-1523337219%2FFunctions%2F-1922089379">T</a><span class="token operator">&gt;</span><span class="token punctuation">.</span><a href="index.html#-1523337219%2FFunctions%2F-1922089379"><span class="token function">getValue</span></a><span class="token punctuation">(</span><span class="parameters "><span class="parameter ">o<span class="token operator">: </span><span data-unresolved-link="org.jetbrains.exposed.dao/Entity///PointingToDeclaration/">Entity</span><span class="token operator">&lt;</span><span class="token keyword"></span><a href="https://docs.oracle.com/javase/8/docs/api/java/util/UUID.html">UUID</a><span class="token operator">&gt;</span><span class="token punctuation">, </span></span><span class="parameter ">desc<span class="token operator">: </span><a href="https://kotlinlang.org/api/latest/jvm/stdlib/kotlin.reflect/-k-property/index.html">KProperty</a><span class="token operator">&lt;</span><span class="token operator">*</span><span class="token operator">&gt;</span></span></span><span class="token punctuation">)</span><span class="token operator">: </span><a href="index.html#-1523337219%2FFunctions%2F-1922089379">T</a><span class="token operator">?</span></div><div class="symbol monospace"><span class="token keyword">operator </span><span class="token keyword">fun </span><span class="token operator">&lt;</span><span class="token keyword"></span><a href="index.html#1310800253%2FFunctions%2F-1922089379">REF</a><span class="token operator"> : </span><a href="https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-comparable/index.html">Comparable</a><span class="token operator">&lt;</span><span class="token keyword"></span><a href="index.html#1310800253%2FFunctions%2F-1922089379">REF</a><span class="token operator">&gt;</span><span class="token punctuation">, </span><span class="token keyword"></span><a href="index.html#1310800253%2FFunctions%2F-1922089379">RID</a><span class="token operator"> : </span><a href="https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-comparable/index.html">Comparable</a><span class="token operator">&lt;</span><span class="token keyword"></span><a href="index.html#1310800253%2FFunctions%2F-1922089379">RID</a><span class="token operator">&gt;</span><span class="token punctuation">, </span><span class="token keyword"></span><a href="index.html#1310800253%2FFunctions%2F-1922089379">T</a><span class="token operator"> : </span><span data-unresolved-link="org.jetbrains.exposed.dao/Entity///PointingToDeclaration/">Entity</span><span class="token operator">&lt;</span><span class="token keyword"></span><a href="index.html#1310800253%2FFunctions%2F-1922089379">RID</a><span class="token operator">&gt;</span><span class="token operator">&gt; </span><span data-unresolved-link="org.jetbrains.exposed.dao/Reference///PointingToDeclaration/">Reference</span><span class="token operator">&lt;</span><span class="token keyword"></span><a href="index.html#1310800253%2FFunctions%2F-1922089379">REF</a><span class="token punctuation">, </span><span class="token keyword"></span><a href="index.html#1310800253%2FFunctions%2F-1922089379">RID</a><span class="token punctuation">, </span><span class="token keyword"></span><a href="index.html#1310800253%2FFunctions%2F-1922089379">T</a><span class="token operator">&gt;</span><span class="token punctuation">.</span><a href="index.html#1310800253%2FFunctions%2F-1922089379"><span class="token function">getValue</span></a><span class="token punctuation">(</span><span class="parameters "><span class="parameter ">o<span class="token operator">: </span><span data-unresolved-link="org.jetbrains.exposed.dao/Entity///PointingToDeclaration/">Entity</span><span class="token operator">&lt;</span><span class="token keyword"></span><a href="https://docs.oracle.com/javase/8/docs/api/java/util/UUID.html">UUID</a><span class="token operator">&gt;</span><span class="token punctuation">, </span></span><span class="parameter ">desc<span class="token operator">: </span><a href="https://kotlinlang.org/api/latest/jvm/stdlib/kotlin.reflect/-k-property/index.html">KProperty</a><span class="token operator">&lt;</span><span class="token operator">*</span><span class="token operator">&gt;</span></span></span><span class="token punctuation">)</span><span class="token operator">: </span><a href="index.html#1310800253%2FFunctions%2F-1922089379">T</a></div><div class="symbol monospace"><span class="token keyword">operator </span><span class="token keyword">fun </span><span class="token operator">&lt;</span><span class="token keyword"></span><a href="index.html#-1308166648%2FFunctions%2F-1922089379">T</a><span class="token operator">&gt; </span><span data-unresolved-link="org.jetbrains.exposed.sql/Column///PointingToDeclaration/">Column</span><span class="token operator">&lt;</span><span class="token keyword"></span><a href="index.html#-1308166648%2FFunctions%2F-1922089379">T</a><span class="token operator">&gt;</span><span class="token punctuation">.</span><a href="index.html#-1308166648%2FFunctions%2F-1922089379"><span class="token function">getValue</span></a><span class="token punctuation">(</span><span class="parameters "><span class="parameter ">o<span class="token operator">: </span><span data-unresolved-link="org.jetbrains.exposed.dao/Entity///PointingToDeclaration/">Entity</span><span class="token operator">&lt;</span><span class="token keyword"></span><a href="https://docs.oracle.com/javase/8/docs/api/java/util/UUID.html">UUID</a><span class="token operator">&gt;</span><span class="token punctuation">, </span></span><span class="parameter ">desc<span class="token operator">: </span><a href="https://kotlinlang.org/api/latest/jvm/stdlib/kotlin.reflect/-k-property/index.html">KProperty</a><span class="token operator">&lt;</span><span class="token operator">*</span><span class="token operator">&gt;</span></span></span><span class="token punctuation">)</span><span class="token operator">: </span><a href="index.html#-1308166648%2FFunctions%2F-1922089379">T</a></div><div class="symbol monospace"><span class="token keyword">operator </span><span class="token keyword">fun </span><span class="token operator">&lt;</span><span class="token keyword"></span><a href="index.html#2131118507%2FFunctions%2F-1922089379">T</a><span class="token operator">&gt; </span><span data-unresolved-link="org.jetbrains.exposed.sql/CompositeColumn///PointingToDeclaration/">CompositeColumn</span><span class="token operator">&lt;</span><span class="token keyword"></span><a href="index.html#2131118507%2FFunctions%2F-1922089379">T</a><span class="token operator">&gt;</span><span class="token punctuation">.</span><a href="index.html#2131118507%2FFunctions%2F-1922089379"><span class="token function">getValue</span></a><span class="token punctuation">(</span><span class="parameters "><span class="parameter ">o<span class="token operator">: </span><span data-unresolved-link="org.jetbrains.exposed.dao/Entity///PointingToDeclaration/">Entity</span><span class="token operator">&lt;</span><span class="token keyword"></span><a href="https://docs.oracle.com/javase/8/docs/api/java/util/UUID.html">UUID</a><span class="token operator">&gt;</span><span class="token punctuation">, </span></span><span class="parameter ">desc<span class="token operator">: </span><a href="https://kotlinlang.org/api/latest/jvm/stdlib/kotlin.reflect/-k-property/index.html">KProperty</a><span class="token operator">&lt;</span><span class="token operator">*</span><span class="token operator">&gt;</span></span></span><span class="token punctuation">)</span><span class="token operator">: </span><a href="index.html#2131118507%2FFunctions%2F-1922089379">T</a></div></div></div>
+              </div>
+            </div>
+          </div>
+        </div>
+<a data-name="-2076602490%2FFunctions%2F-1922089379" anchor-label="lookup" id="-2076602490%2FFunctions%2F-1922089379" data-filterable-set=":Terix-API:dokkaHtmlPartial/main"></a>
+        <div class="table-row" data-filterable-current=":Terix-API:dokkaHtmlPartial/main" data-filterable-set=":Terix-API:dokkaHtmlPartial/main">
+          <div class="main-subrow keyValue ">
+            <div class=""><span class="inline-flex">
+                <div><a href="index.html#-2076602490%2FFunctions%2F-1922089379"><span><span>lookup</span></span></a></div>
+<span class="anchor-wrapper"><span class="anchor-icon" pointing-to="-2076602490%2FFunctions%2F-1922089379"></span>
+                  <div class="copy-popup-wrapper "><span class="copy-popup-icon"></span><span>Link copied to clipboard</span></div>
+                </span></span></div>
+            <div>
+              <div class="title">
+                <div class="platform-hinted " data-platform-hinted="data-platform-hinted"><div class="content sourceset-dependent-content" data-active="" data-togglable=":Terix-API:dokkaHtmlPartial/main"><div class="symbol monospace"><span class="token keyword"></span><span class="token keyword">fun </span><span class="token operator">&lt;</span><span class="token keyword"></span><a href="index.html#-2076602490%2FFunctions%2F-1922089379">T</a><span class="token operator">&gt; </span><span data-unresolved-link="org.jetbrains.exposed.sql/Column///PointingToDeclaration/">Column</span><span class="token operator">&lt;</span><span class="token keyword"></span><a href="index.html#-2076602490%2FFunctions%2F-1922089379">T</a><span class="token operator">&gt;</span><span class="token punctuation">.</span><a href="index.html#-2076602490%2FFunctions%2F-1922089379"><span class="token function">lookup</span></a><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token operator">: </span><a href="index.html#-2076602490%2FFunctions%2F-1922089379">T</a></div></div></div>
+              </div>
+            </div>
+          </div>
+        </div>
+<a data-name="1201706482%2FFunctions%2F-1922089379" anchor-label="lookupInReadValues" id="1201706482%2FFunctions%2F-1922089379" data-filterable-set=":Terix-API:dokkaHtmlPartial/main"></a>
+        <div class="table-row" data-filterable-current=":Terix-API:dokkaHtmlPartial/main" data-filterable-set=":Terix-API:dokkaHtmlPartial/main">
+          <div class="main-subrow keyValue ">
+            <div class=""><span class="inline-flex">
+                <div><a href="index.html#1201706482%2FFunctions%2F-1922089379"><span>lookup</span><wbr><span>In</span><wbr><span>Read</span><wbr><span><span>Values</span></span></a></div>
+<span class="anchor-wrapper"><span class="anchor-icon" pointing-to="1201706482%2FFunctions%2F-1922089379"></span>
+                  <div class="copy-popup-wrapper "><span class="copy-popup-icon"></span><span>Link copied to clipboard</span></div>
+                </span></span></div>
+            <div>
+              <div class="title">
+                <div class="platform-hinted " data-platform-hinted="data-platform-hinted"><div class="content sourceset-dependent-content" data-active="" data-togglable=":Terix-API:dokkaHtmlPartial/main"><div class="symbol monospace"><span class="token keyword"></span><span class="token keyword">fun </span><span class="token operator">&lt;</span><span class="token keyword"></span><a href="index.html#1201706482%2FFunctions%2F-1922089379">T</a><span class="token punctuation">, </span><span class="token keyword"></span><a href="index.html#1201706482%2FFunctions%2F-1922089379">R</a><span class="token operator"> : </span><a href="https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-any/index.html">Any</a><span class="token operator">&gt; </span><span data-unresolved-link="org.jetbrains.exposed.sql/Column///PointingToDeclaration/">Column</span><span class="token operator">&lt;</span><span class="token keyword"></span><a href="index.html#1201706482%2FFunctions%2F-1922089379">T</a><span class="token operator">&gt;</span><span class="token punctuation">.</span><a href="index.html#1201706482%2FFunctions%2F-1922089379"><span class="token function">lookupInReadValues</span></a><span class="token punctuation">(</span><span class="parameters "><span class="parameter ">found<span class="token operator">: </span><span class="token punctuation">(</span><span class="token keyword"></span><a href="index.html#1201706482%2FFunctions%2F-1922089379">T</a><span class="token operator">?</span><span class="token punctuation">)</span><span class="token operator"> -&gt; </span><span class="token keyword"></span><a href="index.html#1201706482%2FFunctions%2F-1922089379">R</a><span class="token operator">?</span><span class="token punctuation">, </span></span><span class="parameter ">notFound<span class="token operator">: </span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token operator"> -&gt; </span><span class="token keyword"></span><a href="index.html#1201706482%2FFunctions%2F-1922089379">R</a><span class="token operator">?</span></span></span><span class="token punctuation">)</span><span class="token operator">: </span><a href="index.html#1201706482%2FFunctions%2F-1922089379">R</a><span class="token operator">?</span></div></div></div>
+              </div>
+            </div>
+          </div>
+        </div>
+<a data-name="771771046%2FFunctions%2F-1922089379" anchor-label="refresh" id="771771046%2FFunctions%2F-1922089379" data-filterable-set=":Terix-API:dokkaHtmlPartial/main"></a>
+        <div class="table-row" data-filterable-current=":Terix-API:dokkaHtmlPartial/main" data-filterable-set=":Terix-API:dokkaHtmlPartial/main">
+          <div class="main-subrow keyValue ">
+            <div class=""><span class="inline-flex">
+                <div><a href="index.html#771771046%2FFunctions%2F-1922089379"><span><span>refresh</span></span></a></div>
+<span class="anchor-wrapper"><span class="anchor-icon" pointing-to="771771046%2FFunctions%2F-1922089379"></span>
+                  <div class="copy-popup-wrapper "><span class="copy-popup-icon"></span><span>Link copied to clipboard</span></div>
+                </span></span></div>
+            <div>
+              <div class="title">
+                <div class="platform-hinted " data-platform-hinted="data-platform-hinted"><div class="content sourceset-dependent-content" data-active="" data-togglable=":Terix-API:dokkaHtmlPartial/main"><div class="symbol monospace"><span class="token keyword">open </span><span class="token keyword"></span><span class="token keyword">fun </span><a href="index.html#771771046%2FFunctions%2F-1922089379"><span class="token function">refresh</span></a><span class="token punctuation">(</span><span class="parameters "><span class="parameter ">flush<span class="token operator">: </span><a href="https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-boolean/index.html">Boolean</a></span></span><span class="token punctuation">)</span></div></div></div>
+              </div>
+            </div>
+          </div>
+        </div>
+<a data-name="-51514187%2FFunctions%2F-1922089379" anchor-label="setValue" id="-51514187%2FFunctions%2F-1922089379" data-filterable-set=":Terix-API:dokkaHtmlPartial/main"></a>
+        <div class="table-row" data-filterable-current=":Terix-API:dokkaHtmlPartial/main" data-filterable-set=":Terix-API:dokkaHtmlPartial/main">
+          <div class="main-subrow keyValue ">
+            <div class=""><span class="inline-flex">
+                <div><a href="index.html#-1649330553%2FFunctions%2F-1922089379"><span>set</span><wbr><span><span>Value</span></span></a></div>
+<span class="anchor-wrapper"><span class="anchor-icon" pointing-to="-51514187%2FFunctions%2F-1922089379"></span>
+                  <div class="copy-popup-wrapper "><span class="copy-popup-icon"></span><span>Link copied to clipboard</span></div>
+                </span></span></div>
+            <div>
+              <div class="title">
+                <div class="platform-hinted " data-platform-hinted="data-platform-hinted"><div class="content sourceset-dependent-content" data-active="" data-togglable=":Terix-API:dokkaHtmlPartial/main"><div class="symbol monospace"><span class="token keyword">operator </span><span class="token keyword">fun </span><span class="token operator">&lt;</span><span class="token keyword"></span><a href="index.html#-1649330553%2FFunctions%2F-1922089379">TColumn</a><span class="token punctuation">, </span><span class="token keyword"></span><a href="index.html#-1649330553%2FFunctions%2F-1922089379">TReal</a><span class="token operator">&gt; </span><span data-unresolved-link="org.jetbrains.exposed.dao/ColumnWithTransform///PointingToDeclaration/">ColumnWithTransform</span><span class="token operator">&lt;</span><span class="token keyword"></span><a href="index.html#-1649330553%2FFunctions%2F-1922089379">TColumn</a><span class="token punctuation">, </span><span class="token keyword"></span><a href="index.html#-1649330553%2FFunctions%2F-1922089379">TReal</a><span class="token operator">&gt;</span><span class="token punctuation">.</span><a href="index.html#-1649330553%2FFunctions%2F-1922089379"><span class="token function">setValue</span></a><span class="token punctuation">(</span><span class="parameters "><span class="parameter ">o<span class="token operator">: </span><span data-unresolved-link="org.jetbrains.exposed.dao/Entity///PointingToDeclaration/">Entity</span><span class="token operator">&lt;</span><span class="token keyword"></span><a href="https://docs.oracle.com/javase/8/docs/api/java/util/UUID.html">UUID</a><span class="token operator">&gt;</span><span class="token punctuation">, </span></span><span class="parameter ">desc<span class="token operator">: </span><a href="https://kotlinlang.org/api/latest/jvm/stdlib/kotlin.reflect/-k-property/index.html">KProperty</a><span class="token operator">&lt;</span><span class="token operator">*</span><span class="token operator">&gt;</span><span class="token punctuation">, </span></span><span class="parameter ">value<span class="token operator">: </span><a href="index.html#-1649330553%2FFunctions%2F-1922089379">TReal</a></span></span><span class="token punctuation">)</span></div><div class="symbol monospace"><span class="token keyword">operator </span><span class="token keyword">fun </span><span class="token operator">&lt;</span><span class="token keyword"></span><a href="index.html#1176634359%2FFunctions%2F-1922089379">REF</a><span class="token operator"> : </span><a href="https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-comparable/index.html">Comparable</a><span class="token operator">&lt;</span><span class="token keyword"></span><a href="index.html#1176634359%2FFunctions%2F-1922089379">REF</a><span class="token operator">&gt;</span><span class="token punctuation">, </span><span class="token keyword"></span><a href="index.html#1176634359%2FFunctions%2F-1922089379">RID</a><span class="token operator"> : </span><a href="https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-comparable/index.html">Comparable</a><span class="token operator">&lt;</span><span class="token keyword"></span><a href="index.html#1176634359%2FFunctions%2F-1922089379">RID</a><span class="token operator">&gt;</span><span class="token punctuation">, </span><span class="token keyword"></span><a href="index.html#1176634359%2FFunctions%2F-1922089379">T</a><span class="token operator"> : </span><span data-unresolved-link="org.jetbrains.exposed.dao/Entity///PointingToDeclaration/">Entity</span><span class="token operator">&lt;</span><span class="token keyword"></span><a href="index.html#1176634359%2FFunctions%2F-1922089379">RID</a><span class="token operator">&gt;</span><span class="token operator">&gt; </span><span data-unresolved-link="org.jetbrains.exposed.dao/OptionalReference///PointingToDeclaration/">OptionalReference</span><span class="token operator">&lt;</span><span class="token keyword"></span><a href="index.html#1176634359%2FFunctions%2F-1922089379">REF</a><span class="token punctuation">, </span><span class="token keyword"></span><a href="index.html#1176634359%2FFunctions%2F-1922089379">RID</a><span class="token punctuation">, </span><span class="token keyword"></span><a href="index.html#1176634359%2FFunctions%2F-1922089379">T</a><span class="token operator">&gt;</span><span class="token punctuation">.</span><a href="index.html#1176634359%2FFunctions%2F-1922089379"><span class="token function">setValue</span></a><span class="token punctuation">(</span><span class="parameters "><span class="parameter ">o<span class="token operator">: </span><span data-unresolved-link="org.jetbrains.exposed.dao/Entity///PointingToDeclaration/">Entity</span><span class="token operator">&lt;</span><span class="token keyword"></span><a href="https://docs.oracle.com/javase/8/docs/api/java/util/UUID.html">UUID</a><span class="token operator">&gt;</span><span class="token punctuation">, </span></span><span class="parameter ">desc<span class="token operator">: </span><a href="https://kotlinlang.org/api/latest/jvm/stdlib/kotlin.reflect/-k-property/index.html">KProperty</a><span class="token operator">&lt;</span><span class="token operator">*</span><span class="token operator">&gt;</span><span class="token punctuation">, </span></span><span class="parameter ">value<span class="token operator">: </span><a href="index.html#1176634359%2FFunctions%2F-1922089379">T</a><span class="token operator">?</span></span></span><span class="token punctuation">)</span></div><div class="symbol monospace"><span class="token keyword">operator </span><span class="token keyword">fun </span><span class="token operator">&lt;</span><span class="token keyword"></span><a href="index.html#1130261996%2FFunctions%2F-1922089379">REF</a><span class="token operator"> : </span><a href="https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-comparable/index.html">Comparable</a><span class="token operator">&lt;</span><span class="token keyword"></span><a href="index.html#1130261996%2FFunctions%2F-1922089379">REF</a><span class="token operator">&gt;</span><span class="token punctuation">, </span><span class="token keyword"></span><a href="index.html#1130261996%2FFunctions%2F-1922089379">RID</a><span class="token operator"> : </span><a href="https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-comparable/index.html">Comparable</a><span class="token operator">&lt;</span><span class="token keyword"></span><a href="index.html#1130261996%2FFunctions%2F-1922089379">RID</a><span class="token operator">&gt;</span><span class="token punctuation">, </span><span class="token keyword"></span><a href="index.html#1130261996%2FFunctions%2F-1922089379">T</a><span class="token operator"> : </span><span data-unresolved-link="org.jetbrains.exposed.dao/Entity///PointingToDeclaration/">Entity</span><span class="token operator">&lt;</span><span class="token keyword"></span><a href="index.html#1130261996%2FFunctions%2F-1922089379">RID</a><span class="token operator">&gt;</span><span class="token operator">&gt; </span><span data-unresolved-link="org.jetbrains.exposed.dao/Reference///PointingToDeclaration/">Reference</span><span class="token operator">&lt;</span><span class="token keyword"></span><a href="index.html#1130261996%2FFunctions%2F-1922089379">REF</a><span class="token punctuation">, </span><span class="token keyword"></span><a href="index.html#1130261996%2FFunctions%2F-1922089379">RID</a><span class="token punctuation">, </span><span class="token keyword"></span><a href="index.html#1130261996%2FFunctions%2F-1922089379">T</a><span class="token operator">&gt;</span><span class="token punctuation">.</span><a href="index.html#1130261996%2FFunctions%2F-1922089379"><span class="token function">setValue</span></a><span class="token punctuation">(</span><span class="parameters "><span class="parameter ">o<span class="token operator">: </span><span data-unresolved-link="org.jetbrains.exposed.dao/Entity///PointingToDeclaration/">Entity</span><span class="token operator">&lt;</span><span class="token keyword"></span><a href="https://docs.oracle.com/javase/8/docs/api/java/util/UUID.html">UUID</a><span class="token operator">&gt;</span><span class="token punctuation">, </span></span><span class="parameter ">desc<span class="token operator">: </span><a href="https://kotlinlang.org/api/latest/jvm/stdlib/kotlin.reflect/-k-property/index.html">KProperty</a><span class="token operator">&lt;</span><span class="token operator">*</span><span class="token operator">&gt;</span><span class="token punctuation">, </span></span><span class="parameter ">value<span class="token operator">: </span><a href="index.html#1130261996%2FFunctions%2F-1922089379">T</a></span></span><span class="token punctuation">)</span></div><div class="symbol monospace"><span class="token keyword">operator </span><span class="token keyword">fun </span><span class="token operator">&lt;</span><span class="token keyword"></span><a href="index.html#-507117285%2FFunctions%2F-1922089379">T</a><span class="token operator">&gt; </span><span data-unresolved-link="org.jetbrains.exposed.sql/Column///PointingToDeclaration/">Column</span><span class="token operator">&lt;</span><span class="token keyword"></span><a href="index.html#-507117285%2FFunctions%2F-1922089379">T</a><span class="token operator">&gt;</span><span class="token punctuation">.</span><a href="index.html#-507117285%2FFunctions%2F-1922089379"><span class="token function">setValue</span></a><span class="token punctuation">(</span><span class="parameters "><span class="parameter ">o<span class="token operator">: </span><span data-unresolved-link="org.jetbrains.exposed.dao/Entity///PointingToDeclaration/">Entity</span><span class="token operator">&lt;</span><span class="token keyword"></span><a href="https://docs.oracle.com/javase/8/docs/api/java/util/UUID.html">UUID</a><span class="token operator">&gt;</span><span class="token punctuation">, </span></span><span class="parameter ">desc<span class="token operator">: </span><a href="https://kotlinlang.org/api/latest/jvm/stdlib/kotlin.reflect/-k-property/index.html">KProperty</a><span class="token operator">&lt;</span><span class="token operator">*</span><span class="token operator">&gt;</span><span class="token punctuation">, </span></span><span class="parameter ">value<span class="token operator">: </span><a href="index.html#-507117285%2FFunctions%2F-1922089379">T</a></span></span><span class="token punctuation">)</span></div><div class="symbol monospace"><span class="token keyword">operator </span><span class="token keyword">fun </span><span class="token operator">&lt;</span><span class="token keyword"></span><a href="index.html#906593366%2FFunctions%2F-1922089379">T</a><span class="token operator">&gt; </span><span data-unresolved-link="org.jetbrains.exposed.sql/CompositeColumn///PointingToDeclaration/">CompositeColumn</span><span class="token operator">&lt;</span><span class="token keyword"></span><a href="index.html#906593366%2FFunctions%2F-1922089379">T</a><span class="token operator">&gt;</span><span class="token punctuation">.</span><a href="index.html#906593366%2FFunctions%2F-1922089379"><span class="token function">setValue</span></a><span class="token punctuation">(</span><span class="parameters "><span class="parameter ">o<span class="token operator">: </span><span data-unresolved-link="org.jetbrains.exposed.dao/Entity///PointingToDeclaration/">Entity</span><span class="token operator">&lt;</span><span class="token keyword"></span><a href="https://docs.oracle.com/javase/8/docs/api/java/util/UUID.html">UUID</a><span class="token operator">&gt;</span><span class="token punctuation">, </span></span><span class="parameter ">desc<span class="token operator">: </span><a href="https://kotlinlang.org/api/latest/jvm/stdlib/kotlin.reflect/-k-property/index.html">KProperty</a><span class="token operator">&lt;</span><span class="token operator">*</span><span class="token operator">&gt;</span><span class="token punctuation">, </span></span><span class="parameter ">value<span class="token operator">: </span><a href="index.html#906593366%2FFunctions%2F-1922089379">T</a></span></span><span class="token punctuation">)</span></div></div></div>
+              </div>
+            </div>
+          </div>
+        </div>
+<a data-name="904790982%2FFunctions%2F-1922089379" anchor-label="storeWrittenValues" id="904790982%2FFunctions%2F-1922089379" data-filterable-set=":Terix-API:dokkaHtmlPartial/main"></a>
+        <div class="table-row" data-filterable-current=":Terix-API:dokkaHtmlPartial/main" data-filterable-set=":Terix-API:dokkaHtmlPartial/main">
+          <div class="main-subrow keyValue ">
+            <div class=""><span class="inline-flex">
+                <div><a href="index.html#904790982%2FFunctions%2F-1922089379"><span>store</span><wbr><span>Written</span><wbr><span><span>Values</span></span></a></div>
+<span class="anchor-wrapper"><span class="anchor-icon" pointing-to="904790982%2FFunctions%2F-1922089379"></span>
+                  <div class="copy-popup-wrapper "><span class="copy-popup-icon"></span><span>Link copied to clipboard</span></div>
+                </span></span></div>
+            <div>
+              <div class="title">
+                <div class="platform-hinted " data-platform-hinted="data-platform-hinted"><div class="content sourceset-dependent-content" data-active="" data-togglable=":Terix-API:dokkaHtmlPartial/main"><div class="symbol monospace"><span class="token keyword"></span><span class="token keyword">fun </span><a href="index.html#904790982%2FFunctions%2F-1922089379"><span class="token function">storeWrittenValues</span></a><span class="token punctuation">(</span><span class="token punctuation">)</span></div></div></div>
+              </div>
+            </div>
+          </div>
+        </div>
+<a data-name="1894040931%2FFunctions%2F-1922089379" anchor-label="via" id="1894040931%2FFunctions%2F-1922089379" data-filterable-set=":Terix-API:dokkaHtmlPartial/main"></a>
+        <div class="table-row" data-filterable-current=":Terix-API:dokkaHtmlPartial/main" data-filterable-set=":Terix-API:dokkaHtmlPartial/main">
+          <div class="main-subrow keyValue ">
+            <div class=""><span class="inline-flex">
+                <div><a href="index.html#276230342%2FFunctions%2F-1922089379"><span><span>via</span></span></a></div>
+<span class="anchor-wrapper"><span class="anchor-icon" pointing-to="1894040931%2FFunctions%2F-1922089379"></span>
+                  <div class="copy-popup-wrapper "><span class="copy-popup-icon"></span><span>Link copied to clipboard</span></div>
+                </span></span></div>
+            <div>
+              <div class="title">
+                <div class="platform-hinted " data-platform-hinted="data-platform-hinted"><div class="content sourceset-dependent-content" data-active="" data-togglable=":Terix-API:dokkaHtmlPartial/main"><div class="symbol monospace"><span class="token keyword">infix </span><span class="token keyword">fun </span><span class="token operator">&lt;</span><span class="token keyword"></span><a href="index.html#276230342%2FFunctions%2F-1922089379">TID</a><span class="token operator"> : </span><a href="https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-comparable/index.html">Comparable</a><span class="token operator">&lt;</span><span class="token keyword"></span><a href="index.html#276230342%2FFunctions%2F-1922089379">TID</a><span class="token operator">&gt;</span><span class="token punctuation">, </span><span class="token keyword"></span><a href="index.html#276230342%2FFunctions%2F-1922089379">Target</a><span class="token operator"> : </span><span data-unresolved-link="org.jetbrains.exposed.dao/Entity///PointingToDeclaration/">Entity</span><span class="token operator">&lt;</span><span class="token keyword"></span><a href="index.html#276230342%2FFunctions%2F-1922089379">TID</a><span class="token operator">&gt;</span><span class="token operator">&gt; </span><span data-unresolved-link="org.jetbrains.exposed.dao/EntityClass///PointingToDeclaration/">EntityClass</span><span class="token operator">&lt;</span><span class="token keyword"></span><a href="index.html#276230342%2FFunctions%2F-1922089379">TID</a><span class="token punctuation">, </span><span class="token keyword"></span><a href="index.html#276230342%2FFunctions%2F-1922089379">Target</a><span class="token operator">&gt;</span><span class="token punctuation">.</span><a href="index.html#276230342%2FFunctions%2F-1922089379"><span class="token function">via</span></a><span class="token punctuation">(</span><span class="parameters "><span class="parameter ">table<span class="token operator">: </span><span data-unresolved-link="org.jetbrains.exposed.sql/Table///PointingToDeclaration/">Table</span></span></span><span class="token punctuation">)</span><span class="token operator">: </span><span data-unresolved-link="org.jetbrains.exposed.dao/InnerTableLink///PointingToDeclaration/">InnerTableLink</span><span class="token operator">&lt;</span><span class="token keyword"></span><a href="https://docs.oracle.com/javase/8/docs/api/java/util/UUID.html">UUID</a><span class="token punctuation">, </span><span class="token keyword"></span><span data-unresolved-link="org.jetbrains.exposed.dao/Entity///PointingToDeclaration/">Entity</span><span class="token operator">&lt;</span><span class="token keyword"></span><a href="https://docs.oracle.com/javase/8/docs/api/java/util/UUID.html">UUID</a><span class="token operator">&gt;</span><span class="token punctuation">, </span><span class="token keyword"></span><a href="index.html#276230342%2FFunctions%2F-1922089379">TID</a><span class="token punctuation">, </span><span class="token keyword"></span><a href="index.html#276230342%2FFunctions%2F-1922089379">Target</a><span class="token operator">&gt;</span></div><div class="symbol monospace"><span class="token keyword"></span><span class="token keyword">fun </span><span class="token operator">&lt;</span><span class="token keyword"></span><a href="index.html#2015854031%2FFunctions%2F-1922089379">TID</a><span class="token operator"> : </span><a href="https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-comparable/index.html">Comparable</a><span class="token operator">&lt;</span><span class="token keyword"></span><a href="index.html#2015854031%2FFunctions%2F-1922089379">TID</a><span class="token operator">&gt;</span><span class="token punctuation">, </span><span class="token keyword"></span><a href="index.html#2015854031%2FFunctions%2F-1922089379">Target</a><span class="token operator"> : </span><span data-unresolved-link="org.jetbrains.exposed.dao/Entity///PointingToDeclaration/">Entity</span><span class="token operator">&lt;</span><span class="token keyword"></span><a href="index.html#2015854031%2FFunctions%2F-1922089379">TID</a><span class="token operator">&gt;</span><span class="token operator">&gt; </span><span data-unresolved-link="org.jetbrains.exposed.dao/EntityClass///PointingToDeclaration/">EntityClass</span><span class="token operator">&lt;</span><span class="token keyword"></span><a href="index.html#2015854031%2FFunctions%2F-1922089379">TID</a><span class="token punctuation">, </span><span class="token keyword"></span><a href="index.html#2015854031%2FFunctions%2F-1922089379">Target</a><span class="token operator">&gt;</span><span class="token punctuation">.</span><a href="index.html#2015854031%2FFunctions%2F-1922089379"><span class="token function">via</span></a><span class="token punctuation">(</span><span class="parameters "><span class="parameter ">sourceColumn<span class="token operator">: </span><span data-unresolved-link="org.jetbrains.exposed.sql/Column///PointingToDeclaration/">Column</span><span class="token operator">&lt;</span><span class="token keyword"></span><span data-unresolved-link="org.jetbrains.exposed.dao.id/EntityID///PointingToDeclaration/">EntityID</span><span class="token operator">&lt;</span><span class="token keyword"></span><a href="https://docs.oracle.com/javase/8/docs/api/java/util/UUID.html">UUID</a><span class="token operator">&gt;</span><span class="token operator">&gt;</span><span class="token punctuation">, </span></span><span class="parameter ">targetColumn<span class="token operator">: </span><span data-unresolved-link="org.jetbrains.exposed.sql/Column///PointingToDeclaration/">Column</span><span class="token operator">&lt;</span><span class="token keyword"></span><span data-unresolved-link="org.jetbrains.exposed.dao.id/EntityID///PointingToDeclaration/">EntityID</span><span class="token operator">&lt;</span><span class="token keyword"></span><a href="index.html#2015854031%2FFunctions%2F-1922089379">TID</a><span class="token operator">&gt;</span><span class="token operator">&gt;</span></span></span><span class="token punctuation">)</span><span class="token operator">: </span><span data-unresolved-link="org.jetbrains.exposed.dao/InnerTableLink///PointingToDeclaration/">InnerTableLink</span><span class="token operator">&lt;</span><span class="token keyword"></span><a href="https://docs.oracle.com/javase/8/docs/api/java/util/UUID.html">UUID</a><span class="token punctuation">, </span><span class="token keyword"></span><span data-unresolved-link="org.jetbrains.exposed.dao/Entity///PointingToDeclaration/">Entity</span><span class="token operator">&lt;</span><span class="token keyword"></span><a href="https://docs.oracle.com/javase/8/docs/api/java/util/UUID.html">UUID</a><span class="token operator">&gt;</span><span class="token punctuation">, </span><span class="token keyword"></span><a href="index.html#2015854031%2FFunctions%2F-1922089379">TID</a><span class="token punctuation">, </span><span class="token keyword"></span><a href="index.html#2015854031%2FFunctions%2F-1922089379">Target</a><span class="token operator">&gt;</span></div></div></div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+      <h2 class="">Properties</h2>
+      <div class="table" data-togglable="Properties"><a data-name="-2098822139%2FProperties%2F-1922089379" anchor-label="_readValues" id="-2098822139%2FProperties%2F-1922089379" data-filterable-set=":Terix-API:dokkaHtmlPartial/main"></a>
+        <div class="table-row" data-filterable-current=":Terix-API:dokkaHtmlPartial/main" data-filterable-set=":Terix-API:dokkaHtmlPartial/main">
+          <div class="main-subrow keyValue ">
+            <div class=""><span class="inline-flex">
+                <div><a href="index.html#-2098822139%2FProperties%2F-1922089379"><span>_read</span><wbr><span><span>Values</span></span></a></div>
+<span class="anchor-wrapper"><span class="anchor-icon" pointing-to="-2098822139%2FProperties%2F-1922089379"></span>
+                  <div class="copy-popup-wrapper "><span class="copy-popup-icon"></span><span>Link copied to clipboard</span></div>
+                </span></span></div>
+            <div>
+              <div class="title">
+                <div class="platform-hinted " data-platform-hinted="data-platform-hinted" data-togglable="Properties"><div class="content sourceset-dependent-content" data-active="" data-togglable=":Terix-API:dokkaHtmlPartial/main"><a data-name="-2098822139%2FProperties%2F-1922089379" anchor-label="_readValues" id="-2098822139%2FProperties%2F-1922089379" data-filterable-set=":Terix-API:dokkaHtmlPartial/main"></a><div class="symbol monospace"><span class="token keyword"></span><span class="token keyword">var </span><a href="index.html#-2098822139%2FProperties%2F-1922089379">_readValues</a><span class="token operator">: </span><span data-unresolved-link="org.jetbrains.exposed.sql/ResultRow///PointingToDeclaration/">ResultRow</span><span class="token operator">?</span></div></div></div>
+              </div>
+            </div>
+          </div>
+        </div>
+<a data-name="-1715679808%2FProperties%2F-1922089379" anchor-label="db" id="-1715679808%2FProperties%2F-1922089379" data-filterable-set=":Terix-API:dokkaHtmlPartial/main"></a>
+        <div class="table-row" data-filterable-current=":Terix-API:dokkaHtmlPartial/main" data-filterable-set=":Terix-API:dokkaHtmlPartial/main">
+          <div class="main-subrow keyValue ">
+            <div class=""><span class="inline-flex">
+                <div><a href="index.html#-1715679808%2FProperties%2F-1922089379"><span><span>db</span></span></a></div>
+<span class="anchor-wrapper"><span class="anchor-icon" pointing-to="-1715679808%2FProperties%2F-1922089379"></span>
+                  <div class="copy-popup-wrapper "><span class="copy-popup-icon"></span><span>Link copied to clipboard</span></div>
+                </span></span></div>
+            <div>
+              <div class="title">
+                <div class="platform-hinted " data-platform-hinted="data-platform-hinted" data-togglable="Properties"><div class="content sourceset-dependent-content" data-active="" data-togglable=":Terix-API:dokkaHtmlPartial/main"><a data-name="-1715679808%2FProperties%2F-1922089379" anchor-label="db" id="-1715679808%2FProperties%2F-1922089379" data-filterable-set=":Terix-API:dokkaHtmlPartial/main"></a><div class="symbol monospace"><span class="token keyword"></span><span class="token keyword">var </span><a href="index.html#-1715679808%2FProperties%2F-1922089379">db</a><span class="token operator">: </span><span data-unresolved-link="org.jetbrains.exposed.sql/Database///PointingToDeclaration/">Database</span></div></div></div>
+              </div>
+            </div>
+          </div>
+        </div>
+<a data-name="-664664220%2FProperties%2F-1922089379" anchor-label="freeChanges" id="-664664220%2FProperties%2F-1922089379" data-filterable-set=":Terix-API:dokkaHtmlPartial/main"></a>
+        <div class="table-row" data-filterable-current=":Terix-API:dokkaHtmlPartial/main" data-filterable-set=":Terix-API:dokkaHtmlPartial/main">
+          <div class="main-subrow keyValue ">
+            <div class=""><span class="inline-flex">
+                <div><a href="free-changes.html"><span>free</span><wbr><span><span>Changes</span></span></a></div>
+<span class="anchor-wrapper"><span class="anchor-icon" pointing-to="-664664220%2FProperties%2F-1922089379"></span>
+                  <div class="copy-popup-wrapper "><span class="copy-popup-icon"></span><span>Link copied to clipboard</span></div>
+                </span></span></div>
+            <div>
+              <div class="title">
+                <div class="platform-hinted " data-platform-hinted="data-platform-hinted" data-togglable="Properties"><div class="content sourceset-dependent-content" data-active="" data-togglable=":Terix-API:dokkaHtmlPartial/main"><a data-name="-664664220%2FProperties%2F-1922089379" anchor-label="freeChanges" id="-664664220%2FProperties%2F-1922089379" data-filterable-set=":Terix-API:dokkaHtmlPartial/main"></a><div class="symbol monospace"><span class="token keyword"></span><span class="token keyword">var </span><a href="free-changes.html">freeChanges</a><span class="token operator">: </span><a href="https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-int/index.html">Int</a></div></div></div>
+              </div>
+            </div>
+          </div>
+        </div>
+<a data-name="-1140537405%2FProperties%2F-1922089379" anchor-label="id" id="-1140537405%2FProperties%2F-1922089379" data-filterable-set=":Terix-API:dokkaHtmlPartial/main"></a>
+        <div class="table-row" data-filterable-current=":Terix-API:dokkaHtmlPartial/main" data-filterable-set=":Terix-API:dokkaHtmlPartial/main">
+          <div class="main-subrow keyValue ">
+            <div class=""><span class="inline-flex">
+                <div><a href="index.html#-1140537405%2FProperties%2F-1922089379"><span><span>id</span></span></a></div>
+<span class="anchor-wrapper"><span class="anchor-icon" pointing-to="-1140537405%2FProperties%2F-1922089379"></span>
+                  <div class="copy-popup-wrapper "><span class="copy-popup-icon"></span><span>Link copied to clipboard</span></div>
+                </span></span></div>
+            <div>
+              <div class="title">
+                <div class="platform-hinted " data-platform-hinted="data-platform-hinted" data-togglable="Properties"><div class="content sourceset-dependent-content" data-active="" data-togglable=":Terix-API:dokkaHtmlPartial/main"><a data-name="-1140537405%2FProperties%2F-1922089379" anchor-label="id" id="-1140537405%2FProperties%2F-1922089379" data-filterable-set=":Terix-API:dokkaHtmlPartial/main"></a><div class="symbol monospace"><span class="token keyword"></span><span class="token keyword">val </span><a href="index.html#-1140537405%2FProperties%2F-1922089379">id</a><span class="token operator">: </span><span data-unresolved-link="org.jetbrains.exposed.dao.id/EntityID///PointingToDeclaration/">EntityID</span><span class="token operator">&lt;</span><span class="token keyword"></span><a href="https://docs.oracle.com/javase/8/docs/api/java/util/UUID.html">UUID</a><span class="token operator">&gt;</span></div></div></div>
+              </div>
+            </div>
+          </div>
+        </div>
+<a data-name="1812061660%2FProperties%2F-1922089379" anchor-label="klass" id="1812061660%2FProperties%2F-1922089379" data-filterable-set=":Terix-API:dokkaHtmlPartial/main"></a>
+        <div class="table-row" data-filterable-current=":Terix-API:dokkaHtmlPartial/main" data-filterable-set=":Terix-API:dokkaHtmlPartial/main">
+          <div class="main-subrow keyValue ">
+            <div class=""><span class="inline-flex">
+                <div><a href="index.html#1812061660%2FProperties%2F-1922089379"><span><span>klass</span></span></a></div>
+<span class="anchor-wrapper"><span class="anchor-icon" pointing-to="1812061660%2FProperties%2F-1922089379"></span>
+                  <div class="copy-popup-wrapper "><span class="copy-popup-icon"></span><span>Link copied to clipboard</span></div>
+                </span></span></div>
+            <div>
+              <div class="title">
+                <div class="platform-hinted " data-platform-hinted="data-platform-hinted" data-togglable="Properties"><div class="content sourceset-dependent-content" data-active="" data-togglable=":Terix-API:dokkaHtmlPartial/main"><a data-name="1812061660%2FProperties%2F-1922089379" anchor-label="klass" id="1812061660%2FProperties%2F-1922089379" data-filterable-set=":Terix-API:dokkaHtmlPartial/main"></a><div class="symbol monospace"><span class="token keyword"></span><span class="token keyword">var </span><a href="index.html#1812061660%2FProperties%2F-1922089379">klass</a><span class="token operator">: </span><span data-unresolved-link="org.jetbrains.exposed.dao/EntityClass///PointingToDeclaration/">EntityClass</span><span class="token operator">&lt;</span><span class="token keyword"></span><a href="https://docs.oracle.com/javase/8/docs/api/java/util/UUID.html">UUID</a><span class="token punctuation">, </span><span class="token keyword"></span><span data-unresolved-link="org.jetbrains.exposed.dao/Entity///PointingToDeclaration/">Entity</span><span class="token operator">&lt;</span><span class="token keyword"></span><a href="https://docs.oracle.com/javase/8/docs/api/java/util/UUID.html">UUID</a><span class="token operator">&gt;</span><span class="token operator">&gt;</span></div></div></div>
+              </div>
+            </div>
+          </div>
+        </div>
+<a data-name="-2062232182%2FProperties%2F-1922089379" anchor-label="lastChosenTime" id="-2062232182%2FProperties%2F-1922089379" data-filterable-set=":Terix-API:dokkaHtmlPartial/main"></a>
+        <div class="table-row" data-filterable-current=":Terix-API:dokkaHtmlPartial/main" data-filterable-set=":Terix-API:dokkaHtmlPartial/main">
+          <div class="main-subrow keyValue ">
+            <div class=""><span class="inline-flex">
+                <div><a href="last-chosen-time.html"><span>last</span><wbr><span>Chosen</span><wbr><span><span>Time</span></span></a></div>
+<span class="anchor-wrapper"><span class="anchor-icon" pointing-to="-2062232182%2FProperties%2F-1922089379"></span>
+                  <div class="copy-popup-wrapper "><span class="copy-popup-icon"></span><span>Link copied to clipboard</span></div>
+                </span></span></div>
+            <div>
+              <div class="title">
+                <div class="platform-hinted " data-platform-hinted="data-platform-hinted" data-togglable="Properties"><div class="content sourceset-dependent-content" data-active="" data-togglable=":Terix-API:dokkaHtmlPartial/main"><a data-name="-2062232182%2FProperties%2F-1922089379" anchor-label="lastChosenTime" id="-2062232182%2FProperties%2F-1922089379" data-filterable-set=":Terix-API:dokkaHtmlPartial/main"></a><div class="symbol monospace"><span class="token keyword"></span><span class="token keyword">var </span><a href="last-chosen-time.html">lastChosenTime</a><span class="token operator">: </span><span data-unresolved-link="kotlinx.datetime/Instant///PointingToDeclaration/">Instant</span><span class="token operator">?</span></div></div></div>
+              </div>
+            </div>
+          </div>
+        </div>
+<a data-name="-2067092573%2FProperties%2F-1922089379" anchor-label="lastOrigin" id="-2067092573%2FProperties%2F-1922089379" data-filterable-set=":Terix-API:dokkaHtmlPartial/main"></a>
+        <div class="table-row" data-filterable-current=":Terix-API:dokkaHtmlPartial/main" data-filterable-set=":Terix-API:dokkaHtmlPartial/main">
+          <div class="main-subrow keyValue ">
+            <div class=""><span class="inline-flex">
+                <div><a href="last-origin.html"><span>last</span><wbr><span><span>Origin</span></span></a></div>
+<span class="anchor-wrapper"><span class="anchor-icon" pointing-to="-2067092573%2FProperties%2F-1922089379"></span>
+                  <div class="copy-popup-wrapper "><span class="copy-popup-icon"></span><span>Link copied to clipboard</span></div>
+                </span></span></div>
+            <div>
+              <div class="title">
+                <div class="platform-hinted " data-platform-hinted="data-platform-hinted" data-togglable="Properties"><div class="content sourceset-dependent-content" data-active="" data-togglable=":Terix-API:dokkaHtmlPartial/main"><a data-name="-2067092573%2FProperties%2F-1922089379" anchor-label="lastOrigin" id="-2067092573%2FProperties%2F-1922089379" data-filterable-set=":Terix-API:dokkaHtmlPartial/main"></a><div class="symbol monospace"><span class="token keyword"></span><span class="token keyword">var </span><a href="last-origin.html">lastOrigin</a><span class="token operator">: </span><a href="https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-string/index.html">String</a><span class="token operator">?</span></div></div></div>
+              </div>
+            </div>
+          </div>
+        </div>
+<a data-name="-1833678311%2FProperties%2F-1922089379" anchor-label="origin" id="-1833678311%2FProperties%2F-1922089379" data-filterable-set=":Terix-API:dokkaHtmlPartial/main"></a>
+        <div class="table-row" data-filterable-current=":Terix-API:dokkaHtmlPartial/main" data-filterable-set=":Terix-API:dokkaHtmlPartial/main">
+          <div class="main-subrow keyValue ">
+            <div class=""><span class="inline-flex">
+                <div><a href="origin.html"><span><span>origin</span></span></a></div>
+<span class="anchor-wrapper"><span class="anchor-icon" pointing-to="-1833678311%2FProperties%2F-1922089379"></span>
+                  <div class="copy-popup-wrapper "><span class="copy-popup-icon"></span><span>Link copied to clipboard</span></div>
+                </span></span></div>
+            <div>
+              <div class="title">
+                <div class="platform-hinted " data-platform-hinted="data-platform-hinted" data-togglable="Properties"><div class="content sourceset-dependent-content" data-active="" data-togglable=":Terix-API:dokkaHtmlPartial/main"><a data-name="-1833678311%2FProperties%2F-1922089379" anchor-label="origin" id="-1833678311%2FProperties%2F-1922089379" data-filterable-set=":Terix-API:dokkaHtmlPartial/main"></a><div class="symbol monospace"><span class="token keyword"></span><span class="token keyword">var </span><a href="origin.html">origin</a><span class="token operator">: </span><a href="../../dev.racci.terix.api.origins.origin/-origin/index.html">Origin</a></div></div></div>
+              </div>
+            </div>
+          </div>
+        </div>
+<a data-name="1258952742%2FProperties%2F-1922089379" anchor-label="readValues" id="1258952742%2FProperties%2F-1922089379" data-filterable-set=":Terix-API:dokkaHtmlPartial/main"></a>
+        <div class="table-row" data-filterable-current=":Terix-API:dokkaHtmlPartial/main" data-filterable-set=":Terix-API:dokkaHtmlPartial/main">
+          <div class="main-subrow keyValue ">
+            <div class=""><span class="inline-flex">
+                <div><a href="index.html#1258952742%2FProperties%2F-1922089379"><span>read</span><wbr><span><span>Values</span></span></a></div>
+<span class="anchor-wrapper"><span class="anchor-icon" pointing-to="1258952742%2FProperties%2F-1922089379"></span>
+                  <div class="copy-popup-wrapper "><span class="copy-popup-icon"></span><span>Link copied to clipboard</span></div>
+                </span></span></div>
+            <div>
+              <div class="title">
+                <div class="platform-hinted " data-platform-hinted="data-platform-hinted" data-togglable="Properties"><div class="content sourceset-dependent-content" data-active="" data-togglable=":Terix-API:dokkaHtmlPartial/main"><a data-name="1258952742%2FProperties%2F-1922089379" anchor-label="readValues" id="1258952742%2FProperties%2F-1922089379" data-filterable-set=":Terix-API:dokkaHtmlPartial/main"></a><div class="symbol monospace"><span class="token keyword"></span><span class="token keyword">val </span><a href="index.html#1258952742%2FProperties%2F-1922089379">readValues</a><span class="token operator">: </span><span data-unresolved-link="org.jetbrains.exposed.sql/ResultRow///PointingToDeclaration/">ResultRow</span></div></div></div>
+              </div>
+            </div>
+          </div>
+        </div>
+<a data-name="-9588828%2FProperties%2F-1922089379" anchor-label="uuid" id="-9588828%2FProperties%2F-1922089379" data-filterable-set=":Terix-API:dokkaHtmlPartial/main"></a>
+        <div class="table-row" data-filterable-current=":Terix-API:dokkaHtmlPartial/main" data-filterable-set=":Terix-API:dokkaHtmlPartial/main">
+          <div class="main-subrow keyValue ">
+            <div class=""><span class="inline-flex">
+                <div><a href="uuid.html"><span><span>uuid</span></span></a></div>
+<span class="anchor-wrapper"><span class="anchor-icon" pointing-to="-9588828%2FProperties%2F-1922089379"></span>
+                  <div class="copy-popup-wrapper "><span class="copy-popup-icon"></span><span>Link copied to clipboard</span></div>
+                </span></span></div>
+            <div>
+              <div class="title">
+                <div class="platform-hinted " data-platform-hinted="data-platform-hinted" data-togglable="Properties"><div class="content sourceset-dependent-content" data-active="" data-togglable=":Terix-API:dokkaHtmlPartial/main"><a data-name="-9588828%2FProperties%2F-1922089379" anchor-label="uuid" id="-9588828%2FProperties%2F-1922089379" data-filterable-set=":Terix-API:dokkaHtmlPartial/main"></a><div class="symbol monospace"><span class="token keyword"></span><span class="token keyword">val </span><a href="uuid.html">uuid</a><span class="token operator">: </span><span data-unresolved-link="org.jetbrains.exposed.dao.id/EntityID///PointingToDeclaration/">EntityID</span><span class="token operator">&lt;</span><span class="token keyword"></span><a href="https://docs.oracle.com/javase/8/docs/api/java/util/UUID.html">UUID</a><span class="token operator">&gt;</span></div></div></div>
+              </div>
+            </div>
+          </div>
+        </div>
+<a data-name="1015419227%2FProperties%2F-1922089379" anchor-label="writeValues" id="1015419227%2FProperties%2F-1922089379" data-filterable-set=":Terix-API:dokkaHtmlPartial/main"></a>
+        <div class="table-row" data-filterable-current=":Terix-API:dokkaHtmlPartial/main" data-filterable-set=":Terix-API:dokkaHtmlPartial/main">
+          <div class="main-subrow keyValue ">
+            <div class=""><span class="inline-flex">
+                <div><a href="index.html#1015419227%2FProperties%2F-1922089379"><span>write</span><wbr><span><span>Values</span></span></a></div>
+<span class="anchor-wrapper"><span class="anchor-icon" pointing-to="1015419227%2FProperties%2F-1922089379"></span>
+                  <div class="copy-popup-wrapper "><span class="copy-popup-icon"></span><span>Link copied to clipboard</span></div>
+                </span></span></div>
+            <div>
+              <div class="title">
+                <div class="platform-hinted " data-platform-hinted="data-platform-hinted" data-togglable="Properties"><div class="content sourceset-dependent-content" data-active="" data-togglable=":Terix-API:dokkaHtmlPartial/main"><a data-name="1015419227%2FProperties%2F-1922089379" anchor-label="writeValues" id="1015419227%2FProperties%2F-1922089379" data-filterable-set=":Terix-API:dokkaHtmlPartial/main"></a><div class="symbol monospace"><span class="token keyword"></span><span class="token keyword">val </span><a href="index.html#1015419227%2FProperties%2F-1922089379">writeValues</a><span class="token operator">: </span><a href="https://kotlinlang.org/api/latest/jvm/stdlib/kotlin.collections/-linked-hash-map/index.html">LinkedHashMap</a><span class="token operator">&lt;</span><span class="token keyword"></span><span data-unresolved-link="org.jetbrains.exposed.sql/Column///PointingToDeclaration/">Column</span><span class="token operator">&lt;</span><span class="token keyword"></span><a href="https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-any/index.html">Any</a><span class="token operator">?</span><span class="token operator">&gt;</span><span class="token punctuation">, </span><span class="token keyword"></span><a href="https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-any/index.html">Any</a><span class="token operator">?</span><span class="token operator">&gt;</span></div></div></div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+      <div class="footer">
+        <span class="go-to-top-icon"><a href="#content" id="go-to-top-link"></a></span><span>© 2022 Copyright</span><span class="pull-right"><span>Generated by </span><a href="https://github.com/Kotlin/dokka"><span>dokka</span><span class="padded-icon"></span></a></span>
+      </div>
+    </div>
+</div>
+
+</body></html>
+

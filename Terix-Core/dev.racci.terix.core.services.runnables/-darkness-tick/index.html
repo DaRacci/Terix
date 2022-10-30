@@ -1,0 +1,464 @@
+<!doctype html>
+<html>
+<head>
+    <meta name="viewport" content="width=device-width, initial-scale=1" charset="UTF-8">
+    <title>DarknessTick</title>
+<link href="../../../images/logo-icon.svg" rel="icon" type="image/svg"><script>var pathToRoot = "../../../";</script>    <script>const storage = localStorage.getItem("dokka-dark-mode")
+    if (storage == null) {
+        const osDarkSchemePreferred = window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches
+        if (osDarkSchemePreferred === true) {
+            document.getElementsByTagName("html")[0].classList.add("theme-dark")
+        }
+    } else {
+        const savedDarkMode = JSON.parse(storage)
+        if(savedDarkMode === true) {
+            document.getElementsByTagName("html")[0].classList.add("theme-dark")
+        }
+    }
+    </script>
+<script type="text/javascript" src="../../../scripts/sourceset_dependencies.js" async></script>
+<link href="../../../styles/style.css" rel="Stylesheet">
+<link href="../../../styles/jetbrains-mono.css" rel="Stylesheet">
+<link href="../../../styles/main.css" rel="Stylesheet">
+<link href="../../../styles/prism.css" rel="Stylesheet">
+<link href="../../../styles/logo-styles.css" rel="Stylesheet">
+<script type="text/javascript" src="../../../scripts/clipboard.js" async></script>
+<script type="text/javascript" src="../../../scripts/navigation-loader.js" async></script>
+<script type="text/javascript" src="../../../scripts/platform-content-handler.js" async></script>
+<script type="text/javascript" src="../../../scripts/main.js" defer></script>
+<script type="text/javascript" src="../../../scripts/prism.js" async></script>
+<script type="text/javascript" src="../../../scripts/symbol-parameters-wrapper_deferred.js" defer></script></head>
+<body>
+<div class="navigation-wrapper" id="navigation-wrapper">
+    <div id="leftToggler"><span class="icon-toggler"></span></div>
+    <div class="library-name">
+<a href="../../../index.html">
+<span>Terix</span>            </a>    </div>
+    <div>1.0.0-SNAPSHOT
+    </div>
+    <div class="pull-right d-flex">
+        <button id="theme-toggle-button"><span id="theme-toggle"></span></button>
+        <div id="searchBar"></div>
+    </div>
+</div>
+<div id="container">
+    <div id="leftColumn">
+        <div id="sideMenu"></div>
+    </div>
+    <div id="main">
+<div class="main-content" id="content" pageids="Terix-Core::dev.racci.terix.core.services.runnables/DarknessTick///PointingToDeclaration//301628108">
+  <div class="breadcrumbs"><a href="../../index.html">Terix-Core</a><span class="delimiter">/</span><a href="../index.html">dev.racci.terix.core.services.runnables</a><span class="delimiter">/</span><span class="current">DarknessTick</span></div>
+  <div class="cover ">
+    <h1 class="cover"><span>Darkness</span><wbr><span><span>Tick</span></span></h1>
+    <div class="platform-hinted " data-platform-hinted="data-platform-hinted"><div class="content sourceset-dependent-content" data-active="" data-togglable=":Terix-Core:dokkaHtmlPartial/main"><div class="symbol monospace"><span class="token keyword">class </span><a href="index.html">DarknessTick</a><span class="token punctuation">(</span><span class="parameters "><span class="parameter "><span class="token keyword">val </span>player<span class="token operator">: </span><span data-unresolved-link="org.bukkit.entity/Player///PointingToDeclaration/">Player</span><span class="token punctuation">, </span></span><span class="parameter "><span class="token keyword">val </span>origin<span class="token operator">: </span><a href="../../../Terix-API/dev.racci.terix.api.origins.origin/-origin/index.html">Origin</a></span></span><span class="token punctuation">)</span> : <a href="../-child-ticker/index.html">ChildTicker</a></div></div></div>
+  </div>
+  <div class="tabbedcontent">
+    <div class="tabs-section" tabs-section="tabs-section"><button class="section-tab" data-active="" data-togglable="Constructors">Constructors</button><button class="section-tab" data-togglable="Functions">Functions</button><button class="section-tab" data-togglable="Properties">Properties</button></div>
+    <div class="tabs-section-body">
+      <h2 class="tabbedcontent">Constructors</h2>
+      <div class="table" data-togglable="Constructors"><a data-name="1423130178%2FConstructors%2F301628108" anchor-label="DarknessTick" id="1423130178%2FConstructors%2F301628108" data-filterable-set=":Terix-Core:dokkaHtmlPartial/main"></a>
+        <div class="table-row" data-filterable-current=":Terix-Core:dokkaHtmlPartial/main" data-filterable-set=":Terix-Core:dokkaHtmlPartial/main">
+          <div class="main-subrow keyValue TabbedContent">
+            <div class=""><span class="inline-flex">
+                <div><a href="-darkness-tick.html"><span>Darkness</span><wbr><span><span>Tick</span></span></a></div>
+<span class="anchor-wrapper"><span class="anchor-icon" pointing-to="1423130178%2FConstructors%2F301628108"></span>
+                  <div class="copy-popup-wrapper "><span class="copy-popup-icon"></span><span>Link copied to clipboard</span></div>
+                </span></span></div>
+            <div>
+              <div class="title">
+                <div class="platform-hinted " data-platform-hinted="data-platform-hinted"><div class="content sourceset-dependent-content" data-active="" data-togglable=":Terix-Core:dokkaHtmlPartial/main"><div class="symbol monospace"><span class="token keyword"></span><span class="token keyword">fun </span><a href="-darkness-tick.html"><span class="token function">DarknessTick</span></a><span class="token punctuation">(</span><span class="parameters "><span class="parameter ">player<span class="token operator">: </span><span data-unresolved-link="org.bukkit.entity/Player///PointingToDeclaration/">Player</span><span class="token punctuation">, </span></span><span class="parameter ">origin<span class="token operator">: </span><a href="../../../Terix-API/dev.racci.terix.api.origins.origin/-origin/index.html">Origin</a></span></span><span class="token punctuation">)</span></div></div></div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+      <h2 class="">Functions</h2>
+      <div class="table" data-togglable="Functions"><a data-name="1663123616%2FFunctions%2F301628108" anchor-label="async" id="1663123616%2FFunctions%2F301628108" data-filterable-set=":Terix-Core:dokkaHtmlPartial/main"></a>
+        <div class="table-row" data-filterable-current=":Terix-Core:dokkaHtmlPartial/main" data-filterable-set=":Terix-Core:dokkaHtmlPartial/main">
+          <div class="main-subrow keyValue ">
+            <div class=""><span class="inline-flex">
+                <div><a href="../-water-tick/index.html#1663123616%2FFunctions%2F301628108"><span><span>async</span></span></a></div>
+<span class="anchor-wrapper"><span class="anchor-icon" pointing-to="1663123616%2FFunctions%2F301628108"></span>
+                  <div class="copy-popup-wrapper "><span class="copy-popup-icon"></span><span>Link copied to clipboard</span></div>
+                </span></span></div>
+            <div>
+              <div class="title">
+                <div class="platform-hinted " data-platform-hinted="data-platform-hinted"><div class="content sourceset-dependent-content" data-active="" data-togglable=":Terix-Core:dokkaHtmlPartial/main"><div class="symbol monospace"><span class="token keyword">open </span><span class="token keyword">override </span><span class="token keyword">fun </span><a href="../-water-tick/index.html#1663123616%2FFunctions%2F301628108"><span class="token function">async</span></a><span class="token punctuation">(</span><span class="parameters "><span class="parameter ">block<span class="token operator">: </span><span class="token keyword">suspend </span><span class="token keyword"></span><span data-unresolved-link="kotlinx.coroutines/CoroutineScope///PointingToDeclaration/">CoroutineScope</span><span class="token punctuation">.</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token operator"> -&gt; </span><span class="token keyword"></span><a href="https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-unit/index.html">Unit</a></span></span><span class="token punctuation">)</span><span class="token operator">: </span><span data-unresolved-link="kotlinx.coroutines/Job///PointingToDeclaration/">Job</span></div></div></div>
+              </div>
+            </div>
+          </div>
+        </div>
+<a data-name="-2141858985%2FFunctions%2F301628108" anchor-label="breakWater" id="-2141858985%2FFunctions%2F301628108" data-filterable-set=":Terix-Core:dokkaHtmlPartial/main"></a>
+        <div class="table-row" data-filterable-current=":Terix-Core:dokkaHtmlPartial/main" data-filterable-set=":Terix-Core:dokkaHtmlPartial/main">
+          <div class="main-subrow keyValue ">
+            <div class=""><span class="inline-flex">
+                <div><a href="../-child-ticker/break-water.html"><span>break</span><wbr><span><span>Water</span></span></a></div>
+<span class="anchor-wrapper"><span class="anchor-icon" pointing-to="-2141858985%2FFunctions%2F301628108"></span>
+                  <div class="copy-popup-wrapper "><span class="copy-popup-icon"></span><span>Link copied to clipboard</span></div>
+                </span></span></div>
+            <div>
+              <div class="title">
+                <div class="platform-hinted " data-platform-hinted="data-platform-hinted"><div class="content sourceset-dependent-content" data-active="" data-togglable=":Terix-Core:dokkaHtmlPartial/main"><div class="symbol monospace"><span class="token keyword">suspend </span><span class="token keyword">fun </span><a href="../-child-ticker/break-water.html"><span class="token function">breakWater</span></a><span class="token punctuation">(</span><span class="token punctuation">)</span></div></div></div>
+              </div>
+            </div>
+          </div>
+        </div>
+<a data-name="1566679633%2FFunctions%2F301628108" anchor-label="coatHanger" id="1566679633%2FFunctions%2F301628108" data-filterable-set=":Terix-Core:dokkaHtmlPartial/main"></a>
+        <div class="table-row" data-filterable-current=":Terix-Core:dokkaHtmlPartial/main" data-filterable-set=":Terix-Core:dokkaHtmlPartial/main">
+          <div class="main-subrow keyValue ">
+            <div class=""><span class="inline-flex">
+                <div><a href="../-child-ticker/coat-hanger.html"><span>coat</span><wbr><span><span>Hanger</span></span></a></div>
+<span class="anchor-wrapper"><span class="anchor-icon" pointing-to="1566679633%2FFunctions%2F301628108"></span>
+                  <div class="copy-popup-wrapper "><span class="copy-popup-icon"></span><span>Link copied to clipboard</span></div>
+                </span></span></div>
+            <div>
+              <div class="title">
+                <div class="platform-hinted " data-platform-hinted="data-platform-hinted"><div class="content sourceset-dependent-content" data-active="" data-togglable=":Terix-Core:dokkaHtmlPartial/main"><div class="symbol monospace"><span class="token keyword">suspend </span><span class="token keyword">fun </span><a href="../-child-ticker/coat-hanger.html"><span class="token function">coatHanger</span></a><span class="token punctuation">(</span><span class="token punctuation">)</span></div></div></div>
+              </div>
+            </div>
+          </div>
+        </div>
+<a data-name="-1644620270%2FFunctions%2F301628108" anchor-label="completableAsync" id="-1644620270%2FFunctions%2F301628108" data-filterable-set=":Terix-Core:dokkaHtmlPartial/main"></a>
+        <div class="table-row" data-filterable-current=":Terix-Core:dokkaHtmlPartial/main" data-filterable-set=":Terix-Core:dokkaHtmlPartial/main">
+          <div class="main-subrow keyValue ">
+            <div class=""><span class="inline-flex">
+                <div><a href="../-water-tick/index.html#-1644620270%2FFunctions%2F301628108"><span>completable</span><wbr><span><span>Async</span></span></a></div>
+<span class="anchor-wrapper"><span class="anchor-icon" pointing-to="-1644620270%2FFunctions%2F301628108"></span>
+                  <div class="copy-popup-wrapper "><span class="copy-popup-icon"></span><span>Link copied to clipboard</span></div>
+                </span></span></div>
+            <div>
+              <div class="title">
+                <div class="platform-hinted " data-platform-hinted="data-platform-hinted"><div class="content sourceset-dependent-content" data-active="" data-togglable=":Terix-Core:dokkaHtmlPartial/main"><div class="symbol monospace"><span class="token keyword">open </span><span class="token keyword">override </span><span class="token keyword">fun </span><span class="token operator">&lt;</span><span class="token keyword"></span><a href="../../../Terix-Core/dev.racci.terix.core.services.runnables/-child-ticker/completable-async.html">R</a><span class="token operator">&gt; </span><a href="../-water-tick/index.html#-1644620270%2FFunctions%2F301628108"><span class="token function">completableAsync</span></a><span class="token punctuation">(</span><span class="parameters "><span class="parameter ">block<span class="token operator">: </span><span class="token keyword">suspend </span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token operator"> -&gt; </span><span class="token keyword"></span><a href="../../../Terix-Core/dev.racci.terix.core.services.runnables/-child-ticker/completable-async.html">R</a></span></span><span class="token punctuation">)</span><span class="token operator">: </span><a href="https://docs.oracle.com/javase/8/docs/api/java/util/concurrent/CompletableFuture.html">CompletableFuture</a><span class="token operator">&lt;</span><span class="token keyword"></span><a href="../../../Terix-Core/dev.racci.terix.core.services.runnables/-child-ticker/completable-async.html">R</a><span class="token operator">&gt;</span></div></div></div>
+              </div>
+            </div>
+          </div>
+        </div>
+<a data-name="1389023307%2FFunctions%2F301628108" anchor-label="completableSync" id="1389023307%2FFunctions%2F301628108" data-filterable-set=":Terix-Core:dokkaHtmlPartial/main"></a>
+        <div class="table-row" data-filterable-current=":Terix-Core:dokkaHtmlPartial/main" data-filterable-set=":Terix-Core:dokkaHtmlPartial/main">
+          <div class="main-subrow keyValue ">
+            <div class=""><span class="inline-flex">
+                <div><a href="../-water-tick/index.html#1389023307%2FFunctions%2F301628108"><span>completable</span><wbr><span><span>Sync</span></span></a></div>
+<span class="anchor-wrapper"><span class="anchor-icon" pointing-to="1389023307%2FFunctions%2F301628108"></span>
+                  <div class="copy-popup-wrapper "><span class="copy-popup-icon"></span><span>Link copied to clipboard</span></div>
+                </span></span></div>
+            <div>
+              <div class="title">
+                <div class="platform-hinted " data-platform-hinted="data-platform-hinted"><div class="content sourceset-dependent-content" data-active="" data-togglable=":Terix-Core:dokkaHtmlPartial/main"><div class="symbol monospace"><span class="token keyword">open </span><span class="token keyword">override </span><span class="token keyword">fun </span><span class="token operator">&lt;</span><span class="token keyword"></span><a href="../../../Terix-Core/dev.racci.terix.core.services.runnables/-child-ticker/completable-sync.html">R</a><span class="token operator">&gt; </span><a href="../-water-tick/index.html#1389023307%2FFunctions%2F301628108"><span class="token function">completableSync</span></a><span class="token punctuation">(</span><span class="parameters "><span class="parameter ">block<span class="token operator">: </span><span class="token keyword">suspend </span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token operator"> -&gt; </span><span class="token keyword"></span><a href="../../../Terix-Core/dev.racci.terix.core.services.runnables/-child-ticker/completable-sync.html">R</a></span></span><span class="token punctuation">)</span><span class="token operator">: </span><a href="https://docs.oracle.com/javase/8/docs/api/java/util/concurrent/CompletableFuture.html">CompletableFuture</a><span class="token operator">&lt;</span><span class="token keyword"></span><a href="../../../Terix-Core/dev.racci.terix.core.services.runnables/-child-ticker/completable-sync.html">R</a><span class="token operator">&gt;</span></div></div></div>
+              </div>
+            </div>
+          </div>
+        </div>
+<a data-name="-724042201%2FFunctions%2F301628108" anchor-label="deferredAsync" id="-724042201%2FFunctions%2F301628108" data-filterable-set=":Terix-Core:dokkaHtmlPartial/main"></a>
+        <div class="table-row" data-filterable-current=":Terix-Core:dokkaHtmlPartial/main" data-filterable-set=":Terix-Core:dokkaHtmlPartial/main">
+          <div class="main-subrow keyValue ">
+            <div class=""><span class="inline-flex">
+                <div><a href="../-water-tick/index.html#-724042201%2FFunctions%2F301628108"><span>deferred</span><wbr><span><span>Async</span></span></a></div>
+<span class="anchor-wrapper"><span class="anchor-icon" pointing-to="-724042201%2FFunctions%2F301628108"></span>
+                  <div class="copy-popup-wrapper "><span class="copy-popup-icon"></span><span>Link copied to clipboard</span></div>
+                </span></span></div>
+            <div>
+              <div class="title">
+                <div class="platform-hinted " data-platform-hinted="data-platform-hinted"><div class="content sourceset-dependent-content" data-active="" data-togglable=":Terix-Core:dokkaHtmlPartial/main"><div class="symbol monospace"><span class="token keyword">open </span><span class="token keyword">override </span><span class="token keyword">fun </span><span class="token operator">&lt;</span><span class="token keyword"></span><a href="../../../Terix-Core/dev.racci.terix.core.services.runnables/-child-ticker/deferred-async.html">R</a><span class="token operator">&gt; </span><a href="../-water-tick/index.html#-724042201%2FFunctions%2F301628108"><span class="token function">deferredAsync</span></a><span class="token punctuation">(</span><span class="parameters "><span class="parameter ">block<span class="token operator">: </span><span class="token keyword">suspend </span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token operator"> -&gt; </span><span class="token keyword"></span><a href="../../../Terix-Core/dev.racci.terix.core.services.runnables/-child-ticker/deferred-async.html">R</a></span></span><span class="token punctuation">)</span><span class="token operator">: </span><span data-unresolved-link="kotlinx.coroutines/Deferred///PointingToDeclaration/">Deferred</span><span class="token operator">&lt;</span><span class="token keyword"></span><a href="../../../Terix-Core/dev.racci.terix.core.services.runnables/-child-ticker/deferred-async.html">R</a><span class="token operator">&gt;</span></div></div></div>
+              </div>
+            </div>
+          </div>
+        </div>
+<a data-name="1695814038%2FFunctions%2F301628108" anchor-label="deferredSync" id="1695814038%2FFunctions%2F301628108" data-filterable-set=":Terix-Core:dokkaHtmlPartial/main"></a>
+        <div class="table-row" data-filterable-current=":Terix-Core:dokkaHtmlPartial/main" data-filterable-set=":Terix-Core:dokkaHtmlPartial/main">
+          <div class="main-subrow keyValue ">
+            <div class=""><span class="inline-flex">
+                <div><a href="../-water-tick/index.html#1695814038%2FFunctions%2F301628108"><span>deferred</span><wbr><span><span>Sync</span></span></a></div>
+<span class="anchor-wrapper"><span class="anchor-icon" pointing-to="1695814038%2FFunctions%2F301628108"></span>
+                  <div class="copy-popup-wrapper "><span class="copy-popup-icon"></span><span>Link copied to clipboard</span></div>
+                </span></span></div>
+            <div>
+              <div class="title">
+                <div class="platform-hinted " data-platform-hinted="data-platform-hinted"><div class="content sourceset-dependent-content" data-active="" data-togglable=":Terix-Core:dokkaHtmlPartial/main"><div class="symbol monospace"><span class="token keyword">open </span><span class="token keyword">override </span><span class="token keyword">fun </span><span class="token operator">&lt;</span><span class="token keyword"></span><a href="../../../Terix-Core/dev.racci.terix.core.services.runnables/-child-ticker/deferred-sync.html">R</a><span class="token operator">&gt; </span><a href="../-water-tick/index.html#1695814038%2FFunctions%2F301628108"><span class="token function">deferredSync</span></a><span class="token punctuation">(</span><span class="parameters "><span class="parameter ">block<span class="token operator">: </span><span class="token keyword">suspend </span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token operator"> -&gt; </span><span class="token keyword"></span><a href="../../../Terix-Core/dev.racci.terix.core.services.runnables/-child-ticker/deferred-sync.html">R</a></span></span><span class="token punctuation">)</span><span class="token operator">: </span><span data-unresolved-link="kotlinx.coroutines/Deferred///PointingToDeclaration/">Deferred</span><span class="token operator">&lt;</span><span class="token keyword"></span><a href="../../../Terix-Core/dev.racci.terix.core.services.runnables/-child-ticker/deferred-sync.html">R</a><span class="token operator">&gt;</span></div></div></div>
+              </div>
+            </div>
+          </div>
+        </div>
+<a data-name="-1530412560%2FFunctions%2F301628108" anchor-label="deleteProperty" id="-1530412560%2FFunctions%2F301628108" data-filterable-set=":Terix-Core:dokkaHtmlPartial/main"></a>
+        <div class="table-row" data-filterable-current=":Terix-Core:dokkaHtmlPartial/main" data-filterable-set=":Terix-Core:dokkaHtmlPartial/main">
+          <div class="main-subrow keyValue ">
+            <div class=""><span class="inline-flex">
+                <div><a href="../-water-tick/index.html#-1530412560%2FFunctions%2F301628108"><span>delete</span><wbr><span><span>Property</span></span></a></div>
+<span class="anchor-wrapper"><span class="anchor-icon" pointing-to="-1530412560%2FFunctions%2F301628108"></span>
+                  <div class="copy-popup-wrapper "><span class="copy-popup-icon"></span><span>Link copied to clipboard</span></div>
+                </span></span></div>
+            <div>
+              <div class="title">
+                <div class="platform-hinted " data-platform-hinted="data-platform-hinted"><div class="content sourceset-dependent-content" data-active="" data-togglable=":Terix-Core:dokkaHtmlPartial/main"><div class="symbol monospace"><span class="token keyword">open </span><span class="token keyword">override </span><span class="token keyword">fun </span><a href="../-water-tick/index.html#-1530412560%2FFunctions%2F301628108"><span class="token function">deleteProperty</span></a><span class="token punctuation">(</span><span class="parameters "><span class="parameter ">key<span class="token operator">: </span><a href="https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-string/index.html">String</a></span></span><span class="token punctuation">)</span></div></div></div>
+              </div>
+            </div>
+          </div>
+        </div>
+<a data-name="894441567%2FFunctions%2F301628108" anchor-label="getKoin" id="894441567%2FFunctions%2F301628108" data-filterable-set=":Terix-Core:dokkaHtmlPartial/main"></a>
+        <div class="table-row" data-filterable-current=":Terix-Core:dokkaHtmlPartial/main" data-filterable-set=":Terix-Core:dokkaHtmlPartial/main">
+          <div class="main-subrow keyValue ">
+            <div class=""><span class="inline-flex">
+                <div><a href="../-water-tick/index.html#894441567%2FFunctions%2F301628108"><span>get</span><wbr><span><span>Koin</span></span></a></div>
+<span class="anchor-wrapper"><span class="anchor-icon" pointing-to="894441567%2FFunctions%2F301628108"></span>
+                  <div class="copy-popup-wrapper "><span class="copy-popup-icon"></span><span>Link copied to clipboard</span></div>
+                </span></span></div>
+            <div>
+              <div class="title">
+                <div class="platform-hinted " data-platform-hinted="data-platform-hinted"><div class="content sourceset-dependent-content" data-active="" data-togglable=":Terix-Core:dokkaHtmlPartial/main"><div class="symbol monospace"><span class="token keyword">open </span><span class="token keyword">override </span><span class="token keyword">fun </span><a href="../-water-tick/index.html#894441567%2FFunctions%2F301628108"><span class="token function">getKoin</span></a><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token operator">: </span><span data-unresolved-link="org.koin.core/Koin///PointingToDeclaration/">Koin</span></div></div></div>
+              </div>
+            </div>
+          </div>
+        </div>
+<a data-name="-1248970702%2FFunctions%2F301628108" anchor-label="getProperty" id="-1248970702%2FFunctions%2F301628108" data-filterable-set=":Terix-Core:dokkaHtmlPartial/main"></a>
+        <div class="table-row" data-filterable-current=":Terix-Core:dokkaHtmlPartial/main" data-filterable-set=":Terix-Core:dokkaHtmlPartial/main">
+          <div class="main-subrow keyValue ">
+            <div class=""><span class="inline-flex">
+                <div><a href="../-water-tick/index.html#-1344561367%2FFunctions%2F301628108"><span>get</span><wbr><span><span>Property</span></span></a></div>
+<span class="anchor-wrapper"><span class="anchor-icon" pointing-to="-1248970702%2FFunctions%2F301628108"></span>
+                  <div class="copy-popup-wrapper "><span class="copy-popup-icon"></span><span>Link copied to clipboard</span></div>
+                </span></span></div>
+            <div>
+              <div class="title">
+                <div class="platform-hinted " data-platform-hinted="data-platform-hinted"><div class="content sourceset-dependent-content" data-active="" data-togglable=":Terix-Core:dokkaHtmlPartial/main"><div class="symbol monospace"><span class="token keyword">open </span><span class="token keyword">override </span><span class="token keyword">fun </span><span class="token operator">&lt;</span><span class="token keyword"></span><a href="../../../Terix-Core/dev.racci.terix.core.services.runnables/-child-ticker/get-property.html">T</a><span class="token operator"> : </span><a href="https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-any/index.html">Any</a><span class="token operator">&gt; </span><a href="../-water-tick/index.html#-1344561367%2FFunctions%2F301628108"><span class="token function">getProperty</span></a><span class="token punctuation">(</span><span class="parameters "><span class="parameter ">key<span class="token operator">: </span><a href="https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-string/index.html">String</a></span></span><span class="token punctuation">)</span><span class="token operator">: </span><a href="../../../Terix-Core/dev.racci.terix.core.services.runnables/-child-ticker/get-property.html">T</a><span class="token operator">?</span></div><div class="symbol monospace"><span class="token keyword">open </span><span class="token keyword">override </span><span class="token keyword">fun </span><span class="token operator">&lt;</span><span class="token keyword"></span><a href="../../../Terix-Core/dev.racci.terix.core.services.runnables/-child-ticker/get-property.html">T</a><span class="token operator"> : </span><a href="https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-any/index.html">Any</a><span class="token operator">&gt; </span><a href="../-water-tick/index.html#1271488483%2FFunctions%2F301628108"><span class="token function">getProperty</span></a><span class="token punctuation">(</span><span class="parameters "><span class="parameter ">key<span class="token operator">: </span><a href="https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-string/index.html">String</a><span class="token punctuation">, </span></span><span class="parameter ">default<span class="token operator">: </span><a href="../../../Terix-Core/dev.racci.terix.core.services.runnables/-child-ticker/get-property.html">T</a></span></span><span class="token punctuation">)</span><span class="token operator">: </span><a href="../../../Terix-Core/dev.racci.terix.core.services.runnables/-child-ticker/get-property.html">T</a></div></div></div>
+              </div>
+            </div>
+          </div>
+        </div>
+<a data-name="1182436922%2FFunctions%2F301628108" anchor-label="handleRun" id="1182436922%2FFunctions%2F301628108" data-filterable-set=":Terix-Core:dokkaHtmlPartial/main"></a>
+        <div class="table-row" data-filterable-current=":Terix-Core:dokkaHtmlPartial/main" data-filterable-set=":Terix-Core:dokkaHtmlPartial/main">
+          <div class="main-subrow keyValue ">
+            <div class=""><span class="inline-flex">
+                <div><a href="handle-run.html"><span>handle</span><wbr><span><span>Run</span></span></a></div>
+<span class="anchor-wrapper"><span class="anchor-icon" pointing-to="1182436922%2FFunctions%2F301628108"></span>
+                  <div class="copy-popup-wrapper "><span class="copy-popup-icon"></span><span>Link copied to clipboard</span></div>
+                </span></span></div>
+            <div>
+              <div class="title">
+                <div class="platform-hinted " data-platform-hinted="data-platform-hinted"><div class="content sourceset-dependent-content" data-active="" data-togglable=":Terix-Core:dokkaHtmlPartial/main"><div class="symbol monospace"><span class="token keyword">open </span><span class="token keyword">suspend override </span><span class="token keyword">fun </span><a href="handle-run.html"><span class="token function">handleRun</span></a><span class="token punctuation">(</span><span class="token punctuation">)</span></div></div></div>
+              </div>
+            </div>
+          </div>
+        </div>
+<a data-name="1957488911%2FFunctions%2F301628108" anchor-label="launch" id="1957488911%2FFunctions%2F301628108" data-filterable-set=":Terix-Core:dokkaHtmlPartial/main"></a>
+        <div class="table-row" data-filterable-current=":Terix-Core:dokkaHtmlPartial/main" data-filterable-set=":Terix-Core:dokkaHtmlPartial/main">
+          <div class="main-subrow keyValue ">
+            <div class=""><span class="inline-flex">
+                <div><a href="../-water-tick/index.html#1957488911%2FFunctions%2F301628108"><span><span>launch</span></span></a></div>
+<span class="anchor-wrapper"><span class="anchor-icon" pointing-to="1957488911%2FFunctions%2F301628108"></span>
+                  <div class="copy-popup-wrapper "><span class="copy-popup-icon"></span><span>Link copied to clipboard</span></div>
+                </span></span></div>
+            <div>
+              <div class="title">
+                <div class="platform-hinted " data-platform-hinted="data-platform-hinted"><div class="content sourceset-dependent-content" data-active="" data-togglable=":Terix-Core:dokkaHtmlPartial/main"><div class="symbol monospace"><span class="token keyword">open </span><span class="token keyword">override </span><span class="token keyword">fun </span><a href="../-water-tick/index.html#1957488911%2FFunctions%2F301628108"><span class="token function">launch</span></a><span class="token punctuation">(</span><span class="parameters "><span class="parameter ">dispatcher<span class="token operator">: </span><a href="https://kotlinlang.org/api/latest/jvm/stdlib/kotlin.coroutines/-coroutine-context/index.html">CoroutineContext</a><span class="token punctuation">, </span></span><span class="parameter ">block<span class="token operator">: </span><span class="token keyword">suspend </span><span class="token keyword"></span><span data-unresolved-link="kotlinx.coroutines/CoroutineScope///PointingToDeclaration/">CoroutineScope</span><span class="token punctuation">.</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token operator"> -&gt; </span><span class="token keyword"></span><a href="https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-unit/index.html">Unit</a></span></span><span class="token punctuation">)</span><span class="token operator">: </span><span data-unresolved-link="kotlinx.coroutines/Job///PointingToDeclaration/">Job</span></div></div></div>
+              </div>
+            </div>
+          </div>
+        </div>
+<a data-name="-297563720%2FFunctions%2F301628108" anchor-label="onAbortion" id="-297563720%2FFunctions%2F301628108" data-filterable-set=":Terix-Core:dokkaHtmlPartial/main"></a>
+        <div class="table-row" data-filterable-current=":Terix-Core:dokkaHtmlPartial/main" data-filterable-set=":Terix-Core:dokkaHtmlPartial/main">
+          <div class="main-subrow keyValue ">
+            <div class=""><span class="inline-flex">
+                <div><a href="../-child-ticker/on-abortion.html"><span>on</span><wbr><span><span>Abortion</span></span></a></div>
+<span class="anchor-wrapper"><span class="anchor-icon" pointing-to="-297563720%2FFunctions%2F301628108"></span>
+                  <div class="copy-popup-wrapper "><span class="copy-popup-icon"></span><span>Link copied to clipboard</span></div>
+                </span></span></div>
+            <div>
+              <div class="title">
+                <div class="platform-hinted " data-platform-hinted="data-platform-hinted"><div class="content sourceset-dependent-content" data-active="" data-togglable=":Terix-Core:dokkaHtmlPartial/main"><div class="symbol monospace"><span class="token keyword">open </span><span class="token keyword">suspend </span><span class="token keyword">fun </span><a href="../-child-ticker/on-abortion.html"><span class="token function">onAbortion</span></a><span class="token punctuation">(</span><span class="token punctuation">)</span></div><div class="brief "><p class="paragraph">Kills this child task.</p></div></div></div>
+              </div>
+            </div>
+          </div>
+        </div>
+<a data-name="-1155280149%2FFunctions%2F301628108" anchor-label="onBirth" id="-1155280149%2FFunctions%2F301628108" data-filterable-set=":Terix-Core:dokkaHtmlPartial/main"></a>
+        <div class="table-row" data-filterable-current=":Terix-Core:dokkaHtmlPartial/main" data-filterable-set=":Terix-Core:dokkaHtmlPartial/main">
+          <div class="main-subrow keyValue ">
+            <div class=""><span class="inline-flex">
+                <div><a href="../-child-ticker/on-birth.html"><span>on</span><wbr><span><span>Birth</span></span></a></div>
+<span class="anchor-wrapper"><span class="anchor-icon" pointing-to="-1155280149%2FFunctions%2F301628108"></span>
+                  <div class="copy-popup-wrapper "><span class="copy-popup-icon"></span><span>Link copied to clipboard</span></div>
+                </span></span></div>
+            <div>
+              <div class="title">
+                <div class="platform-hinted " data-platform-hinted="data-platform-hinted"><div class="content sourceset-dependent-content" data-active="" data-togglable=":Terix-Core:dokkaHtmlPartial/main"><div class="symbol monospace"><span class="token keyword">open </span><span class="token keyword">suspend </span><span class="token keyword">fun </span><a href="../-child-ticker/on-birth.html"><span class="token function">onBirth</span></a><span class="token punctuation">(</span><span class="token punctuation">)</span></div><div class="brief "><p class="paragraph">Initialisation</p></div></div></div>
+              </div>
+            </div>
+          </div>
+        </div>
+<a data-name="-267674900%2FFunctions%2F301628108" anchor-label="registerEvents" id="-267674900%2FFunctions%2F301628108" data-filterable-set=":Terix-Core:dokkaHtmlPartial/main"></a>
+        <div class="table-row" data-filterable-current=":Terix-Core:dokkaHtmlPartial/main" data-filterable-set=":Terix-Core:dokkaHtmlPartial/main">
+          <div class="main-subrow keyValue ">
+            <div class=""><span class="inline-flex">
+                <div><a href="../-water-tick/index.html#-267674900%2FFunctions%2F301628108"><span>register</span><wbr><span><span>Events</span></span></a></div>
+<span class="anchor-wrapper"><span class="anchor-icon" pointing-to="-267674900%2FFunctions%2F301628108"></span>
+                  <div class="copy-popup-wrapper "><span class="copy-popup-icon"></span><span>Link copied to clipboard</span></div>
+                </span></span></div>
+            <div>
+              <div class="title">
+                <div class="platform-hinted " data-platform-hinted="data-platform-hinted"><div class="content sourceset-dependent-content" data-active="" data-togglable=":Terix-Core:dokkaHtmlPartial/main"><div class="symbol monospace"><span class="token keyword">open </span><span class="token keyword">override </span><span class="token keyword">fun </span><a href="../-water-tick/index.html#-267674900%2FFunctions%2F301628108"><span class="token function">registerEvents</span></a><span class="token punctuation">(</span><span class="parameters "><span class="parameter "><span class="token keyword">vararg </span>listeners<span class="token operator">: </span><span data-unresolved-link="org.bukkit.event/Listener///PointingToDeclaration/">Listener</span></span></span><span class="token punctuation">)</span></div></div></div>
+              </div>
+            </div>
+          </div>
+        </div>
+<a data-name="1958541280%2FFunctions%2F301628108" anchor-label="run" id="1958541280%2FFunctions%2F301628108" data-filterable-set=":Terix-Core:dokkaHtmlPartial/main"></a>
+        <div class="table-row" data-filterable-current=":Terix-Core:dokkaHtmlPartial/main" data-filterable-set=":Terix-Core:dokkaHtmlPartial/main">
+          <div class="main-subrow keyValue ">
+            <div class=""><span class="inline-flex">
+                <div><a href="../-child-ticker/run.html"><span><span>run</span></span></a></div>
+<span class="anchor-wrapper"><span class="anchor-icon" pointing-to="1958541280%2FFunctions%2F301628108"></span>
+                  <div class="copy-popup-wrapper "><span class="copy-popup-icon"></span><span>Link copied to clipboard</span></div>
+                </span></span></div>
+            <div>
+              <div class="title">
+                <div class="platform-hinted " data-platform-hinted="data-platform-hinted"><div class="content sourceset-dependent-content" data-active="" data-togglable=":Terix-Core:dokkaHtmlPartial/main"><div class="symbol monospace"><span class="token keyword">suspend </span><span class="token keyword">fun </span><a href="../-child-ticker/run.html"><span class="token function">run</span></a><span class="token punctuation">(</span><span class="token punctuation">)</span></div></div></div>
+              </div>
+            </div>
+          </div>
+        </div>
+<a data-name="-1288559017%2FFunctions%2F301628108" anchor-label="setProperty" id="-1288559017%2FFunctions%2F301628108" data-filterable-set=":Terix-Core:dokkaHtmlPartial/main"></a>
+        <div class="table-row" data-filterable-current=":Terix-Core:dokkaHtmlPartial/main" data-filterable-set=":Terix-Core:dokkaHtmlPartial/main">
+          <div class="main-subrow keyValue ">
+            <div class=""><span class="inline-flex">
+                <div><a href="../-water-tick/index.html#-1288559017%2FFunctions%2F301628108"><span>set</span><wbr><span><span>Property</span></span></a></div>
+<span class="anchor-wrapper"><span class="anchor-icon" pointing-to="-1288559017%2FFunctions%2F301628108"></span>
+                  <div class="copy-popup-wrapper "><span class="copy-popup-icon"></span><span>Link copied to clipboard</span></div>
+                </span></span></div>
+            <div>
+              <div class="title">
+                <div class="platform-hinted " data-platform-hinted="data-platform-hinted"><div class="content sourceset-dependent-content" data-active="" data-togglable=":Terix-Core:dokkaHtmlPartial/main"><div class="symbol monospace"><span class="token keyword">open </span><span class="token keyword">override </span><span class="token keyword">fun </span><span class="token operator">&lt;</span><span class="token keyword"></span><a href="../../../Terix-Core/dev.racci.terix.core.services.runnables/-child-ticker/set-property.html">T</a><span class="token operator"> : </span><a href="https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-any/index.html">Any</a><span class="token operator">&gt; </span><a href="../-water-tick/index.html#-1288559017%2FFunctions%2F301628108"><span class="token function">setProperty</span></a><span class="token punctuation">(</span><span class="parameters "><span class="parameter ">key<span class="token operator">: </span><a href="https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-string/index.html">String</a><span class="token punctuation">, </span></span><span class="parameter ">value<span class="token operator">: </span><a href="../../../Terix-Core/dev.racci.terix.core.services.runnables/-child-ticker/set-property.html">T</a></span></span><span class="token punctuation">)</span><span class="token operator">: </span><a href="../../../Terix-Core/dev.racci.terix.core.services.runnables/-child-ticker/set-property.html">T</a></div></div></div>
+              </div>
+            </div>
+          </div>
+        </div>
+<a data-name="941061299%2FFunctions%2F301628108" anchor-label="shouldRun" id="941061299%2FFunctions%2F301628108" data-filterable-set=":Terix-Core:dokkaHtmlPartial/main"></a>
+        <div class="table-row" data-filterable-current=":Terix-Core:dokkaHtmlPartial/main" data-filterable-set=":Terix-Core:dokkaHtmlPartial/main">
+          <div class="main-subrow keyValue ">
+            <div class=""><span class="inline-flex">
+                <div><a href="../-child-ticker/should-run.html"><span>should</span><wbr><span><span>Run</span></span></a></div>
+<span class="anchor-wrapper"><span class="anchor-icon" pointing-to="941061299%2FFunctions%2F301628108"></span>
+                  <div class="copy-popup-wrapper "><span class="copy-popup-icon"></span><span>Link copied to clipboard</span></div>
+                </span></span></div>
+            <div>
+              <div class="title">
+                <div class="platform-hinted " data-platform-hinted="data-platform-hinted"><div class="content sourceset-dependent-content" data-active="" data-togglable=":Terix-Core:dokkaHtmlPartial/main"><div class="symbol monospace"><span class="token keyword">open </span><span class="token keyword">suspend </span><span class="token keyword">fun </span><a href="../-child-ticker/should-run.html"><span class="token function">shouldRun</span></a><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token operator">: </span><a href="https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-boolean/index.html">Boolean</a></div></div></div>
+              </div>
+            </div>
+          </div>
+        </div>
+<a data-name="1699304497%2FFunctions%2F301628108" anchor-label="sync" id="1699304497%2FFunctions%2F301628108" data-filterable-set=":Terix-Core:dokkaHtmlPartial/main"></a>
+        <div class="table-row" data-filterable-current=":Terix-Core:dokkaHtmlPartial/main" data-filterable-set=":Terix-Core:dokkaHtmlPartial/main">
+          <div class="main-subrow keyValue ">
+            <div class=""><span class="inline-flex">
+                <div><a href="../-water-tick/index.html#1699304497%2FFunctions%2F301628108"><span><span>sync</span></span></a></div>
+<span class="anchor-wrapper"><span class="anchor-icon" pointing-to="1699304497%2FFunctions%2F301628108"></span>
+                  <div class="copy-popup-wrapper "><span class="copy-popup-icon"></span><span>Link copied to clipboard</span></div>
+                </span></span></div>
+            <div>
+              <div class="title">
+                <div class="platform-hinted " data-platform-hinted="data-platform-hinted"><div class="content sourceset-dependent-content" data-active="" data-togglable=":Terix-Core:dokkaHtmlPartial/main"><div class="symbol monospace"><span class="token keyword">open </span><span class="token keyword">override </span><span class="token keyword">fun </span><a href="../-water-tick/index.html#1699304497%2FFunctions%2F301628108"><span class="token function">sync</span></a><span class="token punctuation">(</span><span class="parameters "><span class="parameter ">block<span class="token operator">: </span><span class="token keyword">suspend </span><span class="token keyword"></span><span data-unresolved-link="kotlinx.coroutines/CoroutineScope///PointingToDeclaration/">CoroutineScope</span><span class="token punctuation">.</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token operator"> -&gt; </span><span class="token keyword"></span><a href="https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-unit/index.html">Unit</a></span></span><span class="token punctuation">)</span><span class="token operator">: </span><span data-unresolved-link="kotlinx.coroutines/Job///PointingToDeclaration/">Job</span></div></div></div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+      <h2 class="">Properties</h2>
+      <div class="table" data-togglable="Properties"><a data-name="1670259880%2FProperties%2F301628108" anchor-label="isAlive" id="1670259880%2FProperties%2F301628108" data-filterable-set=":Terix-Core:dokkaHtmlPartial/main"></a>
+        <div class="table-row" data-filterable-current=":Terix-Core:dokkaHtmlPartial/main" data-filterable-set=":Terix-Core:dokkaHtmlPartial/main">
+          <div class="main-subrow keyValue ">
+            <div class=""><span class="inline-flex">
+                <div><a href="../-child-ticker/is-alive.html"><span>is</span><wbr><span><span>Alive</span></span></a></div>
+<span class="anchor-wrapper"><span class="anchor-icon" pointing-to="1670259880%2FProperties%2F301628108"></span>
+                  <div class="copy-popup-wrapper "><span class="copy-popup-icon"></span><span>Link copied to clipboard</span></div>
+                </span></span></div>
+            <div>
+              <div class="title">
+                <div class="platform-hinted " data-platform-hinted="data-platform-hinted" data-togglable="Properties"><div class="content sourceset-dependent-content" data-active="" data-togglable=":Terix-Core:dokkaHtmlPartial/main"><a data-name="1670259880%2FProperties%2F301628108" anchor-label="isAlive" id="1670259880%2FProperties%2F301628108" data-filterable-set=":Terix-Core:dokkaHtmlPartial/main"></a><div class="symbol monospace"><span class="token keyword"></span><span class="token keyword">var </span><a href="../-child-ticker/is-alive.html">isAlive</a><span class="token operator">: </span><a href="https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-boolean/index.html">Boolean</a><span class="token operator"> = </span><span class="token boolean">false</span></div></div></div>
+              </div>
+            </div>
+          </div>
+        </div>
+<a data-name="-535458908%2FProperties%2F301628108" anchor-label="logger" id="-535458908%2FProperties%2F301628108" data-filterable-set=":Terix-Core:dokkaHtmlPartial/main"></a>
+        <div class="table-row" data-filterable-current=":Terix-Core:dokkaHtmlPartial/main" data-filterable-set=":Terix-Core:dokkaHtmlPartial/main">
+          <div class="main-subrow keyValue ">
+            <div class=""><span class="inline-flex">
+                <div><a href="../-water-tick/index.html#-535458908%2FProperties%2F301628108"><span><span>logger</span></span></a></div>
+<span class="anchor-wrapper"><span class="anchor-icon" pointing-to="-535458908%2FProperties%2F301628108"></span>
+                  <div class="copy-popup-wrapper "><span class="copy-popup-icon"></span><span>Link copied to clipboard</span></div>
+                </span></span></div>
+            <div>
+              <div class="title">
+                <div class="platform-hinted " data-platform-hinted="data-platform-hinted" data-togglable="Properties"><div class="content sourceset-dependent-content" data-active="" data-togglable=":Terix-Core:dokkaHtmlPartial/main"><a data-name="-535458908%2FProperties%2F301628108" anchor-label="logger" id="-535458908%2FProperties%2F301628108" data-filterable-set=":Terix-Core:dokkaHtmlPartial/main"></a><div class="symbol monospace"><span class="token keyword">open </span><span class="token keyword">override </span><span class="token keyword">val </span><a href="../-water-tick/index.html#-535458908%2FProperties%2F301628108">logger</a><span class="token operator">: </span><span data-unresolved-link="dev.racci.minix.api.plugin.logger/MinixLogger///PointingToDeclaration/">MinixLogger</span></div></div></div>
+              </div>
+            </div>
+          </div>
+        </div>
+<a data-name="1904047177%2FProperties%2F301628108" anchor-label="origin" id="1904047177%2FProperties%2F301628108" data-filterable-set=":Terix-Core:dokkaHtmlPartial/main"></a>
+        <div class="table-row" data-filterable-current=":Terix-Core:dokkaHtmlPartial/main" data-filterable-set=":Terix-Core:dokkaHtmlPartial/main">
+          <div class="main-subrow keyValue ">
+            <div class=""><span class="inline-flex">
+                <div><a href="../-child-ticker/origin.html"><span><span>origin</span></span></a></div>
+<span class="anchor-wrapper"><span class="anchor-icon" pointing-to="1904047177%2FProperties%2F301628108"></span>
+                  <div class="copy-popup-wrapper "><span class="copy-popup-icon"></span><span>Link copied to clipboard</span></div>
+                </span></span></div>
+            <div>
+              <div class="title">
+                <div class="platform-hinted " data-platform-hinted="data-platform-hinted" data-togglable="Properties"><div class="content sourceset-dependent-content" data-active="" data-togglable=":Terix-Core:dokkaHtmlPartial/main"><a data-name="1904047177%2FProperties%2F301628108" anchor-label="origin" id="1904047177%2FProperties%2F301628108" data-filterable-set=":Terix-Core:dokkaHtmlPartial/main"></a><div class="symbol monospace"><span class="token keyword"></span><span class="token keyword">val </span><a href="../-child-ticker/origin.html">origin</a><span class="token operator">: </span><a href="../../../Terix-API/dev.racci.terix.api.origins.origin/-origin/index.html">Origin</a></div></div></div>
+              </div>
+            </div>
+          </div>
+        </div>
+<a data-name="1219404014%2FProperties%2F301628108" anchor-label="player" id="1219404014%2FProperties%2F301628108" data-filterable-set=":Terix-Core:dokkaHtmlPartial/main"></a>
+        <div class="table-row" data-filterable-current=":Terix-Core:dokkaHtmlPartial/main" data-filterable-set=":Terix-Core:dokkaHtmlPartial/main">
+          <div class="main-subrow keyValue ">
+            <div class=""><span class="inline-flex">
+                <div><a href="../-child-ticker/player.html"><span><span>player</span></span></a></div>
+<span class="anchor-wrapper"><span class="anchor-icon" pointing-to="1219404014%2FProperties%2F301628108"></span>
+                  <div class="copy-popup-wrapper "><span class="copy-popup-icon"></span><span>Link copied to clipboard</span></div>
+                </span></span></div>
+            <div>
+              <div class="title">
+                <div class="platform-hinted " data-platform-hinted="data-platform-hinted" data-togglable="Properties"><div class="content sourceset-dependent-content" data-active="" data-togglable=":Terix-Core:dokkaHtmlPartial/main"><a data-name="1219404014%2FProperties%2F301628108" anchor-label="player" id="1219404014%2FProperties%2F301628108" data-filterable-set=":Terix-Core:dokkaHtmlPartial/main"></a><div class="symbol monospace"><span class="token keyword"></span><span class="token keyword">val </span><a href="../-child-ticker/player.html">player</a><span class="token operator">: </span><span data-unresolved-link="org.bukkit.entity/Player///PointingToDeclaration/">Player</span></div></div></div>
+              </div>
+            </div>
+          </div>
+        </div>
+<a data-name="1374691169%2FProperties%2F301628108" anchor-label="plugin" id="1374691169%2FProperties%2F301628108" data-filterable-set=":Terix-Core:dokkaHtmlPartial/main"></a>
+        <div class="table-row" data-filterable-current=":Terix-Core:dokkaHtmlPartial/main" data-filterable-set=":Terix-Core:dokkaHtmlPartial/main">
+          <div class="main-subrow keyValue ">
+            <div class=""><span class="inline-flex">
+                <div><a href="../-water-tick/index.html#1374691169%2FProperties%2F301628108"><span><span>plugin</span></span></a></div>
+<span class="anchor-wrapper"><span class="anchor-icon" pointing-to="1374691169%2FProperties%2F301628108"></span>
+                  <div class="copy-popup-wrapper "><span class="copy-popup-icon"></span><span>Link copied to clipboard</span></div>
+                </span></span></div>
+            <div>
+              <div class="title">
+                <div class="platform-hinted " data-platform-hinted="data-platform-hinted" data-togglable="Properties"><div class="content sourceset-dependent-content" data-active="" data-togglable=":Terix-Core:dokkaHtmlPartial/main"><a data-name="1374691169%2FProperties%2F301628108" anchor-label="plugin" id="1374691169%2FProperties%2F301628108" data-filterable-set=":Terix-Core:dokkaHtmlPartial/main"></a><div class="symbol monospace"><span class="token keyword">open </span><span class="token keyword">override </span><span class="token keyword">val </span><a href="../-water-tick/index.html#1374691169%2FProperties%2F301628108">plugin</a><span class="token operator">: </span><a href="../../../Terix-API/dev.racci.terix.api/-terix/index.html">Terix</a></div></div></div>
+              </div>
+            </div>
+          </div>
+        </div>
+<a data-name="1323953317%2FProperties%2F301628108" anchor-label="upForAdoption" id="1323953317%2FProperties%2F301628108" data-filterable-set=":Terix-Core:dokkaHtmlPartial/main"></a>
+        <div class="table-row" data-filterable-current=":Terix-Core:dokkaHtmlPartial/main" data-filterable-set=":Terix-Core:dokkaHtmlPartial/main">
+          <div class="main-subrow keyValue ">
+            <div class=""><span class="inline-flex">
+                <div><a href="../-child-ticker/up-for-adoption.html"><span>up</span><wbr><span>For</span><wbr><span><span>Adoption</span></span></a></div>
+<span class="anchor-wrapper"><span class="anchor-icon" pointing-to="1323953317%2FProperties%2F301628108"></span>
+                  <div class="copy-popup-wrapper "><span class="copy-popup-icon"></span><span>Link copied to clipboard</span></div>
+                </span></span></div>
+            <div>
+              <div class="title">
+                <div class="platform-hinted " data-platform-hinted="data-platform-hinted" data-togglable="Properties"><div class="content sourceset-dependent-content" data-active="" data-togglable=":Terix-Core:dokkaHtmlPartial/main"><a data-name="1323953317%2FProperties%2F301628108" anchor-label="upForAdoption" id="1323953317%2FProperties%2F301628108" data-filterable-set=":Terix-Core:dokkaHtmlPartial/main"></a><div class="symbol monospace"><span class="token keyword"></span><span class="token keyword">var </span><a href="../-child-ticker/up-for-adoption.html">upForAdoption</a><span class="token operator">: </span><a href="https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-boolean/index.html">Boolean</a><span class="token operator"> = </span><span class="token boolean">true</span></div></div></div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+      <div class="footer">
+        <span class="go-to-top-icon"><a href="#content" id="go-to-top-link"></a></span><span>© 2022 Copyright</span><span class="pull-right"><span>Generated by </span><a href="https://github.com/Kotlin/dokka"><span>dokka</span><span class="padded-icon"></span></a></span>
+      </div>
+    </div>
+</div>
+
+</body></html>
+

@@ -1,0 +1,1 @@
+sourceset_dependencies = '{":Terix-Core:dokkaHtmlPartial/main":[],":Terix-API:dokkaHtmlPartial/main":[]}'
