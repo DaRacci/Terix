@@ -72,6 +72,10 @@ class OriginServiceImpl(override val plugin: Terix) : OriginService, Extension<T
         origins.values.forEach(::activateEvents)
     }
 
+    override suspend fun handleDisable() {
+        origins.values.forEach { it.handleUnload() }
+    }
+
     private suspend fun populateRegistry() {
         registry {
             add<AethenOrigin>()

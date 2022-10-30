@@ -3,6 +3,7 @@ package dev.racci.terix.core.origins
 import com.destroystokyo.paper.MaterialSetTag
 import com.destroystokyo.paper.MaterialTags
 import dev.racci.minix.api.extensions.cancel
+import dev.racci.minix.api.extensions.pdc
 import dev.racci.minix.api.utils.minecraft.MaterialTagsExtension
 import dev.racci.terix.api.Terix
 import dev.racci.terix.api.annotations.OriginEventSelector
@@ -26,16 +27,21 @@ import org.bukkit.event.entity.EntityDamageByEntityEvent
 import org.bukkit.event.entity.EntityDamageEvent
 import org.bukkit.event.player.PlayerBedEnterEvent
 import org.bukkit.inventory.EquipmentSlot
+import org.bukkit.persistence.PersistentDataType
 import org.bukkit.potion.PotionEffectType
 import kotlin.time.Duration
 
-class DragonOrigin(override val plugin: Terix) : Origin() {
+// TODO -> Dragons breaths, don't damage the dragon, Not collectable in bottles
+public class DragonOrigin(override val plugin: Terix) : Origin() {
 
     override val name = "Dragon"
     override val colour = TextColor.fromHexString("#9e33ff")!!
 
     override val requirements = persistentListOf(
-        Component.text("Slain the Ender Dragon.") to { player: Player -> player.getAdvancementProgress(ADVANCEMENT).isDone }
+        Component.text("Slay the Ender Dragon.") to { player: Player -> player.getAdvancementProgress(ADVANCEMENT).isDone },
+        Component.text("Cradle Jean's egg") to { player: Player -> player.pdc.getOrDefault(CRADLE_KEY, PersistentDataType.BYTE, 0) == 1.toByte() },
+        Component.text("Kill 5 players in Overworld, Nether and End") to { player: Player -> arrayOf(KILL_OVERWORLD_KEY, KILL_NETHER_KEY, KILL_END_KEY).all { key -> player.pdc.getOrDefault(key, PersistentDataType.INTEGER, 0) >= KILL_TOTAL } }
+
     )
 
     override suspend fun handleRegister() {
@@ -114,7 +120,12 @@ class DragonOrigin(override val plugin: Terix) : Origin() {
         victim.location.createExplosion(victim, 3.5f, false, false)
     }
 
-    companion object {
-        private val ADVANCEMENT = run { Bukkit.getAdvancement(NamespacedKey.minecraft("end/kill_dragon"))!! }
+    public companion object {
+        private const val KILL_TOTAL: Int = 5
+        private val ADVANCEMENT by lazy { Bukkit.getAdvancement(NamespacedKey.minecraft("end/kill_dragon"))!! }
+        internal val CRADLE_KEY by lazy { NamespacedKey("terix", "dragon/cradle_egg") }
+        internal val KILL_OVERWORLD_KEY by lazy { NamespacedKey("terix", "dragon/player_kills_overworld") }
+        internal val KILL_NETHER_KEY by lazy { NamespacedKey("terix", "dragon/player_kills_nether") }
+        internal val KILL_END_KEY by lazy { NamespacedKey("terix", "dragon/player_kills_end") }
     }
 }

@@ -24,6 +24,8 @@ SEMIPATH=build/libs/Terix
 gh release create "v$2" -F ./.templog.md -t "Terix release $2" $SEMIPATH-$2.jar Terix-API/$SEMIPATH-API-$2-sources.jar Terix-Core/$SEMIPATH-Core-$2.jar
 rm ./.templog.md
 
+git push origin master || exit 1 # Push the new version tag for the release
+
 gh workflow run "docs.yml" # Generate the documentation
 
 git fetch --tags origin # Fetch the tags from the origin

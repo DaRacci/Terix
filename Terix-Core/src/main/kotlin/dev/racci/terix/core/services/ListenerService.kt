@@ -18,6 +18,7 @@ import dev.racci.minix.api.extensions.event
 import dev.racci.minix.api.extensions.events
 import dev.racci.minix.api.extensions.inOverworld
 import dev.racci.minix.api.extensions.onlinePlayers
+import dev.racci.minix.api.extensions.pdc
 import dev.racci.minix.api.extensions.reflection.safeCast
 import dev.racci.minix.api.extensions.scheduler
 import dev.racci.minix.api.services.DataService
@@ -48,6 +49,7 @@ import dev.racci.terix.core.data.Lang
 import dev.racci.terix.core.extensions.message
 import dev.racci.terix.core.extensions.originTime
 import dev.racci.terix.core.originPassiveModifiers
+import dev.racci.terix.core.origins.DragonOrigin
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.channels.onFailure
@@ -60,13 +62,16 @@ import net.minecraft.stats.Stats
 import net.minecraft.world.InteractionHand
 import net.minecraft.world.effect.MobEffectInstance
 import net.minecraft.world.food.FoodProperties
+import org.bukkit.Material
 import org.bukkit.Sound
+import org.bukkit.World
 import org.bukkit.attribute.Attribute
 import org.bukkit.entity.LivingEntity
 import org.bukkit.entity.Player
 import org.bukkit.event.EventPriority
 import org.bukkit.event.entity.EntityCombustEvent
 import org.bukkit.event.entity.EntityDamageEvent
+import org.bukkit.event.entity.EntityPickupItemEvent
 import org.bukkit.event.entity.EntityPotionEffectEvent
 import org.bukkit.event.entity.EntityShootBowEvent
 import org.bukkit.event.entity.FoodLevelChangeEvent
@@ -77,8 +82,8 @@ import org.bukkit.event.player.PlayerGameModeChangeEvent
 import org.bukkit.event.player.PlayerJoinEvent
 import org.bukkit.event.player.PlayerQuitEvent
 import org.bukkit.inventory.ItemStack
+import org.bukkit.persistence.PersistentDataType
 import org.bukkit.potion.PotionEffect
-import org.bukkit.potion.PotionEffectType
 import org.jetbrains.exposed.sql.transactions.transaction
 import org.koin.core.component.inject
 import java.util.UUID
@@ -86,11 +91,11 @@ import kotlin.reflect.KProperty1
 import kotlin.time.Duration.Companion.seconds
 
 @MappedExtension(Terix::class, "Listener Service", [DataService::class])
-class ListenerService(override val plugin: Terix) : Extension<Terix>() {
+public class ListenerService(override val plugin: Terix) : Extension<Terix>() {
     private val terixConfig by inject<DataService>().inject<TerixConfig>()
     private val lang by inject<DataService>().inject<Lang>()
     private val finishEventAction: PlayerMap<Pair<FoodLevelChangeEvent, (FoodLevelChangeEvent) -> Unit>> by lazy(::PlayerMap)
-    val bowTracker = mutableMapOf<LivingEntity, ItemStack>()
+    public val bowTracker = mutableMapOf<LivingEntity, ItemStack>()
 
     @Suppress("kotlin:S3776")
     override suspend fun handleEnable() {
@@ -102,6 +107,33 @@ class ListenerService(override val plugin: Terix) : Extension<Terix>() {
                     potion.key?.asString()?.matches(PotionEffectBuilder.regex) == true
                 ) return@event cancel()
             }
+        }
+
+        event<EntityPickupItemEvent>(EventPriority.MONITOR, true) {
+            if (this.item.itemStack.type != Material.DRAGON_EGG) return@event
+            if (this.entity !is Player) return@event
+
+            with(this.entity.pdc) {
+                if (!this.has(DragonOrigin.CRADLE_KEY, PersistentDataType.BYTE)) {
+                    this.set(DragonOrigin.CRADLE_KEY, PersistentDataType.BYTE, 1)
+                    logger.debug { "${entity.name} has fulfilled the cradle requirement for the Dragon Origin." }
+                } else logger.debug { "${entity.name} has already fulfilled the cradle requirement" }
+            }
+        }
+
+        event<PlayerDeathEvent>(EventPriority.MONITOR, true) {
+            if (this.entity.killer !is Player) return@event logger.debug { "Killer is not a player" }
+
+            val key = when (this.entity.killer!!.world.environment) {
+                World.Environment.NORMAL -> DragonOrigin.KILL_OVERWORLD_KEY
+                World.Environment.NETHER -> DragonOrigin.KILL_NETHER_KEY
+                World.Environment.THE_END -> DragonOrigin.KILL_END_KEY
+                else -> return@event logger.debug { "Environment is not a valid origin environment" }
+            }
+
+            val current = this.entity.killer!!.pdc.get(key, PersistentDataType.INTEGER) ?: 0
+            this.entity.killer!!.pdc.set(key, PersistentDataType.INTEGER, current + 1)
+            logger.debug { "${entity.killer!!.name} has now killed ${current + 1} players in the ${this.entity.killer!!.world.name}." }
         }
 
         event<EntityShootBowEvent>(EventPriority.MONITOR, true) {
@@ -116,25 +148,6 @@ class ListenerService(override val plugin: Terix) : Extension<Terix>() {
             scheduler { bowTracker.remove(entity, bow) }.runAsyncTaskLater(plugin, 2.ticks)
         }
 
-        fun getInvalidPotions(
-            player: Player,
-            origin: Origin,
-            states: Set<State>
-        ): List<PotionEffectType> {
-            val activeEffects = player.activePotionEffects
-            val invalidTypes = arrayOfNulls<PotionEffectType>(activeEffects.size)
-
-            for ((index, potion) in player.activePotionEffects.withIndex()) {
-                val state = OriginHelper.potionState(potion)
-                val potOrigin = OriginHelper.potionOrigin(potion)
-                if ((state == null || state in states) && potOrigin == null || potOrigin === origin) continue
-
-                invalidTypes[index] = potion.type
-            }
-
-            return invalidTypes.filterNotNull()
-        }
-
         event<PlayerQuitEvent>(EventPriority.MONITOR, true) {
             player.allOriginPotions.map(PotionEffect::getType).forEach(player::removePotionEffect)
             player.originPassiveModifiers.forEach { it.value.forEach(it.key::removeModifier) }
@@ -143,14 +156,6 @@ class ListenerService(override val plugin: Terix) : Extension<Terix>() {
         event<PlayerJoinEvent>(forceAsync = true) {
             val origin = TerixPlayer.cachedOrigin(player)
             activateOrigin(player, origin)
-
-//            val states = State.getPlayerStates(player)
-//            val invalidPotions = getInvalidPotions(player, origin, states)
-//
-//            logger.debug { "Found ${invalidPotions.size} invalid potions for ${player.name}" }
-//
-//            sync { invalidPotions.forEach(player::removePotionEffect) }
-//            removeUnfulfilledOrInvalidAttributes(player, states)
 
             delay(0.250.seconds)
             player.sendHealthUpdate()
