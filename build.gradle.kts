@@ -1,3 +1,6 @@
+import net.minecrell.pluginyml.bukkit.BukkitPluginDescription.PluginLoadOrder
+import org.jetbrains.dokka.gradle.DokkaPlugin
+import org.jetbrains.kotlinx.serialization.gradle.SerializationGradleSubplugin
 import java.net.URL
 
 plugins {
@@ -21,7 +24,7 @@ bukkit {
     apiVersion = "1.19"
     version = rootProject.version.toString()
     main = "dev.racci.terix.core.TerixImpl"
-    load = net.minecrell.pluginyml.bukkit.BukkitPluginDescription.PluginLoadOrder.STARTUP
+    load = PluginLoadOrder.STARTUP
     depend = listOf("Minix")
     softDepend = listOf(
         "PlaceholderAPI",
@@ -29,7 +32,6 @@ bukkit {
         "EcoEnchants",
         "ProtocolLib"
     )
-    website = "https://terix.racci.dev/"
 }
 
 tasks {
@@ -52,13 +54,10 @@ dependencies {
 }
 
 subprojects {
-
-    apply(plugin = "dev.racci.minix.kotlin")
-    apply(plugin = "dev.racci.minix.purpurmc")
-    apply(plugin = "org.jetbrains.kotlin.plugin.serialization")
-    apply(plugin = "org.jetbrains.dokka")
-//    apply(plugin = "kotlin-kapt")
-//    apply(plugin = "io.arrow-kt.analysis.kotlin")
+    apply<Dev_racci_minix_kotlinPlugin>()
+    apply<Dev_racci_minix_purpurmcPlugin>()
+    apply<SerializationGradleSubplugin>()
+    apply<DokkaPlugin>()
 
     repositories {
         mavenLocal()
@@ -72,8 +71,6 @@ subprojects {
     }
 
     dependencies {
-//        compileOnly("dev.racci:Minix:4.2.0-SNAPSHOT")
-//        compileOnly("dev.racci:Minix-Core:4.2.0-SNAPSHOT")
         compileOnly(rootProject.libs.minecraft.minix)
         compileOnly(rootProject.libs.minecraft.minix.core)
         compileOnly(rootProject.libs.minecraft.api.libsDisguises)
@@ -81,7 +78,6 @@ subprojects {
         compileOnly(platform("io.arrow-kt:arrow-stack:1.1.3"))
         compileOnly("io.arrow-kt:arrow-core")
         compileOnly("io.arrow-kt:arrow-fx-coroutines")
-//        kapt("io.arrow-kt:arrow-meta")
 
         testImplementation(platform(kotlin("bom")))
         testImplementation(rootProject.libs.minecraft.minix)
@@ -126,8 +122,11 @@ tasks {
     shadowJar {
         dependencyFilter.include { dep ->
             dep.moduleName == "Terix-API" ||
-                dep.moduleName == "Terix-Core"
+                dep.moduleName == "Terix-Core" ||
+                dep.moduleGroup == "com.github.stefvanschie.inventoryframework"
         }
+
+        relocate("com.github.stefvanschie.inventoryframework", "dev.racci.terix.relocated.inventoryframework")
     }
 
     ktlintFormat {

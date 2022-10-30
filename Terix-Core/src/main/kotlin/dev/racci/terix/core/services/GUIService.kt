@@ -15,6 +15,7 @@ import dev.racci.minix.api.builders.ItemBuilderDSL
 import dev.racci.minix.api.extension.Extension
 import dev.racci.minix.api.extensions.cancel
 import dev.racci.minix.api.extensions.message
+import dev.racci.minix.api.extensions.noItalic
 import dev.racci.minix.api.extensions.parse
 import dev.racci.minix.api.extensions.reflection.castOrThrow
 import dev.racci.minix.api.extensions.scheduler
@@ -48,6 +49,7 @@ import kotlinx.datetime.Instant
 import net.kyori.adventure.extra.kotlin.text
 import net.kyori.adventure.key.Key
 import net.kyori.adventure.sound.Sound
+import net.kyori.adventure.text.Component
 import org.bukkit.Material
 import org.bukkit.entity.HumanEntity
 import org.bukkit.entity.Player
@@ -171,8 +173,13 @@ class GUIService(override val plugin: Terix) : Extension<Terix>() {
 
     private fun Origin.createItem(): GuiItem {
         return ItemBuilderDSL.from(item.material) {
-            name = item.name ?: displayName
+            name = (item.name ?: displayName).noItalic()
+
             lore = item.loreComponents
+            if (requirements.isNotEmpty()) {
+                lore = lore + lang.gui.requirementLore.map { it.get() } + requirements.map { lang.gui.requirementLine["requirement" to { it.first }] }.toTypedArray()
+            }
+            lore = lore.map(Component::noItalic)
         }.asGuiItem {
             if (selectedOrigin.getIfPresent(whoClicked) == this@createItem) {
                 whoClicked.shieldSound()

@@ -47,19 +47,29 @@ class PotionEffectBuilder(
         return this
     }
 
-    inline fun <reified A : Ability> abilityKey() = abilityKey(A::class)
+    fun abilityKey(
+        origin: KClass<out Origin>,
+        ability: KClass<out Ability>
+    ) = abilityKey(origin.simpleName!!, ability.simpleName ?: error("Cannot use anonymous classes as abilities."))
 
-    fun abilityKey(ability: KClass<out Ability>) = abilityKey(ability.simpleName ?: error("Cannot use anonymous classes as abilities."))
-
-    fun abilityKey(ability: String): PotionEffectBuilder {
-        this.key = NamespacedKey("terix", "origin_ability_${ability.lowercase()}")
+    fun abilityKey(
+        origin: String,
+        ability: String
+    ): PotionEffectBuilder {
+        this.key = NamespacedKey("terix", "origin_ability_${origin.lowercase()}/${ability.lowercase()}")
         return this
     }
 
-    fun foodKey(food: Material) = foodKey(food.name)
+    fun foodKey(
+        origin: Origin,
+        food: Material
+    ) = foodKey(origin.name, food.name)
 
-    fun foodKey(food: String): PotionEffectBuilder {
-        this.key = NamespacedKey("terix", "origin_food_${food.lowercase()}")
+    fun foodKey(
+        origin: String,
+        food: String
+    ): PotionEffectBuilder {
+        this.key = NamespacedKey("terix", "origin_food_${origin.lowercase()}/${food.lowercase()}")
         return this
     }
 

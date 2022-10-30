@@ -31,7 +31,7 @@ class SunlightTick(
         if (OriginHelper.shouldIgnorePlayer(player)) return false
 
         this.calculateBar()
-        return this.player.inSunlight && exposedTime > GRACE_PERIOD
+        return this.player.inSunlight && exposedTime == GRACE_PERIOD
     }
 
     override suspend fun handleRun() {

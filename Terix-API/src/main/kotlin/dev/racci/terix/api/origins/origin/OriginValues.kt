@@ -15,6 +15,8 @@ import dev.racci.terix.api.origins.abilities.Ability
 import dev.racci.terix.api.origins.enums.KeyBinding
 import dev.racci.terix.api.origins.sounds.SoundEffects
 import dev.racci.terix.api.origins.states.State
+import kotlinx.collections.immutable.PersistentList
+import kotlinx.collections.immutable.persistentListOf
 import net.kyori.adventure.text.Component
 import net.kyori.adventure.text.format.NamedTextColor
 import net.kyori.adventure.text.format.TextColor
@@ -44,6 +46,8 @@ sealed class OriginValues : WithPlugin<MinixPlugin> {
     open val permission: String? = null
 
     open val becomeOriginTitle: TitleBuilder? = null
+
+    open val requirements: PersistentList<Pair<Component, (Player) -> Boolean>> = persistentListOf()
 
     open var fireImmunity: Boolean
         get() = specials[0] ?: false

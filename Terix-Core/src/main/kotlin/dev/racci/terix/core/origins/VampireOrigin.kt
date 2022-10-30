@@ -103,6 +103,7 @@ class VampireOrigin(override val plugin: Terix) : Origin() {
                 ambient = true
             }
         }
+
         item {
             material = Material.BEETROOT_SOUP
             lore = """
@@ -110,6 +111,7 @@ class VampireOrigin(override val plugin: Terix) : Origin() {
                 <dark_red>This is a powerful ability that can be used to kill any player.
             """.trimIndent()
         }
+
         abilities {
             KeyBinding.DOUBLE_OFFHAND.add<Transform>()
         }

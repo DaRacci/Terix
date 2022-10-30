@@ -12,10 +12,13 @@ import dev.racci.terix.api.origins.enums.EventSelector
 import dev.racci.terix.api.origins.origin.Origin
 import dev.racci.terix.api.origins.sounds.SoundEffect
 import dev.racci.terix.api.origins.states.State
+import kotlinx.collections.immutable.persistentListOf
+import net.kyori.adventure.text.Component
 import net.kyori.adventure.text.format.TextColor
 import org.bukkit.Bukkit
 import org.bukkit.Material
 import org.bukkit.NamespacedKey
+import org.bukkit.Registry.ADVANCEMENT
 import org.bukkit.entity.LivingEntity
 import org.bukkit.entity.Player
 import org.bukkit.event.entity.EntityDamageByBlockEvent
@@ -31,9 +34,9 @@ class DragonOrigin(override val plugin: Terix) : Origin() {
     override val name = "Dragon"
     override val colour = TextColor.fromHexString("#9e33ff")!!
 
-    override suspend fun hasPermission(player: Player): Boolean {
-        return player.getAdvancementProgress(ADVANCEMENT).isDone
-    }
+    override val requirements = persistentListOf(
+        Component.text("Slain the Ender Dragon.") to { player: Player -> player.getAdvancementProgress(ADVANCEMENT).isDone }
+    )
 
     override suspend fun handleRegister() {
         sounds.hurtSound = SoundEffect("entity.hoglin.angry")

@@ -22,6 +22,8 @@ class Lang : LangConfig<Terix>() {
 
     var choices: Choices = Choices()
 
+    var gui: GUI = GUI()
+
     @ConfigSerializable
     class Generic : InnerLang() {
 
@@ -53,6 +55,8 @@ class Lang : LangConfig<Terix>() {
 
         var missingRequirement: PartialComponent = PartialComponent.of("<prefix:origins>You're missing a requirement to select this origin.")
 
+        var cancelledCommand: PartialComponent = PartialComponent.of("<prefix:origins>Couldn't change origin, reason: <reason>.")
+
         var bee: Bee = Bee()
 
         var descriptor: Descriptor = Descriptor()
@@ -80,4 +84,14 @@ class Lang : LangConfig<Terix>() {
         var mutateSelf = PartialComponent.of("<prefix:origins>You now have <choices> choices.")
         var mutateOther = PartialComponent.of("<prefix:origins><player> now has <choices> choices.")
     }
+
+    @ConfigSerializable
+    data class GUI(
+        val title: PartialComponent = PartialComponent.of("<prefix:origins>Origins"),
+        val requirementLine: PartialComponent = PartialComponent.of("|-    <requirement>"),
+        val requirementLore: List<PartialComponent> = listOf(
+            PartialComponent.of(""),
+            PartialComponent.of("Requirements:")
+        )
+    ) : InnerLang()
 }

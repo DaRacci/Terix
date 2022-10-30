@@ -1,15 +1,11 @@
 package dev.racci.terix.core.extensions
 
-import dev.racci.minix.api.utils.getKoin
-import dev.racci.terix.api.Terix
 import dev.racci.terix.api.TerixPlayer
 import kotlinx.datetime.Instant
 import net.kyori.adventure.text.Component
 import org.bukkit.Material
 import org.bukkit.entity.Player
 import org.jetbrains.exposed.sql.transactions.transaction
-
-private val terix by getKoin().inject<Terix>()
 
 fun Player.inDarkness(): Boolean = inventory.itemInMainHand.type != Material.TORCH &&
     inventory.itemInOffHand.type != Material.TORCH &&

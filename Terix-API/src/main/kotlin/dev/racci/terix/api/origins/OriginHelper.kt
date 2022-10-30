@@ -8,6 +8,7 @@ import dev.racci.terix.api.dsl.AttributeModifierBuilder
 import dev.racci.terix.api.dsl.PotionEffectBuilder
 import dev.racci.terix.api.origins.origin.Origin
 import dev.racci.terix.api.origins.states.State
+import dev.racci.terix.api.sentryScoped
 import org.bukkit.attribute.Attribute
 import org.bukkit.entity.Player
 import org.bukkit.potion.PotionEffect
@@ -89,14 +90,16 @@ object OriginHelper : KoinComponent, WithPlugin<Terix> {
     }
 
     /** Designed to be invoked for when a player needs everything to reset. */
-    suspend fun activateOrigin(player: Player) {
-        val origin = TerixPlayer.cachedOrigin(player)
+    suspend fun activateOrigin(
+        player: Player,
+        origin: Origin = TerixPlayer.cachedOrigin(player)
+    ) {
+        sentryScoped(player, "OriginHelper.activateOrigin", "Activating ${origin.name} for ${player.name}") {
+            applyBase(player, origin)
 
-        player.setImmuneToFire(origin.fireImmunity)
-        player.setCanBreathUnderwater(origin.waterBreathing)
-
-        State.recalculateAllStates(player)
-        State.getPlayerStates(player).forEach { it.activate(player, origin) }
+            State.recalculateAllStates(player)
+            State.getPlayerStates(player).forEach { it.activate(player, origin) }
+        }
     }
 
     /** Designed to be invoked for when a player needs everything disabled. */
