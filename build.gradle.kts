@@ -151,6 +151,10 @@ allprojects {
         maven("https://nexus.frengor.com/repository/public/")
     }
 
+    kotlin {
+        explicitApiWarning()
+    }
+
     configurations.configureEach {
         exclude("me.carleslc.Simple-YAML", "Simple-Configuration")
         exclude("me.carleslc.Simple-YAML", "Simple-Yaml")
