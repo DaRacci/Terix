@@ -28,7 +28,9 @@ import dev.racci.terix.api.origins.origin.Origin
 import dev.racci.terix.api.origins.sounds.SoundEffect
 import dev.racci.terix.api.origins.states.State
 import dev.racci.terix.core.extensions.fromOrigin
+import kotlinx.collections.immutable.persistentListOf
 import kotlinx.datetime.Instant
+import net.kyori.adventure.text.Component
 import net.kyori.adventure.text.format.TextColor
 import org.bukkit.Location
 import org.bukkit.Material
@@ -60,10 +62,9 @@ class AethenOrigin(override val plugin: Terix) : Origin() {
     private val regenCache = mutableMapOf<UUID, Instant>()
     private val regenCooldown = 3.minutes
 
-    override suspend fun hasPermission(player: Player): Boolean {
-        // TODO -> Aethen boss achievement
-        return true
-    }
+    override val requirements = persistentListOf(
+        Component.text("Slay Lycer. (Currently Unimplemented)") to { _: Player -> true }
+    )
 
     override suspend fun handleRegister() {
         sounds.hurtSound = SoundEffect("entity.silverfish.hurt")
@@ -149,7 +150,7 @@ class AethenOrigin(override val plugin: Terix) : Origin() {
             return
         }
 
-        missingPotion.computeAndRemove(this.player, this.player::addPotionEffect)
+        sync { missingPotion.computeAndRemove(player, player::addPotionEffect) }
     }
 
     @RunAsync

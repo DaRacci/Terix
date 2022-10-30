@@ -12,9 +12,6 @@ import org.bukkit.entity.Player
 import java.util.UUID
 import kotlin.coroutines.CoroutineContext
 
-@Deprecated("Use direct method instead", ReplaceWith("TerixPlayer.cachedOrigin(player)", "dev.racci.terix.api.TerixPlayer", "dev.racci.terix.api.TerixPlayer.Cache"))
-fun origin(player: Player) = TerixPlayer.cachedOrigin(player)
-
 private val sentryUsers = hashMapOf<UUID, User>()
 private val terix by getKoin().inject<Terix>()
 private const val SCOPE = "terix.sentry.scoped"

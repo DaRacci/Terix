@@ -43,9 +43,11 @@ import dev.racci.terix.api.origins.sounds.SoundEffect
 import dev.racci.terix.api.origins.sounds.SoundEffects
 import dev.racci.terix.api.origins.states.State
 import dev.racci.terix.api.origins.states.State.Companion.convertLiquidToState
+import dev.racci.terix.core.allOriginPotions
 import dev.racci.terix.core.data.Lang
 import dev.racci.terix.core.extensions.message
 import dev.racci.terix.core.extensions.originTime
+import dev.racci.terix.core.originPassiveModifiers
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.channels.onFailure
@@ -53,6 +55,7 @@ import kotlinx.coroutines.channels.onSuccess
 import kotlinx.coroutines.delay
 import net.minecraft.advancements.CriteriaTriggers
 import net.minecraft.server.level.ServerPlayer
+import net.minecraft.sounds.SoundEffects.it
 import net.minecraft.stats.Stats
 import net.minecraft.world.InteractionHand
 import net.minecraft.world.effect.MobEffectInstance
@@ -72,7 +75,9 @@ import org.bukkit.event.entity.ProjectileHitEvent
 import org.bukkit.event.player.PlayerChangedWorldEvent
 import org.bukkit.event.player.PlayerGameModeChangeEvent
 import org.bukkit.event.player.PlayerJoinEvent
+import org.bukkit.event.player.PlayerQuitEvent
 import org.bukkit.inventory.ItemStack
+import org.bukkit.potion.PotionEffect
 import org.bukkit.potion.PotionEffectType
 import org.jetbrains.exposed.sql.transactions.transaction
 import org.koin.core.component.inject
@@ -80,8 +85,6 @@ import java.util.UUID
 import kotlin.reflect.KProperty1
 import kotlin.time.Duration.Companion.seconds
 
-// Check for button presses to invoke actions in the test chambers
-// TODO -> Light entities on fire when hit with a torch
 @MappedExtension(Terix::class, "Listener Service", [DataService::class])
 class ListenerService(override val plugin: Terix) : Extension<Terix>() {
     private val terixConfig by inject<DataService>().inject<TerixConfig>()
@@ -132,18 +135,24 @@ class ListenerService(override val plugin: Terix) : Extension<Terix>() {
             return invalidTypes.filterNotNull()
         }
 
+        event<PlayerQuitEvent>(EventPriority.MONITOR, true) {
+            player.allOriginPotions.map(PotionEffect::getType).forEach(player::removePotionEffect)
+            player.originPassiveModifiers.forEach { it.value.forEach(it.key::removeModifier) }
+        }
+
         event<PlayerJoinEvent>(forceAsync = true) {
             val origin = TerixPlayer.cachedOrigin(player)
-            State.recalculateAllStates(player)
-            val states = State.getPlayerStates(player)
-            val invalidPotions = getInvalidPotions(player, origin, states)
+            activateOrigin(player, origin)
 
-            logger.debug { "Found ${invalidPotions.size} invalid potions for ${player.name}" }
+//            val states = State.getPlayerStates(player)
+//            val invalidPotions = getInvalidPotions(player, origin, states)
+//
+//            logger.debug { "Found ${invalidPotions.size} invalid potions for ${player.name}" }
+//
+//            sync { invalidPotions.forEach(player::removePotionEffect) }
+//            removeUnfulfilledOrInvalidAttributes(player, states)
 
-            sync { invalidPotions.forEach(player::removePotionEffect) }
-            removeUnfulfilledOrInvalidAttributes(player, states)
-
-            delay(0.5.seconds)
+            delay(0.250.seconds)
             player.sendHealthUpdate()
         }
 
@@ -151,10 +160,7 @@ class ListenerService(override val plugin: Terix) : Extension<Terix>() {
             removeUnfulfilledOrInvalidAttributes(player)
 
             val origin = TerixPlayer.cachedOrigin(player)
-            val state = State.getEnvironmentState(player.world.environment)
-
-            OriginHelper.applyBase(player, origin)
-            state.activate(player, origin)
+            activateOrigin(player, origin)
 
             player.health = player.getAttribute(Attribute.GENERIC_MAX_HEALTH)!!.value
         }
@@ -255,7 +261,7 @@ class ListenerService(override val plugin: Terix) : Extension<Terix>() {
                 return@event cancel()
             }
 
-            if (!(skipRequirement || newOrigin.hasPermission(player))) {
+            if (!skipRequirement && newOrigin.requirements.isNotEmpty() && newOrigin.requirements.any { !it.second(player) }) {
                 result = PlayerOriginChangeEvent.Result.NO_PERMISSION
                 return@event cancel()
             }

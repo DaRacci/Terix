@@ -35,7 +35,6 @@ import dev.racci.terix.core.origins.OriginInfo
 import net.kyori.adventure.text.minimessage.MiniMessage
 import org.bukkit.command.CommandSender
 import org.bukkit.entity.Player
-import org.jetbrains.exposed.sql.transactions.transaction
 import org.koin.core.component.get
 import org.koin.core.component.inject
 import kotlin.properties.Delegates
@@ -299,7 +298,12 @@ class CommandService(override val plugin: Terix) : Extension<Terix>() {
             "new_origin" to { origin.displayName },
             "player" to { target.displayName() }
         ] message sender
-        PlayerOriginChangeEvent(target, currentOrigin, origin, true).callEvent()
+
+        val event = PlayerOriginChangeEvent(target, currentOrigin, origin, true)
+        event.callEvent()
+        if (event.result != PlayerOriginChangeEvent.Result.SUCCESS) {
+            lang.origin.cancelledCommand["reason" to { event.result.name }] message sender
+        }
     }
 
     private fun getChoices(
@@ -323,7 +327,7 @@ class CommandService(override val plugin: Terix) : Extension<Terix>() {
             ] message sender
         }
 
-        transaction(Terix.database) {
+        StorageService.transaction {
             val terixPlayer = TerixPlayer[player.uniqueId]
             terixPlayer.freeChanges += amount
 
@@ -345,7 +349,7 @@ class CommandService(override val plugin: Terix) : Extension<Terix>() {
             ] message sender
         }
 
-        transaction(Terix.database) {
+        StorageService.transaction {
             val terixPlayer = TerixPlayer[player.uniqueId]
             val freeChanges = (terixPlayer.freeChanges - amount).coerceAtLeast(0)
             terixPlayer.freeChanges = freeChanges

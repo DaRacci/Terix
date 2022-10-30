@@ -430,7 +430,7 @@ sealed class OriginBuilder : OriginValues() {
         ): Unit = modifyFood(
             material,
             dslMutator {
-                addEffect(builder.asNew().foodKey(material).get())
+                addEffect(builder.asNew().foodKey(this@OriginBuilder.name, material.name).get())
             }
         )
 
