@@ -16,13 +16,8 @@ git push origin v"${2}" || exit 1 # Push the new version tag for the release
 # Test the project
 ./gradlew clean build test
 
-URL="https://github.com/DaRacci/Terix/compare/v$1..v$2"
-grep -Poz "(?s)(?<=## \\[v$2\\]\\(${URL}\\) - ....-..-..\n).*?(?=- - -)" CHANGELOG.md >> ./.templog.md
-head -n -1 .templog.md > .temp ; mv .temp .templog.md # Remove that weird null line
-
 SEMIPATH=build/libs/Terix
-gh release create "v$2" -F ./.templog.md -t "Terix release $2" $SEMIPATH-$2.jar Terix-API/$SEMIPATH-API-$2-sources.jar Terix-Core/$SEMIPATH-Core-$2.jar
-rm ./.templog.md
+cog changelog v"${1}"..v"${2}" | gh release create "v$2" -F - -t "Terix release $2" $SEMIPATH-$2.jar Terix-API/$SEMIPATH-API-$2-sources.jar Terix-Core/$SEMIPATH-Core-$2.jar
 
 git push origin master || exit 1 # Push the new version tag for the release
 
