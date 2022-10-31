@@ -12,7 +12,7 @@ import dev.racci.terix.api.TerixPlayer
     Terix::class,
     PlaceholderManager::class
 )
-class TerixPlaceholders(override val plugin: MinixPlugin) : PlaceholderIntegration() {
+public class TerixPlaceholders(override val plugin: MinixPlugin) : PlaceholderIntegration() {
 
     init {
         registerOnlinePlaceholder("origin_name") { TerixPlayer.cachedOrigin(this).name }

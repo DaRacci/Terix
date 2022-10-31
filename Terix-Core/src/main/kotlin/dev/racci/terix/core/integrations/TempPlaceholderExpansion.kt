@@ -11,7 +11,7 @@ import net.kyori.adventure.text.serializer.legacy.LegacyComponentSerializer
 import org.bukkit.entity.Player
 
 /** For until the minix api is updated. */
-class TempPlaceholderExpansion(override val plugin: Terix) : PlaceholderExpansion(), WithPlugin<Terix> {
+public class TempPlaceholderExpansion(override val plugin: Terix) : PlaceholderExpansion(), WithPlugin<Terix> {
     private val placeholders = persistentMapOf<String, (Player) -> Any>(
         "origin_name" to { TerixPlayer.cachedOrigin(it).name },
         "origin_display" to { TerixPlayer.cachedOrigin(it).displayName },
@@ -26,16 +26,7 @@ class TempPlaceholderExpansion(override val plugin: Terix) : PlaceholderExpansio
     override fun onPlaceholderRequest(
         player: Player,
         params: String
-    ): String? {
-        logger.debug { placeholders }
-        logger.debug { "Placeholder request: $params" }
-        val placeholder = placeholders.get(params, true).orNull() ?: return null
-
-        val result = asString(placeholder(player))
-        logger.debug { "Placeholder result: $result" }
-
-        return result
-    }
+    ): String? = asString(placeholders.get(params, true).orNull()?.invoke(player))
 
     private fun asString(value: Any?): String? = when (value) {
         is String -> value
