@@ -2,6 +2,19 @@
 All notable changes to this project will be documented in this file. See [conventional commits](https://www.conventionalcommits.org/) for commit guidelines.
 
 - - -
+## [v1.0.1](https://github.com/DaRacci/Terix/compare/v1.0.0..v1.0.1) - 2022-10-31
+#### Bug Fixes
+- **(Aethen)** Ghost light sources - ([3d1ef87](https://github.com/DaRacci/Terix/commit/3d1ef87294c85139987213b9a5782775068340d0)) - [@DaRacci](https://github.com/DaRacci)
+- Ghost light sources - ([512d5b3](https://github.com/DaRacci/Terix/commit/512d5b378e4f97e1e657efec3bc9be7d2b38b833)) - [@DaRacci](https://github.com/DaRacci)
+#### Features
+- Dragon egg and kill requirements - ([6b39d59](https://github.com/DaRacci/Terix/commit/6b39d592cafd222bfe3faff3b592c31a21aa08a9)) - [@DaRacci](https://github.com/DaRacci)
+#### Refactoring
+- Placeholders - ([816f85f](https://github.com/DaRacci/Terix/commit/816f85fb68d3146a01609fdb0919faf94eb6595a)) - [@DaRacci](https://github.com/DaRacci)
+#### Style
+- Enable explicitAPI - ([9c07402](https://github.com/DaRacci/Terix/commit/9c0740271768e4a9dd48e1afcdfea0c25c1077fc)) - [@DaRacci](https://github.com/DaRacci)
+
+- - -
+
 ## [v1.0.0](https://github.com/DaRacci/Terix/compare/v0.0.1..v1.0.0) - 2022-10-30
 #### Bug Fixes
 - **(Abilities)** Map not allowing readding - ([2553b39](https://github.com/DaRacci/Terix/commit/2553b399a0632a48a96e4df6ca2cd292e561b7c0)) - [@DaRacci](https://github.com/DaRacci)
