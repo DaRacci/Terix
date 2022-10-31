@@ -36,6 +36,9 @@ public abstract class Origin : OriginBuilder() {
     /** Called when the player changes from this origin. */
     public open suspend fun handleChangeOrigin(event: PlayerOriginChangeEvent): Unit = Unit
 
+    /** When the player changes to gm 1 for example. */
+    public open suspend fun handleDeactivate(player: Player): Unit = Unit
+
     /** Called each game tick. */
     public open suspend fun onTick(player: Player): Unit = Unit
 

@@ -22,6 +22,7 @@ import dev.racci.terix.api.Terix
 import dev.racci.terix.api.annotations.OriginEventSelector
 import dev.racci.terix.api.dsl.dslMutator
 import dev.racci.terix.api.events.PlayerOriginChangeEvent
+import dev.racci.terix.api.origins.OriginHelper
 import dev.racci.terix.api.origins.abilities.Levitate
 import dev.racci.terix.api.origins.enums.EventSelector
 import dev.racci.terix.api.origins.enums.KeyBinding
@@ -31,6 +32,7 @@ import dev.racci.terix.api.origins.states.State
 import dev.racci.terix.core.extensions.fromOrigin
 import kotlinx.collections.immutable.PersistentList
 import kotlinx.collections.immutable.persistentListOf
+import kotlinx.coroutines.sync.Mutex
 import kotlinx.datetime.Instant
 import net.kyori.adventure.text.Component
 import net.kyori.adventure.text.TextComponent
@@ -61,6 +63,7 @@ public class AethenOrigin(override val plugin: Terix) : Origin() {
     override val name: String = "Aethen"
     override val colour: TextColor = TextColor.fromHexString("#ffc757")!!
 
+    private val lightMutex = Mutex(false)
     private val playerLocations = ConcurrentHashMap<Player, LightLocation>()
     private val missingPotion = PlayerMap<PotionEffect>()
     private val regenPotion = PotionEffect(PotionEffectType.REGENERATION, 10 * 20, 1, true)
@@ -139,6 +142,10 @@ public class AethenOrigin(override val plugin: Terix) : Origin() {
         playerLocations.clear { _, location -> resetLightLevel(location) } // Ensures that we don't have ghost lights
     }
 
+    override suspend fun handleDeactivate(player: Player) {
+        playerLocations.computeAndRemove(player) { resetLightLevel(this) }
+    }
+
     override suspend fun handleChangeOrigin(event: PlayerOriginChangeEvent) {
         playerLocations.computeAndRemove(event.player) { resetLightLevel(this) }
     }
@@ -201,34 +208,41 @@ public class AethenOrigin(override val plugin: Terix) : Origin() {
 
     private val handler = LightAPI.get()
 
-    @RunAsync
     @OriginEventSelector(EventSelector.PLAYER)
-    public fun PlayerMoveFullXYZEvent.handle() {
+    public suspend fun PlayerMoveFullXYZEvent.handle() {
+        if (OriginHelper.shouldIgnorePlayer(this.player)) return
+
         if (handler == null) {
             plugin.log.warn { "LightAPI is not installed, disabling Aethen's ability" }
             return
         }
 
-        playerLocations.compute(this.player) { _, oldLocation ->
-            val lightLocation = LightLocation(this.player.location)
-            val (newX, newY, newZ, newWorld) = lightLocation
+        lightMutex.lock()
 
-            if (oldLocation != null) resetLightLevel(oldLocation)
+        sync {
+            playerLocations.compute(player) { _, oldLocation ->
+                val lightLocation = LightLocation(player.location)
+                val (newX, newY, newZ, newWorld) = lightLocation
 
-            handler.setLightLevel(
-                newWorld,
-                newX,
-                newY,
-                newZ,
-                EMISSION_LEVEL,
-                LightFlag.BLOCK_LIGHTING,
-                EditPolicy.DEFERRED,
-                SendPolicy.DEFERRED,
-                null
-            )
+                if (oldLocation != null) resetLightLevel(oldLocation)
 
-            lightLocation
+                handler.setLightLevel(
+                    newWorld,
+                    newX,
+                    newY,
+                    newZ,
+                    EMISSION_LEVEL,
+                    LightFlag.BLOCK_LIGHTING,
+                    EditPolicy.DEFERRED,
+                    SendPolicy.DEFERRED,
+                    null
+                )
+
+                lightLocation
+            }
         }
+
+        lightMutex.unlock()
     }
 
     private fun resetLightLevel(location: LightLocation) {

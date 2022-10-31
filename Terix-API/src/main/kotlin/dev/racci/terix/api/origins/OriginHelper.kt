@@ -16,11 +16,11 @@ import org.bukkit.potion.PotionEffectType
 import org.koin.core.component.KoinComponent
 import org.koin.core.component.inject
 
-object OriginHelper : KoinComponent, WithPlugin<Terix> {
-    override val plugin by inject<Terix>()
+public object OriginHelper : KoinComponent, WithPlugin<Terix> {
+    override val plugin: Terix by inject<Terix>()
 
     /** Checks if a player should be ignored for something like staff mode. */
-    fun shouldIgnorePlayer(player: Player): Boolean {
+    public fun shouldIgnorePlayer(player: Player): Boolean {
         // TODO -> Vanished
         // TODO -> Partial Ignore
         // TODO -> Staff Mode
@@ -34,7 +34,7 @@ object OriginHelper : KoinComponent, WithPlugin<Terix> {
         return reason != null
     }
 
-    suspend fun applyBase(
+    public suspend fun applyBase(
         player: Player,
         origin: Origin = TerixPlayer.cachedOrigin(player)
     ) {
@@ -43,7 +43,7 @@ object OriginHelper : KoinComponent, WithPlugin<Terix> {
         player.setImmuneToFire(origin.fireImmunity)
     }
 
-    suspend fun changeTo(
+    public suspend fun changeTo(
         player: Player,
         oldOrigin: Origin?,
         newOrigin: Origin
@@ -79,7 +79,7 @@ object OriginHelper : KoinComponent, WithPlugin<Terix> {
     }
 
     /** Increases the players' health safely by clamping it to the maximum health. */
-    fun increaseHealth(
+    public fun increaseHealth(
         player: Player,
         amount: Double
     ) {
@@ -90,7 +90,7 @@ object OriginHelper : KoinComponent, WithPlugin<Terix> {
     }
 
     /** Designed to be invoked for when a player needs everything to reset. */
-    suspend fun activateOrigin(
+    public suspend fun activateOrigin(
         player: Player,
         origin: Origin = TerixPlayer.cachedOrigin(player)
     ) {
@@ -103,13 +103,15 @@ object OriginHelper : KoinComponent, WithPlugin<Terix> {
     }
 
     /** Designed to be invoked for when a player needs everything disabled. */
-    suspend fun deactivateOrigin(player: Player) {
+    public suspend fun deactivateOrigin(player: Player) {
         getOriginPotions(player, null)
             .onEach { logger.trace { "Removing potion effect $it from ${player.name}" } }
             .forEach(player::removePotionEffect)
 
         async {
-            TerixPlayer.cachedOrigin(player).abilities.values.forEach { it.deactivate(player) }
+            val origin = TerixPlayer.cachedOrigin(player)
+            origin.handleDeactivate(player)
+            origin.abilities.values.forEach { it.deactivate(player) }
             State.activeStates.remove(player)
             player.setImmuneToFire(null)
             player.setCanBreathUnderwater(null)
@@ -135,7 +137,7 @@ object OriginHelper : KoinComponent, WithPlugin<Terix> {
      * @param state The state to get the potions from or null.
      * @return A sequence of the potion effects type.
      */
-    fun getOriginPotions(
+    public fun getOriginPotions(
         player: Player,
         state: State?
     ): Sequence<PotionEffectType> = player.activePotionEffects
@@ -146,15 +148,15 @@ object OriginHelper : KoinComponent, WithPlugin<Terix> {
             effect.type
         }
 
-    fun potionState(potion: PotionEffect): State? {
+    public fun potionState(potion: PotionEffect): State? {
         val match = PotionEffectBuilder.regex.find(potion.key?.asString().orEmpty()) ?: return null
         return State.values.find { it.name.lowercase() == match.groups["state"]?.value }
     }
 
-    fun potionOrigin(potion: PotionEffect): Origin? {
+    public fun potionOrigin(potion: PotionEffect): Origin? {
         val match = PotionEffectBuilder.regex.find(potion.key?.asString().orEmpty()) ?: return null
         return OriginService.getOriginOrNull(match.groups["from"]?.value)
     }
 
-    enum class IgnoreReason(val description: String) { GAMEMODE("Not in survival or adventure mode") }
+    public enum class IgnoreReason(public val description: String) { GAMEMODE("Not in survival or adventure mode") }
 }
