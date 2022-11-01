@@ -8,7 +8,10 @@ import org.incendo.interfaces.paper.PaperInterfaceListeners
 @MappedPlugin(14443, Terix::class)
 public class TerixImpl : Terix() {
     override suspend fun handleLoad() {
-        PaperInterfaceListeners.install(this)
         TempPlaceholderExpansion(this).register()
+    }
+
+    override suspend fun handleEnable() {
+        PaperInterfaceListeners.install(this)
     }
 }
