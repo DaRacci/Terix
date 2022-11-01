@@ -267,7 +267,7 @@ public class ListenerService(override val plugin: Terix) : Extension<Terix>() {
             }
 
             val now = now()
-            if (!(bypassCooldown || player.originTime + terixConfig.intervalBeforeChange > now)) {
+            if (!bypassCooldown && player.originTime + terixConfig.intervalBeforeChange > now) {
                 result = PlayerOriginChangeEvent.Result.ON_COOLDOWN
                 return@event cancel()
             }
