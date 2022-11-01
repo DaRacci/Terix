@@ -6,6 +6,7 @@ import dev.racci.minix.api.annotations.MinixInternal
 import dev.racci.minix.api.annotations.RunAsync
 import dev.racci.minix.api.extension.Extension
 import dev.racci.minix.api.extensions.event
+import dev.racci.minix.api.extensions.onlinePlayers
 import dev.racci.minix.api.extensions.reflection.castOrThrow
 import dev.racci.minix.api.services.DataService
 import dev.racci.minix.api.utils.collections.CollectionUtils.cacheOf
@@ -15,6 +16,7 @@ import dev.racci.terix.api.Terix
 import dev.racci.terix.api.TerixPlayer
 import dev.racci.terix.api.annotations.OriginEventSelector
 import dev.racci.terix.api.data.TerixConfig
+import dev.racci.terix.api.extensions.sanitise
 import dev.racci.terix.api.origins.abilities.Ability
 import dev.racci.terix.api.origins.abilities.DragonBreath
 import dev.racci.terix.api.origins.abilities.Levitate
@@ -75,6 +77,7 @@ public class OriginServiceImpl(override val plugin: Terix) : OriginService, Exte
 
     override suspend fun handleDisable() {
         origins.values.forEach { it.handleUnload() }
+        onlinePlayers.forEach { player -> player.sanitise() }
     }
 
     private suspend fun populateRegistry() {
