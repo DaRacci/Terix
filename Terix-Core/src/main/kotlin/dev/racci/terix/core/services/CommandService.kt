@@ -297,7 +297,7 @@ public class CommandService(override val plugin: Terix) : Extension<Terix>() {
             "player" to { target.displayName() }
         ] message sender
 
-        val event = PlayerOriginChangeEvent(target, currentOrigin, origin, true)
+        val event = PlayerOriginChangeEvent(target, currentOrigin, origin, true, skipRequirement = true)
         event.callEvent()
         if (event.result != PlayerOriginChangeEvent.Result.SUCCESS) {
             lang.origin.cancelledCommand["reason" to { event.result.name }] message sender
