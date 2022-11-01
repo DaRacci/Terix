@@ -2,6 +2,7 @@ package dev.racci.terix.api
 
 import dev.racci.minix.api.coroutine.launch
 import dev.racci.minix.api.extensions.taskAsync
+import dev.racci.minix.api.scheduler.CoroutineTask
 import dev.racci.minix.api.utils.getKoin
 import io.sentry.Breadcrumb
 import io.sentry.Sentry
@@ -16,7 +17,7 @@ private val sentryUsers = hashMapOf<UUID, User>()
 private val terix by getKoin().inject<Terix>()
 private const val SCOPE = "terix.sentry.scoped"
 
-fun Player.sentryUser() = sentryUsers.getOrPut(uniqueId) {
+public fun Player.sentryUser(): User = sentryUsers.getOrPut(uniqueId) {
     val user = User()
     user.id = this.uniqueId.toString()
     user.username = this.name
@@ -30,12 +31,12 @@ fun Player.sentryUser() = sentryUsers.getOrPut(uniqueId) {
     user
 }
 
-fun sentryBreadcrumb(
+public fun sentryBreadcrumb(
     category: String,
     message: String? = null,
     type: String = "trace",
     level: SentryLevel = SentryLevel.DEBUG
-) = taskAsync(plugin = terix) {
+): CoroutineTask = taskAsync(plugin = terix) {
     val breadcrumb = Breadcrumb()
     breadcrumb.type = type
     breadcrumb.category = category
@@ -46,7 +47,7 @@ fun sentryBreadcrumb(
     Sentry.addBreadcrumb(breadcrumb)
 }
 
-suspend fun sentryScoped(
+public suspend fun sentryScoped(
     player: Player,
     category: String,
     message: String? = null,

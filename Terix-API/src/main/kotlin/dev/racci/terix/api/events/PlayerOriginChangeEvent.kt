@@ -4,6 +4,7 @@ import dev.racci.minix.api.events.CompanionEventHandler
 import dev.racci.minix.api.events.player.KPlayerEvent
 import dev.racci.terix.api.origins.origin.Origin
 import org.bukkit.entity.Player
+import org.bukkit.event.HandlerList
 
 /**
  * Called when a player tries to change origin.
@@ -16,18 +17,18 @@ import org.bukkit.entity.Player
  * @property bypassCooldown If the cooldown is bypassed.
  * @property skipRequirement If the origins' requirement check is skipped.
  */
-class PlayerOriginChangeEvent(
+public class PlayerOriginChangeEvent(
     player: Player,
-    val preOrigin: Origin,
-    val newOrigin: Origin,
-    val bypassCooldown: Boolean = false,
-    val skipRequirement: Boolean = false
+    public val preOrigin: Origin,
+    public val newOrigin: Origin,
+    public val bypassCooldown: Boolean = false,
+    public val skipRequirement: Boolean = false
 ) : KPlayerEvent(player, true) {
-    var result = Result.SUCCESS
+    public var result: Result = Result.SUCCESS
 
-    enum class Result { CURRENT_ORIGIN, ON_COOLDOWN, NO_PERMISSION, SUCCESS }
+    public enum class Result { CURRENT_ORIGIN, ON_COOLDOWN, NO_PERMISSION, SUCCESS }
 
-    companion object : CompanionEventHandler() {
-        @JvmStatic override fun getHandlerList() = super.getHandlerList()
+    public companion object : CompanionEventHandler() {
+        @JvmStatic override fun getHandlerList(): HandlerList = super.getHandlerList()
     }
 }

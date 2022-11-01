@@ -7,7 +7,7 @@ import net.minecraft.sounds.SoundSource
 import net.minecraft.world.phys.Vec3
 import org.bukkit.entity.Player
 
-fun Player.playSound(
+public fun Player.playSound(
     soundKey: String,
     volume: Float = 1.0f,
     pitch: Float = 1.0f,

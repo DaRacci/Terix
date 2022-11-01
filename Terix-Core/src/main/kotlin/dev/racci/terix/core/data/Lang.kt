@@ -8,7 +8,7 @@ import org.spongepowered.configurate.objectmapping.ConfigSerializable
 
 @ConfigSerializable
 @MappedConfig(Terix::class, "Lang.conf")
-class Lang : LangConfig<Terix>() {
+public class Lang : LangConfig<Terix>() {
 
     override val prefixes: Map<String, String> = mapOf(
         "server" to "<gradient:#ED13D9:#12d3ff>Elixir</gradient> <white>»</white> <aqua>",
@@ -16,46 +16,46 @@ class Lang : LangConfig<Terix>() {
         "origins" to "<gold>Origins</gold> » <aqua>"
     )
 
-    var generic: Generic = Generic()
+    public var generic: Generic = Generic()
 
-    var origin: Origin = Origin()
+    public var origin: Origin = Origin()
 
-    var choices: Choices = Choices()
+    public var choices: Choices = Choices()
 
-    var gui: GUI = GUI()
+    public var gui: GUI = GUI()
 
     @ConfigSerializable
-    class Generic : InnerLang() {
+    public class Generic : InnerLang() {
 
-        var error: PartialComponent = PartialComponent.of("<dark_red>Error <white>» <red><message>")
+        public var error: PartialComponent = PartialComponent.of("<dark_red>Error <white>» <red><message>")
 
-        var reloadLang: PartialComponent = PartialComponent.of("<prefix:terix>Reloaded plugin in <time>ms. (Does nothing currently)")
+        public var reloadLang: PartialComponent = PartialComponent.of("<prefix:terix>Reloaded plugin in <time>ms. (Does nothing currently)")
     }
 
     @ConfigSerializable
-    class Origin : InnerLang() {
+    public class Origin : InnerLang() {
 
-        var broadcast: PartialComponent = PartialComponent.of("<prefix:server><player> has become the <new_origin> origin!")
+        public var broadcast: PartialComponent = PartialComponent.of("<prefix:server><player> has become the <new_origin> origin!")
 
-        var setSelf: PartialComponent = PartialComponent.of("<prefix:origins>You set your origin to <new_origin>.")
+        public var setSelf: PartialComponent = PartialComponent.of("<prefix:origins>You set your origin to <new_origin>.")
 
-        var setOther: PartialComponent = PartialComponent.of("<prefix:origins>Set <player>'s origin to <new_origin>.")
+        public var setOther: PartialComponent = PartialComponent.of("<prefix:origins>Set <player>'s origin to <new_origin>.")
 
-        var setSameSelf: PartialComponent = PartialComponent.of("<prefix:origins>You are already the <origin> origin!")
+        public var setSameSelf: PartialComponent = PartialComponent.of("<prefix:origins>You are already the <origin> origin!")
 
-        var setSameOther: PartialComponent = PartialComponent.of("<prefix:origins><player> is already the <origin> origin!")
+        public var setSameOther: PartialComponent = PartialComponent.of("<prefix:origins><player> is already the <origin> origin!")
 
-        var getSelf: PartialComponent = PartialComponent.of("<prefix:origins>Your origin is <origin>.")
+        public var getSelf: PartialComponent = PartialComponent.of("<prefix:origins>Your origin is <origin>.")
 
-        var getOther: PartialComponent = PartialComponent.of("<prefix:origins><player>'s origin is <origin>.")
+        public var getOther: PartialComponent = PartialComponent.of("<prefix:origins><player>'s origin is <origin>.")
 
-        var nightVision: PartialComponent = PartialComponent.of("<prefix:origins>Your night vision now triggers on: <new_nightvision>.")
+        public var nightVision: PartialComponent = PartialComponent.of("<prefix:origins>Your night vision now triggers on: <new_nightvision>.")
 
-        var onChangeCooldown: PartialComponent = PartialComponent.of("<prefix:origins>You can't change your origin for another <cooldown>.")
+        public var onChangeCooldown: PartialComponent = PartialComponent.of("<prefix:origins>You can't change your origin for another <cooldown>.")
 
-        var missingRequirement: PartialComponent = PartialComponent.of("<prefix:origins>You're missing a requirement to select this origin.")
+        public var missingRequirement: PartialComponent = PartialComponent.of("<prefix:origins>You're missing a requirement to select this origin.")
 
-        var cancelledCommand: PartialComponent = PartialComponent.of("<prefix:origins>Couldn't change origin, reason: <reason>.")
+        public var cancelledCommand: PartialComponent = PartialComponent.of("<prefix:origins>Couldn't change origin, reason: <reason>.")
 
         public val remainingChanges: PartialComponent = PartialComponent.of("<prefix:origins>You have <amount> changes remaining.")
 
@@ -64,31 +64,31 @@ class Lang : LangConfig<Terix>() {
         public var descriptor: Descriptor = Descriptor()
 
         @ConfigSerializable
-        class Bee : InnerLang() {
-            var potion: PartialComponent = PartialComponent.of("<prefix:origins>The potion is too strong for you, try a flower instead.")
+        public class Bee : InnerLang() {
+            public var potion: PartialComponent = PartialComponent.of("<prefix:origins>The potion is too strong for you, try a flower instead.")
         }
 
         @ConfigSerializable
-        class Descriptor : InnerLang() {
-            var head: PartialComponent = PartialComponent.of("<prefix:origins> Information about <origin>:<category>")
+        public class Descriptor : InnerLang() {
+            public var head: PartialComponent = PartialComponent.of("<prefix:origins> Information about <origin>:<category>")
 
-            var bodyLine: PartialComponent = PartialComponent.of("    <aqua><key> <white>»</white> <value></aqua>")
+            public var bodyLine: PartialComponent = PartialComponent.of("    <aqua><key> <white>»</white> <value></aqua>")
 
-            var footer: PartialComponent = PartialComponent.of("<prefix:origins>End of information.")
+            public var footer: PartialComponent = PartialComponent.of("<prefix:origins>End of information.")
         }
     }
 
     @ConfigSerializable
-    class Choices : InnerLang() {
-        var getSelf = PartialComponent.of("<prefix:origins>You have <choices> choices.")
-        var getOther = PartialComponent.of("<prefix:origins><player> has <choices> choices.")
+    public class Choices : InnerLang() {
+        public var getSelf: PartialComponent = PartialComponent.of("<prefix:origins>You have <choices> choices.")
+        public var getOther: PartialComponent = PartialComponent.of("<prefix:origins><player> has <choices> choices.")
 
-        var mutateSelf = PartialComponent.of("<prefix:origins>You now have <choices> choices.")
-        var mutateOther = PartialComponent.of("<prefix:origins><player> now has <choices> choices.")
+        public var mutateSelf: PartialComponent = PartialComponent.of("<prefix:origins>You now have <choices> choices.")
+        public var mutateOther: PartialComponent = PartialComponent.of("<prefix:origins><player> now has <choices> choices.")
     }
 
     @ConfigSerializable
-    data class GUI(
+    public data class GUI(
         val title: PartialComponent = PartialComponent.of("<prefix:origins>Origins"),
         val requirementLine: PartialComponent = PartialComponent.of("|-    <requirement>"),
         val requirementLore: List<PartialComponent> = listOf(

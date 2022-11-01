@@ -12,16 +12,16 @@ import kotlin.time.Duration.Companion.minutes
 
 @ConfigSerializable
 @MappedConfig(Terix::class, "Config.conf")
-class TerixConfig : MinixConfig<Terix>(true) {
+public class TerixConfig : MinixConfig<Terix>(true) {
 
     @Comment("The players default origin.")
-    val defaultOrigin: String = "Human"
+    public val defaultOrigin: String = "Human"
 
     @Comment("Should the player see a title when changing origins?")
-    val showTitleOnChange: Boolean = true
+    public val showTitleOnChange: Boolean = true
 
     @Comment("How long does the player have to wait between changing their origin again?")
-    val intervalBeforeChange: Duration = 360.minutes
+    public val intervalBeforeChange: Duration = 360.minutes
 
     @Comment("How many times should the player be able to change their origin for free?")
     public val freeChanges: Int = 3

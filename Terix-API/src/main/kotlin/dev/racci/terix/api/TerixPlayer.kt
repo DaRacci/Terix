@@ -17,14 +17,14 @@ import org.jetbrains.exposed.sql.transactions.transaction
 import java.time.Duration
 import java.util.UUID
 
-class TerixPlayer(val uuid: EntityID<UUID>) : UUIDEntity(uuid) {
+public class TerixPlayer(public val uuid: EntityID<UUID>) : UUIDEntity(uuid) {
 
     private var _origin: String by User.origin
-    var lastOrigin: String? by User.lastOrigin
-    var lastChosenTime: Instant? by User.lastChosenTime
-    var freeChanges: Int by User.freeChanges
+    public var lastOrigin: String? by User.lastOrigin
+    public var lastChosenTime: Instant? by User.lastChosenTime
+    public var freeChanges: Int by User.freeChanges
 
-    var origin: Origin
+    public var origin: Origin
         get() = originCache[uuid.value]
         set(value) {
             lastOrigin = _origin
@@ -32,25 +32,25 @@ class TerixPlayer(val uuid: EntityID<UUID>) : UUIDEntity(uuid) {
             originCache.put(uuid.value, value)
         }
 
-    interface Cache {
-        operator fun get(player: Player): TerixPlayer
-        fun cachedOrigin(player: Player): Origin
-        fun cachedTicks(player: Player): PlayerTickCache
+    public interface Cache {
+        public operator fun get(player: Player): TerixPlayer
+        public fun cachedOrigin(player: Player): Origin
+        public fun cachedTicks(player: Player): PlayerTickCache
     }
 
-    class PlayerTickCache {
+    public class PlayerTickCache {
 
-        var wasInSunlight: Boolean = false
-        var wasInDarkness: Boolean = false
-        var wasInWater: Boolean = false
-        var wasInRain: Boolean = false
-        var inSunlight: Boolean = false
-        var inDarkness: Boolean = false
-        var inWater: Boolean = false
-        var inRain: Boolean = false
+        public var wasInSunlight: Boolean = false
+        public var wasInDarkness: Boolean = false
+        public var wasInWater: Boolean = false
+        public var wasInRain: Boolean = false
+        public var inSunlight: Boolean = false
+        public var inDarkness: Boolean = false
+        public var inWater: Boolean = false
+        public var inRain: Boolean = false
     }
 
-    companion object : UUIDEntityClass<TerixPlayer>(User), Cache {
+    public companion object : UUIDEntityClass<TerixPlayer>(User), Cache {
         override operator fun get(player: Player): TerixPlayer = get(player.uniqueId)
 
         override fun cachedTicks(player: Player): PlayerTickCache = tickCache[player.uniqueId]

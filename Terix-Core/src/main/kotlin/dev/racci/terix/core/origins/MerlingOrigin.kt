@@ -34,10 +34,12 @@ import org.bukkit.potion.PotionType
 import kotlin.time.Duration
 
 // TODO -> Make cake soggy.
-class MerlingOrigin(override val plugin: Terix) : Origin() {
+// TODO -> Mine faster underwater
+// TODO -> Repulsion effect when in water
+public class MerlingOrigin(override val plugin: Terix) : Origin() {
 
-    override val name = "Merling"
-    override val colour = TextColor.fromHexString("#47d7ff")!!
+    override val name: String = "Merling"
+    override val colour: TextColor = TextColor.fromHexString("#47d7ff")!!
 
     override suspend fun handleRegister() {
         sounds.hurtSound = SoundEffect("entity.salmon.hurt")
@@ -45,12 +47,12 @@ class MerlingOrigin(override val plugin: Terix) : Origin() {
         sounds.ambientSound = SoundEffect("entity.salmon.ambient")
 
         attributes {
-            Pair(State.LiquidState.WATER, Attribute.GENERIC_MOVEMENT_SPEED) *= 1.2
-            Pair(State.LiquidState.LAND, Attribute.GENERIC_MOVEMENT_SPEED) *= 0.9
-            Pair(State.LiquidState.WATER, Attribute.GENERIC_ATTACK_DAMAGE) *= 1.2
-            Pair(State.LiquidState.WATER, Attribute.GENERIC_KNOCKBACK_RESISTANCE) *= 0.80
-            Pair(State.LiquidState.WATER, Attribute.GENERIC_ATTACK_SPEED) *= 5.0
-            Pair(State.LiquidState.LAND, Attribute.GENERIC_ATTACK_SPEED) *= 0.80
+            State.LiquidState.WATER to Attribute.GENERIC_MOVEMENT_SPEED *= 1.2
+            State.LiquidState.LAND to Attribute.GENERIC_MOVEMENT_SPEED *= 0.75
+            State.LiquidState.WATER to Attribute.GENERIC_ATTACK_DAMAGE *= 1.2
+            State.LiquidState.WATER to Attribute.GENERIC_KNOCKBACK_RESISTANCE *= 0.80
+            State.LiquidState.WATER to Attribute.GENERIC_ATTACK_SPEED *= 5.0
+            State.LiquidState.LAND to Attribute.GENERIC_ATTACK_SPEED *= 0.80
         }
 
         damage {
@@ -103,14 +105,14 @@ class MerlingOrigin(override val plugin: Terix) : Origin() {
     }
 
     @OriginEventSelector(EventSelector.TARGET)
-    fun EntityTargetLivingEntityEvent.handle() {
+    public fun EntityTargetLivingEntityEvent.handle() {
         if (entity.type !in MARINE_FRIENDS) return
         if (reason !in TARGET_REASONS) return
         cancel()
     }
 
     @OriginEventSelector(EventSelector.ENTITY)
-    fun EntityDamageByEntityEvent.handle() {
+    public fun EntityDamageByEntityEvent.handle() {
         if (damager is Projectile) {
             val projectile = damager as Projectile
             plugin.log.debug { "projectile fire: ${projectile.fireTicks}" }
@@ -126,19 +128,19 @@ class MerlingOrigin(override val plugin: Terix) : Origin() {
     }
 
     @OriginEventSelector(EventSelector.PLAYER)
-    fun PlayerRiptideEvent.handle() {
+    public fun PlayerRiptideEvent.handle() {
         player.velocity = player.velocity.multiply(1.5)
     }
 
     @OriginEventSelector(EventSelector.PLAYER)
-    fun PlayerItemConsumeEvent.handle() {
+    public fun PlayerItemConsumeEvent.handle() {
         if ((item.itemMeta as? PotionMeta)?.basePotionData?.type != PotionType.WATER) return
 
         player.remainingAir = (player.remainingAir + 2).coerceAtMost(player.maximumAir)
     }
 
     @OriginEventSelector(EventSelector.ENTITY)
-    fun onAirChange(event: EntityAirChangeEvent) {
+    public fun onAirChange(event: EntityAirChangeEvent) {
         val player = event.entity as? Player ?: return
 
         if (player.hasPotionEffect(PotionEffectType.WATER_BREATHING)) return event.cancel()
@@ -174,8 +176,8 @@ class MerlingOrigin(override val plugin: Terix) : Origin() {
 //        }
 //    }
 
-    companion object {
-        private val MARINE_FRIENDS = arrayOf(EntityType.DROWNED, EntityType.GUARDIAN, EntityType.PUFFERFISH)
-        private val TARGET_REASONS = arrayOf(TargetReason.CLOSEST_ENTITY, TargetReason.CLOSEST_PLAYER, TargetReason.COLLISION, TargetReason.RANDOM_TARGET)
+    private companion object {
+        val MARINE_FRIENDS = arrayOf(EntityType.DROWNED, EntityType.GUARDIAN, EntityType.PUFFERFISH)
+        val TARGET_REASONS = arrayOf(TargetReason.CLOSEST_ENTITY, TargetReason.CLOSEST_PLAYER, TargetReason.COLLISION, TargetReason.RANDOM_TARGET)
     }
 }

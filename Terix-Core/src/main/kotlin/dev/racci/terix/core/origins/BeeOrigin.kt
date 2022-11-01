@@ -33,12 +33,12 @@ import kotlin.time.Duration.Companion.seconds
 
 // TODO -> All normal food gives half a heart of damage, they can only eat flowers.
 // TODO -> Some flowers are edible, some flowers are potion effects.
-class BeeOrigin(override val plugin: Terix) : Origin() {
+public class BeeOrigin(override val plugin: Terix) : Origin() {
     private val stingerInstant = PlayerMap<Instant>()
     private val lowerFood = mutableSetOf<Player>()
 
-    override val name = "Bee"
-    override val colour = TextColor.fromHexString("#fc9f2f")!!
+    override val name: String = "Bee"
+    override val colour: TextColor = TextColor.fromHexString("#fc9f2f")!!
 
     override suspend fun handleRegister() {
         sounds.hurtSound = SoundEffect("entity.bee.hurt")
@@ -140,24 +140,24 @@ class BeeOrigin(override val plugin: Terix) : Origin() {
 
     @RunAsync
     @OriginEventSelector(EventSelector.ENTITY)
-    fun EntityDamageByEntityEvent.handle() {
+    public fun EntityDamageByEntityEvent.handle() {
         val attacker = damager.safeCast<Player>() ?: return
         stingerAttack(damager.castOrThrow(), attacker)
     }
 
     @OriginEventSelector(EventSelector.ENTITY)
-    fun EntityPotionEffectEvent.handle() {
+    public fun EntityPotionEffectEvent.handle() {
         if (action != EntityPotionEffectEvent.Action.ADDED) return
         if (cause in BANNED_POTION_CAUSES) cancel()
     }
 
     @OriginEventSelector(EventSelector.ENTITY)
-    fun FoodLevelChangeEvent.handle() {
+    public fun FoodLevelChangeEvent.handle() {
         if (lowerFood.remove(entity.castOrThrow())) cancel()
     }
 
     @OriginEventSelector(EventSelector.PLAYER)
-    fun PlayerItemConsumeEvent.handle() {
+    public fun PlayerItemConsumeEvent.handle() {
         if (antiPotion(this)) return
         lowerFood.add(player)
     }
@@ -193,7 +193,7 @@ class BeeOrigin(override val plugin: Terix) : Origin() {
         return false
     }
 
-    companion object {
+    private companion object {
         val STINGER_COOLDOWN = 10.seconds
         val BANNED_POTION_CAUSES = arrayOf(
             Cause.AREA_EFFECT_CLOUD,

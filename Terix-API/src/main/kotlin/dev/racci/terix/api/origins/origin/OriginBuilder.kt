@@ -32,7 +32,7 @@ import kotlin.reflect.KClass
 
 /** Handles the origins primary variables. */
 @API(status = API.Status.STABLE, since = "1.0.0")
-sealed class OriginBuilder : OriginValues() {
+public sealed class OriginBuilder : OriginValues() {
 
     private val builderCache: LoadingCache<KClass<*>, Any> = Caffeine.newBuilder()
         .expireAfterAccess(Duration.ofSeconds(15)) // Unneeded after the origin's registered & built.
@@ -40,48 +40,48 @@ sealed class OriginBuilder : OriginValues() {
 
     private inline fun <reified T : Any> builder(): T = builderCache[T::class].castOrThrow()
 
-    fun fireImmunity(fireImmunity: Boolean = true): OriginBuilder {
+    public fun fireImmunity(fireImmunity: Boolean = true): OriginBuilder {
         this.fireImmunity = fireImmunity
         return this
     }
 
-    fun waterBreathing(waterBreathing: Boolean = true): OriginBuilder {
+    public fun waterBreathing(waterBreathing: Boolean = true): OriginBuilder {
         this.waterBreathing = waterBreathing
         return this
     }
 
     @MinixDsl
-    suspend fun potions(builder: suspend PotionBuilder.() -> Unit) {
+    public suspend fun potions(builder: suspend PotionBuilder.() -> Unit) {
         builder(builder())
     }
 
     @MinixDsl
-    suspend fun attributes(builder: suspend AttributeBuilder.() -> Unit) {
+    public suspend fun attributes(builder: suspend AttributeBuilder.() -> Unit) {
         builder(builder())
     }
 
     @MinixDsl
-    suspend fun title(builder: suspend TimeTitleBuilder.() -> Unit) {
+    public suspend fun title(builder: suspend TimeTitleBuilder.() -> Unit) {
         builder(builder())
     }
 
     @MinixDsl
-    suspend fun damage(builder: suspend DamageBuilder.() -> Unit) {
+    public suspend fun damage(builder: suspend DamageBuilder.() -> Unit) {
         builder(builder())
     }
 
     @MinixDsl
-    suspend fun food(builder: suspend FoodBuilder.() -> Unit) {
+    public suspend fun food(builder: suspend FoodBuilder.() -> Unit) {
         builder(builder())
     }
 
     @MinixDsl
-    suspend fun item(builder: suspend OriginItem.() -> Unit) {
+    public suspend fun item(builder: suspend OriginItem.() -> Unit) {
         builder(item)
     }
 
     @MinixDsl
-    suspend fun abilities(builder: suspend AbilityBuilder.() -> Unit) {
+    public suspend fun abilities(builder: suspend AbilityBuilder.() -> Unit) {
         builder(builder())
     }
 
@@ -204,7 +204,7 @@ sealed class OriginBuilder : OriginValues() {
     }
 
     /** A Utility class for building damage triggers. */
-    inner class DamageBuilder {
+    public inner class DamageBuilder {
 
         /**
          * Triggers this lambda when the player takes damage and this Trigger is
@@ -213,7 +213,7 @@ sealed class OriginBuilder : OriginValues() {
          * @param builder The damage builder to use.
          * @receiver The trigger to activate the damage.
          */
-        operator fun State.plusAssign(builder: suspend (Player) -> Unit) {
+        public operator fun State.plusAssign(builder: suspend (Player) -> Unit) {
             stateBlocks[this] = builder
         }
 
@@ -224,7 +224,7 @@ sealed class OriginBuilder : OriginValues() {
          * @param number The amount of damage to deal.
          * @receiver The trigger to activate the damage.
          */
-        operator fun State.plusAssign(number: Number) {
+        public operator fun State.plusAssign(number: Number) {
             stateDamageTicks[this] = number.toDouble()
         }
 
@@ -235,7 +235,7 @@ sealed class OriginBuilder : OriginValues() {
          * @param number The amount of damage to add.
          * @receiver The damage cause that is affected.
          */
-        operator fun EntityDamageEvent.DamageCause.plusAssign(number: Number) {
+        public operator fun EntityDamageEvent.DamageCause.plusAssign(number: Number) {
             damageActions[this] = { this.damage += number.toDouble() }
         }
 
@@ -246,7 +246,7 @@ sealed class OriginBuilder : OriginValues() {
          * @param number The amount of damage to minus.
          * @receiver The damage cause that is affected.
          */
-        operator fun EntityDamageEvent.DamageCause.minusAssign(number: Number) {
+        public operator fun EntityDamageEvent.DamageCause.minusAssign(number: Number) {
             damageActions[this] = { this.damage -= number.toDouble() }
         }
 
@@ -257,7 +257,7 @@ sealed class OriginBuilder : OriginValues() {
          * @param number The amount of damage to multiply.
          * @receiver The damage cause that is affected.
          */
-        operator fun EntityDamageEvent.DamageCause.timesAssign(number: Number) {
+        public operator fun EntityDamageEvent.DamageCause.timesAssign(number: Number) {
             damageActions[this] = { this.damage *= number.toDouble() }
         }
 
@@ -268,7 +268,7 @@ sealed class OriginBuilder : OriginValues() {
          * @param number The amount of damage to divide.
          * @receiver The damage cause that is affected.
          */
-        operator fun EntityDamageEvent.DamageCause.divAssign(number: Number) {
+        public operator fun EntityDamageEvent.DamageCause.divAssign(number: Number) {
             damageActions[this] = { this.damage /= number.toDouble() }
         }
 
@@ -278,7 +278,7 @@ sealed class OriginBuilder : OriginValues() {
          * @param block The lambda to run.
          * @receiver The damage cause that is affected.
          */
-        operator fun EntityDamageEvent.DamageCause.plusAssign(block: suspend (EntityDamageEvent) -> Unit) {
+        public operator fun EntityDamageEvent.DamageCause.plusAssign(block: suspend (EntityDamageEvent) -> Unit) {
             damageActions[this] = block
         }
 
@@ -289,7 +289,7 @@ sealed class OriginBuilder : OriginValues() {
          * @receiver The triggers that activate the damage.
          */
         @JvmName("plusAssignTrigger")
-        operator fun Collection<State>.plusAssign(builder: suspend (Player) -> Unit) = forEach { it += builder }
+        public operator fun Collection<State>.plusAssign(builder: suspend (Player) -> Unit): Unit = forEach { it += builder }
 
         /**
          * Adds all elements to [State.plusAssign]
@@ -297,10 +297,10 @@ sealed class OriginBuilder : OriginValues() {
          * @param number The amount of damage to deal.
          * @receiver The triggers that activate the damage.
          */
-        operator fun Collection<State>.plusAssign(number: Number) = forEach { it += number }
+        public operator fun Collection<State>.plusAssign(number: Number): Unit = forEach { it += number }
 
         /** Adds all elements to [EntityDamageEvent.DamageCause.plusAssign]. */
-        operator fun Collection<EntityDamageEvent.DamageCause>.plusAssign(block: suspend (EntityDamageEvent) -> Unit) = forEach { it += block }
+        public operator fun Collection<EntityDamageEvent.DamageCause>.plusAssign(block: suspend (EntityDamageEvent) -> Unit): Unit = forEach { it += block }
 
         /**
          * Adds all elements to [EntityDamageEvent.DamageCause.plusAssign]
@@ -309,10 +309,10 @@ sealed class OriginBuilder : OriginValues() {
          * @receiver The causes that are affected.
          */
         @JvmName("plusAssignCause")
-        operator fun Collection<EntityDamageEvent.DamageCause>.plusAssign(number: Number) = forEach { it += number }
+        public operator fun Collection<EntityDamageEvent.DamageCause>.plusAssign(number: Number): Unit = forEach { it += number }
 
         /** Adds all elements to [EntityDamageEvent.DamageCause.minusAssign]. */
-        operator fun Collection<EntityDamageEvent.DamageCause>.minusAssign(number: Number) = forEach { it -= number }
+        public operator fun Collection<EntityDamageEvent.DamageCause>.minusAssign(number: Number): Unit = forEach { it -= number }
 
         /**
          * Adds all elements to [EntityDamageEvent.DamageCause.timesAssign]
@@ -320,7 +320,7 @@ sealed class OriginBuilder : OriginValues() {
          * @param number The amount of damage to multiply.
          * @receiver The triggers that activate the damage.
          */
-        operator fun Collection<EntityDamageEvent.DamageCause>.timesAssign(number: Number) = forEach { it *= number }
+        public operator fun Collection<EntityDamageEvent.DamageCause>.timesAssign(number: Number): Unit = forEach { it *= number }
 
         /**
          * Adds all elements to [EntityDamageEvent.DamageCause.divAssign]
@@ -328,16 +328,16 @@ sealed class OriginBuilder : OriginValues() {
          * @param number The amount of damage to divide.
          * @receiver The triggers that activate the damage.
          */
-        operator fun Collection<EntityDamageEvent.DamageCause>.divAssign(number: Number) = forEach { it /= number }
+        public operator fun Collection<EntityDamageEvent.DamageCause>.divAssign(number: Number): Unit = forEach { it /= number }
     }
 
     // TODO -> Add a way to clear default potions.
     /** A Utility class for building food triggers. */
     @OptIn(ExperimentalTypeInference::class)
-    inner class FoodBuilder {
+    public inner class FoodBuilder {
 
         @JvmName("exchangeFoodProperties")
-        fun exchangeFoodProperties(
+        public fun exchangeFoodProperties(
             first: Material,
             second: Material
         ) {

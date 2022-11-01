@@ -83,7 +83,6 @@ import org.bukkit.event.player.PlayerJoinEvent
 import org.bukkit.event.player.PlayerQuitEvent
 import org.bukkit.inventory.ItemStack
 import org.bukkit.persistence.PersistentDataType
-import org.bukkit.potion.PotionEffect
 import org.jetbrains.exposed.sql.transactions.transaction
 import org.koin.core.component.inject
 import java.util.UUID
@@ -95,7 +94,7 @@ public class ListenerService(override val plugin: Terix) : Extension<Terix>() {
     private val terixConfig by inject<DataService>().inject<TerixConfig>()
     private val lang by inject<DataService>().inject<Lang>()
     private val finishEventAction: PlayerMap<Pair<FoodLevelChangeEvent, (FoodLevelChangeEvent) -> Unit>> by lazy(::PlayerMap)
-    public val bowTracker = mutableMapOf<LivingEntity, ItemStack>()
+    public val bowTracker: MutableMap<LivingEntity, ItemStack> = mutableMapOf()
 
     @Suppress("kotlin:S3776")
     override suspend fun handleEnable() {

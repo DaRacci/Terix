@@ -10,12 +10,12 @@ import org.bukkit.Material
 import org.bukkit.entity.LivingEntity
 import org.bukkit.event.entity.EntityDamageByEntityEvent
 
-class AxolotlOrigin(override val plugin: Terix) : Origin() {
+public class AxolotlOrigin(override val plugin: Terix) : Origin() {
 
-    override val name = "Axolotl"
-    override val colour = TextColor.fromHexString("#ff6ea8")!!
+    override val name: String = "Axolotl"
+    override val colour: TextColor = TextColor.fromHexString("#ff6ea8")!!
 
-    override var waterBreathing = true
+    override var waterBreathing: Boolean = true
 
     override suspend fun handleRegister() {
         sounds.hurtSound = SoundEffect("entity.axolotl.hurt")
@@ -39,7 +39,7 @@ class AxolotlOrigin(override val plugin: Terix) : Origin() {
     }
 
     @OriginEventSelector(EventSelector.ENTITY)
-    fun EntityDamageByEntityEvent.handle() {
+    public fun EntityDamageByEntityEvent.handle() {
         val damager = damager as? LivingEntity ?: return
         if (damager.equipment?.itemInMainHand?.type != Material.FISHING_ROD) return
         damage += 5

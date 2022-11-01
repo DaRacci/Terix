@@ -16,10 +16,10 @@ import kotlin.time.Duration
 // TODO -> Agriculture
 // TODO -> Get sick from eating raw meat / fish and then they shit themselves.
 // TODO -> Increase cake.
-class HumanOrigin(override val plugin: Terix) : Origin() {
+public class HumanOrigin(override val plugin: Terix) : Origin() {
 
-    override val name = "Human"
-    override val colour = TextColor.fromHexString("#ff3838")!!
+    override val name: String = "Human"
+    override val colour: TextColor = TextColor.fromHexString("#ff3838")!!
 
     override suspend fun handleRegister() {
         sounds.hurtSound = SoundEffect("entity.player.hurt")

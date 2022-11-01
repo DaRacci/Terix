@@ -7,11 +7,11 @@ import org.bukkit.Material
 import org.bukkit.entity.Player
 import org.jetbrains.exposed.sql.transactions.transaction
 
-fun Player.inDarkness(): Boolean = inventory.itemInMainHand.type != Material.TORCH &&
+public fun Player.inDarkness(): Boolean = inventory.itemInMainHand.type != Material.TORCH &&
     inventory.itemInOffHand.type != Material.TORCH &&
     location.block.lightLevel < 5
 
-var Player.originTime: Instant
+public var Player.originTime: Instant
     get() {
         return transaction { TerixPlayer[this@originTime].lastChosenTime ?: Instant.DISTANT_PAST }
     }
@@ -19,7 +19,7 @@ var Player.originTime: Instant
         transaction { TerixPlayer[this@originTime].lastChosenTime = instant }
     }
 
-var Player.freeChanges: Int
+public var Player.freeChanges: Int
     get() {
         return transaction { TerixPlayer[this@freeChanges].freeChanges }
     }
@@ -27,38 +27,38 @@ var Player.freeChanges: Int
         transaction { TerixPlayer[this@freeChanges].freeChanges = value }
     }
 
-val Player.tickCache: TerixPlayer.PlayerTickCache get() = TerixPlayer.cachedTicks(this)
+public val Player.tickCache: TerixPlayer.PlayerTickCache get() = TerixPlayer.cachedTicks(this)
 
-var Player.wasInSunlight
+public var Player.wasInSunlight: Boolean
     get() = tickCache.wasInSunlight
     set(bool) { tickCache.wasInSunlight = bool }
 
-var Player.wasInDarkness
+public var Player.wasInDarkness: Boolean
     get() = tickCache.wasInDarkness
     set(bool) { tickCache.wasInDarkness = bool }
 
-var Player.wasInWater
+public var Player.wasInWater: Boolean
     get() = tickCache.wasInWater
     set(bool) { tickCache.wasInWater = bool }
 
-var Player.wasInRain
+public var Player.wasInRain: Boolean
     get() = tickCache.wasInRain
     set(bool) { tickCache.wasInRain = bool }
 
-var Player.inSunlight
+public var Player.inSunlight: Boolean
     get() = tickCache.inSunlight
     set(bool) { tickCache.inSunlight = bool }
 
-var Player.inDarkness
+public var Player.inDarkness: Boolean
     get() = tickCache.inDarkness
     set(bool) { tickCache.inDarkness = bool }
 
-var Player.inWater
+public var Player.inWater: Boolean
     get() = tickCache.inWater
     set(bool) { tickCache.inWater = bool }
 
-var Player.inRain
+public var Player.inRain: Boolean
     get() = tickCache.inRain
     set(bool) { tickCache.inRain = bool }
 
-infix fun Component.message(receiver: Collection<Player>) { for (audience in receiver) { audience.sendMessage(this) } }
+public infix fun Component.message(receiver: Collection<Player>) { for (audience in receiver) { audience.sendMessage(this) } }

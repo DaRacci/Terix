@@ -50,17 +50,17 @@ import kotlin.reflect.full.hasAnnotation
 import kotlin.reflect.full.primaryConstructor
 import kotlin.reflect.full.valueParameters
 
-@MappedExtension(Terix::class, "Origin Service", bindToKClass = OriginService::class)
-class OriginServiceImpl(override val plugin: Terix) : OriginService, Extension<Terix>() {
+@MappedExtension(Terix::class, "Origin Service", [], OriginService::class)
+public class OriginServiceImpl(override val plugin: Terix) : OriginService, Extension<Terix>() {
     private val modifierCache = cacheOf<KClass<*>, Any>({ constructors.first().call(this@OriginServiceImpl) }, { expireAfterAccess(Duration.ofMinutes(1)) })
     private val origins = mutableMapOf<KClass<out Origin>, Origin>()
     private var dirtyCache: List<String>? = null
     private var dirtyRegistry: PersistentMap<String, Origin>? = null
 
-    val abilities = mutableMapOf<KClass<out Ability>, Ability>()
-    val registry: PersistentMap<String, Origin>
+    public val abilities: MutableMap<KClass<out Ability>, Ability> = mutableMapOf()
+    public val registry: PersistentMap<String, Origin>
         get() = dirtyRegistry ?: origins.values.associateBy { it.name.lowercase() }.toPersistentMap().also { dirtyRegistry = it }
-    val registeredOrigins: List<String>
+    public val registeredOrigins: List<String>
         get() = dirtyCache ?: registry.keys.map {
             it.replaceFirstChar(Char::titlecaseChar)
         }.toList().also { dirtyCache = it }
@@ -108,7 +108,7 @@ class OriginServiceImpl(override val plugin: Terix) : OriginService, Extension<T
 
     override fun getOrigin(origin: KClass<out Origin>): Origin = origins[origin] ?: throw NoSuchElementException("Origin ${origin.simpleName} not found")
 
-    inline fun <reified T : Origin> getOrigin() = getOrigin(T::class)
+    public inline fun <reified T : Origin> getOrigin(): Origin = getOrigin(T::class)
 
     override fun getOriginOrNull(origin: KClass<out Origin>): Origin? = origins[origin]
 
@@ -124,10 +124,10 @@ class OriginServiceImpl(override val plugin: Terix) : OriginService, Extension<T
     }
 
     @MinixDsl
-    suspend fun registry(block: suspend RegistryModifier.() -> Unit) { block(modifierCache.get(RegistryModifier::class).castOrThrow()) }
+    public suspend fun registry(block: suspend RegistryModifier.() -> Unit) { block(modifierCache.get(RegistryModifier::class).castOrThrow()) }
 
     @MinixDsl
-    suspend fun abilities(block: suspend AbilityModifier.() -> Unit) {
+    public suspend fun abilities(block: suspend AbilityModifier.() -> Unit) {
         block(modifierCache.get(AbilityModifier::class).castOrThrow())
     }
 
@@ -173,10 +173,10 @@ class OriginServiceImpl(override val plugin: Terix) : OriginService, Extension<T
         HandlerList.unregisterAll(origin.eventListener)
     }
 
-    inner class RegistryModifier {
+    public inner class RegistryModifier {
 
         @MinixDsl
-        suspend fun add(originBuilder: suspend (Terix) -> Origin) {
+        public suspend fun add(originBuilder: suspend (Terix) -> Origin) {
             val origin = try {
                 originBuilder(plugin)
             } catch (e: Exception) {
@@ -189,7 +189,7 @@ class OriginServiceImpl(override val plugin: Terix) : OriginService, Extension<T
         }
 
         @MinixDsl
-        suspend inline fun <reified T : Origin> add(kClazz: KClass<T> = T::class) {
+        public suspend inline fun <reified T : Origin> add(kClazz: KClass<T> = T::class) {
             add {
                 logger.debug { "Creating origin ${kClazz.simpleName}" }
                 kClazz.primaryConstructor!!.call(plugin)
@@ -197,19 +197,19 @@ class OriginServiceImpl(override val plugin: Terix) : OriginService, Extension<T
         }
     }
 
-    inner class AbilityModifier {
+    public inner class AbilityModifier {
 
         @MinixDsl
-        suspend fun add(abilityBuilder: suspend () -> Ability) {
+        public suspend fun add(abilityBuilder: suspend () -> Ability) {
             val inst = abilityBuilder()
             abilities[inst::class] = inst
         }
 
         @MinixDsl
-        suspend inline fun <reified T : Ability> add(kClass: KClass<T> = T::class) {
+        public suspend inline fun <reified T : Ability> add(kClass: KClass<T> = T::class) {
             add(kClass::createInstance)
         }
     }
 
-    companion object : ExtensionCompanion<OriginServiceImpl>()
+    public companion object : ExtensionCompanion<OriginServiceImpl>()
 }

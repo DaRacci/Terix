@@ -16,10 +16,10 @@ import org.bukkit.event.entity.EntityDamageEvent.DamageCause
 
 // TODO -> Walk on powdered snow.
 // TODO -> Cake!
-class BlizzOrigin(override val plugin: Terix) : Origin() {
+public class BlizzOrigin(override val plugin: Terix) : Origin() {
 
-    override val name = "Blizz"
-    override val colour = TextColor.fromHexString("#7ac2ff")!!
+    override val name: String = "Blizz"
+    override val colour: TextColor = TextColor.fromHexString("#7ac2ff")!!
 
     override suspend fun handleRegister() {
         sounds.hurtSound = SoundEffect("entity.panda.bite")
@@ -68,7 +68,7 @@ class BlizzOrigin(override val plugin: Terix) : Origin() {
     }
 
     @OriginEventSelector(EventSelector.PLAYER)
-    fun EntityDamageByEntityEvent.handle() {
+    public fun EntityDamageByEntityEvent.handle() {
         entity.freezeTicks += 20
     }
 }

@@ -40,7 +40,7 @@ import org.koin.core.component.inject
 import kotlin.properties.Delegates
 
 @MappedExtension(Terix::class, "Command Service", [OriginService::class, GUIService::class])
-class CommandService(override val plugin: Terix) : Extension<Terix>() {
+public class CommandService(override val plugin: Terix) : Extension<Terix>() {
     private val lang: Lang by inject<DataService>().inject()
     private var registered = false
 

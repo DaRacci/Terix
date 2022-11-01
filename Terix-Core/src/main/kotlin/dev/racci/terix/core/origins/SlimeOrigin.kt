@@ -41,10 +41,10 @@ import kotlin.time.Duration.Companion.seconds
 // TODO -> CAke.
 // TODO -> More damage from fire and lava (25-50%).
 // TODO -> More damage from swords.
-class SlimeOrigin(override val plugin: Terix) : Origin() {
+public class SlimeOrigin(override val plugin: Terix) : Origin() {
 
-    override val name = "Slime"
-    override val colour = TextColor.fromHexString("#61f45a")!!
+    override val name: String = "Slime"
+    override val colour: TextColor = TextColor.fromHexString("#61f45a")!!
 
     private val healthCache = HealthCache()
     private val damageCache = PlayerMap<Instant>()

@@ -15,8 +15,10 @@ import dev.racci.terix.api.origins.enums.KeyBinding
 import dev.racci.terix.api.origins.origin.Origin
 import dev.racci.terix.api.origins.sounds.SoundEffect
 import dev.racci.terix.api.origins.states.State
+import kotlinx.collections.immutable.PersistentList
 import kotlinx.collections.immutable.persistentListOf
 import net.kyori.adventure.text.Component
+import net.kyori.adventure.text.TextComponent
 import net.kyori.adventure.text.format.TextColor
 import org.bukkit.Bukkit
 import org.bukkit.Material
@@ -37,14 +39,13 @@ import kotlin.time.Duration
 // TODO -> Dragons breaths, don't damage the dragon, Not collectable in bottles
 public class DragonOrigin(override val plugin: Terix) : Origin() {
 
-    override val name = "Dragon"
-    override val colour = TextColor.fromHexString("#9e33ff")!!
+    override val name: String = "Dragon"
+    override val colour: TextColor = TextColor.fromHexString("#9e33ff")!!
 
-    override val requirements = persistentListOf(
+    override val requirements: PersistentList<Pair<TextComponent, (Player) -> Boolean>> = persistentListOf(
         Component.text("Slay the Ender Dragon.") to { player: Player -> player.getAdvancementProgress(ADVANCEMENT).isDone },
         Component.text("Cradle Jean's egg") to { player: Player -> player.pdc.getOrDefault(CRADLE_KEY, PersistentDataType.BYTE, 0) == 1.toByte() },
         Component.text("Kill 5 players in Overworld, Nether and End") to { player: Player -> arrayOf(KILL_OVERWORLD_KEY, KILL_NETHER_KEY, KILL_END_KEY).all { key -> player.pdc.getOrDefault(key, PersistentDataType.INTEGER, 0) >= KILL_TOTAL } }
-
     )
 
     override suspend fun handleRegister() {
@@ -98,18 +99,18 @@ public class DragonOrigin(override val plugin: Terix) : Origin() {
     }
 
     @OriginEventSelector(EventSelector.ENTITY)
-    fun EntityDamageByBlockEvent.handle() {
+    public fun EntityDamageByBlockEvent.handle() {
         bedExplosion(this)
     }
 
     @OriginEventSelector(EventSelector.ENTITY)
-    fun EntityDamageByEntityEvent.handle() {
+    public fun EntityDamageByEntityEvent.handle() {
         bedDamage(this)
         shieldExplosion(this)
     }
 
     @OriginEventSelector(EventSelector.PLAYER)
-    fun PlayerBedEnterEvent.handle() {
+    public fun PlayerBedEnterEvent.handle() {
         cancel()
     }
 
