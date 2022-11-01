@@ -24,15 +24,15 @@ import org.koin.core.component.inject
 import java.util.UUID
 import kotlin.time.Duration
 
-abstract class Ability(private val abilityType: AbilityType) : WithPlugin<Terix> {
+public abstract class Ability(private val abilityType: AbilityType) : WithPlugin<Terix> {
     private val abilityCache: CooldownSet by lazy { CooldownSet(this) }
 
     final override val plugin: Terix by inject()
 
     /** The duration before the ability can be activated again. */
-    open val cooldown: Duration = 20.ticks
+    public open val cooldown: Duration = 20.ticks
 
-    open val name: String = this::class.simpleName ?: throw IllegalStateException("Ability name is null")
+    public open val name: String = this::class.simpleName ?: throw IllegalStateException("Ability name is null")
 
     /**
      * Called when the ability is activated.
@@ -40,7 +40,7 @@ abstract class Ability(private val abilityType: AbilityType) : WithPlugin<Terix>
      *
      * @param player The player who activated the ability.
      */
-    open suspend fun onActivate(player: Player) = Unit
+    public open suspend fun onActivate(player: Player): Unit = Unit
 
     /**
      * Called when the ability is deactivated.
@@ -48,7 +48,7 @@ abstract class Ability(private val abilityType: AbilityType) : WithPlugin<Terix>
      *
      * @param player The player who deactivated the ability.
      */
-    open suspend fun onDeactivate(player: Player) = Unit
+    public open suspend fun onDeactivate(player: Player): Unit = Unit
 
     /**
      * Attempts to toggle this [player]'s ability.
@@ -59,7 +59,7 @@ abstract class Ability(private val abilityType: AbilityType) : WithPlugin<Terix>
      * @param player to toggle the ability for.
      * @return If the ability is on cooldown, this will return null. Otherwise, it will return true.
      */
-    suspend fun toggle(player: Player): Boolean? = when {
+    public suspend fun toggle(player: Player): Boolean? = when {
         OriginHelper.shouldIgnorePlayer(player) -> false
         this.abilityCache.containsCooldown(player.uniqueId) -> null
         this.isActivated(player.uniqueId) -> this.deactivate(player)

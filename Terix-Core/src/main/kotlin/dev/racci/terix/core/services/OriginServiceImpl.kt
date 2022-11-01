@@ -16,6 +16,7 @@ import dev.racci.terix.api.TerixPlayer
 import dev.racci.terix.api.annotations.OriginEventSelector
 import dev.racci.terix.api.data.TerixConfig
 import dev.racci.terix.api.origins.abilities.Ability
+import dev.racci.terix.api.origins.abilities.DragonBreath
 import dev.racci.terix.api.origins.abilities.Levitate
 import dev.racci.terix.api.origins.abilities.Teleport
 import dev.racci.terix.api.origins.abilities.Transform
@@ -97,6 +98,7 @@ class OriginServiceImpl(override val plugin: Terix) : OriginService, Extension<T
             add<Levitate>()
             add<Teleport>()
             add<Transform>()
+            add<DragonBreath>()
         }
     }
 
