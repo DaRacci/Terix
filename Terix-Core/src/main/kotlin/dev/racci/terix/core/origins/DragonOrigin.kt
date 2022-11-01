@@ -11,6 +11,7 @@ import dev.racci.terix.api.dsl.FoodPropertyBuilder
 import dev.racci.terix.api.dsl.dslMutator
 import dev.racci.terix.api.origins.abilities.DragonBreath
 import dev.racci.terix.api.origins.enums.EventSelector
+import dev.racci.terix.api.origins.enums.KeyBinding
 import dev.racci.terix.api.origins.origin.Origin
 import dev.racci.terix.api.origins.sounds.SoundEffect
 import dev.racci.terix.api.origins.states.State
@@ -20,12 +21,13 @@ import net.kyori.adventure.text.format.TextColor
 import org.bukkit.Bukkit
 import org.bukkit.Material
 import org.bukkit.NamespacedKey
-import org.bukkit.Registry.ADVANCEMENT
+import org.bukkit.attribute.Attribute
 import org.bukkit.entity.LivingEntity
 import org.bukkit.entity.Player
 import org.bukkit.event.entity.EntityDamageByBlockEvent
 import org.bukkit.event.entity.EntityDamageByEntityEvent
 import org.bukkit.event.entity.EntityDamageEvent
+import org.bukkit.event.entity.EntityPotionEffectEvent
 import org.bukkit.event.player.PlayerBedEnterEvent
 import org.bukkit.inventory.EquipmentSlot
 import org.bukkit.persistence.PersistentDataType
@@ -66,6 +68,16 @@ public class DragonOrigin(override val plugin: Terix) : Origin() {
             }
         }
 
+        damage {
+            EntityDamageEvent.DamageCause.DRAGON_BREATH *= 0
+        }
+
+        attributes {
+            Attribute.GENERIC_MOVEMENT_SPEED *= 0.75
+            Attribute.GENERIC_ATTACK_DAMAGE *= 1.5
+            Attribute.GENERIC_MAX_HEALTH *= 1.5
+        }
+
         potions {
             State.CONSTANT += dslMutator {
                 type = PotionEffectType.HUNGER
@@ -99,6 +111,11 @@ public class DragonOrigin(override val plugin: Terix) : Origin() {
     @OriginEventSelector(EventSelector.PLAYER)
     fun PlayerBedEnterEvent.handle() {
         cancel()
+    }
+
+    @OriginEventSelector(EventSelector.ENTITY)
+    public fun EntityPotionEffectEvent.handle() {
+        if (this.action != EntityPotionEffectEvent.Action.ADDED && this.newEffect!!.type == PotionEffectType.WEAKNESS) cancel()
     }
 
     private fun bedExplosion(event: EntityDamageByBlockEvent) {
