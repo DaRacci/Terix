@@ -42,6 +42,7 @@ import kotlinx.collections.immutable.toPersistentHashSet
 import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableSharedFlow
+import kotlinx.coroutines.flow.SharedFlow
 import kotlinx.coroutines.flow.asSharedFlow
 import kotlinx.coroutines.flow.buffer
 import kotlinx.coroutines.flow.conflate
@@ -65,7 +66,7 @@ import java.util.concurrent.ConcurrentHashMap
 import kotlin.math.roundToInt
 
 @MappedExtension(Terix::class, "Tick Service", [OriginService::class], threadCount = 4)
-class TickService(override val plugin: Terix) : Extension<Terix>() {
+public class TickService(override val plugin: Terix) : Extension<Terix>() {
     private val delayChannel = Channel<Unit>(0)
     private val mutex = Mutex()
     private val playerQueue = ArrayDeque<Player>()
@@ -76,7 +77,7 @@ class TickService(override val plugin: Terix) : Extension<Terix>() {
     /** The queue of players which have disconnected. (Slightly faster performance than checking [Player.isOnline]) */
     private val removeQueue = ConcurrentHashMap.newKeySet<UUID>()
 
-    val playerFlow = internalFlow.asSharedFlow()
+    public val playerFlow: SharedFlow<Player> = internalFlow.asSharedFlow()
 
     override suspend fun handleEnable() {
         // TODO -> Only load these once
@@ -239,7 +240,7 @@ class TickService(override val plugin: Terix) : Extension<Terix>() {
         yieldAll(origin.attributeModifiers.keys)
     }.distinct()
 
-    companion object : ExtensionCompanion<TickService>() {
-        const val TICK_RATE = 2
+    public companion object : ExtensionCompanion<TickService>() {
+        public const val TICK_RATE: Int = 2
     }
 }

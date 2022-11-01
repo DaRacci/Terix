@@ -5,8 +5,8 @@ import me.libraryaddict.disguise.DisguiseAPI
 import me.libraryaddict.disguise.disguisetypes.Disguise
 import org.bukkit.entity.Player
 
-class Transform : Ability(AbilityType.TOGGLE) {
-    val disguises = PlayerMap<Disguise>()
+public class Transform : Ability(AbilityType.TOGGLE) {
+    public val disguises: PlayerMap<Disguise> = PlayerMap()
 
     override suspend fun onActivate(player: Player) {
         disguises[player]?.let { DisguiseAPI.disguiseEntity(player, it) }

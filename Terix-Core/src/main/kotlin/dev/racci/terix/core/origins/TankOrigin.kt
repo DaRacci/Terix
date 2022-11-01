@@ -10,4 +10,4 @@ import dev.racci.terix.api.origins.origin.Origin
 // Gorira
 // TODO -> Throw shit (Brown dye) of double offhand
 // TODO -> Climb trees
-class TankOrigin(override val plugin: MinixPlugin) : Origin()
+public class TankOrigin(override val plugin: MinixPlugin) : Origin()

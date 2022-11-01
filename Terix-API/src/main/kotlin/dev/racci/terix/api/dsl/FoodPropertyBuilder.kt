@@ -6,7 +6,7 @@ import net.minecraft.world.food.FoodProperties
 import org.bukkit.potion.PotionEffect
 import java.util.Optional
 
-class FoodPropertyBuilder(
+public class FoodPropertyBuilder(
     nutrition: Int?,
     saturationModifier: Float?,
     isMeat: Boolean?,
@@ -15,7 +15,7 @@ class FoodPropertyBuilder(
     effects: ArrayList<Pair<MobEffectInstance, Float>>?
 ) : CachingBuilder<FoodProperties>() {
 
-    constructor(foodProperties: FoodProperties?) : this(
+    public constructor(foodProperties: FoodProperties?) : this(
         foodProperties?.nutrition ?: 0,
         foodProperties?.saturationModifier ?: 0.0f,
         foodProperties?.isMeat ?: false,
@@ -27,14 +27,14 @@ class FoodPropertyBuilder(
         foodProperties.effects.mapTo(effects) { it.first to it.second }
     }
 
-    var nutrition by createWatcher(nutrition ?: 0)
-    var saturationModifier by createWatcher(saturationModifier ?: 0.0f)
-    var isMeat by createWatcher(isMeat ?: false)
-    var canAlwaysEat by createWatcher(canAlwaysEat ?: false)
-    var fastFood by createWatcher(fastFood ?: false)
-    var effects by createWatcher(effects ?: arrayListOf())
+    public var nutrition: Int by createWatcher(nutrition ?: 0)
+    public var saturationModifier: Float by createWatcher(saturationModifier ?: 0.0f)
+    public var isMeat: Boolean by createWatcher(isMeat ?: false)
+    public var canAlwaysEat: Boolean by createWatcher(canAlwaysEat ?: false)
+    public var fastFood: Boolean by createWatcher(fastFood ?: false)
+    public var effects: java.util.ArrayList<Pair<MobEffectInstance, Float>> by createWatcher(effects ?: arrayListOf())
 
-    fun addEffect(effect: PotionEffect) {
+    public fun addEffect(effect: PotionEffect) {
         effects.add(
             MobEffectInstance(
                 MobEffect.byId(effect.type.id)!!,

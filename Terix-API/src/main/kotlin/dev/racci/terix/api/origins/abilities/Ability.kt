@@ -121,15 +121,15 @@ public abstract class Ability(private val abilityType: AbilityType) : WithPlugin
         player.persistentDataContainer.set(NAMESPACE, PersistentDataType.TAG_CONTAINER_ARRAY, newContainers.toTypedArray())
     }
 
-    companion object : WithPlugin<Terix> {
-        override val plugin by getKoin().inject<Terix>()
+    public companion object : WithPlugin<Terix> {
+        override val plugin: Terix by getKoin().inject()
         private val NAMESPACE = NamespacedKey.fromString("origin.abilities", plugin)!!
         private val NAMESPACES = arrayOf(
             NamespacedKey.fromString("origin.abilities.name", plugin)!!,
             NamespacedKey.fromString("origin.abilities.cooldown", plugin)!!,
             NamespacedKey.fromString("origin.abilities.active", plugin)!!
         )
-        const val SCOPE = "origin.abilities"
+        public const val SCOPE: String = "origin.abilities"
 
         init {
             event<PlayerJoinEvent>(EventPriority.MONITOR, true) {
@@ -155,5 +155,5 @@ public abstract class Ability(private val abilityType: AbilityType) : WithPlugin
         }
     }
 
-    enum class AbilityType { TOGGLE, TRIGGER }
+    public enum class AbilityType { TOGGLE, TRIGGER }
 }

@@ -11,7 +11,7 @@ import org.bukkit.command.CommandSender
 import java.util.Queue
 import java.util.function.BiFunction
 
-class OriginInfoArgument(
+public class OriginInfoArgument(
     name: String,
     required: Boolean,
     description: RichDescription,
@@ -26,7 +26,7 @@ class OriginInfoArgument(
     description
 ) {
 
-    class OriginInfoTypeParser : ArgumentParser<CommandSender, OriginInfo.Info> {
+    public class OriginInfoTypeParser : ArgumentParser<CommandSender, OriginInfo.Info> {
         override fun parse(
             context: CommandContext<CommandSender>,
             inputQueue: Queue<String>

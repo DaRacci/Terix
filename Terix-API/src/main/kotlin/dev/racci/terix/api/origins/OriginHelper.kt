@@ -17,7 +17,7 @@ import org.koin.core.component.KoinComponent
 import org.koin.core.component.inject
 
 public object OriginHelper : KoinComponent, WithPlugin<Terix> {
-    override val plugin: Terix by inject<Terix>()
+    override val plugin: Terix by inject()
 
     /** Checks if a player should be ignored for something like staff mode. */
     public fun shouldIgnorePlayer(player: Player): Boolean {

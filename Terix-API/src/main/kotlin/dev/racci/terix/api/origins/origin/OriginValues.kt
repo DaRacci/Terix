@@ -28,52 +28,52 @@ import org.bukkit.entity.Player
 import org.bukkit.event.entity.EntityDamageEvent
 import org.bukkit.potion.PotionEffect
 
-sealed class OriginValues : WithPlugin<MinixPlugin> {
+public sealed class OriginValues : WithPlugin<MinixPlugin> {
     private val specials = arrayOfNulls<Boolean>(2)
 
     @MinixInternal
-    val eventListener = object : KListener<MinixPlugin> {
+    public val eventListener: KListener<MinixPlugin> = object : KListener<MinixPlugin> {
         override val plugin get() = this@OriginValues.plugin
     }
 
-    open val name: String = this::class.simpleName
+    public open val name: String = this::class.simpleName
         ?.withIndex()
         ?.takeWhile { it.value.isLetter() || it.index == 0 }
         ?.map(IndexedValue<Char>::value)?.toString() ?: throw OriginCreationException("Origin name is null")
 
-    open val colour: TextColor = NamedTextColor.WHITE
+    public open val colour: TextColor = NamedTextColor.WHITE
 
-    open val permission: String? = null
+    public open val permission: String? = null
 
-    open val becomeOriginTitle: TitleBuilder? = null
+    public open val becomeOriginTitle: TitleBuilder? = null
 
-    open val requirements: PersistentList<Pair<Component, (Player) -> Boolean>> = persistentListOf()
+    public open val requirements: PersistentList<Pair<Component, (Player) -> Boolean>> = persistentListOf()
 
-    open var fireImmunity: Boolean
+    public open var fireImmunity: Boolean
         get() = specials[0] ?: false
         protected set(value) {
             specials[0] = value
         }
-    open var waterBreathing: Boolean
+    public open var waterBreathing: Boolean
         get() = specials[1] ?: false
         protected set(value) {
             specials[1] = value
         }
 
-    val item: OriginItem = OriginItem()
-    val sounds: SoundEffects = SoundEffects()
-    val displayName: Component by lazy { Component.text(name).color(colour) }
+    public val item: OriginItem = OriginItem()
+    public val sounds: SoundEffects = SoundEffects()
+    public val displayName: Component by lazy { Component.text(name).color(colour) }
 
-    val statePotions: MutableMultiMap<State, PotionEffect> by lazy(::multiMapOf)
-    val stateDamageTicks: MutableMap<State, Double> by lazy(::mutableMapOf)
-    val stateTitles: MutableMap<State, TitleBuilder> by lazy(::mutableMapOf)
-    val stateBlocks: MutableMap<State, suspend (Player) -> Unit> by lazy(::mutableMapOf)
+    public val statePotions: MutableMultiMap<State, PotionEffect> by lazy(::multiMapOf)
+    public val stateDamageTicks: MutableMap<State, Double> by lazy(::mutableMapOf)
+    public val stateTitles: MutableMap<State, TitleBuilder> by lazy(::mutableMapOf)
+    public val stateBlocks: MutableMap<State, suspend (Player) -> Unit> by lazy(::mutableMapOf)
 
-    val abilities: MutableMap<KeyBinding, Ability> by lazy(::mutableMapOf)
+    public val abilities: MutableMap<KeyBinding, Ability> by lazy(::mutableMapOf)
 
-    val customFoodProperties: HashMap<Material, FoodProperties> by lazy(::hashMapOf)
-    val customFoodActions: MutableMultiMap<Material, Either<ActionPropBuilder, TimedAttributeBuilder>> by lazy(::multiMapOf)
+    public val customFoodProperties: HashMap<Material, FoodProperties> by lazy(::hashMapOf)
+    public val customFoodActions: MutableMultiMap<Material, Either<ActionPropBuilder, TimedAttributeBuilder>> by lazy(::multiMapOf)
 
-    val attributeModifiers: MutableMultiMap<State, Pair<Attribute, AttributeModifier>> by lazy(::multiMapOf)
-    val damageActions: MutableMap<EntityDamageEvent.DamageCause, suspend EntityDamageEvent.() -> Unit> by lazy(::mutableMapOf)
+    public val attributeModifiers: MutableMultiMap<State, Pair<Attribute, AttributeModifier>> by lazy(::multiMapOf)
+    public val damageActions: MutableMap<EntityDamageEvent.DamageCause, suspend EntityDamageEvent.() -> Unit> by lazy(::mutableMapOf)
 }

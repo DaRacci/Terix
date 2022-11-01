@@ -3,13 +3,14 @@ package dev.racci.terix.api.events
 import dev.racci.minix.api.events.CompanionEventHandler
 import dev.racci.terix.api.origins.origin.Origin
 import org.bukkit.entity.Player
+import org.bukkit.event.HandlerList
 
-class OriginWaterBurnEvent(
+public class OriginWaterBurnEvent(
     player: Player,
     origin: Origin,
-    var damage: Double
+    public var damage: Double
 ) : OriginEvent(player, origin) {
-    companion object : CompanionEventHandler() {
-        @JvmStatic override fun getHandlerList() = super.getHandlerList()
+    public companion object : CompanionEventHandler() {
+        @JvmStatic override fun getHandlerList(): HandlerList = super.getHandlerList()
     }
 }

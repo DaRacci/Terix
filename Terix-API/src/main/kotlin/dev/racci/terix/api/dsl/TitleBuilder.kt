@@ -6,25 +6,25 @@ import net.kyori.adventure.text.Component
 import net.kyori.adventure.title.Title
 import org.bukkit.entity.Player
 
-class TitleBuilder(
+public class TitleBuilder(
     title: Component? = null,
     subtitle: Component? = null,
     times: Title.Times? = null,
     sound: Key? = null
 ) : CachingBuilder<Title>() {
 
-    var title by createWatcher(title ?: Component.empty())
-    var subtitle by createWatcher(subtitle ?: Component.empty())
-    var times by createWatcher(times ?: Title.DEFAULT_TIMES)
-    var sound by createWatcher(sound)
+    public var title: Component by createWatcher(title ?: Component.empty())
+    public var subtitle: Component by createWatcher(subtitle ?: Component.empty())
+    public var times: Title.Times by createWatcher(times ?: Title.DEFAULT_TIMES)
+    public var sound: Key by createWatcher(sound)
 
-    override fun create() = Title.title(
+    override fun create(): Title = Title.title(
         title,
         subtitle,
         times
     )
 
-    fun invoke(player: Player) {
+    public fun invoke(player: Player) {
         player.showTitle(get())
         ::sound.watcherOrNull()?.let { player.playSound(Sound.sound(it, Sound.Source.AMBIENT, 1f, 1f)) }
     }

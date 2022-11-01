@@ -12,10 +12,10 @@ import org.bukkit.entity.Arrow
 import org.bukkit.event.entity.EntityDamageEvent.DamageCause
 
 // TODO: Cake
-class FairyOrigin(override val plugin: Terix) : Origin() {
+public class FairyOrigin(override val plugin: Terix) : Origin() {
 
-    override val name = "Fairy"
-    override val colour = TextColor.fromHexString("#86ff93")!!
+    override val name: String = "Fairy"
+    override val colour: TextColor = TextColor.fromHexString("#86ff93")!!
 
     override suspend fun handleRegister() {
         sounds.hurtSound = SoundEffect("entity.puffer_fish.death")
@@ -42,7 +42,7 @@ class FairyOrigin(override val plugin: Terix) : Origin() {
         }
     }
 
-    companion object {
+    private companion object {
         val TOP_FOODS = listOf(Material.BEETROOT, Material.APPLE, Material.GOLDEN_APPLE, Material.ENCHANTED_GOLDEN_APPLE, Material.CARROT, Material.CHORUS_FRUIT)
         val MID_FOODS = listOf(Material.SWEET_BERRIES, Material.GLOW_BERRIES)
         val FAT_FOODS = listOf(Material.POTATO, Material.POISONOUS_POTATO)

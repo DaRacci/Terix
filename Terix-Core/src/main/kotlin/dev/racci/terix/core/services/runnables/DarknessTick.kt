@@ -10,7 +10,7 @@ import dev.racci.terix.core.extensions.wasInDarkness
 import kotlinx.datetime.Instant
 import org.bukkit.entity.Player
 
-class DarknessTick(
+public class DarknessTick(
     player: Player,
     origin: Origin
 ) : ChildTicker(

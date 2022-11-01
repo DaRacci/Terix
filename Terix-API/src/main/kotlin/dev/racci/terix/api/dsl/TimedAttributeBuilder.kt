@@ -13,7 +13,7 @@ import kotlin.time.Duration
 
 // TODO: Test but like this requires being able to use the scheduler so i can't test it
 // TODO -> Account for changes while activated.
-class TimedAttributeBuilder(
+public class TimedAttributeBuilder(
     uuid: UUID = UUID.randomUUID(),
     attribute: Attribute? = null,
     name: String? = null,
@@ -22,14 +22,14 @@ class TimedAttributeBuilder(
     operation: AttributeModifier.Operation? = null
 ) : CachingBuilder<AttributeModifier>() {
 
-    var uuid by createWatcher(uuid)
-    var attribute by createWatcher(attribute)
-    var name by createWatcher(name)
-    var amount by createWatcher(amount)
-    var duration by createWatcher(duration)
-    var operation by createWatcher(operation)
+    public var uuid: UUID by createWatcher(uuid)
+    public var attribute: Attribute by createWatcher(attribute)
+    public var name: String by createWatcher(name)
+    public var amount: Double by createWatcher(amount)
+    public var duration: Duration by createWatcher(duration)
+    public var operation: AttributeModifier.Operation by createWatcher(operation)
 
-    fun materialName(
+    public fun materialName(
         material: Material,
         origin: OriginValues
     ): TimedAttributeBuilder {
@@ -41,7 +41,7 @@ class TimedAttributeBuilder(
         return this
     }
 
-    operator fun invoke(player: Player) {
+    public operator fun invoke(player: Player) {
         player.getAttribute(attribute)?.addModifier(get())
 
         scheduler {
@@ -49,5 +49,5 @@ class TimedAttributeBuilder(
         }.runAsyncTaskLater(getKoin().get<Terix>(), duration)
     }
 
-    override fun create() = AttributeModifier(uuid, name, amount, operation)
+    override fun create(): AttributeModifier = AttributeModifier(uuid, name, amount, operation)
 }

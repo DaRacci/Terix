@@ -10,7 +10,7 @@ import dev.racci.terix.core.extensions.inWater
 import kotlinx.datetime.Instant
 import org.bukkit.entity.Player
 
-class WaterTick(
+public class WaterTick(
     player: Player,
     origin: Origin
 ) : ChildTicker(

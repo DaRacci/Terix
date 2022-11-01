@@ -21,12 +21,12 @@ import org.bukkit.event.entity.EntityPickupItemEvent
 // TODO -> Eating raw items gives the same as cooked food since hes hot.
 // TODO -> Eating Cooked food gives less since it becomes overcooked.
 // TODO -> Cake.
-class NetherbornOrigin(override val plugin: Terix) : Origin() {
+public class NetherbornOrigin(override val plugin: Terix) : Origin() {
 
-    override val name = "Netherborn"
-    override val colour = TextColor.fromHexString("#ff5936")!!
+    override val name: String = "Netherborn"
+    override val colour: TextColor = TextColor.fromHexString("#ff5936")!!
 
-    override var fireImmunity = true
+    override var fireImmunity: Boolean = true
 
     override suspend fun handleRegister() {
         sounds.hurtSound = SoundEffect("entity.ravager.hurt")
@@ -66,17 +66,17 @@ class NetherbornOrigin(override val plugin: Terix) : Origin() {
         }
     }
 
-    override suspend fun handleLoad(player: Player) = ensureDrySponge(player)
+    override suspend fun handleLoad(player: Player): Unit = ensureDrySponge(player)
 
     @OriginEventSelector(EventSelector.OFFENDER)
-    fun EntityDamageByEntityEvent.handle() {
+    public fun EntityDamageByEntityEvent.handle() {
         if (damager.fireTicks <= 0) return
 
         damage *= 1.2
     }
 
     @OriginEventSelector(EventSelector.ENTITY)
-    fun EntityPickupItemEvent.handle() {
+    public fun EntityPickupItemEvent.handle() {
         if (this.item.itemStack.type != Material.WET_SPONGE) return
         this.item.itemStack.type = Material.SPONGE
     }

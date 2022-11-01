@@ -10,39 +10,39 @@ import org.bukkit.entity.Player
 import kotlin.reflect.KProperty0
 
 // May need mutex locks due to having 4 threads running at once
-sealed class ChildTicker(
-    val player: Player,
-    val origin: Origin,
+public sealed class ChildTicker(
+    public val player: Player,
+    public val origin: Origin,
     private val state: State?,
     private val wasFunc: KProperty0<Boolean>?,
     private val isFunc: KProperty0<Boolean>?
 ) : WithPlugin<Terix> by getKoin().get<TickService>() {
 
-    var isAlive: Boolean = false
-    var upForAdoption: Boolean = true
+    public var isAlive: Boolean = false
+    public var upForAdoption: Boolean = true
 
-    abstract suspend fun handleRun()
+    public abstract suspend fun handleRun()
 
-    open suspend fun shouldRun(): Boolean = true
+    public open suspend fun shouldRun(): Boolean = true
 
     /** Initialisation */
-    open suspend fun onBirth() = Unit
+    public open suspend fun onBirth(): Unit = Unit
 
     /** Kills this child task. */
-    open suspend fun onAbortion() = Unit
+    public open suspend fun onAbortion(): Unit = Unit
 
-    suspend fun breakWater() {
+    public suspend fun breakWater() {
         isAlive = true
         upForAdoption = false
         onBirth()
     }
 
-    suspend fun coatHanger() {
+    public suspend fun coatHanger() {
         isAlive = false
         onAbortion()
     }
 
-    suspend fun run() {
+    public suspend fun run() {
         this.tryToggle()
         if (this.shouldRun()) this.handleRun()
     }

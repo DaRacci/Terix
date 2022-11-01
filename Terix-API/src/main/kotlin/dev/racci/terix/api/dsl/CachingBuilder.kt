@@ -10,14 +10,14 @@ import kotlin.reflect.KProperty
 import kotlin.reflect.KProperty0
 import kotlin.reflect.KProperty1
 
-abstract class CachingBuilder<T> {
+public abstract class CachingBuilder<T> {
     @[Transient PublishedApi] internal var cached: T? = null
 
     @[Transient PublishedApi] internal var dirty: Boolean = true
 
-    @Transient protected val watcherSet = mutableSetOf<ChangeWatcher<*>>()
+    @Transient protected val watcherSet: MutableSet<ChangeWatcher<*>> = mutableSetOf()
 
-    @Transient protected val watcherValues = watcherSet.map(ChangeWatcher<*>::property)
+    @Transient protected val watcherValues: List<Any?> = watcherSet.map(ChangeWatcher<*>::property)
         .filterIsInstance<KProperty1<CachingBuilder<*>, *>>()
         .map { it.get(this) }
 
@@ -25,7 +25,7 @@ abstract class CachingBuilder<T> {
     protected abstract fun create(): T
 
     /** Returns the cached [T] instance, or creates a new one if it is dirty. */
-    fun get(): T {
+    public fun get(): T {
         if (dirty) {
             cached = create()
             dirty = false
@@ -35,7 +35,7 @@ abstract class CachingBuilder<T> {
     }
 
     /** Creates a property to be watched and mark this builder as dirty when changed. */
-    protected fun <R : Any> createWatcher(initValue: R?) = PropertyDelegateProvider<CachingBuilder<*>, ChangeWatcher<R>> { thisRef, property -> ChangeWatcher(thisRef, property, initValue) }
+    protected fun <R : Any> createWatcher(initValue: R?): PropertyDelegateProvider<CachingBuilder<*>, ChangeWatcher<R>> = PropertyDelegateProvider { thisRef, property -> ChangeWatcher(thisRef, property, initValue) }
 
     protected fun <R> KProperty0<R>.watcherOrNull(): R? {
         return runBlocking {
@@ -45,7 +45,7 @@ abstract class CachingBuilder<T> {
         }
     }
 
-    final override fun toString() = buildString {
+    final override fun toString(): String = buildString {
         append("CachingBuilder(")
         append("type=").append(this@CachingBuilder::class.simpleName)
         append(", cached=").append(cached)
@@ -88,7 +88,7 @@ abstract class CachingBuilder<T> {
 
     protected class ChangeWatcher<R : Any>(
         private val thisRef: CachingBuilder<*>,
-        val property: KProperty<*>,
+        public val property: KProperty<*>,
         initialValue: R?
     ) : ReadWriteProperty<Any?, R> {
         internal var value = initialValue

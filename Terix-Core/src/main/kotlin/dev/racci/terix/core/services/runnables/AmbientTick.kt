@@ -10,7 +10,7 @@ import org.bukkit.entity.Player
 import kotlin.random.Random
 import kotlin.time.Duration.Companion.seconds
 
-class AmbientTick(
+public class AmbientTick(
     player: Player,
     origin: Origin
 ) : ChildTicker(
@@ -44,7 +44,7 @@ class AmbientTick(
         )
     }
 
-    companion object {
+    private companion object {
         const val MIN_TIME: Double = 600.0
         const val MAX_TIME: Double = 1200.0
     }

@@ -19,7 +19,7 @@ import kotlin.reflect.full.valueParameters
 
 @Suppress("UnusedReceiverParameter")
 @API(status = API.Status.EXPERIMENTAL, since = "1.0.0")
-enum class EventSelector(val selector: TargetSelector<Any, *>) {
+public enum class EventSelector(public val selector: TargetSelector<Any, *>) {
     /** Selects the entity from an [EntityEvent]. */
     ENTITY(PlayerSelector<EntityEvent> { it.entity as? Player }),
 
@@ -38,11 +38,11 @@ enum class EventSelector(val selector: TargetSelector<Any, *>) {
     /** Selects the damager from an [EntityDamageByEntityEvent]. */
     OFFENDER(PlayerSelector<EntityDamageByEntityEvent> { it.damager.safeCast() });
 
-    sealed interface TargetSelector<out E : Any, R : Any> {
-        operator fun invoke(event: @UnsafeVariance E): R?
+    public sealed interface TargetSelector<out E : Any, R : Any> {
+        public operator fun invoke(event: @UnsafeVariance E): R?
 
-        companion object {
-            inline fun <reified E : Any> TargetSelector<E, *>.isCompatible(func: KFunction<*>): Boolean {
+        public companion object {
+            public inline fun <reified E : Any> TargetSelector<E, *>.isCompatible(func: KFunction<*>): Boolean {
                 if (func.extensionReceiverParameter != null && func.extensionReceiverParameter!!.type.classifier.safeCast<KClass<E>>() != null) return true
                 if (func.valueParameters.size != 1) return false
                 if (func.valueParameters[0].type.classifier.safeCast<E>() == null) return false
@@ -52,11 +52,11 @@ enum class EventSelector(val selector: TargetSelector<Any, *>) {
         }
     }
 
-    fun interface PlayerSelector<E : Event> : TargetSelector<E, Player> {
+    public fun interface PlayerSelector<E : Event> : TargetSelector<E, Player> {
         override operator fun invoke(event: E): Player?
     }
 
-    fun interface OriginSelector<E : Event> : TargetSelector<E, Origin> {
+    public fun interface OriginSelector<E : Event> : TargetSelector<E, Origin> {
         override operator fun invoke(event: E): Origin?
     }
 }

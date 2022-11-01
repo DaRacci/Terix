@@ -45,12 +45,12 @@ import kotlin.time.Duration.Companion.INFINITE
 import kotlin.time.Duration.Companion.seconds
 
 // TODO -> Cake good.
-class VampireOrigin(override val plugin: Terix) : Origin() {
+public class VampireOrigin(override val plugin: Terix) : Origin() {
     private val cooldowns = mutableMapOf<Player, Instant>()
     private val potionWatch = mutableSetOf<Player>()
 
-    override val name = "Vampire"
-    override val colour = TextColor.fromHexString("#ff1234")!!
+    override val name: String = "Vampire"
+    override val colour: TextColor = TextColor.fromHexString("#ff1234")!!
 
     override suspend fun handleRegister() {
         sounds.hurtSound = SoundEffect("entity.bat.hurt")
@@ -118,17 +118,17 @@ class VampireOrigin(override val plugin: Terix) : Origin() {
     }
 
     @OriginEventSelector(EventSelector.PLAYER)
-    fun PlayerJoinEvent.onJoin() {
+    public fun PlayerJoinEvent.onJoin() {
         OriginService.getAbility(Transform::class).castOrThrow<Transform>().disguises[player] = MobDisguise(DisguiseType.BAT)
     }
 
     @OriginEventSelector(EventSelector.PLAYER)
-    fun PlayerOriginChangeEvent.onChangeOrigin() {
+    public fun PlayerOriginChangeEvent.onChangeOrigin() {
         OriginService.getAbility(Transform::class).castOrThrow<Transform>().disguises -= player
     }
 
     @OriginEventSelector(EventSelector.ENTITY)
-    fun onDamage(event: EntityDamageEvent) {
+    public fun onDamage(event: EntityDamageEvent) {
         when (event.cause.ordinal) {
             DamageCause.WITHER.ordinal -> event.cancel()
             in 17..18 -> {
@@ -139,7 +139,7 @@ class VampireOrigin(override val plugin: Terix) : Origin() {
     }
 
     @OriginEventSelector(EventSelector.ENTITY)
-    fun EntityRegainHealthEvent.onRegenHealth() {
+    public fun EntityRegainHealthEvent.onRegenHealth() {
         when (regainReason.ordinal) {
             in 4..5 -> {
                 cancel()
@@ -149,7 +149,7 @@ class VampireOrigin(override val plugin: Terix) : Origin() {
     }
 
     @OriginEventSelector(EventSelector.ENTITY)
-    fun EntityPotionEffectEvent.onPotionEffect() {
+    public fun EntityPotionEffectEvent.onPotionEffect() {
         if (action != EntityPotionEffectEvent.Action.ADDED) return
         if (cause != EntityPotionEffectEvent.Cause.FOOD) return
 
@@ -157,7 +157,7 @@ class VampireOrigin(override val plugin: Terix) : Origin() {
     }
 
     @OriginEventSelector(EventSelector.PLAYER)
-    fun PlayerItemConsumeEvent.onItemConsume() {
+    public fun PlayerItemConsumeEvent.onItemConsume() {
         when (item.type) {
             Material.ROTTEN_FLESH, Material.SPIDER_EYE -> potionWatch += player
             else -> return
@@ -166,7 +166,7 @@ class VampireOrigin(override val plugin: Terix) : Origin() {
 
     // TODO: Sucking sound
     @OriginEventSelector(EventSelector.PLAYER)
-    fun PlayerSneakSecondaryEvent.onSneakRightClick() {
+    public fun PlayerSneakSecondaryEvent.onSneakRightClick() {
         val now = now()
         if (player in cooldowns) {
             val inst = cooldowns[player]!!

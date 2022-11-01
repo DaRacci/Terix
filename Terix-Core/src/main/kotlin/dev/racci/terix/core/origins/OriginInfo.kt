@@ -23,20 +23,20 @@ import org.bukkit.event.entity.EntityDamageEvent
 import org.bukkit.potion.PotionEffect
 import kotlin.reflect.KProperty
 
-object OriginInfo {
+public object OriginInfo {
 
-    class Info internal constructor(
-        val defaultMethod: Origin.() -> Component
+    public class Info internal constructor(
+        public val defaultMethod: Origin.() -> Component
     ) {
         private var _cached: Component? = null
-        lateinit var name: String; private set
+        public lateinit var name: String; private set
 
-        operator fun getValue(thisRef: Any?, property: KProperty<*>): Info {
+        public operator fun getValue(thisRef: Any?, property: KProperty<*>): Info {
             name = property.name
             return this@Info
         }
 
-        fun get(origin: Origin): Component {
+        public fun get(origin: Origin): Component {
             if (_cached == null) _cached = defaultMethod(origin)
             return _cached!!
         }
@@ -47,8 +47,8 @@ object OriginInfo {
     // TODO: Titles
     // TODO: Potions
     // TODO: food (blocks, potions, attributes, multipliers)
-    object Types : PropertyFinder<Info>(KeyMode.CAPITALISED) {
-        val GENERAL by Info {
+    public object Types : PropertyFinder<Info>(KeyMode.CAPITALISED) {
+        public val GENERAL: Info by Info {
             text {
                 appendKeyValue("Name", name)
                 appendKeyValue("Colour", colour)
@@ -57,14 +57,14 @@ object OriginInfo {
             }
         }
 
-        val SPECIALS by Info {
+        public val SPECIALS: Info by Info {
             text {
                 appendKeyValue("Fire Immunity", fireImmunity)
                 appendKeyValue("Water Breathing", waterBreathing)
             }
         }
 
-        val SOUNDS by Info {
+        public val SOUNDS: Info by Info {
             text {
                 appendKeyValue("Hurt", formatSound(sounds.hurtSound))
                 appendKeyValue("Death", formatSound(sounds.deathSound))
@@ -72,7 +72,7 @@ object OriginInfo {
             }
         }
 
-        val ABILITIES by Info {
+        public val ABILITIES: Info by Info {
             if (this.abilities.isEmpty()) return@Info Component.empty()
 
             text {
@@ -80,7 +80,7 @@ object OriginInfo {
             }
         }
 
-        val STATE_POTIONS by Info {
+        public val STATE_POTIONS: Info by Info {
             if (this.statePotions.isEmpty) return@Info Component.empty()
 
             text {
@@ -88,7 +88,7 @@ object OriginInfo {
             }
         }
 
-        val STATE_DAMAGE_TICKS by Info {
+        public val STATE_DAMAGE_TICKS: Info by Info {
             if (this.stateDamageTicks.isEmpty()) return@Info Component.empty()
 
             text {
@@ -96,7 +96,7 @@ object OriginInfo {
             }
         }
 
-        val STATE_TITLES by Info {
+        public val STATE_TITLES: Info by Info {
             if (this.stateTitles.isEmpty()) return@Info Component.empty()
 
             text {
@@ -120,7 +120,7 @@ object OriginInfo {
             }
         }
 
-        val STATE_BLOCKS by Info {
+        public val STATE_BLOCKS: Info by Info {
             if (this.stateBlocks.isEmpty()) return@Info Component.empty()
 
             text {
@@ -128,7 +128,7 @@ object OriginInfo {
             }
         }
 
-        val FOOD_PROPERTIES by Info {
+        public val FOOD_PROPERTIES: Info by Info {
             if (this.customFoodProperties.isEmpty()) return@Info Component.empty()
 
             text {
@@ -167,7 +167,7 @@ object OriginInfo {
             }
         }
 
-        val FOOD_ACTIONS by Info {
+        public val FOOD_ACTIONS: Info by Info {
             if (this.customFoodActions.isEmpty) return@Info Component.empty()
 
             text {
@@ -175,7 +175,7 @@ object OriginInfo {
             }
         }
 
-        val STATE_ATTRIBUTES by Info {
+        public val STATE_ATTRIBUTES: Info by Info {
             if (this.attributeModifiers.isEmpty) return@Info Component.empty()
 
             text {
@@ -183,7 +183,7 @@ object OriginInfo {
             }
         }
 
-        val DAMAGE_ACTIONS by Info {
+        public val DAMAGE_ACTIONS: Info by Info {
             if (this.damageActions.isEmpty()) return@Info Component.empty()
 
             text {

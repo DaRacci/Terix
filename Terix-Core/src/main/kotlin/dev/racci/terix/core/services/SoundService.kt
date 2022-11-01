@@ -15,7 +15,7 @@ import dev.racci.terix.api.Terix
 import org.bukkit.Sound
 
 @MappedExtension(Terix::class, "Sound Service", [OriginService::class])
-class SoundService(override val plugin: Terix) : Extension<Terix>() {
+public class SoundService(override val plugin: Terix) : Extension<Terix>() {
     private val lazyCollection by lazy { Sound.ENTITY_PLAYER_HURT and Sound.ENTITY_PLAYER_DEATH }
 
     override suspend fun handleEnable() {

@@ -8,11 +8,11 @@ import dev.racci.minix.api.extensions.event
 import dev.racci.minix.api.extensions.onlinePlayers
 import dev.racci.minix.api.extensions.taskAsync
 import dev.racci.minix.api.extensions.ticks
+import dev.racci.terix.api.TerixPlayer
 import dev.racci.terix.api.dsl.PotionEffectBuilder
 import dev.racci.terix.api.dsl.dslMutator
 import dev.racci.terix.api.extensions.playSound
 import dev.racci.terix.api.sentryBreadcrumb
-import org.bukkit.NamespacedKey
 import org.bukkit.entity.Player
 import org.bukkit.event.EventPriority
 import org.bukkit.event.entity.EntityToggleGlideEvent
@@ -22,7 +22,7 @@ import kotlin.time.Duration
 
 // TODO -> Don't force elytra if the player isn't moving.
 // TODO -> If the player is still only levitate up.
-class Levitate : Ability(AbilityType.TOGGLE) {
+public class Levitate : Ability(AbilityType.TOGGLE) {
 
     private val glideMap = HashSet<Player>()
 
@@ -73,7 +73,7 @@ class Levitate : Ability(AbilityType.TOGGLE) {
                     type = PotionEffectType.LEVITATION
                     duration = Duration.INFINITE
                     ambient = true
-                    key = NamespacedKey("terix", KEY)
+                    abilityKey(TerixPlayer.cachedOrigin(player), this@Levitate)
                 }.asNew().get()
             )
         }
@@ -83,7 +83,7 @@ class Levitate : Ability(AbilityType.TOGGLE) {
         glideMap -= player
         val types = mutableListOf<PotionEffectType>()
         for (potion in player.activePotionEffects) {
-            if (potion.type != PotionEffectType.LEVITATION || potion.key?.key != KEY) continue
+            if (potion.type != PotionEffectType.LEVITATION || potion.key?.key != "origin_ability_${TerixPlayer.cachedOrigin(player).name}/${this.name}") continue
             types += potion.type
             break
         }
@@ -101,8 +101,7 @@ class Levitate : Ability(AbilityType.TOGGLE) {
         player.isGliding = true
     }
 
-    companion object {
-        const val KEY = "origin_ability_levitate"
+    private companion object {
         val SOUND = Triple("minecraft:entity.phantom.flap", 1f, 1f)
     }
 }

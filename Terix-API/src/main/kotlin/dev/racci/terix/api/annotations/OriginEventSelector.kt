@@ -14,7 +14,7 @@ import org.bukkit.event.EventPriority
 // TODO -> CompileTime annotation processor
 @Target(AnnotationTarget.FUNCTION)
 @Retention(AnnotationRetention.RUNTIME)
-annotation class OriginEventSelector(
+public annotation class OriginEventSelector(
     val selector: EventSelector,
     val priority: EventPriority = EventPriority.NORMAL,
     val ignoreCancelled: Boolean = true

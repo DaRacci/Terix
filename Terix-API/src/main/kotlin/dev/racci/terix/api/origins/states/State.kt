@@ -14,6 +14,7 @@ import dev.racci.terix.api.origins.origin.Origin
 import dev.racci.terix.api.sentryScoped
 import kotlinx.atomicfu.AtomicInt
 import kotlinx.atomicfu.atomic
+import kotlinx.collections.immutable.PersistentSet
 import kotlinx.collections.immutable.toPersistentSet
 import net.minecraft.core.BlockPos
 import net.minecraft.world.level.biome.Biome
@@ -28,114 +29,114 @@ import org.bukkit.entity.Player
 import org.bukkit.potion.PotionEffect
 import org.koin.core.component.inject
 
-sealed class State : WithPlugin<Terix> {
+public sealed class State : WithPlugin<Terix> {
     final override val plugin: Terix by inject()
 
-    val ordinal: Int = ordinalInc.getAndIncrement()
-    val name: String = this::class.simpleName ?: throw IllegalStateException("Anonymous classes aren't supported.")
+    public val ordinal: Int = ordinalInc.getAndIncrement()
+    public val name: String = this::class.simpleName ?: throw IllegalStateException("Anonymous classes aren't supported.")
 
-    open val incompatibleStates: Array<out State> = emptyArray()
-    open val providesSideEffects: Array<out SideEffect> = emptyArray()
+    public open val incompatibleStates: Array<out State> = emptyArray()
+    public open val providesSideEffects: Array<out SideEffect> = emptyArray()
 
-    object CONSTANT : State(), StateSource<Nothing> {
+    public object CONSTANT : State(), StateSource<Nothing> {
         override fun fromPlayer(player: Player): Boolean = true
         override fun getState(input: Nothing): Boolean = true
     }
 
-    sealed class TimeState : State(), StateSource<World> {
-        override fun fromPlayer(player: Player) = this.getState(player.world)
+    public sealed class TimeState : State(), StateSource<World> {
+        override fun fromPlayer(player: Player): Boolean = this.getState(player.world)
 
-        object DAY : TimeState() {
+        public object DAY : TimeState() {
             override val incompatibleStates: Array<out State> = arrayOf(NIGHT)
             override fun getState(input: World): Boolean = getTimeState(input) === this
         }
 
-        object NIGHT : TimeState() {
+        public object NIGHT : TimeState() {
             override val incompatibleStates: Array<out State> = arrayOf(DAY)
             override fun getState(input: World): Boolean = getTimeState(input) === this
         }
     }
 
-    sealed class WorldState : State(), StateSource<Environment> {
-        override fun fromPlayer(player: Player) = this.getState(player.world.environment)
+    public sealed class WorldState : State(), StateSource<Environment> {
+        override fun fromPlayer(player: Player): Boolean = this.getState(player.world.environment)
 
-        object OVERWORLD : WorldState() {
+        public object OVERWORLD : WorldState() {
             override val incompatibleStates: Array<out State> = arrayOf(NETHER, END)
             override fun getState(input: Environment): Boolean = input === Environment.NORMAL
         }
 
-        object NETHER : WorldState() {
+        public object NETHER : WorldState() {
             override val incompatibleStates: Array<out State> = arrayOf(OVERWORLD, END, TimeState.DAY, TimeState.NIGHT)
             override fun getState(input: Environment): Boolean = input === Environment.NETHER
         }
 
-        object END : WorldState() {
+        public object END : WorldState() {
             override val incompatibleStates: Array<out State> = arrayOf(OVERWORLD, NETHER, TimeState.DAY, TimeState.NIGHT)
             override fun getState(input: Environment): Boolean = input === Environment.THE_END
         }
     }
 
-    sealed class LiquidState : State(), StateSource<Block> {
-        override fun fromPlayer(player: Player) = this.getState(player.location.block)
+    public sealed class LiquidState : State(), StateSource<Block> {
+        override fun fromPlayer(player: Player): Boolean = this.getState(player.location.block)
 
-        object WATER : LiquidState() {
+        public object WATER : LiquidState() {
             override val incompatibleStates: Array<out State> = arrayOf(LAVA, LAND)
             override val providesSideEffects: Array<out SideEffect> = arrayOf(SideEffect.WET)
             override fun getState(input: Block): Boolean = getLiquidState(input) === this
         }
 
-        object LAVA : LiquidState() {
+        public object LAVA : LiquidState() {
             override val incompatibleStates: Array<out State> = arrayOf(WATER, LAND)
             override val providesSideEffects: Array<out SideEffect> = arrayOf(SideEffect.Temperature.BURNING)
             override fun getState(input: Block): Boolean = getLiquidState(input) === this
         }
 
-        object LAND : LiquidState() {
+        public object LAND : LiquidState() {
             override val incompatibleStates: Array<out State> = arrayOf(WATER, LAVA)
             override fun getState(input: Block): Boolean = getLiquidState(input) === this
         }
     }
 
-    sealed class LightState : State(), StateSource<Player> {
-        override fun fromPlayer(player: Player) = this.getState(player)
+    public sealed class LightState : State(), StateSource<Player> {
+        override fun fromPlayer(player: Player): Boolean = this.getState(player)
 
-        object SUNLIGHT : LightState() {
+        public object SUNLIGHT : LightState() {
             override val incompatibleStates: Array<out State> = arrayOf(DARKNESS)
             override fun getState(input: Player): Boolean = getLightState(input) === this
         }
 
-        object DARKNESS : LightState() {
+        public object DARKNESS : LightState() {
             override val incompatibleStates: Array<out State> = arrayOf(SUNLIGHT)
             override fun getState(input: Player): Boolean = getLightState(input) === this
         }
     }
 
-    sealed class WeatherState : State(), StateSource<Location> {
-        override fun fromPlayer(player: Player) = this.getState(player.location)
+    public sealed class WeatherState : State(), StateSource<Location> {
+        override fun fromPlayer(player: Player): Boolean = this.getState(player.location)
 
-        object RAIN : WeatherState() {
+        public object RAIN : WeatherState() {
             override val incompatibleStates: Array<out State> = arrayOf(SNOW)
             override val providesSideEffects: Array<out SideEffect> = arrayOf(SideEffect.WET)
             override fun getState(input: Location): Boolean = getWeatherState(input) === this
         }
 
-        object SNOW : WeatherState() {
+        public object SNOW : WeatherState() {
             override val incompatibleStates: Array<out State> = arrayOf(RAIN)
             override val providesSideEffects: Array<out SideEffect> = arrayOf(SideEffect.Temperature.COLD)
             override fun getState(input: Location): Boolean = getWeatherState(input) === this
         }
     }
 
-    sealed class BiomeState : State(), StateSource<Location> {
-        override fun fromPlayer(player: Player) = this.getState(player.location)
+    public sealed class BiomeState : State(), StateSource<Location> {
+        override fun fromPlayer(player: Player): Boolean = this.getState(player.location)
 
-        object WARM : BiomeState() {
+        public object WARM : BiomeState() {
             override val incompatibleStates: Array<out State> = arrayOf(COLD)
             override val providesSideEffects: Array<out SideEffect> = arrayOf(SideEffect.Temperature.HOT)
             override fun getState(input: Location): Boolean = getBiomeState(input) === this
         }
 
-        object COLD : BiomeState() {
+        public object COLD : BiomeState() {
             override val incompatibleStates: Array<out State> = arrayOf(WARM)
             override val providesSideEffects: Array<out SideEffect> = arrayOf(SideEffect.Temperature.COLD)
             override fun getState(input: Location): Boolean = getBiomeState(input) === this
@@ -163,10 +164,10 @@ sealed class State : WithPlugin<Terix> {
         block()
     }
 
-    open suspend fun activate(
+    public open suspend fun activate(
         player: Player,
         origin: Origin
-    ) = sentryScoped(player, CATEGORY, this.sentryMessage(origin)) {
+    ): Unit = sentryScoped(player, CATEGORY, this.sentryMessage(origin)) {
         if (OriginHelper.shouldIgnorePlayer(player)) return@sentryScoped
 
         ifContains(player, origin, false, this) {
@@ -175,10 +176,10 @@ sealed class State : WithPlugin<Terix> {
         }
     }
 
-    open suspend fun deactivate(
+    public open suspend fun deactivate(
         player: Player,
         origin: Origin
-    ) = sentryScoped(player, CATEGORY, this.sentryMessage(origin)) {
+    ): Unit = sentryScoped(player, CATEGORY, this.sentryMessage(origin)) {
         if (OriginHelper.shouldIgnorePlayer(player)) return@sentryScoped
 
         ifContains(player, origin, true, this) {
@@ -187,11 +188,11 @@ sealed class State : WithPlugin<Terix> {
         }
     }
 
-    open suspend fun exchange(
+    public open suspend fun exchange(
         player: Player,
         origin: Origin,
         to: State
-    ) = sentryScoped(player, CATEGORY, this.sentryMessage(origin, to)) {
+    ): Unit = sentryScoped(player, CATEGORY, this.sentryMessage(origin, to)) {
         if (OriginHelper.shouldIgnorePlayer(player)) return@sentryScoped
 
         ifContains(player, origin, true, this) {
@@ -309,13 +310,13 @@ sealed class State : WithPlugin<Terix> {
         return true
     }
 
-    companion object {
+    public companion object {
         private const val CATEGORY = "terix.origin.state"
         internal val activeStates = multiMapOf<Player, State>()
         private val ordinalInc: AtomicInt = atomic(0)
         private val plugin by getKoin().inject<Terix>()
         private val states = mutableSetOf<State>()
-        var values: Array<State> = emptyArray()
+        public var values: Array<State> = emptyArray()
             private set
             get() {
                 if (field.size != states.size) {
@@ -324,7 +325,7 @@ sealed class State : WithPlugin<Terix> {
                 return field
             }
 
-        fun recalculateAllStates(player: Player) {
+        public fun recalculateAllStates(player: Player) {
             activeStates.remove(player)
 
             for (state in values) {
@@ -341,36 +342,36 @@ sealed class State : WithPlugin<Terix> {
             }
         }
 
-        fun getPlayerStates(player: Player) = activeStates[player]?.toPersistentSet() ?: emptySet<State>().toPersistentSet()
+        public fun getPlayerStates(player: Player): PersistentSet<State> = activeStates[player]?.toPersistentSet() ?: emptySet<State>().toPersistentSet()
 
-        fun fromOrdinal(ordinal: Int): State = values[ordinal]
+        public fun fromOrdinal(ordinal: Int): State = values[ordinal]
 
-        fun valueOf(name: String): State {
+        public fun valueOf(name: String): State {
             plugin.log.debug { values.joinToString(", ") { it.name } }
             return values.find { it.name == name } ?: throw IllegalArgumentException("No State with name $name")
         }
 
-        fun getTimeState(world: World): TimeState? = when {
+        public fun getTimeState(world: World): TimeState? = when {
             world.environment != Environment.NORMAL -> null
             world.isDayTime -> TimeState.DAY
             world.isNight -> TimeState.NIGHT
             else -> null
         }
 
-        fun getEnvironmentState(environment: Environment): WorldState = when (environment) {
+        public fun getEnvironmentState(environment: Environment): WorldState = when (environment) {
             Environment.NORMAL -> WorldState.OVERWORLD
             Environment.NETHER -> WorldState.NETHER
             Environment.THE_END -> WorldState.END
             else -> throw IllegalArgumentException("Environment $environment is not supported")
         }
 
-        fun getLiquidState(block: Block): LiquidState = when (block.liquidType) {
+        public fun getLiquidState(block: Block): LiquidState = when (block.liquidType) {
             LiquidType.WATER -> LiquidState.WATER
             LiquidType.LAVA -> LiquidState.LAVA
             else -> LiquidState.LAND
         }
 
-        fun getLightState(player: Player): LightState? {
+        public fun getLightState(player: Player): LightState? {
             val inventory = player.inventory
             if (inventory.itemInMainHand.type != Material.TORCH && inventory.itemInOffHand.type != Material.TORCH && player.location.block.lightLevel < 5) {
                 return LightState.DARKNESS
@@ -385,7 +386,7 @@ sealed class State : WithPlugin<Terix> {
             return null
         }
 
-        fun getWeatherState(location: Location): WeatherState? {
+        public fun getWeatherState(location: Location): WeatherState? {
             if (location.world == null || location.world.environment != Environment.NORMAL) {
                 return null
             }
@@ -403,7 +404,7 @@ sealed class State : WithPlugin<Terix> {
             }
         }
 
-        fun getBiomeState(location: Location): BiomeState? {
+        public fun getBiomeState(location: Location): BiomeState? {
             if (location.world == null) {
                 return null
             }
@@ -425,7 +426,7 @@ sealed class State : WithPlugin<Terix> {
             }
         }
 
-        fun convertLiquidToState(liquid: LiquidType) = when (liquid) {
+        public fun convertLiquidToState(liquid: LiquidType): LiquidState = when (liquid) {
             LiquidType.WATER -> LiquidState.WATER
             LiquidType.LAVA -> LiquidState.LAVA
             else -> LiquidState.LAND

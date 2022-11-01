@@ -71,6 +71,12 @@ public class SlimeOrigin(override val plugin: Terix) : Origin() {
                     cause.cancel()
                 }
             }
+            listOf(
+                EntityDamageEvent.DamageCause.LAVA,
+                EntityDamageEvent.DamageCause.FIRE,
+                EntityDamageEvent.DamageCause.FIRE_TICK,
+                EntityDamageEvent.DamageCause.HOT_FLOOR
+            ) *= 2.0
         }
         item {
             material = Material.SLIME_BALL

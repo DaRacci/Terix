@@ -1,6 +1,6 @@
 package dev.racci.terix.api.exceptions
 
-class OriginCreationException(
+public class OriginCreationException(
     reason: String,
     cause: Throwable? = null
 ) : Exception(reason, cause)

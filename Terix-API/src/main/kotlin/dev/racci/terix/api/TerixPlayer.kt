@@ -12,6 +12,7 @@ import org.jetbrains.exposed.dao.UUIDEntity
 import org.jetbrains.exposed.dao.UUIDEntityClass
 import org.jetbrains.exposed.dao.id.EntityID
 import org.jetbrains.exposed.dao.id.UUIDTable
+import org.jetbrains.exposed.sql.Column
 import org.jetbrains.exposed.sql.kotlin.datetime.timestamp
 import org.jetbrains.exposed.sql.transactions.transaction
 import java.time.Duration
@@ -81,12 +82,12 @@ public class TerixPlayer(public val uuid: EntityID<UUID>) : UUIDEntity(uuid) {
             .build { PlayerTickCache() }
     }
 
-    object User : UUIDTable("user") {
+    public object User : UUIDTable("user") {
 
-        val origin = text("origin").default(getKoin().get<OriginService>().defaultOrigin.name.lowercase())
-        val lastOrigin = text("last_origin").nullable().default(null)
+        public val origin: Column<String> = text("origin").default(getKoin().get<OriginService>().defaultOrigin.name.lowercase())
+        public val lastOrigin: Column<String?> = text("last_origin").nullable().default(null)
 
-        val lastChosenTime = timestamp("last_chosen_time").nullable().default(null)
-        val freeChanges = integer("free_changes").default(DataService.getService().get<TerixConfig>().freeChanges)
+        public val lastChosenTime: Column<Instant?> = timestamp("last_chosen_time").nullable().default(null)
+        public val freeChanges: Column<Int> = integer("free_changes").default(DataService.getService().get<TerixConfig>().freeChanges)
     }
 }

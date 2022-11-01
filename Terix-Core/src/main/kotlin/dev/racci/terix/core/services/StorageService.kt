@@ -14,7 +14,7 @@ import org.jetbrains.exposed.sql.Table
 import org.jetbrains.exposed.sql.Transaction
 
 @MappedExtension(Terix::class, "Storage Service", [OriginService::class])
-class StorageService(override val plugin: Terix) : StorageService<Terix>, Extension<Terix>() {
+public class StorageService(override val plugin: Terix) : StorageService<Terix>, Extension<Terix>() {
     override val managedTable: Table by lazy { TerixPlayer.table } // Lazy to prevent exception on init
 
     override suspend fun handleEnable() {
@@ -23,8 +23,8 @@ class StorageService(override val plugin: Terix) : StorageService<Terix>, Extens
         }
     }
 
-    companion object {
-        fun <T> transaction(
+    public companion object {
+        public fun <T> transaction(
             statement: Transaction.() -> T
         ): T {
             var result: T? = null

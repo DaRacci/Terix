@@ -16,7 +16,7 @@ import org.bukkit.command.CommandSender
 import java.util.Queue
 import java.util.function.BiFunction
 
-class OriginArgument(
+public class OriginArgument(
     name: String,
     required: Boolean,
     description: RichDescription,
@@ -31,7 +31,7 @@ class OriginArgument(
     description
 ) {
 
-    class OriginParser : ArgumentParser<CommandSender, Origin> {
+    public class OriginParser : ArgumentParser<CommandSender, Origin> {
         override fun parse(
             context: CommandContext<CommandSender>,
             inputQueue: Queue<String>
@@ -48,7 +48,7 @@ class OriginArgument(
             input: String
         ): MutableList<String> = OriginServiceImpl.getService().registeredOrigins.toMutableList()
 
-        class OriginParseException(
+        public class OriginParseException(
             input: String,
             context: CommandContext<CommandSender>
         ) : ParserException(

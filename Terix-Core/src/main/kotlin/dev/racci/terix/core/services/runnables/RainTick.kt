@@ -10,7 +10,7 @@ import dev.racci.terix.core.extensions.wasInRain
 import kotlinx.datetime.Instant
 import org.bukkit.entity.Player
 
-class RainTick(
+public class RainTick(
     player: Player,
     origin: Origin
 ) : ChildTicker(

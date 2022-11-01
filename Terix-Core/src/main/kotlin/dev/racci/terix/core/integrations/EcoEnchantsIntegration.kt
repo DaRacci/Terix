@@ -18,7 +18,7 @@ import dev.racci.terix.api.events.OriginSunlightBurnEvent
     "EcoEnchants",
     Terix::class
 )
-class EcoEnchantsIntegration(override val plugin: MinixPlugin) : Integration {
+public class EcoEnchantsIntegration(override val plugin: MinixPlugin) : Integration {
     private val sunProtection = SunProtectionEnchant(pluginManager.getPlugin("EcoEnchants").castOrThrow())
 
     override suspend fun handleLoad() {

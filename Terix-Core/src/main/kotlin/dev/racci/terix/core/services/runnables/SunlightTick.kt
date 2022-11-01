@@ -14,7 +14,7 @@ import net.kyori.adventure.text.format.NamedTextColor
 import org.bukkit.craftbukkit.v1_19_R1.inventory.CraftItemStack
 import org.bukkit.entity.Player
 
-class SunlightTick(
+public class SunlightTick(
     player: Player,
     origin: Origin
 ) : ChildTicker(

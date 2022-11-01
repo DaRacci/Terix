@@ -11,10 +11,9 @@ import org.bukkit.Material
 import org.bukkit.NamespacedKey
 import org.bukkit.potion.PotionEffect
 import org.bukkit.potion.PotionEffectType
-import kotlin.reflect.KClass
 import kotlin.time.Duration
 
-class PotionEffectBuilder(
+public class PotionEffectBuilder(
     amplifier: Int? = null,
     duration: Duration? = null,
     type: PotionEffectType? = null,
@@ -24,22 +23,22 @@ class PotionEffectBuilder(
     key: NamespacedKey? = null
 ) : CachingBuilder<PotionEffect>() {
 
-    var amplifier by createWatcher(amplifier ?: 1)
-    var duration by createWatcher(duration ?: 20.ticks)
-    var type by createWatcher(type)
-    var ambient by createWatcher(ambient ?: false)
-    var particles by createWatcher(particles ?: ambient)
-    var icon by createWatcher(icon)
-    var key by createWatcher(key)
+    public var amplifier: Int by createWatcher(amplifier ?: 1)
+    public var duration: Duration by createWatcher(duration ?: 20.ticks)
+    public var type: PotionEffectType by createWatcher(type)
+    public var ambient: Boolean by createWatcher(ambient ?: false)
+    public var particles: Boolean by createWatcher(particles ?: ambient)
+    public var icon: Boolean by createWatcher(icon)
+    public var key: NamespacedKey by createWatcher(key)
 
-    inline fun <reified O : Origin> originKey(state: State) = originKey(OriginService.getOrigin(O::class), state)
+    public inline fun <reified O : Origin> originKey(state: State): PotionEffectBuilder = originKey(OriginService.getOrigin(O::class), state)
 
-    fun originKey(
+    public fun originKey(
         origin: OriginValues,
         state: State
-    ) = originKey(origin.name, state.name)
+    ): PotionEffectBuilder = originKey(origin.name, state.name)
 
-    fun originKey(
+    public fun originKey(
         origin: String,
         state: String
     ): PotionEffectBuilder {
@@ -47,12 +46,12 @@ class PotionEffectBuilder(
         return this
     }
 
-    fun abilityKey(
-        origin: KClass<out Origin>,
-        ability: KClass<out Ability>
-    ) = abilityKey(origin.simpleName!!, ability.simpleName ?: error("Cannot use anonymous classes as abilities."))
+    public fun abilityKey(
+        origin: Origin,
+        ability: Ability
+    ): PotionEffectBuilder = abilityKey(origin.name, ability.name)
 
-    fun abilityKey(
+    public fun abilityKey(
         origin: String,
         ability: String
     ): PotionEffectBuilder {
@@ -60,12 +59,12 @@ class PotionEffectBuilder(
         return this
     }
 
-    fun foodKey(
+    public fun foodKey(
         origin: Origin,
         food: Material
-    ) = foodKey(origin.name, food.name)
+    ): PotionEffectBuilder = foodKey(origin.name, food.name)
 
-    fun foodKey(
+    public fun foodKey(
         origin: String,
         food: String
     ): PotionEffectBuilder {
@@ -73,7 +72,7 @@ class PotionEffectBuilder(
         return this
     }
 
-    override fun create() = PotionEffect(
+    override fun create(): PotionEffect = PotionEffect(
         ::type.watcherOrNull() ?: error("Type must be set for potion builder."),
         duration.inWholeTicks.coerceAtMost(Integer.MAX_VALUE.toLong()).toInt(),
         amplifier,
@@ -83,7 +82,7 @@ class PotionEffectBuilder(
         ::key.watcherOrNull().takeUnless { it == null || !it.toString().matches(regex) } ?: error("Invalid key. Was null or didn't match ${regex.pattern}: $key")
     )
 
-    companion object {
-        val regex by lazy { Regex("^terix:origin_(?<type>potion|ability|food)_(?<from>[a-z_-]+)?(/(?<state>[a-z_-]+))?$") }
+    public companion object {
+        public val regex: Regex by lazy { Regex("^terix:origin_(?<type>potion|ability|food)_(?<from>[a-z_-]+)?(/(?<state>[a-z_-]+))?$") }
     }
 }

@@ -7,12 +7,12 @@ import kotlinx.collections.immutable.PersistentSet
 import kotlinx.coroutines.launch
 
 @OptIn(MinixInternal::class)
-class MotherTicker(
+public class MotherTicker(
     grandparent: ExtensionSkeleton<Terix>,
     private val children: PersistentSet<ChildTicker>
 ) : ExtensionSkeleton<Terix> by grandparent {
 
-    suspend fun run() {
+    public suspend fun run() {
         for (child in children) {
             if (!child.isAlive) {
                 when {
@@ -25,7 +25,7 @@ class MotherTicker(
         }
     }
 
-    suspend fun endSuffering() {
+    public suspend fun endSuffering() {
         for (child in children) {
             if (!child.isAlive) continue
             child.coatHanger()

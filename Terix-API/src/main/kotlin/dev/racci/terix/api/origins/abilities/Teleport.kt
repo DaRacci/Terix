@@ -11,7 +11,7 @@ import org.bukkit.util.Vector
 import kotlin.time.Duration
 import kotlin.time.Duration.Companion.seconds
 
-class Teleport : Ability(AbilityType.TRIGGER) {
+public class Teleport : Ability(AbilityType.TRIGGER) {
     override val cooldown: Duration = 3.seconds
 
     override suspend fun onActivate(player: Player) {
@@ -46,7 +46,7 @@ class Teleport : Ability(AbilityType.TRIGGER) {
         loc.direction = player.location.direction
     }
 
-    companion object {
+    private companion object {
         val INVALID_LOCATION: Sound = Sound.sound(Key.key("block.note_block.bass"), Sound.Source.MASTER, 1.0f, 0.5f)
     }
 }

@@ -6,28 +6,28 @@ import dev.racci.terix.api.origins.origin.Origin
 import kotlinx.collections.immutable.PersistentMap
 import kotlin.reflect.KClass
 
-interface OriginService {
+public interface OriginService {
 
-    val defaultOrigin: Origin
+    public val defaultOrigin: Origin
 
-    fun getAbilities(): PersistentMap<KClass<out Ability>, Ability>
+    public fun getAbilities(): PersistentMap<KClass<out Ability>, Ability>
 
-    fun getOrigins(): PersistentMap<KClass<out Origin>, Origin>
-
-    @Throws(NoSuchElementException::class)
-    fun getOrigin(origin: KClass<out Origin>): Origin
-
-    fun getOriginOrNull(origin: KClass<out Origin>): Origin?
+    public fun getOrigins(): PersistentMap<KClass<out Origin>, Origin>
 
     @Throws(NoSuchElementException::class)
-    fun getAbility(ability: KClass<out Ability>): Ability
+    public fun getOrigin(origin: KClass<out Origin>): Origin
 
-    fun getAbilityOrNull(ability: KClass<out Ability>): Ability?
+    public fun getOriginOrNull(origin: KClass<out Origin>): Origin?
 
     @Throws(NoSuchElementException::class)
-    fun getOrigin(name: String): Origin
+    public fun getAbility(ability: KClass<out Ability>): Ability
 
-    fun getOriginOrNull(name: String?): Origin?
+    public fun getAbilityOrNull(ability: KClass<out Ability>): Ability?
 
-    companion object : OriginService by getKoin().get()
+    @Throws(NoSuchElementException::class)
+    public fun getOrigin(name: String): Origin
+
+    public fun getOriginOrNull(name: String?): Origin?
+
+    public companion object : OriginService by getKoin().get()
 }
