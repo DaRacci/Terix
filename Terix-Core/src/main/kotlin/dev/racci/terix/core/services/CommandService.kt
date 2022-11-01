@@ -49,9 +49,7 @@ class CommandService(override val plugin: Terix) : Extension<Terix>() {
     private var originArgument by Delegates.notNull<CommandArgument.Builder<CommandSender, Origin>>()
 
     override suspend fun handleEnable() {
-        logger.debug { "Registering commands" }
         if (!registered) {
-            logger.debug { "Creating Manager" }
             this.loadManager()
             registered = true
         }
@@ -93,7 +91,7 @@ class CommandService(override val plugin: Terix) : Extension<Terix>() {
             ) {
                 permission(Permission.of("terix.command.origin.menu"))
                 mutate { it.flag(playerFlag) }
-                suspendingHandler(supervisor, plugin.minecraftDispatcher) { context -> get<GUIService>().baseGui.value.show(getTargetOrThrow(context)) }
+                suspendingHandler(supervisor, plugin.minecraftDispatcher) { context -> get<GUIService>().openMenu(getTargetOrThrow(context)) }
             }
 
             this.registerCopy(

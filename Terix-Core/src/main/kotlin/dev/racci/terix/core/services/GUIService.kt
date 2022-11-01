@@ -6,14 +6,10 @@ import com.comphenix.protocol.events.ListenerPriority
 import com.comphenix.protocol.events.PacketAdapter
 import com.comphenix.protocol.events.PacketEvent
 import com.github.benmanes.caffeine.cache.Caffeine
-import com.github.stefvanschie.inventoryframework.gui.GuiItem
-import com.github.stefvanschie.inventoryframework.gui.type.ChestGui
-import com.github.stefvanschie.inventoryframework.pane.Pane
-import com.github.stefvanschie.inventoryframework.pane.StaticPane
+import com.willfp.eco.core.items.Items
 import dev.racci.minix.api.annotations.MappedExtension
 import dev.racci.minix.api.builders.ItemBuilderDSL
 import dev.racci.minix.api.extension.Extension
-import dev.racci.minix.api.extensions.cancel
 import dev.racci.minix.api.extensions.message
 import dev.racci.minix.api.extensions.noItalic
 import dev.racci.minix.api.extensions.parse
@@ -31,30 +27,37 @@ import dev.racci.terix.api.data.TerixConfig
 import dev.racci.terix.api.events.PlayerOriginChangeEvent
 import dev.racci.terix.api.origins.origin.Origin
 import dev.racci.terix.core.data.Lang
-import dev.racci.terix.core.extensions.asGuiItem
 import dev.racci.terix.core.extensions.freeChanges
 import dev.racci.terix.core.extensions.originTime
-import dev.racci.terix.core.origins.AethenOrigin
-import dev.racci.terix.core.origins.AxolotlOrigin
-import dev.racci.terix.core.origins.BeeOrigin
-import dev.racci.terix.core.origins.BlizzOrigin
-import dev.racci.terix.core.origins.DragonOrigin
-import dev.racci.terix.core.origins.FairyOrigin
-import dev.racci.terix.core.origins.HumanOrigin
-import dev.racci.terix.core.origins.MerlingOrigin
-import dev.racci.terix.core.origins.NetherbornOrigin
-import dev.racci.terix.core.origins.SlimeOrigin
-import dev.racci.terix.core.origins.VampireOrigin
+import dev.racci.terix.core.extensions.toVec
+import dev.racci.terix.core.utils.RenderablePaginatedTransform
 import kotlinx.datetime.Instant
 import net.kyori.adventure.extra.kotlin.text
 import net.kyori.adventure.key.Key
 import net.kyori.adventure.sound.Sound
 import net.kyori.adventure.text.Component
+import net.kyori.adventure.text.format.NamedTextColor
 import org.bukkit.Material
 import org.bukkit.entity.HumanEntity
 import org.bukkit.entity.Player
-import org.bukkit.event.Cancellable
 import org.bukkit.event.inventory.InventoryCloseEvent
+import org.incendo.interfaces.core.arguments.ArgumentKey
+import org.incendo.interfaces.core.arguments.HashMapInterfaceArguments
+import org.incendo.interfaces.core.click.ClickHandler
+import org.incendo.interfaces.core.util.Vector2
+import org.incendo.interfaces.core.view.InterfaceView
+import org.incendo.interfaces.kotlin.arguments
+import org.incendo.interfaces.kotlin.paper.GenericClickHandler
+import org.incendo.interfaces.kotlin.paper.MutableChestInterfaceBuilder
+import org.incendo.interfaces.kotlin.paper.MutableChestPaneView
+import org.incendo.interfaces.kotlin.paper.asElement
+import org.incendo.interfaces.kotlin.paper.asViewer
+import org.incendo.interfaces.kotlin.paper.buildChestInterface
+import org.incendo.interfaces.paper.PlayerViewer
+import org.incendo.interfaces.paper.element.ItemStackElement
+import org.incendo.interfaces.paper.pane.ChestPane
+import org.incendo.interfaces.paper.type.ChestInterface
+import org.koin.core.component.get
 import org.koin.core.component.inject
 import java.time.Duration
 import kotlin.math.ceil
@@ -66,10 +69,11 @@ import kotlin.time.Duration.Companion.seconds
 // TODO -> Move buttons down one row.
 // TODO -> Add block below each item which shows detailed info about the origin.
 @MappedExtension(Terix::class, "GUI Service", [OriginService::class])
-class GUIService(override val plugin: Terix) : Extension<Terix>() {
+public class GUIService(override val plugin: Terix) : Extension<Terix>() {
     private val lang by inject<DataService>().inject<Lang>()
     private val terixConfig by inject<DataService>().inject<TerixConfig>()
     private val originService by inject<OriginServiceImpl>()
+    private val playerArgumentKey = ArgumentKey.of("player", Player::class.java)
 
     private val packetModifierCache = mutableMapOf<Player, Array<Any?>>()
     private val selectedOrigin = Caffeine.newBuilder()
@@ -78,59 +82,77 @@ class GUIService(override val plugin: Terix) : Extension<Terix>() {
         }
         .build<HumanEntity, Origin>()
 
-    private val borderItems = lazy {
-        Caffeine.newBuilder()
-            .expireAfterAccess(Duration.ofSeconds(30))
-            .build<Material, GuiItem> {
-                ItemBuilderDSL.from(it) {
-                    name = text { }
-                }.asGuiItem()
-            }
-    }
-
-    val baseGui = lazy(::baseGUI)
-
-    private fun baseGUI(): ChestGui {
-        val guiRows = ceil(originService.registeredOrigins.size.toDouble() / 9).coerceAtLeast(1.0).toInt() + 4
-        val pane = StaticPane(1, 1, 7, guiRows).apply {
-            addItem(originService.getOrigin<AethenOrigin>().createItem(), 0, 0)
-            addItem(originService.getOrigin<AxolotlOrigin>().createItem(), 1, 0)
-            addItem(originService.getOrigin<BeeOrigin>().createItem(), 2, 0)
-            addItem(originService.getOrigin<BlizzOrigin>().createItem(), 3, 0)
-            addItem(originService.getOrigin<DragonOrigin>().createItem(), 4, 0)
-            addItem(originService.getOrigin<FairyOrigin>().createItem(), 5, 0)
-            addItem(originService.getOrigin<HumanOrigin>().createItem(), 6, 0)
-            addItem(originService.getOrigin<MerlingOrigin>().createItem(), 0, 1)
-            addItem(originService.getOrigin<NetherbornOrigin>().createItem(), 1, 1)
-            addItem(originService.getOrigin<SlimeOrigin>().createItem(), 2, 1)
-//            addItem(originService.getOrigin<TankOrigin>().createItem(), 3, 1)
-            addItem(originService.getOrigin<VampireOrigin>().createItem(), 3, 1)
-
-            // TODO: Fix this so its not manually placed
-            /* var x = 0
-            var y = 0
-            originService.registry.values.forEachIndexed { index, origin ->
-                log.debug { "Adding origin $origin to gui at x: $x, y: $y from an index of $index" }
-                addItem(origin.createItem(), x, y)
-                if (index / 7 < 1) {
-                    x++
-                } else {
-                    x = 0
-                    y++
-                }
-            } */
+    private val borderItems = Caffeine.newBuilder()
+        .expireAfterAccess(Duration.ofSeconds(30))
+        .build<Material, ItemStackElement<ChestPane>> {
+            ItemBuilderDSL.from(it) {
+                name = text { }
+            }.asElement()
         }
 
-        return ChestGui(guiRows, "Origin GUI").apply {
-            fillBorder.value[rows].let(panes::add)
-            panes += pane
-            panes += StaticPane(3, rows - 2, 3, 1).apply {
-                addItem(cancelButton.value, 0, 0)
-                addItem(closeButton.value, 1, 0)
-                addItem(confirmButton.value, 2, 0)
-            }
-            setOnGlobalClick(Cancellable::cancel)
-            setOnClose { selectedOrigin.invalidate(it.player) }
+    private val accessingPlayers = mutableSetOf<Player>()
+
+    private val menu by lazy {
+        withBaseInterface(originService.registeredOrigins.size) {
+            val pageTransformer = createReactivatePagination(rows, originService.getOrigins().values) { element, view -> element.createItem(view) }
+            this.addTransform(pageTransformer, 2)
+            this.withCloseHandler { _, view -> accessingPlayers.remove(view.viewer().player()); selectedOrigin.invalidate(view.viewer().player()) }
+        }
+    }
+
+    override suspend fun handleDisable() {
+        accessingPlayers.forEach(Player::closeInventory)
+    }
+
+    public fun openMenu(player: Player) {
+        menu.open(
+            player.asViewer(),
+            HashMapInterfaceArguments
+                .with(playerArgumentKey, player)
+                .build()
+        )
+
+        accessingPlayers.add(player)
+    }
+
+    private fun getButton(
+        button: TerixConfig.GUI.GUIItemSlot,
+        action: GenericClickHandler<ChestPane> = GenericClickHandler.cancel()
+    ): ItemStackElement<ChestPane> {
+        val item = Items.lookup(button.display)
+        return ItemBuilderDSL.from(item.item.clone()) {}.asElement(action)
+    }
+
+    private fun withBaseInterface(
+        elements: Int,
+        builder: MutableChestInterfaceBuilder.() -> Unit
+    ): ChestInterface = buildChestInterface {
+        rows = getPageSize(elements)
+        clickHandler = ClickHandler.cancel()
+
+        this.border()
+        this.withTransform(1) { view -> view.insertButtons(rows) }
+        this.builder()
+    }
+
+    private fun getPageSize(elements: Int): Int {
+        var rows = 2 // Header and footer
+        rows += ceil(minOf(elements, 36).toDouble() / 9.0).toInt() // Allow 1-4 rows of items
+        return rows.coerceAtLeast(3) // The above can be 0, so we need to make sure we have at least 3 rows.
+    }
+
+    private fun <T : Any> createReactivatePagination(
+        rows: Int,
+        insertedElements: Collection<T>,
+        transformation: (T, InterfaceView<ChestPane, PlayerViewer>) -> ItemStackElement<ChestPane>
+    ): RenderablePaginatedTransform<ItemStackElement<ChestPane>, ChestPane, PlayerViewer> {
+        val buttons = get<TerixConfig>().gui
+        return RenderablePaginatedTransform<ItemStackElement<ChestPane>, ChestPane, PlayerViewer>(
+            Vector2.at(1, 1),
+            Vector2.at(7, rows - 2)
+        ) { insertedElements.map { element -> { view -> transformation(element, view) } } }.apply {
+            this.backwardElement(buttons.previousPage.position.toVec(rows)) { transform -> getButton(buttons.previousPage) { ctx -> selectedOrigin.invalidate(ctx.viewer().player()); transform.previousPage() } }
+            this.forwardElement(buttons.nextPage.position.toVec(rows)) { transform -> getButton(buttons.nextPage) { ctx -> selectedOrigin.invalidate(ctx.viewer().player()); transform.nextPage() } }
         }
     }
 
@@ -148,7 +170,7 @@ class GUIService(override val plugin: Terix) : Extension<Terix>() {
 
                     if (cache[2].castOrThrow()) {
                         event.packet.itemModifier.write(0, cache[1].castOrThrow())
-                    } else event.packet.itemModifier.write(0, borderItems.value[Material.LIME_STAINED_GLASS_PANE].item)
+                    } else event.packet.itemModifier.write(0, borderItems[Material.LIME_STAINED_GLASS_PANE].itemStack())
 
                     if (cache.getOrNull(3) != null) {
                         cache[3] = null
@@ -159,8 +181,7 @@ class GUIService(override val plugin: Terix) : Extension<Terix>() {
                     if (validPacket(event)) sendPacket(event.player, event.packet.integers.read(2))
                 }
 
-                private fun validPacket(event: PacketEvent) =
-                    event.player in packetModifierCache && packetModifierCache[event.player]!![0] == event.packet.integers.read(2)
+                private fun validPacket(event: PacketEvent) = event.player in packetModifierCache && packetModifierCache[event.player]!![0] == event.packet.integers.read(2)
             }
         )
     }
@@ -171,40 +192,45 @@ class GUIService(override val plugin: Terix) : Extension<Terix>() {
         ProtocolLibrary.getProtocolManager().sendServerPacket(player, packet)
     }
 
-    private fun Origin.createItem(): GuiItem {
+    private fun Origin.createItem(view: InterfaceView<ChestPane, PlayerViewer>): ItemStackElement<ChestPane> {
         return ItemBuilderDSL.from(item.material) {
             name = (item.name ?: displayName).noItalic()
 
             lore = item.loreComponents
             if (requirements.isNotEmpty()) {
-                lore = lore + lang.gui.requirementLore.map { it.get() } + requirements.map { lang.gui.requirementLine["requirement" to { it.first }] }.toTypedArray()
+                lore = lore + lang.gui.requirementLore.map { it.get() } + requirements.map { (lore, checker) ->
+                    val colour = if (checker(view.arguments.get(playerArgumentKey))) {
+                        Component.empty().color(NamedTextColor.GREEN)
+                    } else Component.empty().color(NamedTextColor.RED)
+                    colour.append(lang.gui.requirementLine["requirement" to { lore }])
+                }
             }
             lore = lore.map(Component::noItalic)
-        }.asGuiItem {
-            if (selectedOrigin.getIfPresent(whoClicked) == this@createItem) {
-                whoClicked.shieldSound()
-                return@asGuiItem selectedOrigin.invalidate(whoClicked)
+        }.asElement { ctx ->
+            if (selectedOrigin.getIfPresent(ctx.cause().whoClicked) == this@createItem) {
+                ctx.cause().whoClicked.shieldSound()
+                return@asElement selectedOrigin.invalidate(ctx.cause().whoClicked)
             }
 
-            selectedOrigin.put(whoClicked, this@createItem)
-            packetModifierCache[whoClicked.castOrThrow()] = arrayOf(rawSlot, this.clickedInventory!!.getItem(rawSlot), false)
-            whoClicked.playSound(Sound.sound(Key.key("block.beehive.enter"), Sound.Source.MASTER, 1f, 0.8f))
+            selectedOrigin.put(ctx.cause().whoClicked, this@createItem)
+            packetModifierCache[ctx.cause().whoClicked.castOrThrow()] = arrayOf(ctx.cause().rawSlot, ctx.cause().clickedInventory!!.getItem(ctx.cause().rawSlot), false)
+            ctx.cause().whoClicked.playSound(Sound.sound(Key.key("block.beehive.enter"), Sound.Source.MASTER, 1f, 0.8f))
 
             scheduler {
-                if (!packetModifierCache.contains(whoClicked)) return@scheduler it.cancel()
+                if (!packetModifierCache.contains(ctx.cause().whoClicked)) return@scheduler it.cancel()
 
-                sendPacket(whoClicked.castOrThrow(), rawSlot)
+                sendPacket(ctx.cause().whoClicked.castOrThrow(), ctx.cause().rawSlot)
             }.runTaskTimer(plugin, 0.1.seconds, 1.seconds)
         }
     }
 
-    private val confirmButton = lazy {
+    private val confirmButton by lazy {
         ItemBuilderDSL.from(Material.GREEN_WOOL) {
             name = "<i:false><green>Confirm Selection".parse()
             lore("<i:false><white><bold>»</bold> <aqua>Click</aqua> <bold>»</bold>to confirm your selection.".parse())
-        }.asGuiItem {
-            val player = whoClicked as? Player ?: return@asGuiItem
-            val origin = selectedOrigin.getIfPresent(player) ?: return@asGuiItem
+        }.asElement<ChestPane> { ctx ->
+            val player = ctx.viewer().player()
+            val origin = selectedOrigin.getIfPresent(player) ?: return@asElement
             async {
                 val bypass = player.freeChanges > 0
                 val event = PlayerOriginChangeEvent(player, TerixPlayer.cachedOrigin(player), origin, bypass)
@@ -248,55 +274,71 @@ class GUIService(override val plugin: Terix) : Extension<Terix>() {
         if (last) append("and ")
     }
 
-    private val closeButton = lazy {
-        ItemBuilderDSL.from(Material.RED_STAINED_GLASS_PANE) {
-            name = "<i:false><red>Close Menu".parse()
-            lore("<i:false><white><bold>»</bold> <aqua>Click</aqua> <bold>»</bold>to close this menu.".parse())
-        }.asGuiItem {
-            whoClicked.closeInventory(InventoryCloseEvent.Reason.PLAYER)
-            whoClicked.playSound(Sound.sound(Key.key("item.book.page_turn"), Sound.Source.PLAYER, 1.0f, 1.0f))
-        }
-    }
-
-    private val cancelButton = lazy {
+    private val cancelButton by lazy {
         ItemBuilderDSL.from(Material.RED_WOOL) {
             name = "<i:false><red>Cancel selection".parse()
             lore("<i:false><white><bold>»</bold> <aqua>Click</aqua> <bold>«</bold> <yellow>to cancel your selection".parse())
-        }.asGuiItem {
-            if (selectedOrigin.getIfPresent(whoClicked) == null) return@asGuiItem
-            whoClicked.shieldSound()
-            selectedOrigin.invalidate(whoClicked)
+        }.asElement<ChestPane> { ctx ->
+            if (selectedOrigin.getIfPresent(ctx.viewer().player()) == null) return@asElement
+            ctx.viewer().player().shieldSound()
+            selectedOrigin.invalidate(ctx.viewer().player())
         }
     }
 
-    private val fillBorder = lazy {
-        Caffeine.newBuilder()
-            .build { rows: Int ->
-                if (rows < 2) return@build null // We don't want to fill it up completely
-
-                StaticPane(0, 0, 9, rows, Pane.Priority.LOWEST).apply {
-                    for (row in rows downTo 0) {
-                        val nums = when (row) {
-                            rows - 1, 0 -> arrayOf(0, 1, 2, 3, 4, 5, 6, 7, 8, 8)
-                            else -> arrayOf(0, 8)
-                        }
-                        val mat = when (row) {
-                            rows - 1 -> Material.PINK_STAINED_GLASS_PANE
-                            0 -> Material.CYAN_STAINED_GLASS_PANE
-                            1 -> Material.LIGHT_BLUE_STAINED_GLASS_PANE
-                            2 -> Material.BLUE_STAINED_GLASS_PANE
-                            3 -> Material.PURPLE_STAINED_GLASS_PANE
-                            else -> Material.MAGENTA_STAINED_GLASS_PANE
-                        }
-                        for (col in nums) addItem(borderItems.value[mat], col, row)
-                    }
+    private fun MutableChestInterfaceBuilder.border() {
+        withTransform(0) { view ->
+            for (row in rows downTo 0) {
+                val nums = when (row) {
+                    rows - 1, 0 -> arrayOf(0, 1, 2, 3, 4, 5, 6, 7, 8, 8)
+                    else -> arrayOf(0, 8)
                 }
+                val mat = when (row) {
+                    rows - 1 -> Material.PINK_STAINED_GLASS_PANE
+                    0 -> Material.CYAN_STAINED_GLASS_PANE
+                    1 -> Material.LIGHT_BLUE_STAINED_GLASS_PANE
+                    2 -> Material.BLUE_STAINED_GLASS_PANE
+                    3 -> Material.PURPLE_STAINED_GLASS_PANE
+                    else -> Material.MAGENTA_STAINED_GLASS_PANE
+                }
+
+                for (col in nums) view[col, row] = borderItems[mat]
             }
+        }
     }
 
     private fun HumanEntity.shieldSound() {
         playSound(Sound.sound(Key.key("item.shield.break"), Sound.Source.MASTER, 1f, 0.5f))
     }
 
-    companion object : ExtensionCompanion<GUIService>()
+    private fun MutableChestPaneView.insertButtons(rows: Int) {
+        fun vecPos(button: TerixConfig.GUI.GUIItemSlot): Vector2 {
+            val (col, row) = button.position.toVec()
+            return Vector2.at(col, if (rows < row || row == -1) rows - 1 else row)
+        }
+
+        val buttons = get<TerixConfig>().gui
+
+        this[vecPos(buttons.remainingChanges)] = ItemBuilderDSL.from(Items.lookup(buttons.remainingChanges.display).item) {
+            val player = arguments.get(playerArgumentKey)
+            val free = player.freeChanges
+            lore = listOf(
+                Component.empty(),
+                when {
+                    free > 0 -> "You have <bold>$free</bold> free changes remaining."
+                    player.originTime.remaining(terixConfig.intervalBeforeChange) == null -> "You can change your origin now."
+                    else -> "You can change your origin again in <bold>${player.originTime.remaining(terixConfig.intervalBeforeChange)!!.format()}</bold>."
+                }.parse()
+            )
+        }.asElement()
+
+        this[vecPos(buttons.back)] = getButton(buttons.back) { ctx ->
+            ctx.cause().whoClicked.closeInventory()
+            ctx.viewer().player().playSound(Sound.sound(Key.key("item.book.page_turn"), Sound.Source.PLAYER, 1.0f, 1.0f))
+        }
+
+        this[rows - 1, 2] = cancelButton
+        this[rows - 1, 3] = confirmButton
+    }
+
+    public companion object : ExtensionCompanion<GUIService>()
 }

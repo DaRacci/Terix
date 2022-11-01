@@ -57,9 +57,11 @@ class Lang : LangConfig<Terix>() {
 
         var cancelledCommand: PartialComponent = PartialComponent.of("<prefix:origins>Couldn't change origin, reason: <reason>.")
 
-        var bee: Bee = Bee()
+        public val remainingChanges: PartialComponent = PartialComponent.of("<prefix:origins>You have <amount> changes remaining.")
 
-        var descriptor: Descriptor = Descriptor()
+        public var bee: Bee = Bee()
+
+        public var descriptor: Descriptor = Descriptor()
 
         @ConfigSerializable
         class Bee : InnerLang() {

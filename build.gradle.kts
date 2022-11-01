@@ -49,7 +49,6 @@ dependencies {
     implementation(project(":Terix-Core"))
     implementation(project(":Terix-API"))
 
-    slim(libs.minecraft.inventoryFramework)
     slim("com.frengor:ultimateadvancementapi-shadeable:2.2.1")
 }
 
@@ -123,10 +122,10 @@ tasks {
         dependencyFilter.include { dep ->
             dep.moduleName == "Terix-API" ||
                 dep.moduleName == "Terix-Core" ||
-                dep.moduleGroup == "com.github.stefvanschie.inventoryframework"
+                dep.moduleGroup == "org.incendo.interfaces"
         }
 
-        relocate("com.github.stefvanschie.inventoryframework", "dev.racci.terix.relocated.inventoryframework")
+        relocate("org.incendo.interfaces", "dev.racci.terix.libs.interfaces")
     }
 
     ktlintFormat {
