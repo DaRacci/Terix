@@ -34,6 +34,7 @@ import dev.racci.terix.api.dsl.PotionEffectBuilder
 import dev.racci.terix.api.dsl.TimedAttributeBuilder
 import dev.racci.terix.api.events.PlayerOriginChangeEvent
 import dev.racci.terix.api.extensions.playSound
+import dev.racci.terix.api.extensions.sanitise
 import dev.racci.terix.api.origins.OriginHelper
 import dev.racci.terix.api.origins.OriginHelper.activateOrigin
 import dev.racci.terix.api.origins.OriginHelper.deactivateOrigin
@@ -44,11 +45,9 @@ import dev.racci.terix.api.origins.sounds.SoundEffect
 import dev.racci.terix.api.origins.sounds.SoundEffects
 import dev.racci.terix.api.origins.states.State
 import dev.racci.terix.api.origins.states.State.Companion.convertLiquidToState
-import dev.racci.terix.core.allOriginPotions
 import dev.racci.terix.core.data.Lang
 import dev.racci.terix.core.extensions.message
 import dev.racci.terix.core.extensions.originTime
-import dev.racci.terix.core.originPassiveModifiers
 import dev.racci.terix.core.origins.DragonOrigin
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.channels.Channel
@@ -57,7 +56,6 @@ import kotlinx.coroutines.channels.onSuccess
 import kotlinx.coroutines.delay
 import net.minecraft.advancements.CriteriaTriggers
 import net.minecraft.server.level.ServerPlayer
-import net.minecraft.sounds.SoundEffects.it
 import net.minecraft.stats.Stats
 import net.minecraft.world.InteractionHand
 import net.minecraft.world.effect.MobEffectInstance
@@ -147,13 +145,11 @@ public class ListenerService(override val plugin: Terix) : Extension<Terix>() {
             scheduler { bowTracker.remove(entity, bow) }.runAsyncTaskLater(plugin, 2.ticks)
         }
 
-        event<PlayerQuitEvent>(EventPriority.MONITOR, true) {
-            player.allOriginPotions.map(PotionEffect::getType).forEach(player::removePotionEffect)
-            player.originPassiveModifiers.forEach { it.value.forEach(it.key::removeModifier) }
-        }
+        event<PlayerQuitEvent>(EventPriority.MONITOR, true) { player.sanitise() }
 
         event<PlayerJoinEvent>(forceAsync = true) {
             val origin = TerixPlayer.cachedOrigin(player)
+            removeUnfulfilledOrInvalidAttributes(player) // Sometimes we can miss some attributes, so we need to remove them
             activateOrigin(player, origin)
 
             delay(0.250.seconds)
