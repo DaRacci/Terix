@@ -4,6 +4,10 @@ import dev.racci.terix.api.events.PlayerOriginChangeEvent
 import org.apiguardian.api.API
 import org.bukkit.entity.Player
 
+// TODO -> Player levels
+// TODO -> Per player instances of origins
+// TODO -> Potion modifier system (eg preventing potion effects and modifying them)
+// TODO -> Attribute modifier system (eg preventing attribute modifiers and modifying them)
 @API(status = API.Status.MAINTAINED, since = "1.0.0")
 public abstract class Origin : OriginBuilder() {
 
