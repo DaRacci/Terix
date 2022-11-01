@@ -72,6 +72,12 @@ public class MerlingOrigin(override val plugin: Terix) : Origin() {
                 amplifier = 0
                 ambient = true
             }
+            State.LiquidState.WATER += dslMutator {
+                type = PotionEffectType.FAST_DIGGING
+                duration = Duration.INFINITE
+                amplifier = 4
+                ambient = true
+            }
         }
 
         food {
