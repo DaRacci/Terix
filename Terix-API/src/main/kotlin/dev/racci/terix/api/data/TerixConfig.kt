@@ -39,8 +39,8 @@ public class TerixConfig : MinixConfig<Terix>(true) {
             )
         ),
         val back: GUIItemSlot = GUIItemSlot("itemsadder:mcicons__icon_cancel", "-1;5"),
-        val previousPage: GUIItemSlot = GUIItemSlot("itemsadder:mcicons__icon_left_blue", "-1;4"),
-        val nextPage: GUIItemSlot = GUIItemSlot("itemsadder:mcicons__icon_right_blue", "-1;6")
+        val previousPage: GUIItemSlot = GUIItemSlot("itemsadder:mcicons__icon_left_blue", "-1;8"),
+        val nextPage: GUIItemSlot = GUIItemSlot("itemsadder:mcicons__icon_right_blue", "-1;9")
     ) : InnerConfig by InnerConfig.Default() {
 
         @ConfigSerializable
