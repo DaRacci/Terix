@@ -38,9 +38,20 @@ public class TerixConfig : MinixConfig<Terix>(true) {
                 PartialComponent.of("<aqua><timed_change>")
             )
         ),
-        val back: GUIItemSlot = GUIItemSlot("itemsadder:mcicons__icon_cancel", "-1;5"),
+        val info: GUIItemSlot = GUIItemSlot(
+            "itemsadder:mcicons__icon_plus name:\"<white>Info\"",
+            "-1;5",
+            listOf(
+                PartialComponent.of("<i:false><aqua>Click on an origin to select it."),
+                PartialComponent.of("<i:false><aqua>Click on the same origin to deselect it."),
+                PartialComponent.of("<i:false><aqua>Click on the <green>Confirm</green> button to confirm your selection."),
+                PartialComponent.of("<i:false><aqua>Click on the <red>Cancel</red> button to cancel your selection.")
+            )
+        ),
         val previousPage: GUIItemSlot = GUIItemSlot("itemsadder:mcicons__icon_left_blue", "-1;8"),
-        val nextPage: GUIItemSlot = GUIItemSlot("itemsadder:mcicons__icon_right_blue", "-1;9")
+        val nextPage: GUIItemSlot = GUIItemSlot("itemsadder:mcicons__icon_right_blue", "-1;9"),
+        val cancelSelection: GUIItemSlot = GUIItemSlot("itemsadder:mcicons__icon_cancel name:\"<red>Cancel selection\"", "-1;4"),
+        val confirmSelection: GUIItemSlot = GUIItemSlot("itemsadder:mcicons__icon_confirm name:\"<green>Confirm Selection\"", "-1;6")
     ) : InnerConfig by InnerConfig.Default() {
 
         @ConfigSerializable

@@ -12,7 +12,6 @@ import dev.racci.minix.api.builders.ItemBuilderDSL
 import dev.racci.minix.api.extension.Extension
 import dev.racci.minix.api.extensions.message
 import dev.racci.minix.api.extensions.noItalic
-import dev.racci.minix.api.extensions.parse
 import dev.racci.minix.api.extensions.reflection.castOrThrow
 import dev.racci.minix.api.extensions.scheduler
 import dev.racci.minix.api.services.DataService
@@ -120,7 +119,9 @@ public class GUIService(override val plugin: Terix) : Extension<Terix>() {
         action: GenericClickHandler<ChestPane> = GenericClickHandler.cancel()
     ): ItemStackElement<ChestPane> {
         val item = Items.lookup(button.display)
-        return ItemBuilderDSL.from(item.item.clone()) {}.asElement(action)
+        return ItemBuilderDSL.from(item.item.clone()) {
+            lore = button.lore.map { it.get() }
+        }.asElement(action)
     }
 
     private fun withBaseInterface(
@@ -202,11 +203,11 @@ public class GUIService(override val plugin: Terix) : Extension<Terix>() {
                     val colour = if (checker(view.arguments.get(playerArgumentKey))) {
                         Component.empty().color(NamedTextColor.GREEN)
                     } else Component.empty().color(NamedTextColor.RED)
-                    colour.append(lang.gui.requirementLine["requirement" to { lore }])
+                    lang.gui.requirementLine["requirement" to { colour.append(lore) }]
                 }
 
                 if (StorageService.transaction { TerixPlayer[view.arguments.get(playerArgumentKey)].grants.contains(this@createItem.name) }) {
-                    lore = lore + Component.empty() + "<gray>You have a grant and don't require these requirements.".parse()
+                    lore = lore + Component.empty() + lang.gui.hasGrant.get()
                 }
             }
             lore = lore.map(Component::noItalic)
@@ -228,40 +229,6 @@ public class GUIService(override val plugin: Terix) : Extension<Terix>() {
         }
     }
 
-    private val confirmButton by lazy {
-        ItemBuilderDSL.from(Material.GREEN_WOOL) {
-            name = "<i:false><green>Confirm Selection".parse()
-            lore("<i:false><white><bold>»</bold> <aqua>Click</aqua> <bold>»</bold>to confirm your selection.".parse())
-        }.asElement<ChestPane> { ctx ->
-            val player = ctx.viewer().player()
-            val origin = selectedOrigin.getIfPresent(player) ?: return@asElement
-            async {
-                val bypass = player.freeChanges > 0
-                val event = PlayerOriginChangeEvent(player, TerixPlayer.cachedOrigin(player), origin, bypass)
-
-                if (event.callEvent()) {
-                    if (bypass) player.freeChanges--
-                    sync { player.closeInventory(InventoryCloseEvent.Reason.PLAYER) }
-                    player.playSound(Sound.sound(Key.key("block.chest.unlock"), Sound.Source.PLAYER, 1.0f, 1.0f))
-                } else {
-                    player.shieldSound()
-
-                    when (event.result) {
-                        PlayerOriginChangeEvent.Result.ON_COOLDOWN -> lang.origin.onChangeCooldown["cooldown" to { player.originTime.remaining(terixConfig.intervalBeforeChange)!!.format() }] message player
-                        PlayerOriginChangeEvent.Result.NO_PERMISSION -> lang.origin.missingRequirement.message(player)
-                        PlayerOriginChangeEvent.Result.CURRENT_ORIGIN -> {
-                            lang.origin.setSameSelf["origin" to { origin.displayName }] message player
-                            selectedOrigin.invalidate(player)
-                        }
-
-                        else -> { /* Do Nothing. */
-                        }
-                    }
-                }
-            }
-        }
-    }
-
     private fun Instant.remaining(cooldown: kotlin.time.Duration) = (this + cooldown - now()).takeUnless { it.inWholeMilliseconds <= 0 }
 
     private fun kotlin.time.Duration.format() = toComponents { days, hours, minutes, seconds, _ ->
@@ -276,17 +243,6 @@ public class GUIService(override val plugin: Terix) : Extension<Terix>() {
     private fun StringBuilder.appendExtra(last: Boolean) {
         if (isNotEmpty()) append(", ")
         if (last) append("and ")
-    }
-
-    private val cancelButton by lazy {
-        ItemBuilderDSL.from(Material.RED_WOOL) {
-            name = "<i:false><red>Cancel selection".parse()
-            lore("<i:false><white><bold>»</bold> <aqua>Click</aqua> <bold>«</bold> <yellow>to cancel your selection".parse())
-        }.asElement<ChestPane> { ctx ->
-            if (selectedOrigin.getIfPresent(ctx.viewer().player()) == null) return@asElement
-            ctx.viewer().player().shieldSound()
-            selectedOrigin.invalidate(ctx.viewer().player())
-        }
     }
 
     private fun MutableChestInterfaceBuilder.border() {
@@ -328,20 +284,47 @@ public class GUIService(override val plugin: Terix) : Extension<Terix>() {
             lore = listOf(
                 Component.empty(),
                 when {
-                    free > 0 -> "You have <bold>$free</bold> free changes remaining."
-                    player.originTime.remaining(terixConfig.intervalBeforeChange) == null -> "You can change your origin now."
-                    else -> "You can change your origin again in <bold>${player.originTime.remaining(terixConfig.intervalBeforeChange)!!.format()}</bold>."
-                }.parse()
+                    free > 0 -> lang.gui.changeFree["amount" to { free }]
+                    player.originTime.remaining(terixConfig.intervalBeforeChange) == null -> lang.gui.changeTime.get()
+                    else -> lang.gui.changeTimeCooldown["cooldown" to { player.originTime.remaining(terixConfig.intervalBeforeChange)!!.format() }]
+                }
             )
         }.asElement()
 
-        this[vecPos(buttons.back)] = getButton(buttons.back) { ctx ->
-            ctx.cause().whoClicked.closeInventory()
-            ctx.viewer().player().playSound(Sound.sound(Key.key("item.book.page_turn"), Sound.Source.PLAYER, 1.0f, 1.0f))
+        this[vecPos(buttons.info)] = getButton(buttons.info)
+        this[vecPos(buttons.cancelSelection)] = getButton(buttons.cancelSelection) { ctx ->
+            if (selectedOrigin.getIfPresent(ctx.viewer().player()) == null) return@getButton
+            ctx.viewer().player().shieldSound()
+            selectedOrigin.invalidate(ctx.viewer().player())
         }
+        this[vecPos(buttons.confirmSelection)] = getButton(buttons.confirmSelection) { ctx ->
+            val player = ctx.viewer().player()
+            val origin = selectedOrigin.getIfPresent(player) ?: return@getButton
+            async {
+                val bypass = player.freeChanges > 0
+                val event = PlayerOriginChangeEvent(player, TerixPlayer.cachedOrigin(player), origin, bypass)
 
-        this[rows - 1, 2] = cancelButton
-        this[rows - 1, 3] = confirmButton
+                if (event.callEvent()) {
+                    if (bypass) player.freeChanges--
+                    sync { player.closeInventory(InventoryCloseEvent.Reason.PLAYER) }
+                    player.playSound(Sound.sound(Key.key("block.chest.unlock"), Sound.Source.PLAYER, 1.0f, 1.0f))
+                } else {
+                    player.shieldSound()
+
+                    when (event.result) {
+                        PlayerOriginChangeEvent.Result.ON_COOLDOWN -> lang.origin.onChangeCooldown["cooldown" to { player.originTime.remaining(terixConfig.intervalBeforeChange)!!.format() }] message player
+                        PlayerOriginChangeEvent.Result.NO_PERMISSION -> lang.origin.missingRequirement.message(player)
+                        PlayerOriginChangeEvent.Result.CURRENT_ORIGIN -> {
+                            lang.origin.setSameSelf["origin" to { origin.displayName }] message player
+                            selectedOrigin.invalidate(player)
+                        }
+
+                        else -> { /* Do Nothing. */
+                        }
+                    }
+                }
+            }
+        }
     }
 
     public companion object : ExtensionCompanion<GUIService>()

@@ -106,10 +106,14 @@ public class Lang : LangConfig<Terix>() {
     @ConfigSerializable
     public data class GUI(
         val title: PartialComponent = PartialComponent.of("<prefix:origins>Origins"),
-        val requirementLine: PartialComponent = PartialComponent.of("|-    <requirement>"),
+        val requirementLine: PartialComponent = PartialComponent.of("<aqua>|-  <requirement>"),
         val requirementLore: List<PartialComponent> = listOf(
             PartialComponent.of(""),
             PartialComponent.of("<aqua>Requirements:")
-        )
+        ),
+        val hasGrant: PartialComponent = PartialComponent.of("<i:false><gray>You have a grant and don't require the above."),
+        val changeFree: PartialComponent = PartialComponent.of("<i:false>You have <gray><amount></gray> free changes remaining."),
+        val changeTime: PartialComponent = PartialComponent.of("<i:false>You can change your origin now."),
+        val changeTimeCooldown: PartialComponent = PartialComponent.of("<i:false>You can change your origin in <gray><cooldown></gray>."),
     ) : InnerLang()
 }
