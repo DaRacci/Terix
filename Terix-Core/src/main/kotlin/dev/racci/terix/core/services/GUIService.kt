@@ -204,6 +204,10 @@ public class GUIService(override val plugin: Terix) : Extension<Terix>() {
                     } else Component.empty().color(NamedTextColor.RED)
                     colour.append(lang.gui.requirementLine["requirement" to { lore }])
                 }
+
+                if (StorageService.transaction { TerixPlayer[view.arguments.get(playerArgumentKey)].grants.contains(this@createItem.name) }) {
+                    lore = lore + Component.empty() + "<gray>You have a grant and don't require these requirements.".parse()
+                }
             }
             lore = lore.map(Component::noItalic)
         }.asElement { ctx ->

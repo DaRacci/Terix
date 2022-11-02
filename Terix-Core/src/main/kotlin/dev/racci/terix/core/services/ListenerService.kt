@@ -261,7 +261,7 @@ public class ListenerService(override val plugin: Terix) : Extension<Terix>() {
                 return@event cancel()
             }
 
-            if (!skipRequirement && newOrigin.requirements.isNotEmpty() && newOrigin.requirements.any { !it.second(player) }) {
+            if (!skipRequirement && !StorageService.transaction { TerixPlayer[player].grants.contains(newOrigin.name) } && newOrigin.requirements.isNotEmpty() && newOrigin.requirements.any { !it.second(player) }) {
                 result = PlayerOriginChangeEvent.Result.NO_PERMISSION
                 return@event cancel()
             }

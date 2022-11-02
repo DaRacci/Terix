@@ -20,7 +20,7 @@ public class OriginArgument(
     name: String,
     required: Boolean,
     description: RichDescription,
-    suggestionsProvider: BiFunction<CommandContext<CommandSender>, String, List<String>>?
+    suggestionsProvider: BiFunction<CommandContext<CommandSender>, String, List<String>>? = null
 ) : CommandArgument<CommandSender, Origin>(
     required,
     name,
@@ -46,7 +46,7 @@ public class OriginArgument(
         override fun suggestions(
             commandContext: CommandContext<CommandSender>,
             input: String
-        ): MutableList<String> = OriginServiceImpl.getService().registeredOrigins.toMutableList()
+        ): MutableList<String> = OriginServiceImpl.getService().registeredOrigins.map(String::lowercase).toMutableList()
 
         public class OriginParseException(
             input: String,

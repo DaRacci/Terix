@@ -59,6 +59,22 @@ public class Lang : LangConfig<Terix>() {
 
         public val remainingChanges: PartialComponent = PartialComponent.of("<prefix:origins>You have <amount> changes remaining.")
 
+        public val grantAlreadySelf: PartialComponent = PartialComponent.of("<prefix:origins>You already have the <origin> origin!")
+
+        public val grantAlreadyOther: PartialComponent = PartialComponent.of("<prefix:origins><player> already has the <origin> origin!")
+
+        public val grantSelf: PartialComponent = PartialComponent.of("<prefix:origins>You have been granted the <origin> origin!")
+
+        public val grantOther: PartialComponent = PartialComponent.of("<prefix:origins><player> has been granted the <origin> origin!")
+
+        public val grantMissingSelf: PartialComponent = PartialComponent.of("<prefix:origins>You don't have an explicit grant for the <origin> origin.")
+
+        public val grantMissingOther: PartialComponent = PartialComponent.of("<prefix:origins><player> doesn't have an explicit grant for the <origin> origin.")
+
+        public val grantRemovedSelf: PartialComponent = PartialComponent.of("<prefix:origins>You no longer have an explicit grant for the <origin> origin!")
+
+        public val grantRemovedOther: PartialComponent = PartialComponent.of("<prefix:origins><player> no longer has an explicit grant for the <origin> origin!")
+
         public var bee: Bee = Bee()
 
         public var descriptor: Descriptor = Descriptor()
@@ -93,7 +109,7 @@ public class Lang : LangConfig<Terix>() {
         val requirementLine: PartialComponent = PartialComponent.of("|-    <requirement>"),
         val requirementLore: List<PartialComponent> = listOf(
             PartialComponent.of(""),
-            PartialComponent.of("Requirements:")
+            PartialComponent.of("<aqua>Requirements:")
         )
     ) : InnerLang()
 }

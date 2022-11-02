@@ -4,6 +4,7 @@ import com.github.benmanes.caffeine.cache.Caffeine
 import com.github.benmanes.caffeine.cache.LoadingCache
 import dev.racci.minix.api.services.DataService
 import dev.racci.minix.api.utils.getKoin
+import dev.racci.minix.api.utils.kotlin.ifTrue
 import dev.racci.terix.api.data.TerixConfig
 import dev.racci.terix.api.origins.origin.Origin
 import kotlinx.datetime.Instant
@@ -19,11 +20,13 @@ import java.time.Duration
 import java.util.UUID
 
 public class TerixPlayer(public val uuid: EntityID<UUID>) : UUIDEntity(uuid) {
-
     private var _origin: String by User.origin
+    private var _grants: String by User.grants
+
     public var lastOrigin: String? by User.lastOrigin
     public var lastChosenTime: Instant? by User.lastChosenTime
     public var freeChanges: Int by User.freeChanges
+    public val grants: MutableSet<String> by lazy(::GrantSet)
 
     public var origin: Origin
         get() = originCache[uuid.value]
@@ -72,6 +75,7 @@ public class TerixPlayer(public val uuid: EntityID<UUID>) : UUIDEntity(uuid) {
 
                 if (originInstance == null) {
                     koin.get<Terix>().log.warn { "Player $uuid had an invalid origin $origin, setting to default." }
+                    transaction(koin.getProperty("terix:database")) { this@Companion[uuid].origin = originService.defaultOrigin }
                 }
 
                 originInstance ?: originService.defaultOrigin
@@ -89,5 +93,23 @@ public class TerixPlayer(public val uuid: EntityID<UUID>) : UUIDEntity(uuid) {
 
         public val lastChosenTime: Column<Instant?> = timestamp("last_chosen_time").nullable().default(null)
         public val freeChanges: Column<Int> = integer("free_changes").default(DataService.getService().get<TerixConfig>().freeChanges)
+
+        public val grants: Column<String> = text("explicit_grants").default("")
+    }
+
+    private inner class GrantSet(
+        private val backing: MutableSet<String> = _grants.split(",").toMutableSet()
+    ) : MutableSet<String> by backing {
+
+        override fun add(element: String): Boolean {
+            return backing.add(element).ifTrue {
+                if (_grants.isNotEmpty()) _grants += ","
+                _grants += element
+            }
+        }
+
+        override fun remove(element: String): Boolean {
+            return backing.remove(element).ifTrue { _grants = backing.joinToString(",") }
+        }
     }
 }

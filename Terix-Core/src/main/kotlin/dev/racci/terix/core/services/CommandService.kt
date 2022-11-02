@@ -21,6 +21,8 @@ import dev.racci.minix.api.extensions.message
 import dev.racci.minix.api.extensions.reflection.castOrThrow
 import dev.racci.minix.api.services.DataService
 import dev.racci.minix.api.services.DataService.Companion.inject
+import dev.racci.minix.api.utils.PropertyFinder
+import dev.racci.minix.api.utils.adventure.PartialComponent
 import dev.racci.minix.api.utils.now
 import dev.racci.terix.api.OriginService
 import dev.racci.terix.api.Terix
@@ -132,7 +134,7 @@ public class CommandService(override val plugin: Terix) : Extension<Terix>() {
 
             this.registerCopy(
                 "grant",
-                RichDescription.of(MiniMessage.miniMessage().deserialize("Grants an origin to a player."))
+                RichDescription.of(MiniMessage.miniMessage().deserialize("Explicitly grants an origin skipping any requirements."))
             ) {
                 mutate { it.flag(playerFlag) }
                 permission(Permission.of("terix.command.origin.grant"))
@@ -140,11 +142,26 @@ public class CommandService(override val plugin: Terix) : Extension<Terix>() {
                     OriginArgument(
                         "origin",
                         true,
-                        RichDescription.of(MiniMessage.miniMessage().deserialize("The origin to grant the player.")),
-                        null
+                        RichDescription.of(MiniMessage.miniMessage().deserialize("The origin to grant the player."))
                     )
                 )
                 suspendingHandler(supervisor, dispatcher.get()) { context -> grantOrigin(context.sender, getTargetOrThrow(context), context.get("origin")) }
+            }
+
+            this.registerCopy(
+                "ungrant",
+                RichDescription.of(MiniMessage.miniMessage().deserialize("Removes the explicit access given to a player."))
+            ) {
+                mutate { it.flag(playerFlag) }
+                permission(Permission.of("terix.command.origin.grant"))
+                argument(
+                    OriginArgument(
+                        "origin",
+                        true,
+                        RichDescription.of(MiniMessage.miniMessage().deserialize("The origin to remove the player's access to."))
+                    )
+                )
+                suspendingHandler(supervisor, dispatcher.get()) { ctx -> ungrantOrigin(ctx.sender, getTargetOrThrow(ctx), ctx.get("origin")) }
             }
 
             this.registerCopy(
@@ -242,6 +259,19 @@ public class CommandService(override val plugin: Terix) : Extension<Terix>() {
     @Throws(InvalidCommandSenderException::class)
     private fun getTargetOrThrow(context: CommandContext<CommandSender>) = context.flags().getValue<Player>("player").orElseGet {
         context.sender as? Player ?: throw InvalidCommandSenderException(context.sender, Player::class.java, emptyList())
+    }
+
+    private fun dualMessageContext(
+        startNode: PropertyFinder<PartialComponent>,
+        langPath: String,
+        sender: CommandSender,
+        target: Player,
+        vararg placeholders: Pair<String, () -> Any>
+    ) {
+        startNode[getTargetedPath(langPath, sender, target)].get(*placeholders) message sender
+        if (sender !== target) {
+            startNode[getTargetedPath(langPath, sender, target)].get(*placeholders) message target
+        }
     }
 
     private fun getTargetedPath(
@@ -364,6 +394,49 @@ public class CommandService(override val plugin: Terix) : Extension<Terix>() {
         player: Player,
         origin: Origin
     ) {
+        StorageService.transaction {
+            val terixPlayer = TerixPlayer[player.uniqueId]
+            if (!terixPlayer.grants.add(origin.name)) {
+                return@transaction lang.origin[getTargetedPath("grant.already", sender, player)][
+                    "origin" to { origin.displayName },
+                    "player" to { player.displayName() }
+                ] message sender
+            }
+
+            dualMessageContext(
+                lang.origin,
+                "grant",
+                sender,
+                player,
+                "origin" to { origin.displayName },
+                "player" to { player.displayName() }
+            )
+        }
+    }
+
+    private fun ungrantOrigin(
+        sender: CommandSender,
+        player: Player,
+        origin: Origin
+    ) {
+        StorageService.transaction {
+            val terixPlayer = TerixPlayer[player.uniqueId]
+            if (!terixPlayer.grants.remove(origin.name)) {
+                return@transaction lang.origin[getTargetedPath("grant.missing", sender, player)][
+                    "origin" to { origin.displayName },
+                    "player" to { player.displayName() }
+                ] message sender
+            }
+
+            dualMessageContext(
+                lang.origin,
+                "grant.removed",
+                sender,
+                player,
+                "origin" to { origin.displayName },
+                "player" to { player.displayName() }
+            )
+        }
     }
 
     private fun describeOrigin(

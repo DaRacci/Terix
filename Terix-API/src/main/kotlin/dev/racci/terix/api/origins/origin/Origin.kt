@@ -8,6 +8,7 @@ import org.bukkit.entity.Player
 // TODO -> Per player instances of origins
 // TODO -> Potion modifier system (eg preventing potion effects and modifying them)
 // TODO -> Attribute modifier system (eg preventing attribute modifiers and modifying them)
+// TODO -> Internal tracking UID
 @API(status = API.Status.MAINTAINED, since = "1.0.0")
 public abstract class Origin : OriginBuilder() {
 
