@@ -25,6 +25,7 @@ import dev.racci.terix.api.origins.abilities.Transform
 import dev.racci.terix.api.origins.enums.EventSelector
 import dev.racci.terix.api.origins.enums.EventSelector.TargetSelector.Companion.isCompatible
 import dev.racci.terix.api.origins.origin.Origin
+import dev.racci.terix.api.origins.origin.OriginBuilder
 import dev.racci.terix.core.origins.AethenOrigin
 import dev.racci.terix.core.origins.AxolotlOrigin
 import dev.racci.terix.core.origins.BeeOrigin
@@ -44,7 +45,6 @@ import java.time.Duration
 import kotlin.reflect.KClass
 import kotlin.reflect.KFunction
 import kotlin.reflect.full.callSuspend
-import kotlin.reflect.full.createInstance
 import kotlin.reflect.full.declaredMembers
 import kotlin.reflect.full.extensionReceiverParameter
 import kotlin.reflect.full.findAnnotation
@@ -59,7 +59,7 @@ public class OriginServiceImpl(override val plugin: Terix) : OriginService, Exte
     private var dirtyCache: List<String>? = null
     private var dirtyRegistry: PersistentMap<String, Origin>? = null
 
-    public val abilities: MutableMap<KClass<out Ability>, Ability> = mutableMapOf()
+    public val abilities: MutableMap<KClass<out Ability>, (Origin) -> Ability> = mutableMapOf()
     public val registry: PersistentMap<String, Origin>
         get() = dirtyRegistry ?: origins.values.associateBy { it.name.lowercase() }.toPersistentMap().also { dirtyRegistry = it }
     public val registeredOrigins: List<String>
@@ -105,19 +105,11 @@ public class OriginServiceImpl(override val plugin: Terix) : OriginService, Exte
         }
     }
 
-    override fun getAbilities(): PersistentMap<KClass<out Ability>, Ability> = abilities.toPersistentMap()
-
     override fun getOrigins(): PersistentMap<KClass<out Origin>, Origin> = origins.toPersistentMap()
 
     override fun getOrigin(origin: KClass<out Origin>): Origin = origins[origin] ?: throw NoSuchElementException("Origin ${origin.simpleName} not found")
 
     public inline fun <reified T : Origin> getOrigin(): Origin = getOrigin(T::class)
-
-    override fun getOriginOrNull(origin: KClass<out Origin>): Origin? = origins[origin]
-
-    override fun getAbility(ability: KClass<out Ability>): Ability = abilities[ability] ?: throw NoSuchElementException("No ability registered for ${ability.simpleName}")
-
-    override fun getAbilityOrNull(ability: KClass<out Ability>): Ability? = abilities[ability]
 
     override fun getOrigin(name: String): Origin = registry[name.lowercase()] ?: throw NoSuchElementException("No origin registered for $name")
 
@@ -125,6 +117,11 @@ public class OriginServiceImpl(override val plugin: Terix) : OriginService, Exte
         if (name.isNullOrBlank()) return null
         return registry[name.lowercase()]
     }
+
+    override fun generateAbility(
+        ability: KClass<out Ability>,
+        origin: OriginBuilder
+    ): Ability = abilities[ability]!!(origin as Origin)
 
     @MinixDsl
     public suspend fun registry(block: suspend RegistryModifier.() -> Unit) { block(modifierCache.get(RegistryModifier::class).castOrThrow()) }
@@ -203,14 +200,16 @@ public class OriginServiceImpl(override val plugin: Terix) : OriginService, Exte
     public inner class AbilityModifier {
 
         @MinixDsl
-        public suspend fun add(abilityBuilder: suspend () -> Ability) {
-            val inst = abilityBuilder()
-            abilities[inst::class] = inst
+        public fun add(
+            kClass: KClass<out Ability>,
+            abilityBuilder: (Origin) -> Ability
+        ) {
+            abilities[kClass] = abilityBuilder
         }
 
         @MinixDsl
-        public suspend inline fun <reified T : Ability> add(kClass: KClass<T> = T::class) {
-            add(kClass::createInstance)
+        public inline fun <reified T : Ability> add(kClass: KClass<T> = T::class) {
+            add(T::class) { kClass.primaryConstructor!!.call(it) }
         }
     }
 

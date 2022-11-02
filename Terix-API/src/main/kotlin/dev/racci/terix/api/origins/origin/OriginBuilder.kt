@@ -554,9 +554,14 @@ public sealed class OriginBuilder : OriginValues() {
     /** A Utility class for building abilities. */
     public inner class AbilityBuilder {
 
-        public fun <T : Ability> KeyBinding.add(clazz: KClass<out T>): Ability? = abilities.put(this, OriginService.getAbility(clazz))
+        public fun <T : Ability> KeyBinding.add(
+            clazz: KClass<out T>,
+            builder: T.() -> Unit = {}
+        ): Ability? = abilities.put(this, OriginService.generateAbility(clazz, this@OriginBuilder).also(builder.castOrThrow()))
 
-        public inline fun <reified T : Ability> KeyBinding.add(): Ability? = add(T::class)
+        public inline fun <reified T : Ability> KeyBinding.add(
+            noinline builder: T.() -> Unit = {}
+        ): Ability? = add(T::class, builder)
     }
 
     /** A Utility class for building biome triggers. */

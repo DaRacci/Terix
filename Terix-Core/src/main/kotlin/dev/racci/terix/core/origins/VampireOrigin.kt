@@ -9,12 +9,10 @@ import dev.racci.minix.api.extensions.reflection.safeCast
 import dev.racci.minix.api.utils.minecraft.MaterialTagsExtension
 import dev.racci.minix.api.utils.now
 import dev.racci.minix.nms.aliases.toNMS
-import dev.racci.terix.api.OriginService
 import dev.racci.terix.api.Terix
 import dev.racci.terix.api.annotations.OriginEventSelector
 import dev.racci.terix.api.dsl.FoodPropertyBuilder
 import dev.racci.terix.api.dsl.dslMutator
-import dev.racci.terix.api.events.PlayerOriginChangeEvent
 import dev.racci.terix.api.origins.OriginHelper
 import dev.racci.terix.api.origins.abilities.Transform
 import dev.racci.terix.api.origins.enums.EventSelector
@@ -36,7 +34,6 @@ import org.bukkit.event.entity.EntityDamageEvent.DamageCause
 import org.bukkit.event.entity.EntityPotionEffectEvent
 import org.bukkit.event.entity.EntityRegainHealthEvent
 import org.bukkit.event.player.PlayerItemConsumeEvent
-import org.bukkit.event.player.PlayerJoinEvent
 import org.bukkit.potion.PotionEffectType
 import xyz.xenondevs.particle.ParticleBuilder
 import xyz.xenondevs.particle.ParticleEffect
@@ -113,18 +110,10 @@ public class VampireOrigin(override val plugin: Terix) : Origin() {
         }
 
         abilities {
-            KeyBinding.DOUBLE_OFFHAND.add<Transform>()
+            KeyBinding.DOUBLE_OFFHAND.add<Transform> {
+                this.disguise = MobDisguise(DisguiseType.BAT)
+            }
         }
-    }
-
-    @OriginEventSelector(EventSelector.PLAYER)
-    public fun PlayerJoinEvent.onJoin() {
-        OriginService.getAbility(Transform::class).castOrThrow<Transform>().disguises[player] = MobDisguise(DisguiseType.BAT)
-    }
-
-    @OriginEventSelector(EventSelector.PLAYER)
-    public fun PlayerOriginChangeEvent.onChangeOrigin() {
-        OriginService.getAbility(Transform::class).castOrThrow<Transform>().disguises -= player
     }
 
     @OriginEventSelector(EventSelector.ENTITY)

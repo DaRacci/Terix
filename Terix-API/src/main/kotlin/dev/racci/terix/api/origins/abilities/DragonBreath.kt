@@ -1,6 +1,7 @@
 package dev.racci.terix.api.origins.abilities
 
 import dev.racci.minix.nms.aliases.toNMS
+import dev.racci.terix.api.origins.origin.Origin
 import net.minecraft.world.phys.Vec3
 import org.bukkit.entity.Player
 import kotlin.math.PI
@@ -10,7 +11,7 @@ import kotlin.math.sin
 import kotlin.time.Duration
 import kotlin.time.Duration.Companion.seconds
 
-public class DragonBreath : Ability(AbilityType.TRIGGER) {
+public class DragonBreath(override val origin: Origin) : Ability(AbilityType.TRIGGER) {
     override val cooldown: Duration = 10.seconds
 
     // TODO -> Less NMS bullshitery

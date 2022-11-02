@@ -4,12 +4,13 @@ import dev.racci.minix.api.coroutine.asyncDispatcher
 import dev.racci.minix.api.extensions.WithPlugin
 import dev.racci.minix.api.extensions.event
 import dev.racci.minix.api.extensions.ticks
-import dev.racci.terix.api.OriginService
 import dev.racci.terix.api.Terix
+import dev.racci.terix.api.dsl.PotionEffectBuilder
 import dev.racci.terix.api.events.PlayerAbilityActivateEvent
 import dev.racci.terix.api.events.PlayerAbilityDeactivateEvent
 import dev.racci.terix.api.events.PlayerOriginChangeEvent
 import dev.racci.terix.api.origins.OriginHelper
+import dev.racci.terix.api.origins.origin.Origin
 import dev.racci.terix.api.sentryScoped
 import kotlinx.datetime.Instant
 import org.bukkit.NamespacedKey
@@ -20,12 +21,18 @@ import org.bukkit.event.EventPriority
 import org.bukkit.event.player.PlayerJoinEvent
 import org.bukkit.persistence.PersistentDataContainer
 import org.bukkit.persistence.PersistentDataType
+import org.bukkit.potion.PotionEffect
 import org.koin.core.component.inject
 import java.util.UUID
 import kotlin.time.Duration
 
-public abstract class Ability(private val abilityType: AbilityType) : WithPlugin<Terix> {
+// TODO -> Per player instances
+public abstract class Ability(
+    private val abilityType: AbilityType
+) : WithPlugin<Terix> {
+    protected abstract val origin: Origin
     private val abilityCache: CooldownSet by lazy { CooldownSet(this) }
+    private val namespacedKey: NamespacedKey by lazy { NamespacedKey(plugin, "origin_ability_${origin.name}/${this.name}") }
 
     final override val plugin: Terix by inject()
 
@@ -71,6 +78,12 @@ public abstract class Ability(private val abilityType: AbilityType) : WithPlugin
         this.abilityCache.remove(player.uniqueId, true)
     }
 
+    protected fun isActivated(uuid: UUID): Boolean = abilityType == AbilityType.TOGGLE && uuid in abilityCache
+
+    protected fun taggedPotion(potionEffectBuilder: PotionEffectBuilder): PotionEffect = potionEffectBuilder.apply { key = namespacedKey }.get()
+
+    protected fun isTagged(potionEffect: PotionEffect): Boolean = potionEffect.key == namespacedKey
+
     internal suspend fun activate(
         player: Player,
         forceValue: Instant?
@@ -96,8 +109,6 @@ public abstract class Ability(private val abilityType: AbilityType) : WithPlugin
         }
         return true
     }
-
-    protected fun isActivated(uuid: UUID): Boolean = abilityType == AbilityType.TOGGLE && uuid in abilityCache
 
     private fun addToPersistentData(player: Player) = async {
         return@async // FIXME
@@ -137,17 +148,18 @@ public abstract class Ability(private val abilityType: AbilityType) : WithPlugin
                 if (abilityContainers.isNullOrEmpty()) return@event
 
                 for (container in abilityContainers) {
-                    val ability = with(container.get(NAMESPACES[0], PersistentDataType.STRING)) {
-                        if (this == null) return@with null
-                        OriginService.getAbilities().values.firstOrNull { it.name == this } ?: run {
-                            plugin.log.warn(scope = SCOPE) { "Player ${player.name} has an ability with the name $this, but no such ability exists." }
-                            return@with null
-                        }
-                    } ?: continue
-                    val lastUsed = container.get(NAMESPACES[1], PersistentDataType.LONG)?.let(Instant::fromEpochMilliseconds)
-                    val active = container.get(NAMESPACES[2], PersistentDataType.BYTE) == 1.toByte()
-
-                    if (active) ability.activate(player, lastUsed)
+                    // FIXME
+//                    val ability = with(container.get(NAMESPACES[0], PersistentDataType.STRING)) {
+//                        if (this == null) return@with null
+//                        OriginService.getAbilities().values.firstOrNull { it.name == this } ?: run {
+//                            plugin.log.warn(scope = SCOPE) { "Player ${player.name} has an ability with the name $this, but no such ability exists." }
+//                            return@with null
+//                        }
+//                    } ?: continue
+//                    val lastUsed = container.get(NAMESPACES[1], PersistentDataType.LONG)?.let(Instant::fromEpochMilliseconds)
+//                    val active = container.get(NAMESPACES[2], PersistentDataType.BYTE) == 1.toByte()
+//
+//                    if (active) ability.activate(player, lastUsed)
                 }
             }
 

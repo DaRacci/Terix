@@ -8,10 +8,10 @@ import dev.racci.minix.api.extensions.event
 import dev.racci.minix.api.extensions.onlinePlayers
 import dev.racci.minix.api.extensions.taskAsync
 import dev.racci.minix.api.extensions.ticks
-import dev.racci.terix.api.TerixPlayer
 import dev.racci.terix.api.dsl.PotionEffectBuilder
 import dev.racci.terix.api.dsl.dslMutator
 import dev.racci.terix.api.extensions.playSound
+import dev.racci.terix.api.origins.origin.Origin
 import dev.racci.terix.api.sentryBreadcrumb
 import org.bukkit.entity.Player
 import org.bukkit.event.EventPriority
@@ -22,7 +22,7 @@ import kotlin.time.Duration
 
 // TODO -> Don't force elytra if the player isn't moving.
 // TODO -> If the player is still only levitate up.
-public class Levitate : Ability(AbilityType.TOGGLE) {
+public class Levitate(override val origin: Origin) : Ability(AbilityType.TOGGLE) {
 
     private val glideMap = HashSet<Player>()
 
@@ -66,24 +66,14 @@ public class Levitate : Ability(AbilityType.TOGGLE) {
 
     override suspend fun onActivate(player: Player) {
         player.playSound(SOUND.first, SOUND.second, SOUND.third)
-
-        sync {
-            player.addPotionEffect(
-                dslMutator<PotionEffectBuilder> {
-                    type = PotionEffectType.LEVITATION
-                    duration = Duration.INFINITE
-                    ambient = true
-                    abilityKey(TerixPlayer.cachedOrigin(player), this@Levitate)
-                }.asNew().get()
-            )
-        }
+        sync { player.addPotionEffect(taggedPotion(LEVITATION)) }
     }
 
     override suspend fun onDeactivate(player: Player) {
         glideMap -= player
         val types = mutableListOf<PotionEffectType>()
         for (potion in player.activePotionEffects) {
-            if (potion.type != PotionEffectType.LEVITATION || potion.key?.key != "origin_ability_${TerixPlayer.cachedOrigin(player).name}/${this.name}") continue
+            if (potion.type != PotionEffectType.LEVITATION || !isTagged(potion)) continue
             types += potion.type
             break
         }
@@ -103,5 +93,10 @@ public class Levitate : Ability(AbilityType.TOGGLE) {
 
     private companion object {
         val SOUND = Triple("minecraft:entity.phantom.flap", 1f, 1f)
+        val LEVITATION = dslMutator<PotionEffectBuilder> {
+            type = PotionEffectType.LEVITATION
+            duration = Duration.INFINITE
+            ambient = true
+        }.asNew()
     }
 }
