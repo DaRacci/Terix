@@ -31,12 +31,8 @@ public class TerixConfig : MinixConfig<Terix>(true) {
     @ConfigSerializable
     public data class GUI(
         val remainingChanges: GUIItemSlot = GUIItemSlot(
-            "itemsadder:elixirmc__opal name:\"<white>Remaining Changes\"",
-            "-1;1",
-            listOf(
-                PartialComponent.of("<aqua>You have <amount> free changes remaining."),
-                PartialComponent.of("<aqua><timed_change>")
-            )
+            "itemsadder:elixirmc__opal",
+            "-1;1"
         ),
         val info: GUIItemSlot = GUIItemSlot(
             "itemsadder:mcicons__icon_plus name:\"<white>Info\"",

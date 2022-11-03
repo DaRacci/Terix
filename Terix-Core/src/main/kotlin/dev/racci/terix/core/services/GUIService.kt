@@ -281,8 +281,8 @@ public class GUIService(override val plugin: Terix) : Extension<Terix>() {
         this[vecPos(buttons.remainingChanges)] = ItemBuilderDSL.from(Items.lookup(buttons.remainingChanges.display).item) {
             val player = arguments.get(playerArgumentKey)
             val free = player.freeChanges
+            name = Component.empty()
             lore = listOf(
-                Component.empty(),
                 when {
                     free > 0 -> lang.gui.changeFree["amount" to { free }]
                     player.originTime.remaining(terixConfig.intervalBeforeChange) == null -> lang.gui.changeTime.get()
