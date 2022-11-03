@@ -16,7 +16,9 @@ import dev.racci.minix.api.utils.now
 import dev.racci.minix.nms.aliases.toNMS
 import dev.racci.terix.api.Terix
 import dev.racci.terix.api.annotations.OriginEventSelector
+import dev.racci.terix.api.data.ItemMatcher
 import dev.racci.terix.api.dsl.AttributeModifierBuilder
+import dev.racci.terix.api.dsl.FoodPropertyBuilder
 import dev.racci.terix.api.dsl.dslMutator
 import dev.racci.terix.api.origins.enums.EventSelector
 import dev.racci.terix.api.origins.origin.Origin
@@ -34,13 +36,13 @@ import org.bukkit.entity.Player
 import org.bukkit.event.entity.EntityDamageByEntityEvent
 import org.bukkit.event.entity.EntityDamageEvent
 import org.bukkit.inventory.ItemStack
+import org.bukkit.inventory.meta.PotionMeta
 import org.bukkit.potion.PotionEffectType
+import org.bukkit.potion.PotionType
 import java.time.Duration
 import kotlin.reflect.KFunction
 import kotlin.time.Duration.Companion.seconds
 
-// TODO -> Top food is a bottle of water.
-// TODO -> Water melon, Honey, and soup / stew (No rabbit stew) is good too.
 // TODO -> CAke.
 public class SlimeOrigin(override val plugin: Terix) : Origin() {
 
@@ -82,6 +84,24 @@ public class SlimeOrigin(override val plugin: Terix) : Origin() {
         item {
             material = Material.SLIME_BALL
             lore = "<green>Slime lol"
+        }
+        food {
+            ItemMatcher {
+                this.type == Material.POTION && (this.itemMeta as PotionMeta).basePotionData.type == PotionType.WATER
+            }.foodProperty {
+                this.nutrition = 6
+                this.saturationModifier = 0.2f
+            }
+            listOf(
+                Material.MELON_SLICE,
+                Material.HONEY_BOTTLE,
+                Material.BEETROOT_SOUP,
+                Material.MUSHROOM_STEW,
+                Material.SUSPICIOUS_STEW
+            ) += dslMutator<FoodPropertyBuilder> {
+                this.nutrition = (this.nutrition * 1.5).toInt()
+                this.saturationModifier *= 1.15f
+            }
         }
     }
 
