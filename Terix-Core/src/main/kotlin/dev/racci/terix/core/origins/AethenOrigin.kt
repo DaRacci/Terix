@@ -124,11 +124,13 @@ public class AethenOrigin(override val plugin: Terix) : Origin() {
                         Material.BROWN_DYE
                     } else Material.COCOA_BEANS
 
-                    player.location.clone().apply {
-                        yaw = player.location.yaw - 180
-                        pitch = 45f
-                        add(0.0, -0.5, 0.0)
-                    }.dropItem(item.toItemStack())
+                    sync {
+                        player.location.clone().apply {
+                            yaw = player.location.yaw - 180
+                            pitch = 45f
+                            add(0.0, -0.5, 0.0)
+                        }.dropItem(item.toItemStack())
+                    }
 
                     player.location.playSound(Sound.BLOCK_POINTED_DRIPSTONE_DRIP_WATER_INTO_CAULDRON, 1f, 0.8f)
                 }
