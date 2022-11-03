@@ -8,6 +8,7 @@ import dev.racci.minix.api.events.player.PlayerLiquidEnterEvent
 import dev.racci.minix.api.events.player.PlayerLiquidExitEvent
 import dev.racci.minix.api.extensions.cancel
 import dev.racci.minix.api.extensions.dropItem
+import dev.racci.minix.api.extensions.isSword
 import dev.racci.minix.api.extensions.reflection.castOrThrow
 import dev.racci.minix.api.extensions.taskAsync
 import dev.racci.minix.api.scheduler.CoroutineTask
@@ -28,7 +29,9 @@ import net.kyori.adventure.text.format.TextColor
 import org.bukkit.Material
 import org.bukkit.attribute.Attribute
 import org.bukkit.attribute.AttributeModifier
+import org.bukkit.entity.LivingEntity
 import org.bukkit.entity.Player
+import org.bukkit.event.entity.EntityDamageByEntityEvent
 import org.bukkit.event.entity.EntityDamageEvent
 import org.bukkit.inventory.ItemStack
 import org.bukkit.potion.PotionEffectType
@@ -39,8 +42,6 @@ import kotlin.time.Duration.Companion.seconds
 // TODO -> Top food is a bottle of water.
 // TODO -> Water melon, Honey, and soup / stew (No rabbit stew) is good too.
 // TODO -> CAke.
-// TODO -> More damage from fire and lava (25-50%).
-// TODO -> More damage from swords.
 public class SlimeOrigin(override val plugin: Terix) : Origin() {
 
     override val name: String = "Slime"
@@ -76,7 +77,7 @@ public class SlimeOrigin(override val plugin: Terix) : Origin() {
                 EntityDamageEvent.DamageCause.FIRE,
                 EntityDamageEvent.DamageCause.FIRE_TICK,
                 EntityDamageEvent.DamageCause.HOT_FLOOR
-            ) *= 2.0
+            ) *= 1.5
         }
         item {
             material = Material.SLIME_BALL
@@ -86,12 +87,22 @@ public class SlimeOrigin(override val plugin: Terix) : Origin() {
 
     @RunAsync
     @OriginEventSelector(EventSelector.ENTITY)
-    fun EntityDamageEvent.handle() {
+    public fun EntityDamageEvent.handle() {
         damageCache[entity.castOrThrow()] = now()
     }
 
+    @OriginEventSelector(EventSelector.ENTITY)
+    public fun EntityDamageByEntityEvent.handle() {
+        with(this.damager as? LivingEntity ?: return) {
+            if (this.equipment == null) return
+            if (this.equipment!!.itemInMainHand.type.isSword) {
+                this@handle.damage *= 1.5
+            }
+        }
+    }
+
     @OriginEventSelector(EventSelector.PLAYER)
-    fun PlayerLiquidEnterEvent.handle() {
+    public fun PlayerLiquidEnterEvent.handle() {
         if (newType != LiquidType.WATER) return
 
         healthCache.putEnterTask(player) {
@@ -106,7 +117,7 @@ public class SlimeOrigin(override val plugin: Terix) : Origin() {
     }
 
     @OriginEventSelector(EventSelector.PLAYER)
-    fun PlayerLiquidExitEvent.onExitLiquid() {
+    public fun PlayerLiquidExitEvent.onExitLiquid() {
         if (previousType != LiquidType.WATER) return
 
         healthCache.putExitTask(player) {
@@ -137,7 +148,7 @@ public class SlimeOrigin(override val plugin: Terix) : Origin() {
         .build<Player, Instant>()
 
     @OriginEventSelector(EventSelector.ENTITY)
-    fun onDamage(event: EntityDamageEvent) {
+    public fun onDamage(event: EntityDamageEvent) {
         val last = lastDamage.getIfPresent(event.entity.castOrThrow())
         val now = now()
 
