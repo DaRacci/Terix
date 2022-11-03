@@ -21,11 +21,16 @@ public class MotherTicker(
                 }
             }
 
+            if (child.player.isDead) {
+                continue
+            }
+
             this.supervisor.launch(dispatcher.get()) { child.run() }
         }
     }
 
     public suspend fun endSuffering() {
+        logger.debug { "Ending suffering of ${children.size} children." }
         for (child in children) {
             if (!child.isAlive) continue
             child.coatHanger()
