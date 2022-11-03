@@ -7,6 +7,7 @@ import dev.racci.minix.api.extensions.WithPlugin
 import dev.racci.minix.api.plugin.MinixPlugin
 import dev.racci.minix.api.utils.collections.muiltimap.MutableMultiMap
 import dev.racci.minix.api.utils.collections.multiMapOf
+import dev.racci.terix.api.data.ItemMatcher
 import dev.racci.terix.api.dsl.TimedAttributeBuilder
 import dev.racci.terix.api.dsl.TitleBuilder
 import dev.racci.terix.api.exceptions.OriginCreationException
@@ -71,6 +72,7 @@ public sealed class OriginValues : WithPlugin<MinixPlugin> {
 
     public val abilities: MutableMap<KeyBinding, Ability> by lazy(::mutableMapOf)
 
+    public val customMatcherFoodProperties: HashMap<ItemMatcher, FoodProperties> by lazy(::hashMapOf)
     public val customFoodProperties: HashMap<Material, FoodProperties> by lazy(::hashMapOf)
     public val customFoodActions: MutableMultiMap<Material, Either<ActionPropBuilder, TimedAttributeBuilder>> by lazy(::multiMapOf)
 

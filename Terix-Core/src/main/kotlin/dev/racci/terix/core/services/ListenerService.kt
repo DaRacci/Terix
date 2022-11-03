@@ -339,7 +339,7 @@ public class ListenerService(override val plugin: Terix) : Extension<Terix>() {
         val hand = serverPlayer.usedItemHand
         val itemStack = serverPlayer.getItemInHand(hand)
 
-        val foodInfo = origin.customFoodProperties[event.item!!.type] ?: itemStack.item.foodProperties
+        val foodInfo = origin.customMatcherFoodProperties.entries.find { it.key.matches(event.item!!) }?.value ?: origin.customFoodProperties[event.item!!.type] ?: itemStack.item.foodProperties
         val foodActions = origin.customFoodActions[event.item!!.type]
 
         if (foodInfo == null && foodActions == null) return
@@ -522,5 +522,5 @@ public class ListenerService(override val plugin: Terix) : Extension<Terix>() {
         player.playSound(sound.resourceKey.asString(), sound.volume, sound.pitch, sound.distance)
     }
 
-    companion object : ExtensionCompanion<ListenerService>()
+    public companion object : ExtensionCompanion<ListenerService>()
 }

@@ -7,6 +7,7 @@ import com.github.benmanes.caffeine.cache.LoadingCache
 import dev.racci.minix.api.annotations.MinixDsl
 import dev.racci.minix.api.extensions.reflection.castOrThrow
 import dev.racci.terix.api.OriginService
+import dev.racci.terix.api.data.ItemMatcher
 import dev.racci.terix.api.dsl.AttributeModifierBuilder
 import dev.racci.terix.api.dsl.DSLMutator
 import dev.racci.terix.api.dsl.FoodPropertyBuilder
@@ -362,6 +363,16 @@ public sealed class OriginBuilder : OriginValues() {
             customFoodProperties[material] = builder.on(propBuilder).get()
         }
 
+        /** Creates a Food Property with a relation to an [ItemMatcher]. */
+        @JvmName("modifyFoodSingle")
+        public fun modifyFood(
+            builder: DSLMutator<FoodPropertyBuilder>,
+            matcher: ItemMatcher
+        ) {
+            val propBuilder = FoodPropertyBuilder(customMatcherFoodProperties[matcher])
+            customMatcherFoodProperties[matcher] = builder.on(propBuilder).get()
+        }
+
         /** Modifies or Creates a Food Property on each item of the collection. */
         @JvmName("modifyFoodIterable")
         public fun modifyFood(
@@ -549,6 +560,8 @@ public sealed class OriginBuilder : OriginValues() {
         @OverloadResolutionByLambdaReturnType
         @JvmName("plusMaterialSingle")
         public operator fun Material.plus(number: Number): Unit = plusFood(this, number)
+
+        public fun ItemMatcher.foodProperty(builder: FoodPropertyBuilder.() -> Unit): Unit = modifyFood(dslMutator(builder), this)
     }
 
     /** A Utility class for building abilities. */
