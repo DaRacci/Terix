@@ -149,7 +149,7 @@ public class ListenerService(override val plugin: Terix) : Extension<Terix>() {
 
         event<PlayerJoinEvent>(forceAsync = true) {
             val origin = TerixPlayer.cachedOrigin(player)
-            removeUnfulfilledOrInvalidAttributes(player) // Sometimes we can miss some attributes, so we need to remove them
+            removeUnfulfilledOrInvalidAttributes(player, origin) // Sometimes we can miss some attributes, so we need to remove them
             activateOrigin(player, origin)
 
             delay(0.250.seconds)
@@ -157,9 +157,8 @@ public class ListenerService(override val plugin: Terix) : Extension<Terix>() {
         }
 
         event<PlayerPostRespawnEvent>(forceAsync = true) {
-            removeUnfulfilledOrInvalidAttributes(player)
-
             val origin = TerixPlayer.cachedOrigin(player)
+            removeUnfulfilledOrInvalidAttributes(player, origin)
             activateOrigin(player, origin)
 
             player.health = player.getAttribute(Attribute.GENERIC_MAX_HEALTH)!!.value
@@ -276,7 +275,7 @@ public class ListenerService(override val plugin: Terix) : Extension<Terix>() {
 
             transaction(getKoin().getProperty("terix:database")) { TerixPlayer[player.uniqueId].origin = newOrigin }
             OriginHelper.changeTo(player, preOrigin, newOrigin) // TODO: This should cover the removeUnfulfilled method
-            removeUnfulfilledOrInvalidAttributes(player)
+            removeUnfulfilledOrInvalidAttributes(player, newOrigin)
 
             lang.origin.broadcast[
                 "player" to { player.displayName() },
@@ -472,11 +471,11 @@ public class ListenerService(override val plugin: Terix) : Extension<Terix>() {
 
     private fun removeUnfulfilledOrInvalidAttributes(
         player: Player,
+        origin: Origin,
         activeTriggers: Set<State> = State.getPlayerStates(player)
     ) {
         for (attribute in Attribute.values()) {
             val inst = player.getAttribute(attribute) ?: continue
-            val origin = TerixPlayer.cachedOrigin(player)
 
             for (modifier in inst.modifiers) {
                 val match = AttributeModifierBuilder.regex.find(modifier.name)?.groups ?: continue

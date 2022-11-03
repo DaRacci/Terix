@@ -4,6 +4,7 @@ import arrow.core.Either
 import arrow.core.Predicate
 import arrow.core.left
 import arrow.core.right
+import com.destroystokyo.paper.event.player.PlayerPostRespawnEvent
 import dev.racci.minix.api.annotations.MappedExtension
 import dev.racci.minix.api.data.enums.LiquidType
 import dev.racci.minix.api.data.enums.LiquidType.Companion.liquidType
@@ -19,6 +20,7 @@ import dev.racci.minix.nms.aliases.toNMS
 import dev.racci.terix.api.OriginService
 import dev.racci.terix.api.Terix
 import dev.racci.terix.api.TerixPlayer
+import dev.racci.terix.api.TerixPlayer.User.origin
 import dev.racci.terix.api.events.PlayerOriginChangeEvent
 import dev.racci.terix.api.origins.origin.Origin
 import dev.racci.terix.api.origins.states.State
@@ -96,7 +98,6 @@ public class TickService(override val plugin: Terix) : Extension<Terix>() {
 
         event<PlayerJoinEvent>(EventPriority.MONITOR, true) {
             val origin = TerixPlayer.cachedOrigin(player)
-
             rehabMother(player, origin)
 
             if (!removeQueue.remove(player.uniqueId)) {
@@ -108,6 +109,10 @@ public class TickService(override val plugin: Terix) : Extension<Terix>() {
 
         event<PlayerQuitEvent> {
             removeQueue.add(player.uniqueId)
+        }
+
+        event<PlayerPostRespawnEvent> {
+            delayChannel.trySend(Unit) // Gets locked if there was only one player online. (Fuck you weird behaviour)
         }
 
         event<PlayerOriginChangeEvent> {
@@ -123,7 +128,10 @@ public class TickService(override val plugin: Terix) : Extension<Terix>() {
     private suspend fun startTicker() = launch(dispatcher.get()) {
         flow {
             while (state != ExtensionState.DISABLED) {
-                if (!loaded || onlinePlayers.isEmpty()) delayChannel.receive() // Wait for players to join or for this to load.
+                if (!loaded || onlinePlayers.isEmpty()) {
+                    logger.debug { "Awaiting players..." }
+                    delayChannel.receive()
+                } // Wait for players to join or for this to load.
 
                 if (playerQueue.isEmpty()) {
                     delay(10); continue
@@ -136,12 +144,10 @@ public class TickService(override val plugin: Terix) : Extension<Terix>() {
             .buffer()
             .onEach(internalFlow::emit)
             .collect { player ->
-                async {
-                    yield()
-                    delay(TICK_RATE.ticks)
-                    if (removeQueue.remove(player.uniqueId)) return@async
-                    mutex.withLock { playerQueue.addLast(player) }
-                }
+                yield()
+                delay(TICK_RATE.ticks)
+                if (removeQueue.remove(player.uniqueId)) return@collect
+                mutex.withLock { playerQueue.addLast(player) }
             }
     }
 
@@ -155,6 +161,8 @@ public class TickService(override val plugin: Terix) : Extension<Terix>() {
     private fun runTicker(
         player: Player
     ) {
+        if (player.isDead) return // Don't run ticks for dead players.
+
         val nmsPlayer = player.toNMS()
         val level = nmsPlayer.level
         val pos = BlockPos(nmsPlayer.x.roundToInt(), nmsPlayer.eyeY.roundToInt(), nmsPlayer.z.roundToInt()) // Player.eyePosition
