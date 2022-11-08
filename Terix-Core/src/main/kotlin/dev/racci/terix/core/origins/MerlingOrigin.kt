@@ -3,7 +3,10 @@ package dev.racci.terix.core.origins
 import com.destroystokyo.paper.MaterialTags
 import dev.racci.minix.api.extensions.cancel
 import dev.racci.minix.api.utils.minecraft.MaterialTagsExtension
+import dev.racci.minix.nms.aliases.toNMS
+import dev.racci.tentacles.Tentacles
 import dev.racci.terix.api.Terix
+import dev.racci.terix.api.TerixPlayer
 import dev.racci.terix.api.annotations.OriginEventSelector
 import dev.racci.terix.api.dsl.FoodPropertyBuilder
 import dev.racci.terix.api.dsl.dslMutator
@@ -13,8 +16,11 @@ import dev.racci.terix.api.origins.origin.Origin
 import dev.racci.terix.api.origins.sounds.SoundEffect
 import dev.racci.terix.api.origins.states.State
 import dev.racci.terix.core.services.ListenerService
+import kotlinx.datetime.Instant
 import net.kyori.adventure.text.format.TextColor
+import net.minecraft.tags.FluidTags
 import org.bukkit.Material
+import org.bukkit.NamespacedKey
 import org.bukkit.attribute.Attribute
 import org.bukkit.enchantments.Enchantment
 import org.bukkit.entity.EntityType
@@ -47,7 +53,6 @@ public class MerlingOrigin(override val plugin: Terix) : Origin() {
         sounds.ambientSound = SoundEffect("entity.salmon.ambient")
 
         attributes {
-            State.LiquidState.WATER to Attribute.GENERIC_MOVEMENT_SPEED *= 1.2
             State.LiquidState.LAND to Attribute.GENERIC_MOVEMENT_SPEED *= 0.75
             State.LiquidState.WATER to Attribute.GENERIC_ATTACK_DAMAGE *= 1.2
             State.LiquidState.WATER to Attribute.GENERIC_KNOCKBACK_RESISTANCE *= 0.80
@@ -69,13 +74,13 @@ public class MerlingOrigin(override val plugin: Terix) : Origin() {
             State.LiquidState.WATER += dslMutator {
                 type = PotionEffectType.NIGHT_VISION
                 duration = Duration.INFINITE
-                amplifier = 0
+                amplifier = -1
                 ambient = true
             }
             State.LiquidState.WATER += dslMutator {
-                type = PotionEffectType.FAST_DIGGING
+                type = PotionEffectType.DOLPHINS_GRACE
                 duration = Duration.INFINITE
-                amplifier = 4
+                amplifier = -1
                 ambient = true
             }
         }
@@ -98,16 +103,22 @@ public class MerlingOrigin(override val plugin: Terix) : Origin() {
                 <aqua>It's not clear what it is.
             """.trimIndent()
         }
+
+        Tentacles.addGlobalMiningModifier(NamespacedKey(plugin, "merling_mining")) { player, _ ->
+            if (!player.toNMS().isEyeInFluid(FluidTags.WATER) || TerixPlayer.cachedOrigin(player) !== this@MerlingOrigin) return@addGlobalMiningModifier null
+
+            if (player.isOnGround) {
+                5F
+            } else 25F
+        }
     }
 
     override suspend fun handleBecomeOrigin(event: PlayerOriginChangeEvent) {
         event.player.isReverseOxygen = true
-        plugin.log.debug { "oxygen: ${event.player.isReverseOxygen}" }
     }
 
     override suspend fun handleChangeOrigin(event: PlayerOriginChangeEvent) {
         event.player.isReverseOxygen = false
-        plugin.log.debug { "oxygen: ${event.player.isReverseOxygen}" }
     }
 
     @OriginEventSelector(EventSelector.TARGET)
@@ -135,14 +146,14 @@ public class MerlingOrigin(override val plugin: Terix) : Origin() {
 
     @OriginEventSelector(EventSelector.PLAYER)
     public fun PlayerRiptideEvent.handle() {
-        player.velocity = player.velocity.multiply(1.5)
+        player.velocity = player.velocity.multiply(3.0)
     }
 
     @OriginEventSelector(EventSelector.PLAYER)
     public fun PlayerItemConsumeEvent.handle() {
         if ((item.itemMeta as? PotionMeta)?.basePotionData?.type != PotionType.WATER) return
 
-        player.remainingAir = (player.remainingAir + 2).coerceAtMost(player.maximumAir)
+        player.remainingAir = (player.remainingAir + 20).coerceAtMost(player.maximumAir)
     }
 
     @OriginEventSelector(EventSelector.ENTITY)
@@ -154,33 +165,6 @@ public class MerlingOrigin(override val plugin: Terix) : Origin() {
         val helmet = player.inventory.helmet ?: return
         if (helmet.type == Material.TURTLE_HELMET || helmet.enchantments.containsKey(Enchantment.OXYGEN)) return event.cancel()
     }
-
-    // TODO -> Fix inside tentacles then remove here
-//    override suspend fun onInteract(event: PlayerInteractEvent) {
-//        val player = event.player.toNMS()
-//
-//        if (event.action == Action.LEFT_CLICK_BLOCK) {
-//            val packet = ClientboundBlockDestructionPacket(
-//                event.player.entityId,
-//                BlockPos(
-//                    event.clickedBlock!!.x,
-//                    event.clickedBlock!!.y,
-//                    event.clickedBlock!!.z
-//                ),
-//                3
-//            )
-//            try {
-//                val field: Field = packet.getClass()
-//                    .getDeclaredField("a")
-//                field.setAccessible(true) // allows us to access the field
-//                field.setInt(packet, 123) // sets the field to an integer
-//                field.setAccessible(!field.isAccessible()) // we want to stop accessing this now
-//            } catch (x: Exception) {
-//                x.printStackTrace()
-//            }
-//            p.getHandle().playerConnection.sendPacket(packet)
-//        }
-//    }
 
     private companion object {
         val MARINE_FRIENDS = arrayOf(EntityType.DROWNED, EntityType.GUARDIAN, EntityType.PUFFERFISH)
