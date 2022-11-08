@@ -16,6 +16,6 @@ import org.bukkit.event.EventPriority
 @Retention(AnnotationRetention.RUNTIME)
 public annotation class OriginEventSelector(
     val selector: EventSelector,
-    val priority: EventPriority = EventPriority.NORMAL,
+    val priority: EventPriority = EventPriority.HIGHEST,
     val ignoreCancelled: Boolean = true
 )
