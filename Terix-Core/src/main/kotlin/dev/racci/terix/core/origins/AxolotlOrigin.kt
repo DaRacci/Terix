@@ -7,6 +7,7 @@ import dev.racci.terix.api.origins.origin.Origin
 import dev.racci.terix.api.origins.sounds.SoundEffect
 import net.kyori.adventure.text.format.TextColor
 import org.bukkit.Material
+import org.bukkit.attribute.Attribute
 import org.bukkit.entity.LivingEntity
 import org.bukkit.event.entity.EntityDamageByEntityEvent
 
@@ -30,6 +31,10 @@ public class AxolotlOrigin(override val plugin: Terix) : Origin() {
                 Material.TROPICAL_FISH,
                 Material.KELP
             ) *= 2.0
+        }
+
+        attributes {
+            Attribute.GENERIC_MAX_HEALTH *= 0.65
         }
 
         item {
