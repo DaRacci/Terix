@@ -2,6 +2,49 @@
 All notable changes to this project will be documented in this file. See [conventional commits](https://www.conventionalcommits.org/) for commit guidelines.
 
 - - -
+## [v1.1.0](https://github.com/DaRacci/Terix/compare/v1.0.1..v1.1.0) - 2022-11-08
+#### Bug Fixes
+- **(Slime)** Health bonus - ([2e17405](https://github.com/DaRacci/Terix/commit/2e1740537f4bf20e07d718791ff216efb724b438)) - [@DaRacci](https://github.com/DaRacci)
+- **(TickServer)** Edge case - ([29c3da6](https://github.com/DaRacci/Terix/commit/29c3da6fd0f5b8b589633151d9327ec1d7397ff2)) - [@DaRacci](https://github.com/DaRacci)
+- Set event priority to HIGHEST - ([a7bec05](https://github.com/DaRacci/Terix/commit/a7bec052f7fefbc54a405edf2f5cacb80344db30)) - [@DaRacci](https://github.com/DaRacci)
+- Don't tick children if the player is dead - ([4311ead](https://github.com/DaRacci/Terix/commit/4311ead58cc2ff44eeb63782422edaaa567f9f28)) - [@DaRacci](https://github.com/DaRacci)
+- Stupid JVM signatures - ([05d6adb](https://github.com/DaRacci/Terix/commit/05d6adbe117c47f67952c1c0f60e0af3c852aab9)) - [@DaRacci](https://github.com/DaRacci)
+- Non asyncable item drop - ([5840900](https://github.com/DaRacci/Terix/commit/5840900515feaceccb4a42cc4a2ca6f0ca7ef93d)) - [@DaRacci](https://github.com/DaRacci)
+- No longer needed - ([217115a](https://github.com/DaRacci/Terix/commit/217115a062351f13c24e6f9f6eeb70978e0d8857)) - [@DaRacci](https://github.com/DaRacci)
+- on enable not load - ([552eff6](https://github.com/DaRacci/Terix/commit/552eff6f32a56a89a5d0334fb36b55478ff9a267)) - [@DaRacci](https://github.com/DaRacci)
+- Activate listeners - ([22369b9](https://github.com/DaRacci/Terix/commit/22369b93b9327a78f1b7f37db4dbf85104c1eb85)) - [@DaRacci](https://github.com/DaRacci)
+- Set Command skips requirements - ([be655c2](https://github.com/DaRacci/Terix/commit/be655c2db2a3e8ccdad9b8835f01925651610be4)) - [@DaRacci](https://github.com/DaRacci)
+- NullPointer - ([47d3c5c](https://github.com/DaRacci/Terix/commit/47d3c5cd902f81c4248534848b73712a910f2648)) - [@DaRacci](https://github.com/DaRacci)
+- Invalid attributes - ([c6ffa1b](https://github.com/DaRacci/Terix/commit/c6ffa1b993811b0bc44d31d6235561aa2d3659ab)) - [@DaRacci](https://github.com/DaRacci)
+- On server shutdown onQuit isn't called so we do it here - ([5eedebe](https://github.com/DaRacci/Terix/commit/5eedebe68856972d6b4a0691fb2f438502272d50)) - [@DaRacci](https://github.com/DaRacci)
+- cog bump script and source jar for api - ([94b58d5](https://github.com/DaRacci/Terix/commit/94b58d50acc7742c3f977cdf9a588a7675eef77e)) - [@DaRacci](https://github.com/DaRacci)
+#### Features
+- **(Blizz)** Snow trail and water walking - ([c4259c9](https://github.com/DaRacci/Terix/commit/c4259c90a606557efad7a8e20a04bf2206726ac0)) - [@DaRacci](https://github.com/DaRacci)
+- **(Dragon)** Attributes and stuff - ([07087ae](https://github.com/DaRacci/Terix/commit/07087ae6a5159ee34930d5731efe5b333e092f19)) - [@DaRacci](https://github.com/DaRacci)
+- **(Dragon)** Dragons Breath Ability - ([51fa416](https://github.com/DaRacci/Terix/commit/51fa41606eddca8c25c3c54b74f5aa4454c6b4f5)) - [@DaRacci](https://github.com/DaRacci)
+- **(Merling)** Add haste to merlings underwater - ([1f17441](https://github.com/DaRacci/Terix/commit/1f17441086ee1ecbdd60187e6e801fedfab9cd3a)) - [@DaRacci](https://github.com/DaRacci)
+- **(Slime)** Implement food changes - ([d272a3a](https://github.com/DaRacci/Terix/commit/d272a3ad574cc7900c3b436f64cba16313db6279)) - [@DaRacci](https://github.com/DaRacci)
+- **(Slime)** 50% more damage from swords - ([09ff2e1](https://github.com/DaRacci/Terix/commit/09ff2e11c95dd671086e7a43f8cb677dbd5bb8b8)) - [@DaRacci](https://github.com/DaRacci)
+- ItemMatcher - ([41ca7a4](https://github.com/DaRacci/Terix/commit/41ca7a4ff19914fd3120e396cab3d536825fed27)) - [@DaRacci](https://github.com/DaRacci)
+- GUI Stuff - ([14bcbaf](https://github.com/DaRacci/Terix/commit/14bcbafdbcfa8717729efe1c89a18b2b3bc410d3)) - [@DaRacci](https://github.com/DaRacci)
+- Isolate Abilities per origin, and fix levitation bug - ([06440ff](https://github.com/DaRacci/Terix/commit/06440ff1116ec261ae6e734f37202959cccce8e4)) - [@DaRacci](https://github.com/DaRacci)
+- Explicit grants that skip requirements - ([a9e8e31](https://github.com/DaRacci/Terix/commit/a9e8e3170ef531eaeaa3c2b59b178d4ad0e6e903)) - [@DaRacci](https://github.com/DaRacci)
+#### Miscellaneous Chores
+- TODO notes - ([179c696](https://github.com/DaRacci/Terix/commit/179c6961d960ef12742f159a1f23647fea7fbff5)) - [@DaRacci](https://github.com/DaRacci)
+#### Refactoring
+- **(Axolotl)** Reduce health - ([a9d129c](https://github.com/DaRacci/Terix/commit/a9d129c435fd5125cd6a82b3c61f8b3ace82ae14)) - [@DaRacci](https://github.com/DaRacci)
+- **(GUI)** Changes - ([3f4d1fb](https://github.com/DaRacci/Terix/commit/3f4d1fb50be7c465858b5421ba249314d9f980b9)) - [@DaRacci](https://github.com/DaRacci)
+- **(GUIService)** Rewrite in interface library - ([ec0cc96](https://github.com/DaRacci/Terix/commit/ec0cc96f6729fbee5b9edce6e7c55a694a3988e1)) - [@DaRacci](https://github.com/DaRacci)
+- **(ListenerService)** Fixes cleanup and event priority - ([eb0f6ea](https://github.com/DaRacci/Terix/commit/eb0f6ea6710d19c0c2d67820a4cfce2803b4a39b)) - [@DaRacci](https://github.com/DaRacci)
+- gradle cleanup and minix conventions version - ([c0e5bfc](https://github.com/DaRacci/Terix/commit/c0e5bfc60a27d998e04b8255d66b682ac91e2230)) - [@DaRacci](https://github.com/DaRacci)
+- MerlingOrigin - ([79750a8](https://github.com/DaRacci/Terix/commit/79750a878901ab1cd8dedc01c52691b67bf92b28)) - [@DaRacci](https://github.com/DaRacci)
+#### Style
+- **(GUI)** Button location - ([c5d72a5](https://github.com/DaRacci/Terix/commit/c5d72a5edc297fc54f782aea0ffabb85043664b4)) - [@DaRacci](https://github.com/DaRacci)
+- ExplicitAPI changes - ([da5b5ba](https://github.com/DaRacci/Terix/commit/da5b5ba4f34aa0896d15e060314a440cfcaf0e89)) - [@DaRacci](https://github.com/DaRacci)
+- ExplicitAPI changes - ([ed36135](https://github.com/DaRacci/Terix/commit/ed3613585a416339baf23e277d7eb64083801a56)) - [@DaRacci](https://github.com/DaRacci)
+
+- - -
+
 ## [v1.0.1](https://github.com/DaRacci/Terix/compare/v1.0.0..v1.0.1) - 2022-10-31
 #### Bug Fixes
 - **(Aethen)** Ghost light sources - ([3d1ef87](https://github.com/DaRacci/Terix/commit/3d1ef87294c85139987213b9a5782775068340d0)) - [@DaRacci](https://github.com/DaRacci)
