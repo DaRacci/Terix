@@ -21,6 +21,7 @@ import dev.racci.minix.api.extensions.onlinePlayers
 import dev.racci.minix.api.extensions.pdc
 import dev.racci.minix.api.extensions.reflection.safeCast
 import dev.racci.minix.api.extensions.scheduler
+import dev.racci.minix.api.flow.eventFlow
 import dev.racci.minix.api.services.DataService
 import dev.racci.minix.api.services.DataService.Companion.inject
 import dev.racci.minix.api.utils.now
@@ -49,11 +50,20 @@ import dev.racci.terix.core.data.Lang
 import dev.racci.terix.core.extensions.message
 import dev.racci.terix.core.extensions.originTime
 import dev.racci.terix.core.origins.DragonOrigin
+import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.channels.onFailure
 import kotlinx.coroutines.channels.onSuccess
 import kotlinx.coroutines.delay
+import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.filter
+import kotlinx.coroutines.flow.filterNot
+import kotlinx.coroutines.flow.launchIn
+import kotlinx.coroutines.flow.map
+import kotlinx.coroutines.flow.mapNotNull
+import kotlinx.coroutines.flow.onEach
+import kotlinx.coroutines.newCoroutineContext
 import net.minecraft.advancements.CriteriaTriggers
 import net.minecraft.server.level.ServerPlayer
 import net.minecraft.stats.Stats
@@ -96,7 +106,7 @@ public class ListenerService(override val plugin: Terix) : Extension<Terix>() {
 
     @Suppress("kotlin:S3776")
     override suspend fun handleEnable() {
-        event<BeaconEffectEvent>(priority = EventPriority.LOWEST) {
+        event<BeaconEffectEvent>(EventPriority.HIGH, true) {
             if (shouldIgnore()) return@event
 
             player.getPotionEffect(effect.type)?.let { potion ->
@@ -104,33 +114,6 @@ public class ListenerService(override val plugin: Terix) : Extension<Terix>() {
                     potion.key?.asString()?.matches(PotionEffectBuilder.regex) == true
                 ) return@event cancel()
             }
-        }
-
-        event<EntityPickupItemEvent>(EventPriority.MONITOR, true) {
-            if (this.item.itemStack.type != Material.DRAGON_EGG) return@event
-            if (this.entity !is Player) return@event
-
-            with(this.entity.pdc) {
-                if (!this.has(DragonOrigin.CRADLE_KEY, PersistentDataType.BYTE)) {
-                    this.set(DragonOrigin.CRADLE_KEY, PersistentDataType.BYTE, 1)
-                    logger.debug { "${entity.name} has fulfilled the cradle requirement for the Dragon Origin." }
-                } else logger.debug { "${entity.name} has already fulfilled the cradle requirement" }
-            }
-        }
-
-        event<PlayerDeathEvent>(EventPriority.MONITOR, true) {
-            if (this.entity.killer !is Player) return@event logger.debug { "Killer is not a player" }
-
-            val key = when (this.entity.killer!!.world.environment) {
-                World.Environment.NORMAL -> DragonOrigin.KILL_OVERWORLD_KEY
-                World.Environment.NETHER -> DragonOrigin.KILL_NETHER_KEY
-                World.Environment.THE_END -> DragonOrigin.KILL_END_KEY
-                else -> return@event logger.debug { "Environment is not a valid origin environment" }
-            }
-
-            val current = this.entity.killer!!.pdc.get(key, PersistentDataType.INTEGER) ?: 0
-            this.entity.killer!!.pdc.set(key, PersistentDataType.INTEGER, current + 1)
-            logger.debug { "${entity.killer!!.name} has now killed ${current + 1} players in the ${this.entity.killer!!.world.name}." }
         }
 
         event<EntityShootBowEvent>(EventPriority.MONITOR, true) {
@@ -166,9 +149,6 @@ public class ListenerService(override val plugin: Terix) : Extension<Terix>() {
 
         event<EntityPotionEffectEvent> { if (shouldCancel()) cancel() }
 
-        event<PlayerLiquidEnterEvent> { convertLiquidToState(previousType).exchange(player, TerixPlayer.cachedOrigin(player), convertLiquidToState(newType)) }
-        event<PlayerLiquidExitEvent> { convertLiquidToState(previousType).exchange(player, TerixPlayer.cachedOrigin(player), convertLiquidToState(newType)) }
-
         event<WorldNightEvent>(forceAsync = true) { switchTimeStates(State.TimeState.NIGHT) }
         event<WorldDayEvent>(forceAsync = true) { switchTimeStates(State.TimeState.DAY) }
 
@@ -188,10 +168,7 @@ public class ListenerService(override val plugin: Terix) : Extension<Terix>() {
             if (ensureNoFire(player, TerixPlayer.cachedOrigin(player))) cancel()
         }
 
-        event<EntityDamageEvent>(
-            ignoreCancelled = true,
-            priority = EventPriority.HIGHEST
-        ) {
+        event<EntityDamageEvent>(EventPriority.HIGH, true) {
             val player = entity as? Player ?: return@event
             val origin = TerixPlayer.cachedOrigin(player)
 
@@ -199,14 +176,7 @@ public class ListenerService(override val plugin: Terix) : Extension<Terix>() {
                 origin.damageActions[cause]?.invoke(this) != null &&
                 damage == 0.0
             ) return@event cancel()
-
-            originSound(player, origin, SoundEffects::hurtSound)
         }
-
-        event<PlayerDeathEvent>(
-            ignoreCancelled = true,
-            priority = EventPriority.HIGHEST
-        ) { originSound(player, TerixPlayer.cachedOrigin(player), SoundEffects::hurtSound) }
 
         event<FoodLevelChangeEvent>(EventPriority.LOWEST) {
             val player = entity as? Player ?: return@event
@@ -325,6 +295,54 @@ public class ListenerService(override val plugin: Terix) : Extension<Terix>() {
             priority = EventPriority.MONITOR,
             ignoreCancelled = true
         ) { TerixPlayer.cachedOrigin(player).handleLoad(player) }
+
+        this.stateHandlers()
+        this.soundHandlers()
+        this.requirementHandlers()
+    }
+
+    private fun stateHandlers() {
+        event<PlayerLiquidEnterEvent> { convertLiquidToState(previousType).exchange(player, TerixPlayer.cachedOrigin(player), convertLiquidToState(newType)) }
+        event<PlayerLiquidExitEvent> { convertLiquidToState(previousType).exchange(player, TerixPlayer.cachedOrigin(player), convertLiquidToState(newType)) }
+    }
+
+    private fun soundHandlers() {
+        fun emitSound(
+            player: Player,
+            origin: Origin,
+            function: KProperty1<SoundEffects, SoundEffect>
+        ) {
+            if (OriginHelper.shouldIgnorePlayer(player)) return
+
+            val sound = function.get(origin.sounds)
+            player.playSound(sound.resourceKey.asString(), sound.volume, sound.pitch, sound.distance)
+        }
+
+        eventFlow<PlayerDeathEvent>(priority = EventPriority.MONITOR, ignoreCancelled = true)
+            .subscribe { event -> emitSound(event.entity, TerixPlayer.cachedOrigin(event.entity), SoundEffects::deathSound) }
+
+        eventFlow<EntityDamageEvent>(priority = EventPriority.MONITOR, ignoreCancelled = true)
+            .mapNotNull { event -> event.entity as? Player }
+            .subscribe { player -> emitSound(player, TerixPlayer.cachedOrigin(player), SoundEffects::hurtSound) }
+    }
+
+    private fun requirementHandlers() {
+        eventFlow<EntityPickupItemEvent>(priority = EventPriority.MONITOR, ignoreCancelled = true)
+            .filter { event -> event.item.itemStack.type == Material.DRAGON_EGG }
+            .mapNotNull { event -> event.entity as? Player }
+            .filterNot { player -> player.pdc.has(DragonOrigin.CRADLE_KEY, PersistentDataType.BYTE) }
+            .subscribe { player -> player.pdc.set(DragonOrigin.CRADLE_KEY, PersistentDataType.BYTE, 1) }
+
+        eventFlow<PlayerDeathEvent>(priority = EventPriority.MONITOR, ignoreCancelled = true)
+            .mapNotNull { event -> event.entity.killer }
+            .mapNotNull { killer ->
+                when (killer.world.environment) {
+                    World.Environment.NORMAL -> DragonOrigin.KILL_OVERWORLD_KEY
+                    World.Environment.NETHER -> DragonOrigin.KILL_NETHER_KEY
+                    World.Environment.THE_END -> DragonOrigin.KILL_END_KEY
+                    else -> return@mapNotNull null
+                } to killer.pdc
+            }.subscribe { (key, pdc) -> pdc.set(key, PersistentDataType.INTEGER, pdc.getOrDefault(key, PersistentDataType.INTEGER, 0) + 1) }
     }
 
     private val channels = hashMapOf<UUID, Channel<Boolean>>()
@@ -510,15 +528,9 @@ public class ListenerService(override val plugin: Terix) : Extension<Terix>() {
             }
     }
 
-    private fun originSound(
-        player: Player,
-        origin: Origin,
-        function: KProperty1<SoundEffects, SoundEffect>
-    ) {
-        if (OriginHelper.shouldIgnorePlayer(player)) return
-
-        val sound = function.get(origin.sounds)
-        player.playSound(sound.resourceKey.asString(), sound.volume, sound.pitch, sound.distance)
+    @OptIn(ExperimentalCoroutinesApi::class)
+    private fun <T> Flow<T>.subscribe(action: suspend (T) -> Unit) {
+        this.onEach(action).launchIn(CoroutineScope(supervisor.newCoroutineContext(dispatcher.get())))
     }
 
     public companion object : ExtensionCompanion<ListenerService>()
