@@ -1,0 +1,248 @@
+<!doctype html>
+<html>
+<head>
+    <meta name="viewport" content="width=device-width, initial-scale=1" charset="UTF-8">
+    <title>GUI</title>
+<link href="../../../../images/logo-icon.svg" rel="icon" type="image/svg"><script>var pathToRoot = "../../../../";</script>    <script>const storage = localStorage.getItem("dokka-dark-mode")
+    if (storage == null) {
+        const osDarkSchemePreferred = window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches
+        if (osDarkSchemePreferred === true) {
+            document.getElementsByTagName("html")[0].classList.add("theme-dark")
+        }
+    } else {
+        const savedDarkMode = JSON.parse(storage)
+        if(savedDarkMode === true) {
+            document.getElementsByTagName("html")[0].classList.add("theme-dark")
+        }
+    }
+    </script>
+<script type="text/javascript" src="../../../../scripts/sourceset_dependencies.js" async></script>
+<link href="../../../../styles/style.css" rel="Stylesheet">
+<link href="../../../../styles/jetbrains-mono.css" rel="Stylesheet">
+<link href="../../../../styles/main.css" rel="Stylesheet">
+<link href="../../../../styles/prism.css" rel="Stylesheet">
+<link href="../../../../styles/logo-styles.css" rel="Stylesheet">
+<script type="text/javascript" src="../../../../scripts/clipboard.js" async></script>
+<script type="text/javascript" src="../../../../scripts/navigation-loader.js" async></script>
+<script type="text/javascript" src="../../../../scripts/platform-content-handler.js" async></script>
+<script type="text/javascript" src="../../../../scripts/main.js" defer></script>
+<script type="text/javascript" src="../../../../scripts/prism.js" async></script>
+<script type="text/javascript" src="../../../../scripts/symbol-parameters-wrapper_deferred.js" defer></script></head>
+<body>
+<div class="navigation-wrapper" id="navigation-wrapper">
+    <div id="leftToggler"><span class="icon-toggler"></span></div>
+    <div class="library-name">
+<a href="../../../../index.html">
+<span>Terix</span>            </a>    </div>
+    <div>1.1.0
+    </div>
+    <div class="pull-right d-flex">
+        <button id="theme-toggle-button"><span id="theme-toggle"></span></button>
+        <div id="searchBar"></div>
+    </div>
+</div>
+<div id="container">
+    <div id="leftColumn">
+        <div id="sideMenu"></div>
+    </div>
+    <div id="main">
+<div class="main-content" id="content" pageids="Terix-API::dev.racci.terix.api.data/TerixConfig.GUI///PointingToDeclaration//-1922089379">
+  <div class="breadcrumbs"><a href="../../../index.html">Terix-API</a><span class="delimiter">/</span><a href="../../index.html">dev.racci.terix.api.data</a><span class="delimiter">/</span><a href="../index.html">TerixConfig</a><span class="delimiter">/</span><span class="current">GUI</span></div>
+  <div class="cover ">
+    <h1 class="cover"><span><span>GUI</span></span></h1>
+    <div class="platform-hinted " data-platform-hinted="data-platform-hinted"><div class="content sourceset-dependent-content" data-active="" data-togglable=":Terix-API:dokkaHtmlPartial/main"><div class="symbol monospace"><div class="block"><div class="block"><span class="token annotation builtin">@</span><span data-unresolved-link="org.spongepowered.configurate.objectmapping/ConfigSerializable///PointingToDeclaration/"><span class="token annotation builtin">ConfigSerializable</span></span></div></div><span class="token keyword">data </span><span class="token keyword">class </span><a href="index.html">GUI</a><span class="token punctuation">(</span><span class="parameters "><span class="parameter "><span class="token keyword">val </span>remainingChanges<span class="token operator">: </span><a href="-g-u-i-item-slot/index.html">TerixConfig.GUI.GUIItemSlot</a><span class="token operator"> = </span>GUIItemSlot(
+            "itemsadder:elixirmc__opal",
+            "-1;1"
+        )<span class="token punctuation">, </span></span><span class="parameter "><span class="token keyword">val </span>info<span class="token operator">: </span><a href="-g-u-i-item-slot/index.html">TerixConfig.GUI.GUIItemSlot</a><span class="token operator"> = </span>GUIItemSlot(
+            "itemsadder:mcicons__icon_plus name:\"&lt;white&gt;Info\"",
+            "-1;5",
+            listOf(
+                PartialComponent.of("&lt;i:false&gt;&lt;aqua&gt;Click on an origin to select it."),
+                PartialComponent.of("&lt;i:false&gt;&lt;aqua&gt;Click on the same origin to deselect it."),
+                PartialComponent.of("&lt;i:false&gt;&lt;aqua&gt;Click on the &lt;green&gt;Confirm&lt;/green&gt; button to confirm your selection."),
+                PartialComponent.of("&lt;i:false&gt;&lt;aqua&gt;Click on the &lt;red&gt;Cancel&lt;/red&gt; button to cancel your selection.")
+            )
+        )<span class="token punctuation">, </span></span><span class="parameter "><span class="token keyword">val </span>previousPage<span class="token operator">: </span><a href="-g-u-i-item-slot/index.html">TerixConfig.GUI.GUIItemSlot</a><span class="token operator"> = </span>GUIItemSlot("itemsadder:mcicons__icon_left_blue", "-1;8")<span class="token punctuation">, </span></span><span class="parameter "><span class="token keyword">val </span>nextPage<span class="token operator">: </span><a href="-g-u-i-item-slot/index.html">TerixConfig.GUI.GUIItemSlot</a><span class="token operator"> = </span>GUIItemSlot("itemsadder:mcicons__icon_right_blue", "-1;9")<span class="token punctuation">, </span></span><span class="parameter "><span class="token keyword">val </span>cancelSelection<span class="token operator">: </span><a href="-g-u-i-item-slot/index.html">TerixConfig.GUI.GUIItemSlot</a><span class="token operator"> = </span>GUIItemSlot("itemsadder:mcicons__icon_cancel name:\"&lt;red&gt;Cancel selection\"", "-1;4")<span class="token punctuation">, </span></span><span class="parameter "><span class="token keyword">val </span>confirmSelection<span class="token operator">: </span><a href="-g-u-i-item-slot/index.html">TerixConfig.GUI.GUIItemSlot</a><span class="token operator"> = </span>GUIItemSlot("itemsadder:mcicons__icon_confirm name:\"&lt;green&gt;Confirm Selection\"", "-1;6")</span></span><span class="token punctuation">)</span> : <span data-unresolved-link="dev.racci.minix.api.data/MinixConfig.InnerConfig///PointingToDeclaration/">MinixConfig.InnerConfig</span></div></div></div>
+  </div>
+  <div class="tabbedcontent">
+    <div class="tabs-section" tabs-section="tabs-section"><button class="section-tab" data-active="" data-togglable="Types">Types</button><button class="section-tab" data-togglable="Constructors">Constructors</button><button class="section-tab" data-togglable="Properties">Properties</button></div>
+    <div class="tabs-section-body">
+      <h2 class="tabbedcontent">Constructors</h2>
+      <div class="table" data-togglable="Constructors"><a data-name="-388099673%2FConstructors%2F-1922089379" anchor-label="GUI" id="-388099673%2FConstructors%2F-1922089379" data-filterable-set=":Terix-API:dokkaHtmlPartial/main"></a>
+        <div class="table-row" data-filterable-current=":Terix-API:dokkaHtmlPartial/main" data-filterable-set=":Terix-API:dokkaHtmlPartial/main">
+          <div class="main-subrow keyValue TabbedContent">
+            <div class=""><span class="inline-flex">
+                <div><a href="-g-u-i.html"><span><span>GUI</span></span></a></div>
+<span class="anchor-wrapper"><span class="anchor-icon" pointing-to="-388099673%2FConstructors%2F-1922089379"></span>
+                  <div class="copy-popup-wrapper "><span class="copy-popup-icon"></span><span>Link copied to clipboard</span></div>
+                </span></span></div>
+            <div>
+              <div class="title">
+                <div class="platform-hinted " data-platform-hinted="data-platform-hinted"><div class="content sourceset-dependent-content" data-active="" data-togglable=":Terix-API:dokkaHtmlPartial/main"><div class="symbol monospace"><span class="token keyword"></span><span class="token keyword">fun </span><a href="-g-u-i.html"><span class="token function">GUI</span></a><span class="token punctuation">(</span><span class="parameters "><span class="parameter ">remainingChanges<span class="token operator">: </span><a href="-g-u-i-item-slot/index.html">TerixConfig.GUI.GUIItemSlot</a><span class="token operator"> = </span>GUIItemSlot(
+            "itemsadder:elixirmc__opal",
+            "-1;1"
+        )<span class="token punctuation">, </span></span><span class="parameter ">info<span class="token operator">: </span><a href="-g-u-i-item-slot/index.html">TerixConfig.GUI.GUIItemSlot</a><span class="token operator"> = </span>GUIItemSlot(
+            "itemsadder:mcicons__icon_plus name:\"&lt;white&gt;Info\"",
+            "-1;5",
+            listOf(
+                PartialComponent.of("&lt;i:false&gt;&lt;aqua&gt;Click on an origin to select it."),
+                PartialComponent.of("&lt;i:false&gt;&lt;aqua&gt;Click on the same origin to deselect it."),
+                PartialComponent.of("&lt;i:false&gt;&lt;aqua&gt;Click on the &lt;green&gt;Confirm&lt;/green&gt; button to confirm your selection."),
+                PartialComponent.of("&lt;i:false&gt;&lt;aqua&gt;Click on the &lt;red&gt;Cancel&lt;/red&gt; button to cancel your selection.")
+            )
+        )<span class="token punctuation">, </span></span><span class="parameter ">previousPage<span class="token operator">: </span><a href="-g-u-i-item-slot/index.html">TerixConfig.GUI.GUIItemSlot</a><span class="token operator"> = </span>GUIItemSlot("itemsadder:mcicons__icon_left_blue", "-1;8")<span class="token punctuation">, </span></span><span class="parameter ">nextPage<span class="token operator">: </span><a href="-g-u-i-item-slot/index.html">TerixConfig.GUI.GUIItemSlot</a><span class="token operator"> = </span>GUIItemSlot("itemsadder:mcicons__icon_right_blue", "-1;9")<span class="token punctuation">, </span></span><span class="parameter ">cancelSelection<span class="token operator">: </span><a href="-g-u-i-item-slot/index.html">TerixConfig.GUI.GUIItemSlot</a><span class="token operator"> = </span>GUIItemSlot("itemsadder:mcicons__icon_cancel name:\"&lt;red&gt;Cancel selection\"", "-1;4")<span class="token punctuation">, </span></span><span class="parameter ">confirmSelection<span class="token operator">: </span><a href="-g-u-i-item-slot/index.html">TerixConfig.GUI.GUIItemSlot</a><span class="token operator"> = </span>GUIItemSlot("itemsadder:mcicons__icon_confirm name:\"&lt;green&gt;Confirm Selection\"", "-1;6")</span></span><span class="token punctuation">)</span></div></div></div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+      <h2 class="">Types</h2>
+      <div class="table" data-togglable="Types"><a data-name="-1968388134%2FClasslikes%2F-1922089379" anchor-label="GUIItemSlot" id="-1968388134%2FClasslikes%2F-1922089379" data-filterable-set=":Terix-API:dokkaHtmlPartial/main"></a>
+        <div class="table-row" data-filterable-current=":Terix-API:dokkaHtmlPartial/main" data-filterable-set=":Terix-API:dokkaHtmlPartial/main">
+          <div class="main-subrow keyValue ">
+            <div class=""><span class="inline-flex">
+                <div><a href="-g-u-i-item-slot/index.html"><span>GUIItem</span><wbr><span><span>Slot</span></span></a></div>
+<span class="anchor-wrapper"><span class="anchor-icon" pointing-to="-1968388134%2FClasslikes%2F-1922089379"></span>
+                  <div class="copy-popup-wrapper "><span class="copy-popup-icon"></span><span>Link copied to clipboard</span></div>
+                </span></span></div>
+            <div>
+              <div class="title">
+                <div class="platform-hinted " data-platform-hinted="data-platform-hinted"><div class="content sourceset-dependent-content" data-active="" data-togglable=":Terix-API:dokkaHtmlPartial/main"><div class="symbol monospace"><div class="block"><div class="block"><span class="token annotation builtin">@</span><span data-unresolved-link="org.spongepowered.configurate.objectmapping/ConfigSerializable///PointingToDeclaration/"><span class="token annotation builtin">ConfigSerializable</span></span></div></div><span class="token keyword">data </span><span class="token keyword">class </span><a href="-g-u-i-item-slot/index.html">GUIItemSlot</a><span class="token punctuation">(</span><span class="parameters "><span class="parameter "><span class="token keyword">val </span>display<span class="token operator">: </span><a href="https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-string/index.html">String</a><span class="token punctuation">, </span></span><span class="parameter "><span class="token keyword">val </span>position<span class="token operator">: </span><a href="https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-string/index.html">String</a><span class="token punctuation">, </span></span><span class="parameter "><span class="token keyword">val </span>lore<span class="token operator">: </span><a href="https://kotlinlang.org/api/latest/jvm/stdlib/kotlin.collections/-list/index.html">List</a><span class="token operator">&lt;</span><span class="token keyword"></span><span data-unresolved-link="dev.racci.minix.api.utils.adventure/PartialComponent///PointingToDeclaration/">PartialComponent</span><span class="token operator">&gt;</span><span class="token operator"> = </span>emptyList()<span class="token punctuation">, </span></span><span class="parameter "><span class="token keyword">val </span>commands<span class="token operator">: </span><a href="https://kotlinlang.org/api/latest/jvm/stdlib/kotlin.collections/-list/index.html">List</a><span class="token operator">&lt;</span><span class="token keyword"></span><a href="https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-string/index.html">String</a><span class="token operator">&gt;</span><span class="token operator"> = </span>emptyList()</span></span><span class="token punctuation">)</span></div></div></div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+      <h2 class="">Properties</h2>
+      <div class="table" data-togglable="Properties"><a data-name="1179116129%2FProperties%2F-1922089379" anchor-label="cancelSelection" id="1179116129%2FProperties%2F-1922089379" data-filterable-set=":Terix-API:dokkaHtmlPartial/main"></a>
+        <div class="table-row" data-filterable-current=":Terix-API:dokkaHtmlPartial/main" data-filterable-set=":Terix-API:dokkaHtmlPartial/main">
+          <div class="main-subrow keyValue ">
+            <div class=""><span class="inline-flex">
+                <div><a href="cancel-selection.html"><span>cancel</span><wbr><span><span>Selection</span></span></a></div>
+<span class="anchor-wrapper"><span class="anchor-icon" pointing-to="1179116129%2FProperties%2F-1922089379"></span>
+                  <div class="copy-popup-wrapper "><span class="copy-popup-icon"></span><span>Link copied to clipboard</span></div>
+                </span></span></div>
+            <div>
+              <div class="title">
+                <div class="platform-hinted " data-platform-hinted="data-platform-hinted" data-togglable="Properties"><div class="content sourceset-dependent-content" data-active="" data-togglable=":Terix-API:dokkaHtmlPartial/main"><a data-name="1179116129%2FProperties%2F-1922089379" anchor-label="cancelSelection" id="1179116129%2FProperties%2F-1922089379" data-filterable-set=":Terix-API:dokkaHtmlPartial/main"></a><div class="symbol monospace"><span class="token keyword"></span><span class="token keyword">val </span><a href="cancel-selection.html">cancelSelection</a><span class="token operator">: </span><a href="-g-u-i-item-slot/index.html">TerixConfig.GUI.GUIItemSlot</a></div></div></div>
+              </div>
+            </div>
+          </div>
+        </div>
+<a data-name="-1376928069%2FProperties%2F-1922089379" anchor-label="confirmSelection" id="-1376928069%2FProperties%2F-1922089379" data-filterable-set=":Terix-API:dokkaHtmlPartial/main"></a>
+        <div class="table-row" data-filterable-current=":Terix-API:dokkaHtmlPartial/main" data-filterable-set=":Terix-API:dokkaHtmlPartial/main">
+          <div class="main-subrow keyValue ">
+            <div class=""><span class="inline-flex">
+                <div><a href="confirm-selection.html"><span>confirm</span><wbr><span><span>Selection</span></span></a></div>
+<span class="anchor-wrapper"><span class="anchor-icon" pointing-to="-1376928069%2FProperties%2F-1922089379"></span>
+                  <div class="copy-popup-wrapper "><span class="copy-popup-icon"></span><span>Link copied to clipboard</span></div>
+                </span></span></div>
+            <div>
+              <div class="title">
+                <div class="platform-hinted " data-platform-hinted="data-platform-hinted" data-togglable="Properties"><div class="content sourceset-dependent-content" data-active="" data-togglable=":Terix-API:dokkaHtmlPartial/main"><a data-name="-1376928069%2FProperties%2F-1922089379" anchor-label="confirmSelection" id="-1376928069%2FProperties%2F-1922089379" data-filterable-set=":Terix-API:dokkaHtmlPartial/main"></a><div class="symbol monospace"><span class="token keyword"></span><span class="token keyword">val </span><a href="confirm-selection.html">confirmSelection</a><span class="token operator">: </span><a href="-g-u-i-item-slot/index.html">TerixConfig.GUI.GUIItemSlot</a></div></div></div>
+              </div>
+            </div>
+          </div>
+        </div>
+<a data-name="799011321%2FProperties%2F-1922089379" anchor-label="info" id="799011321%2FProperties%2F-1922089379" data-filterable-set=":Terix-API:dokkaHtmlPartial/main"></a>
+        <div class="table-row" data-filterable-current=":Terix-API:dokkaHtmlPartial/main" data-filterable-set=":Terix-API:dokkaHtmlPartial/main">
+          <div class="main-subrow keyValue ">
+            <div class=""><span class="inline-flex">
+                <div><a href="info.html"><span><span>info</span></span></a></div>
+<span class="anchor-wrapper"><span class="anchor-icon" pointing-to="799011321%2FProperties%2F-1922089379"></span>
+                  <div class="copy-popup-wrapper "><span class="copy-popup-icon"></span><span>Link copied to clipboard</span></div>
+                </span></span></div>
+            <div>
+              <div class="title">
+                <div class="platform-hinted " data-platform-hinted="data-platform-hinted" data-togglable="Properties"><div class="content sourceset-dependent-content" data-active="" data-togglable=":Terix-API:dokkaHtmlPartial/main"><a data-name="799011321%2FProperties%2F-1922089379" anchor-label="info" id="799011321%2FProperties%2F-1922089379" data-filterable-set=":Terix-API:dokkaHtmlPartial/main"></a><div class="symbol monospace"><span class="token keyword"></span><span class="token keyword">val </span><a href="info.html">info</a><span class="token operator">: </span><a href="-g-u-i-item-slot/index.html">TerixConfig.GUI.GUIItemSlot</a></div></div></div>
+              </div>
+            </div>
+          </div>
+        </div>
+<a data-name="-923176638%2FProperties%2F-1922089379" anchor-label="initialized" id="-923176638%2FProperties%2F-1922089379" data-filterable-set=":Terix-API:dokkaHtmlPartial/main"></a>
+        <div class="table-row" data-filterable-current=":Terix-API:dokkaHtmlPartial/main" data-filterable-set=":Terix-API:dokkaHtmlPartial/main">
+          <div class="main-subrow keyValue ">
+            <div class=""><span class="inline-flex">
+                <div><a href="index.html#-923176638%2FProperties%2F-1922089379"><span><span>initialized</span></span></a></div>
+<span class="anchor-wrapper"><span class="anchor-icon" pointing-to="-923176638%2FProperties%2F-1922089379"></span>
+                  <div class="copy-popup-wrapper "><span class="copy-popup-icon"></span><span>Link copied to clipboard</span></div>
+                </span></span></div>
+            <div>
+              <div class="title">
+                <div class="platform-hinted " data-platform-hinted="data-platform-hinted" data-togglable="Properties"><div class="content sourceset-dependent-content" data-active="" data-togglable=":Terix-API:dokkaHtmlPartial/main"><a data-name="-923176638%2FProperties%2F-1922089379" anchor-label="initialized" id="-923176638%2FProperties%2F-1922089379" data-filterable-set=":Terix-API:dokkaHtmlPartial/main"></a><div class="symbol monospace"><span class="token keyword">open </span><span class="token keyword">override </span><span class="token keyword">var </span><a href="index.html#-923176638%2FProperties%2F-1922089379">initialized</a><span class="token operator">: </span><a href="https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-boolean/index.html">Boolean</a></div></div></div>
+              </div>
+            </div>
+          </div>
+        </div>
+<a data-name="1943997445%2FProperties%2F-1922089379" anchor-label="nextPage" id="1943997445%2FProperties%2F-1922089379" data-filterable-set=":Terix-API:dokkaHtmlPartial/main"></a>
+        <div class="table-row" data-filterable-current=":Terix-API:dokkaHtmlPartial/main" data-filterable-set=":Terix-API:dokkaHtmlPartial/main">
+          <div class="main-subrow keyValue ">
+            <div class=""><span class="inline-flex">
+                <div><a href="next-page.html"><span>next</span><wbr><span><span>Page</span></span></a></div>
+<span class="anchor-wrapper"><span class="anchor-icon" pointing-to="1943997445%2FProperties%2F-1922089379"></span>
+                  <div class="copy-popup-wrapper "><span class="copy-popup-icon"></span><span>Link copied to clipboard</span></div>
+                </span></span></div>
+            <div>
+              <div class="title">
+                <div class="platform-hinted " data-platform-hinted="data-platform-hinted" data-togglable="Properties"><div class="content sourceset-dependent-content" data-active="" data-togglable=":Terix-API:dokkaHtmlPartial/main"><a data-name="1943997445%2FProperties%2F-1922089379" anchor-label="nextPage" id="1943997445%2FProperties%2F-1922089379" data-filterable-set=":Terix-API:dokkaHtmlPartial/main"></a><div class="symbol monospace"><span class="token keyword"></span><span class="token keyword">val </span><a href="next-page.html">nextPage</a><span class="token operator">: </span><a href="-g-u-i-item-slot/index.html">TerixConfig.GUI.GUIItemSlot</a></div></div></div>
+              </div>
+            </div>
+          </div>
+        </div>
+<a data-name="1576518257%2FProperties%2F-1922089379" anchor-label="plugin" id="1576518257%2FProperties%2F-1922089379" data-filterable-set=":Terix-API:dokkaHtmlPartial/main"></a>
+        <div class="table-row" data-filterable-current=":Terix-API:dokkaHtmlPartial/main" data-filterable-set=":Terix-API:dokkaHtmlPartial/main">
+          <div class="main-subrow keyValue ">
+            <div class=""><span class="inline-flex">
+                <div><a href="index.html#1576518257%2FProperties%2F-1922089379"><span><span>plugin</span></span></a></div>
+<span class="anchor-wrapper"><span class="anchor-icon" pointing-to="1576518257%2FProperties%2F-1922089379"></span>
+                  <div class="copy-popup-wrapper "><span class="copy-popup-icon"></span><span>Link copied to clipboard</span></div>
+                </span></span></div>
+            <div>
+              <div class="title">
+                <div class="platform-hinted " data-platform-hinted="data-platform-hinted" data-togglable="Properties"><div class="content sourceset-dependent-content" data-active="" data-togglable=":Terix-API:dokkaHtmlPartial/main"><a data-name="1576518257%2FProperties%2F-1922089379" anchor-label="plugin" id="1576518257%2FProperties%2F-1922089379" data-filterable-set=":Terix-API:dokkaHtmlPartial/main"></a><div class="symbol monospace"><span class="token keyword">open </span><span class="token keyword">override </span><span class="token keyword">var </span><a href="index.html#1576518257%2FProperties%2F-1922089379">plugin</a><span class="token operator">: </span><span data-unresolved-link="dev.racci.minix.api.plugin/MinixPlugin///PointingToDeclaration/">MinixPlugin</span></div></div></div>
+              </div>
+            </div>
+          </div>
+        </div>
+<a data-name="-1711774335%2FProperties%2F-1922089379" anchor-label="previousPage" id="-1711774335%2FProperties%2F-1922089379" data-filterable-set=":Terix-API:dokkaHtmlPartial/main"></a>
+        <div class="table-row" data-filterable-current=":Terix-API:dokkaHtmlPartial/main" data-filterable-set=":Terix-API:dokkaHtmlPartial/main">
+          <div class="main-subrow keyValue ">
+            <div class=""><span class="inline-flex">
+                <div><a href="previous-page.html"><span>previous</span><wbr><span><span>Page</span></span></a></div>
+<span class="anchor-wrapper"><span class="anchor-icon" pointing-to="-1711774335%2FProperties%2F-1922089379"></span>
+                  <div class="copy-popup-wrapper "><span class="copy-popup-icon"></span><span>Link copied to clipboard</span></div>
+                </span></span></div>
+            <div>
+              <div class="title">
+                <div class="platform-hinted " data-platform-hinted="data-platform-hinted" data-togglable="Properties"><div class="content sourceset-dependent-content" data-active="" data-togglable=":Terix-API:dokkaHtmlPartial/main"><a data-name="-1711774335%2FProperties%2F-1922089379" anchor-label="previousPage" id="-1711774335%2FProperties%2F-1922089379" data-filterable-set=":Terix-API:dokkaHtmlPartial/main"></a><div class="symbol monospace"><span class="token keyword"></span><span class="token keyword">val </span><a href="previous-page.html">previousPage</a><span class="token operator">: </span><a href="-g-u-i-item-slot/index.html">TerixConfig.GUI.GUIItemSlot</a></div></div></div>
+              </div>
+            </div>
+          </div>
+        </div>
+<a data-name="912879770%2FProperties%2F-1922089379" anchor-label="remainingChanges" id="912879770%2FProperties%2F-1922089379" data-filterable-set=":Terix-API:dokkaHtmlPartial/main"></a>
+        <div class="table-row" data-filterable-current=":Terix-API:dokkaHtmlPartial/main" data-filterable-set=":Terix-API:dokkaHtmlPartial/main">
+          <div class="main-subrow keyValue ">
+            <div class=""><span class="inline-flex">
+                <div><a href="remaining-changes.html"><span>remaining</span><wbr><span><span>Changes</span></span></a></div>
+<span class="anchor-wrapper"><span class="anchor-icon" pointing-to="912879770%2FProperties%2F-1922089379"></span>
+                  <div class="copy-popup-wrapper "><span class="copy-popup-icon"></span><span>Link copied to clipboard</span></div>
+                </span></span></div>
+            <div>
+              <div class="title">
+                <div class="platform-hinted " data-platform-hinted="data-platform-hinted" data-togglable="Properties"><div class="content sourceset-dependent-content" data-active="" data-togglable=":Terix-API:dokkaHtmlPartial/main"><a data-name="912879770%2FProperties%2F-1922089379" anchor-label="remainingChanges" id="912879770%2FProperties%2F-1922089379" data-filterable-set=":Terix-API:dokkaHtmlPartial/main"></a><div class="symbol monospace"><span class="token keyword"></span><span class="token keyword">val </span><a href="remaining-changes.html">remainingChanges</a><span class="token operator">: </span><a href="-g-u-i-item-slot/index.html">TerixConfig.GUI.GUIItemSlot</a></div></div></div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+      <div class="footer">
+        <span class="go-to-top-icon"><a href="#content" id="go-to-top-link"></a></span><span>© 2022 Copyright</span><span class="pull-right"><span>Generated by </span><a href="https://github.com/Kotlin/dokka"><span>dokka</span><span class="padded-icon"></span></a></span>
+      </div>
+    </div>
+</div>
+
+</body></html>
+

@@ -34,7 +34,7 @@
     <div class="library-name">
 <a href="../../../../index.html">
 <span>Terix</span>            </a>    </div>
-    <div>1.0.1
+    <div>1.1.0
     </div>
     <div class="pull-right d-flex">
         <button id="theme-toggle-button"><span id="theme-toggle"></span></button>
@@ -50,29 +50,29 @@
   <div class="breadcrumbs"><a href="../../../index.html">Terix-Core</a><span class="delimiter">/</span><a href="../../index.html">dev.racci.terix.core.data</a><span class="delimiter">/</span><a href="../index.html">Lang</a><span class="delimiter">/</span><span class="current">GUI</span></div>
   <div class="cover ">
     <h1 class="cover"><span><span>GUI</span></span></h1>
-    <div class="platform-hinted " data-platform-hinted="data-platform-hinted"><div class="content sourceset-dependent-content" data-active="" data-togglable=":Terix-Core:dokkaHtmlPartial/main"><div class="symbol monospace"><div class="block"><div class="block"><span class="token annotation builtin">@</span><span data-unresolved-link="org.spongepowered.configurate.objectmapping/ConfigSerializable///PointingToDeclaration/"><span class="token annotation builtin">ConfigSerializable</span></span></div></div><span class="token keyword">data </span><span class="token keyword">class </span><a href="index.html">GUI</a><span class="token punctuation">(</span><span class="parameters "><span class="parameter "><span class="token keyword">val </span>title<span class="token operator">: </span><span data-unresolved-link="dev.racci.minix.api.utils.adventure/PartialComponent///PointingToDeclaration/">PartialComponent</span><span class="token operator"> = </span>PartialComponent.of("&lt;prefix:origins&gt;Origins")<span class="token punctuation">, </span></span><span class="parameter "><span class="token keyword">val </span>requirementLine<span class="token operator">: </span><span data-unresolved-link="dev.racci.minix.api.utils.adventure/PartialComponent///PointingToDeclaration/">PartialComponent</span><span class="token operator"> = </span>PartialComponent.of("|-    &lt;requirement&gt;")<span class="token punctuation">, </span></span><span class="parameter "><span class="token keyword">val </span>requirementLore<span class="token operator">: </span><a href="https://kotlinlang.org/api/latest/jvm/stdlib/kotlin.collections/-list/index.html">List</a><span class="token operator">&lt;</span><span class="token keyword"></span><span data-unresolved-link="dev.racci.minix.api.utils.adventure/PartialComponent///PointingToDeclaration/">PartialComponent</span><span class="token operator">&gt;</span><span class="token operator"> = </span>listOf(
+    <div class="platform-hinted " data-platform-hinted="data-platform-hinted"><div class="content sourceset-dependent-content" data-active="" data-togglable=":Terix-Core:dokkaHtmlPartial/main"><div class="symbol monospace"><div class="block"><div class="block"><span class="token annotation builtin">@</span><span data-unresolved-link="org.spongepowered.configurate.objectmapping/ConfigSerializable///PointingToDeclaration/"><span class="token annotation builtin">ConfigSerializable</span></span></div></div><span class="token keyword">data </span><span class="token keyword">class </span><a href="index.html">GUI</a><span class="token punctuation">(</span><span class="parameters "><span class="parameter "><span class="token keyword">val </span>title<span class="token operator">: </span><span data-unresolved-link="dev.racci.minix.api.utils.adventure/PartialComponent///PointingToDeclaration/">PartialComponent</span><span class="token operator"> = </span>PartialComponent.of("&lt;prefix:origins&gt;Origins")<span class="token punctuation">, </span></span><span class="parameter "><span class="token keyword">val </span>requirementLine<span class="token operator">: </span><span data-unresolved-link="dev.racci.minix.api.utils.adventure/PartialComponent///PointingToDeclaration/">PartialComponent</span><span class="token operator"> = </span>PartialComponent.of("&lt;aqua&gt;|-  &lt;requirement&gt;")<span class="token punctuation">, </span></span><span class="parameter "><span class="token keyword">val </span>requirementLore<span class="token operator">: </span><a href="https://kotlinlang.org/api/latest/jvm/stdlib/kotlin.collections/-list/index.html">List</a><span class="token operator">&lt;</span><span class="token keyword"></span><span data-unresolved-link="dev.racci.minix.api.utils.adventure/PartialComponent///PointingToDeclaration/">PartialComponent</span><span class="token operator">&gt;</span><span class="token operator"> = </span>listOf(
             PartialComponent.of(""),
-            PartialComponent.of("Requirements:")
-        )</span></span><span class="token punctuation">)</span> : <span data-unresolved-link="dev.racci.minix.api.data/LangConfig.InnerLang///PointingToDeclaration/">LangConfig.InnerLang</span></div></div></div>
+            PartialComponent.of("&lt;aqua&gt;Requirements:")
+        )<span class="token punctuation">, </span></span><span class="parameter "><span class="token keyword">val </span>hasGrant<span class="token operator">: </span><span data-unresolved-link="dev.racci.minix.api.utils.adventure/PartialComponent///PointingToDeclaration/">PartialComponent</span><span class="token operator"> = </span>PartialComponent.of("&lt;i:false&gt;&lt;gray&gt;You have a grant and don't require the above.")<span class="token punctuation">, </span></span><span class="parameter "><span class="token keyword">val </span>changeFree<span class="token operator">: </span><span data-unresolved-link="dev.racci.minix.api.utils.adventure/PartialComponent///PointingToDeclaration/">PartialComponent</span><span class="token operator"> = </span>PartialComponent.of("&lt;i:false&gt;You have &lt;gray&gt;&lt;amount&gt;&lt;/gray&gt; free changes remaining.")<span class="token punctuation">, </span></span><span class="parameter "><span class="token keyword">val </span>changeTime<span class="token operator">: </span><span data-unresolved-link="dev.racci.minix.api.utils.adventure/PartialComponent///PointingToDeclaration/">PartialComponent</span><span class="token operator"> = </span>PartialComponent.of("&lt;i:false&gt;You can change your origin now.")<span class="token punctuation">, </span></span><span class="parameter "><span class="token keyword">val </span>changeTimeCooldown<span class="token operator">: </span><span data-unresolved-link="dev.racci.minix.api.utils.adventure/PartialComponent///PointingToDeclaration/">PartialComponent</span><span class="token operator"> = </span>PartialComponent.of("&lt;i:false&gt;You can change your origin in &lt;gray&gt;&lt;cooldown&gt;&lt;/gray&gt;.")</span></span><span class="token punctuation">)</span> : <span data-unresolved-link="dev.racci.minix.api.data/LangConfig.InnerLang///PointingToDeclaration/">LangConfig.InnerLang</span></div></div></div>
   </div>
   <div class="tabbedcontent">
     <div class="tabs-section" tabs-section="tabs-section"><button class="section-tab" data-active="" data-togglable="Constructors">Constructors</button><button class="section-tab" data-togglable="Functions">Functions</button><button class="section-tab" data-togglable="Properties">Properties</button></div>
     <div class="tabs-section-body">
       <h2 class="tabbedcontent">Constructors</h2>
-      <div class="table" data-togglable="Constructors"><a data-name="834894124%2FConstructors%2F301628108" anchor-label="GUI" id="834894124%2FConstructors%2F301628108" data-filterable-set=":Terix-Core:dokkaHtmlPartial/main"></a>
+      <div class="table" data-togglable="Constructors"><a data-name="1036356524%2FConstructors%2F301628108" anchor-label="GUI" id="1036356524%2FConstructors%2F301628108" data-filterable-set=":Terix-Core:dokkaHtmlPartial/main"></a>
         <div class="table-row" data-filterable-current=":Terix-Core:dokkaHtmlPartial/main" data-filterable-set=":Terix-Core:dokkaHtmlPartial/main">
           <div class="main-subrow keyValue TabbedContent">
             <div class=""><span class="inline-flex">
                 <div><a href="-g-u-i.html"><span><span>GUI</span></span></a></div>
-<span class="anchor-wrapper"><span class="anchor-icon" pointing-to="834894124%2FConstructors%2F301628108"></span>
+<span class="anchor-wrapper"><span class="anchor-icon" pointing-to="1036356524%2FConstructors%2F301628108"></span>
                   <div class="copy-popup-wrapper "><span class="copy-popup-icon"></span><span>Link copied to clipboard</span></div>
                 </span></span></div>
             <div>
               <div class="title">
-                <div class="platform-hinted " data-platform-hinted="data-platform-hinted"><div class="content sourceset-dependent-content" data-active="" data-togglable=":Terix-Core:dokkaHtmlPartial/main"><div class="symbol monospace"><span class="token keyword"></span><span class="token keyword">fun </span><a href="-g-u-i.html"><span class="token function">GUI</span></a><span class="token punctuation">(</span><span class="parameters "><span class="parameter ">title<span class="token operator">: </span><span data-unresolved-link="dev.racci.minix.api.utils.adventure/PartialComponent///PointingToDeclaration/">PartialComponent</span><span class="token operator"> = </span>PartialComponent.of("&lt;prefix:origins&gt;Origins")<span class="token punctuation">, </span></span><span class="parameter ">requirementLine<span class="token operator">: </span><span data-unresolved-link="dev.racci.minix.api.utils.adventure/PartialComponent///PointingToDeclaration/">PartialComponent</span><span class="token operator"> = </span>PartialComponent.of("|-    &lt;requirement&gt;")<span class="token punctuation">, </span></span><span class="parameter ">requirementLore<span class="token operator">: </span><a href="https://kotlinlang.org/api/latest/jvm/stdlib/kotlin.collections/-list/index.html">List</a><span class="token operator">&lt;</span><span class="token keyword"></span><span data-unresolved-link="dev.racci.minix.api.utils.adventure/PartialComponent///PointingToDeclaration/">PartialComponent</span><span class="token operator">&gt;</span><span class="token operator"> = </span>listOf(
+                <div class="platform-hinted " data-platform-hinted="data-platform-hinted"><div class="content sourceset-dependent-content" data-active="" data-togglable=":Terix-Core:dokkaHtmlPartial/main"><div class="symbol monospace"><span class="token keyword"></span><span class="token keyword">fun </span><a href="-g-u-i.html"><span class="token function">GUI</span></a><span class="token punctuation">(</span><span class="parameters "><span class="parameter ">title<span class="token operator">: </span><span data-unresolved-link="dev.racci.minix.api.utils.adventure/PartialComponent///PointingToDeclaration/">PartialComponent</span><span class="token operator"> = </span>PartialComponent.of("&lt;prefix:origins&gt;Origins")<span class="token punctuation">, </span></span><span class="parameter ">requirementLine<span class="token operator">: </span><span data-unresolved-link="dev.racci.minix.api.utils.adventure/PartialComponent///PointingToDeclaration/">PartialComponent</span><span class="token operator"> = </span>PartialComponent.of("&lt;aqua&gt;|-  &lt;requirement&gt;")<span class="token punctuation">, </span></span><span class="parameter ">requirementLore<span class="token operator">: </span><a href="https://kotlinlang.org/api/latest/jvm/stdlib/kotlin.collections/-list/index.html">List</a><span class="token operator">&lt;</span><span class="token keyword"></span><span data-unresolved-link="dev.racci.minix.api.utils.adventure/PartialComponent///PointingToDeclaration/">PartialComponent</span><span class="token operator">&gt;</span><span class="token operator"> = </span>listOf(
             PartialComponent.of(""),
-            PartialComponent.of("Requirements:")
-        )</span></span><span class="token punctuation">)</span></div></div></div>
+            PartialComponent.of("&lt;aqua&gt;Requirements:")
+        )<span class="token punctuation">, </span></span><span class="parameter ">hasGrant<span class="token operator">: </span><span data-unresolved-link="dev.racci.minix.api.utils.adventure/PartialComponent///PointingToDeclaration/">PartialComponent</span><span class="token operator"> = </span>PartialComponent.of("&lt;i:false&gt;&lt;gray&gt;You have a grant and don't require the above.")<span class="token punctuation">, </span></span><span class="parameter ">changeFree<span class="token operator">: </span><span data-unresolved-link="dev.racci.minix.api.utils.adventure/PartialComponent///PointingToDeclaration/">PartialComponent</span><span class="token operator"> = </span>PartialComponent.of("&lt;i:false&gt;You have &lt;gray&gt;&lt;amount&gt;&lt;/gray&gt; free changes remaining.")<span class="token punctuation">, </span></span><span class="parameter ">changeTime<span class="token operator">: </span><span data-unresolved-link="dev.racci.minix.api.utils.adventure/PartialComponent///PointingToDeclaration/">PartialComponent</span><span class="token operator"> = </span>PartialComponent.of("&lt;i:false&gt;You can change your origin now.")<span class="token punctuation">, </span></span><span class="parameter ">changeTimeCooldown<span class="token operator">: </span><span data-unresolved-link="dev.racci.minix.api.utils.adventure/PartialComponent///PointingToDeclaration/">PartialComponent</span><span class="token operator"> = </span>PartialComponent.of("&lt;i:false&gt;You can change your origin in &lt;gray&gt;&lt;cooldown&gt;&lt;/gray&gt;.")</span></span><span class="token punctuation">)</span></div></div></div>
               </div>
             </div>
           </div>
@@ -96,7 +96,67 @@
         </div>
       </div>
       <h2 class="">Properties</h2>
-      <div class="table" data-togglable="Properties"><a data-name="-923176638%2FProperties%2F301628108" anchor-label="initialized" id="-923176638%2FProperties%2F301628108" data-filterable-set=":Terix-Core:dokkaHtmlPartial/main"></a>
+      <div class="table" data-togglable="Properties"><a data-name="-240693010%2FProperties%2F301628108" anchor-label="changeFree" id="-240693010%2FProperties%2F301628108" data-filterable-set=":Terix-Core:dokkaHtmlPartial/main"></a>
+        <div class="table-row" data-filterable-current=":Terix-Core:dokkaHtmlPartial/main" data-filterable-set=":Terix-Core:dokkaHtmlPartial/main">
+          <div class="main-subrow keyValue ">
+            <div class=""><span class="inline-flex">
+                <div><a href="change-free.html"><span>change</span><wbr><span><span>Free</span></span></a></div>
+<span class="anchor-wrapper"><span class="anchor-icon" pointing-to="-240693010%2FProperties%2F301628108"></span>
+                  <div class="copy-popup-wrapper "><span class="copy-popup-icon"></span><span>Link copied to clipboard</span></div>
+                </span></span></div>
+            <div>
+              <div class="title">
+                <div class="platform-hinted " data-platform-hinted="data-platform-hinted" data-togglable="Properties"><div class="content sourceset-dependent-content" data-active="" data-togglable=":Terix-Core:dokkaHtmlPartial/main"><a data-name="-240693010%2FProperties%2F301628108" anchor-label="changeFree" id="-240693010%2FProperties%2F301628108" data-filterable-set=":Terix-Core:dokkaHtmlPartial/main"></a><div class="symbol monospace"><span class="token keyword"></span><span class="token keyword">val </span><a href="change-free.html">changeFree</a><span class="token operator">: </span><span data-unresolved-link="dev.racci.minix.api.utils.adventure/PartialComponent///PointingToDeclaration/">PartialComponent</span></div></div></div>
+              </div>
+            </div>
+          </div>
+        </div>
+<a data-name="-2026564691%2FProperties%2F301628108" anchor-label="changeTime" id="-2026564691%2FProperties%2F301628108" data-filterable-set=":Terix-Core:dokkaHtmlPartial/main"></a>
+        <div class="table-row" data-filterable-current=":Terix-Core:dokkaHtmlPartial/main" data-filterable-set=":Terix-Core:dokkaHtmlPartial/main">
+          <div class="main-subrow keyValue ">
+            <div class=""><span class="inline-flex">
+                <div><a href="change-time.html"><span>change</span><wbr><span><span>Time</span></span></a></div>
+<span class="anchor-wrapper"><span class="anchor-icon" pointing-to="-2026564691%2FProperties%2F301628108"></span>
+                  <div class="copy-popup-wrapper "><span class="copy-popup-icon"></span><span>Link copied to clipboard</span></div>
+                </span></span></div>
+            <div>
+              <div class="title">
+                <div class="platform-hinted " data-platform-hinted="data-platform-hinted" data-togglable="Properties"><div class="content sourceset-dependent-content" data-active="" data-togglable=":Terix-Core:dokkaHtmlPartial/main"><a data-name="-2026564691%2FProperties%2F301628108" anchor-label="changeTime" id="-2026564691%2FProperties%2F301628108" data-filterable-set=":Terix-Core:dokkaHtmlPartial/main"></a><div class="symbol monospace"><span class="token keyword"></span><span class="token keyword">val </span><a href="change-time.html">changeTime</a><span class="token operator">: </span><span data-unresolved-link="dev.racci.minix.api.utils.adventure/PartialComponent///PointingToDeclaration/">PartialComponent</span></div></div></div>
+              </div>
+            </div>
+          </div>
+        </div>
+<a data-name="-628147582%2FProperties%2F301628108" anchor-label="changeTimeCooldown" id="-628147582%2FProperties%2F301628108" data-filterable-set=":Terix-Core:dokkaHtmlPartial/main"></a>
+        <div class="table-row" data-filterable-current=":Terix-Core:dokkaHtmlPartial/main" data-filterable-set=":Terix-Core:dokkaHtmlPartial/main">
+          <div class="main-subrow keyValue ">
+            <div class=""><span class="inline-flex">
+                <div><a href="change-time-cooldown.html"><span>change</span><wbr><span>Time</span><wbr><span><span>Cooldown</span></span></a></div>
+<span class="anchor-wrapper"><span class="anchor-icon" pointing-to="-628147582%2FProperties%2F301628108"></span>
+                  <div class="copy-popup-wrapper "><span class="copy-popup-icon"></span><span>Link copied to clipboard</span></div>
+                </span></span></div>
+            <div>
+              <div class="title">
+                <div class="platform-hinted " data-platform-hinted="data-platform-hinted" data-togglable="Properties"><div class="content sourceset-dependent-content" data-active="" data-togglable=":Terix-Core:dokkaHtmlPartial/main"><a data-name="-628147582%2FProperties%2F301628108" anchor-label="changeTimeCooldown" id="-628147582%2FProperties%2F301628108" data-filterable-set=":Terix-Core:dokkaHtmlPartial/main"></a><div class="symbol monospace"><span class="token keyword"></span><span class="token keyword">val </span><a href="change-time-cooldown.html">changeTimeCooldown</a><span class="token operator">: </span><span data-unresolved-link="dev.racci.minix.api.utils.adventure/PartialComponent///PointingToDeclaration/">PartialComponent</span></div></div></div>
+              </div>
+            </div>
+          </div>
+        </div>
+<a data-name="-1456210296%2FProperties%2F301628108" anchor-label="hasGrant" id="-1456210296%2FProperties%2F301628108" data-filterable-set=":Terix-Core:dokkaHtmlPartial/main"></a>
+        <div class="table-row" data-filterable-current=":Terix-Core:dokkaHtmlPartial/main" data-filterable-set=":Terix-Core:dokkaHtmlPartial/main">
+          <div class="main-subrow keyValue ">
+            <div class=""><span class="inline-flex">
+                <div><a href="has-grant.html"><span>has</span><wbr><span><span>Grant</span></span></a></div>
+<span class="anchor-wrapper"><span class="anchor-icon" pointing-to="-1456210296%2FProperties%2F301628108"></span>
+                  <div class="copy-popup-wrapper "><span class="copy-popup-icon"></span><span>Link copied to clipboard</span></div>
+                </span></span></div>
+            <div>
+              <div class="title">
+                <div class="platform-hinted " data-platform-hinted="data-platform-hinted" data-togglable="Properties"><div class="content sourceset-dependent-content" data-active="" data-togglable=":Terix-Core:dokkaHtmlPartial/main"><a data-name="-1456210296%2FProperties%2F301628108" anchor-label="hasGrant" id="-1456210296%2FProperties%2F301628108" data-filterable-set=":Terix-Core:dokkaHtmlPartial/main"></a><div class="symbol monospace"><span class="token keyword"></span><span class="token keyword">val </span><a href="has-grant.html">hasGrant</a><span class="token operator">: </span><span data-unresolved-link="dev.racci.minix.api.utils.adventure/PartialComponent///PointingToDeclaration/">PartialComponent</span></div></div></div>
+              </div>
+            </div>
+          </div>
+        </div>
+<a data-name="-923176638%2FProperties%2F301628108" anchor-label="initialized" id="-923176638%2FProperties%2F301628108" data-filterable-set=":Terix-Core:dokkaHtmlPartial/main"></a>
         <div class="table-row" data-filterable-current=":Terix-Core:dokkaHtmlPartial/main" data-filterable-set=":Terix-Core:dokkaHtmlPartial/main">
           <div class="main-subrow keyValue ">
             <div class=""><span class="inline-flex">

@@ -24,3 +24,4 @@ dev.racci.terix.core.integrations
 dev.racci.terix.core.origins
 dev.racci.terix.core.services
 dev.racci.terix.core.services.runnables
+dev.racci.terix.core.utils

@@ -1,0 +1,282 @@
+<!doctype html>
+<html>
+<head>
+    <meta name="viewport" content="width=device-width, initial-scale=1" charset="UTF-8">
+    <title>RenderablePaginatedTransform</title>
+<link href="../../../images/logo-icon.svg" rel="icon" type="image/svg"><script>var pathToRoot = "../../../";</script>    <script>const storage = localStorage.getItem("dokka-dark-mode")
+    if (storage == null) {
+        const osDarkSchemePreferred = window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches
+        if (osDarkSchemePreferred === true) {
+            document.getElementsByTagName("html")[0].classList.add("theme-dark")
+        }
+    } else {
+        const savedDarkMode = JSON.parse(storage)
+        if(savedDarkMode === true) {
+            document.getElementsByTagName("html")[0].classList.add("theme-dark")
+        }
+    }
+    </script>
+<script type="text/javascript" src="../../../scripts/sourceset_dependencies.js" async></script>
+<link href="../../../styles/style.css" rel="Stylesheet">
+<link href="../../../styles/jetbrains-mono.css" rel="Stylesheet">
+<link href="../../../styles/main.css" rel="Stylesheet">
+<link href="../../../styles/prism.css" rel="Stylesheet">
+<link href="../../../styles/logo-styles.css" rel="Stylesheet">
+<script type="text/javascript" src="../../../scripts/clipboard.js" async></script>
+<script type="text/javascript" src="../../../scripts/navigation-loader.js" async></script>
+<script type="text/javascript" src="../../../scripts/platform-content-handler.js" async></script>
+<script type="text/javascript" src="../../../scripts/main.js" defer></script>
+<script type="text/javascript" src="../../../scripts/prism.js" async></script>
+<script type="text/javascript" src="../../../scripts/symbol-parameters-wrapper_deferred.js" defer></script></head>
+<body>
+<div class="navigation-wrapper" id="navigation-wrapper">
+    <div id="leftToggler"><span class="icon-toggler"></span></div>
+    <div class="library-name">
+<a href="../../../index.html">
+<span>Terix</span>            </a>    </div>
+    <div>1.1.0
+    </div>
+    <div class="pull-right d-flex">
+        <button id="theme-toggle-button"><span id="theme-toggle"></span></button>
+        <div id="searchBar"></div>
+    </div>
+</div>
+<div id="container">
+    <div id="leftColumn">
+        <div id="sideMenu"></div>
+    </div>
+    <div id="main">
+<div class="main-content" id="content" pageids="Terix-Core::dev.racci.terix.core.utils/RenderablePaginatedTransform///PointingToDeclaration//301628108">
+  <div class="breadcrumbs"><a href="../../index.html">Terix-Core</a><span class="delimiter">/</span><a href="../index.html">dev.racci.terix.core.utils</a><span class="delimiter">/</span><span class="current">RenderablePaginatedTransform</span></div>
+  <div class="cover ">
+    <h1 class="cover"><span>Renderable</span><wbr><span>Paginated</span><wbr><span><span>Transform</span></span></h1>
+    <div class="platform-hinted " data-platform-hinted="data-platform-hinted"><div class="content sourceset-dependent-content" data-active="" data-togglable=":Terix-Core:dokkaHtmlPartial/main"><div class="symbol monospace"><span class="token keyword">class </span><a href="index.html">RenderablePaginatedTransform</a><span class="token operator">&lt;</span><span class="token keyword"></span><a href="index.html">S</a><span class="token operator"> : </span><span data-unresolved-link="org.incendo.interfaces.core.element/Element///PointingToDeclaration/">Element</span><span class="token punctuation">, </span><span class="token keyword"></span><a href="index.html">T</a><span class="token operator"> : </span><span data-unresolved-link="org.incendo.interfaces.core.pane/GridPane///PointingToDeclaration/">GridPane</span><span class="token operator">&lt;</span><span class="token keyword"></span><a href="index.html">T</a><span class="token punctuation">, </span><span class="token keyword"></span><a href="index.html">S</a><span class="token operator">&gt;</span><span class="token punctuation">, </span><span class="token keyword"></span><a href="index.html">U</a><span class="token operator"> : </span><span data-unresolved-link="org.incendo.interfaces.core.view/InterfaceViewer///PointingToDeclaration/">InterfaceViewer</span><span class="token operator">&gt;</span><span class="token punctuation">(</span><span class="parameters "><span class="parameter ">min<span class="token operator">: </span><span data-unresolved-link="org.incendo.interfaces.core.util/Vector2///PointingToDeclaration/">Vector2</span><span class="token punctuation">, </span></span><span class="parameter ">max<span class="token operator">: </span><span data-unresolved-link="org.incendo.interfaces.core.util/Vector2///PointingToDeclaration/">Vector2</span><span class="token punctuation">, </span></span><span class="parameter ">elementsSupplier<span class="token operator">: </span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token operator"> -&gt; </span><span class="token keyword"></span><a href="https://kotlinlang.org/api/latest/jvm/stdlib/kotlin.collections/-list/index.html">List</a><span class="token operator">&lt;</span><span class="token keyword"></span><a href="../index.html#-642774687%2FClasslikes%2F301628108">RenderFunction</a><span class="token operator">&lt;</span><span class="token keyword"></span><a href="index.html">S</a><span class="token punctuation">, </span><span class="token keyword"></span><a href="index.html">T</a><span class="token punctuation">, </span><span class="token keyword"></span><a href="index.html">U</a><span class="token operator">&gt;</span><span class="token operator">&gt;</span></span></span><span class="token punctuation">)</span> : <span data-unresolved-link="org.incendo.interfaces.core.transform/ReactiveTransform///PointingToDeclaration/">ReactiveTransform</span><span class="token operator">&lt;</span><span class="token keyword"></span><a href="index.html">T</a><span class="token punctuation">, </span><span class="token keyword"></span><a href="index.html">U</a><span class="token punctuation">, </span><span class="token keyword"></span><a href="https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-int/index.html">Int</a><span class="token operator">&gt; </span></div><p class="paragraph">Custom implementation of <span data-unresolved-link="org.incendo.interfaces.core.transform.types/PaginatedTransform///PointingToDeclaration/">PaginatedTransform</span> that allows rendering elements as well as the buttons.</p></div></div>
+  </div>
+  <div class="tabbedcontent">
+    <div class="tabs-section" tabs-section="tabs-section"><button class="section-tab" data-active="" data-togglable="Constructors">Constructors</button><button class="section-tab" data-togglable="Functions">Functions</button></div>
+    <div class="tabs-section-body">
+      <h2 class="tabbedcontent">Constructors</h2>
+      <div class="table" data-togglable="Constructors"><a data-name="-676569234%2FConstructors%2F301628108" anchor-label="RenderablePaginatedTransform" id="-676569234%2FConstructors%2F301628108" data-filterable-set=":Terix-Core:dokkaHtmlPartial/main"></a>
+        <div class="table-row" data-filterable-current=":Terix-Core:dokkaHtmlPartial/main" data-filterable-set=":Terix-Core:dokkaHtmlPartial/main">
+          <div class="main-subrow keyValue TabbedContent">
+            <div class=""><span class="inline-flex">
+                <div><a href="-renderable-paginated-transform.html"><span>Renderable</span><wbr><span>Paginated</span><wbr><span><span>Transform</span></span></a></div>
+<span class="anchor-wrapper"><span class="anchor-icon" pointing-to="-676569234%2FConstructors%2F301628108"></span>
+                  <div class="copy-popup-wrapper "><span class="copy-popup-icon"></span><span>Link copied to clipboard</span></div>
+                </span></span></div>
+            <div>
+              <div class="title">
+                <div class="platform-hinted " data-platform-hinted="data-platform-hinted"><div class="content sourceset-dependent-content" data-active="" data-togglable=":Terix-Core:dokkaHtmlPartial/main"><div class="symbol monospace"><span class="token keyword"></span><span class="token keyword">fun </span><a href="-renderable-paginated-transform.html"><span class="token function">RenderablePaginatedTransform</span></a><span class="token punctuation">(</span><span class="parameters "><span class="parameter ">min<span class="token operator">: </span><span data-unresolved-link="org.incendo.interfaces.core.util/Vector2///PointingToDeclaration/">Vector2</span><span class="token punctuation">, </span></span><span class="parameter ">max<span class="token operator">: </span><span data-unresolved-link="org.incendo.interfaces.core.util/Vector2///PointingToDeclaration/">Vector2</span><span class="token punctuation">, </span></span><span class="parameter ">elements<span class="token operator">: </span><a href="https://kotlinlang.org/api/latest/jvm/stdlib/kotlin.collections/-list/index.html">List</a><span class="token operator">&lt;</span><span class="token keyword"></span><a href="../index.html#-642774687%2FClasslikes%2F301628108">RenderFunction</a><span class="token operator">&lt;</span><span class="token keyword"></span><a href="index.html">S</a><span class="token punctuation">, </span><span class="token keyword"></span><a href="index.html">T</a><span class="token punctuation">, </span><span class="token keyword"></span><a href="index.html">U</a><span class="token operator">&gt;</span><span class="token operator">&gt;</span></span></span><span class="token punctuation">)</span></div><div class="brief "><p class="paragraph">Constructs a new paginated transform.</p></div></div></div>
+              </div>
+            </div>
+          </div>
+        </div>
+<a data-name="-2145220379%2FConstructors%2F301628108" anchor-label="RenderablePaginatedTransform" id="-2145220379%2FConstructors%2F301628108" data-filterable-set=":Terix-Core:dokkaHtmlPartial/main"></a>
+        <div class="table-row" data-filterable-current=":Terix-Core:dokkaHtmlPartial/main" data-filterable-set=":Terix-Core:dokkaHtmlPartial/main">
+          <div class="main-subrow keyValue TabbedContent">
+            <div class=""><span class="inline-flex">
+                <div><a href="-renderable-paginated-transform.html"><span>Renderable</span><wbr><span>Paginated</span><wbr><span><span>Transform</span></span></a></div>
+<span class="anchor-wrapper"><span class="anchor-icon" pointing-to="-2145220379%2FConstructors%2F301628108"></span>
+                  <div class="copy-popup-wrapper "><span class="copy-popup-icon"></span><span>Link copied to clipboard</span></div>
+                </span></span></div>
+            <div>
+              <div class="title">
+                <div class="platform-hinted " data-platform-hinted="data-platform-hinted"><div class="content sourceset-dependent-content" data-active="" data-togglable=":Terix-Core:dokkaHtmlPartial/main"><div class="symbol monospace"><span class="token keyword"></span><span class="token keyword">fun </span><a href="-renderable-paginated-transform.html"><span class="token function">RenderablePaginatedTransform</span></a><span class="token punctuation">(</span><span class="parameters "><span class="parameter ">min<span class="token operator">: </span><span data-unresolved-link="org.incendo.interfaces.core.util/Vector2///PointingToDeclaration/">Vector2</span><span class="token punctuation">, </span></span><span class="parameter ">max<span class="token operator">: </span><span data-unresolved-link="org.incendo.interfaces.core.util/Vector2///PointingToDeclaration/">Vector2</span><span class="token punctuation">, </span></span><span class="parameter ">elementsSupplier<span class="token operator">: </span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token operator"> -&gt; </span><span class="token keyword"></span><a href="https://kotlinlang.org/api/latest/jvm/stdlib/kotlin.collections/-list/index.html">List</a><span class="token operator">&lt;</span><span class="token keyword"></span><a href="../index.html#-642774687%2FClasslikes%2F301628108">RenderFunction</a><span class="token operator">&lt;</span><span class="token keyword"></span><a href="index.html">S</a><span class="token punctuation">, </span><span class="token keyword"></span><a href="index.html">T</a><span class="token punctuation">, </span><span class="token keyword"></span><a href="index.html">U</a><span class="token operator">&gt;</span><span class="token operator">&gt;</span></span></span><span class="token punctuation">)</span></div></div></div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+      <h2 class="">Functions</h2>
+      <div class="table" data-togglable="Functions"><a data-name="-1578181667%2FFunctions%2F301628108" anchor-label="andThen" id="-1578181667%2FFunctions%2F301628108" data-filterable-set=":Terix-Core:dokkaHtmlPartial/main"></a>
+        <div class="table-row" data-filterable-current=":Terix-Core:dokkaHtmlPartial/main" data-filterable-set=":Terix-Core:dokkaHtmlPartial/main">
+          <div class="main-subrow keyValue ">
+            <div class=""><span class="inline-flex">
+                <div><a href="index.html#-1578181667%2FFunctions%2F301628108"><span>and</span><wbr><span><span>Then</span></span></a></div>
+<span class="anchor-wrapper"><span class="anchor-icon" pointing-to="-1578181667%2FFunctions%2F301628108"></span>
+                  <div class="copy-popup-wrapper "><span class="copy-popup-icon"></span><span>Link copied to clipboard</span></div>
+                </span></span></div>
+            <div>
+              <div class="title">
+                <div class="platform-hinted " data-platform-hinted="data-platform-hinted"><div class="content sourceset-dependent-content" data-active="" data-togglable=":Terix-Core:dokkaHtmlPartial/main"><div class="symbol monospace"><span class="token keyword">open </span><span class="token keyword"></span><span class="token keyword">fun </span><span class="token operator">&lt;</span><span class="token keyword"></span><a href="index.html#-1578181667%2FFunctions%2F301628108">V</a><span class="token operator"> : </span><a href="https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-any/index.html">Any</a><span class="token operator">&gt; </span><a href="index.html#-1578181667%2FFunctions%2F301628108"><span class="token function">andThen</span></a><span class="token punctuation">(</span><span class="parameters "><span class="parameter ">p0<span class="token operator">: </span><a href="https://docs.oracle.com/javase/8/docs/api/java/util/function/Function.html">Function</a><span class="token operator">&lt;</span><span class="token keyword">in </span><a href="index.html">T</a><span class="token punctuation">, </span><span class="token keyword">out </span><a href="index.html#-1578181667%2FFunctions%2F301628108">V</a><span class="token operator">&gt;</span></span></span><span class="token punctuation">)</span><span class="token operator">: </span><a href="https://docs.oracle.com/javase/8/docs/api/java/util/function/BiFunction.html">BiFunction</a><span class="token operator">&lt;</span><span class="token keyword"></span><a href="index.html">T</a><span class="token punctuation">, </span><span class="token keyword"></span><span data-unresolved-link="org.incendo.interfaces.core.view/InterfaceView///PointingToDeclaration/">InterfaceView</span><span class="token operator">&lt;</span><span class="token keyword"></span><a href="index.html">T</a><span class="token punctuation">, </span><span class="token keyword"></span><a href="index.html">U</a><span class="token operator">&gt;</span><span class="token punctuation">, </span><span class="token keyword"></span><a href="index.html#-1578181667%2FFunctions%2F301628108">V</a><span class="token operator">&gt;</span></div></div></div>
+              </div>
+            </div>
+          </div>
+        </div>
+<a data-name="1842666941%2FFunctions%2F301628108" anchor-label="apply" id="1842666941%2FFunctions%2F301628108" data-filterable-set=":Terix-Core:dokkaHtmlPartial/main"></a>
+        <div class="table-row" data-filterable-current=":Terix-Core:dokkaHtmlPartial/main" data-filterable-set=":Terix-Core:dokkaHtmlPartial/main">
+          <div class="main-subrow keyValue ">
+            <div class=""><span class="inline-flex">
+                <div><a href="apply.html"><span><span>apply</span></span></a></div>
+<span class="anchor-wrapper"><span class="anchor-icon" pointing-to="1842666941%2FFunctions%2F301628108"></span>
+                  <div class="copy-popup-wrapper "><span class="copy-popup-icon"></span><span>Link copied to clipboard</span></div>
+                </span></span></div>
+            <div>
+              <div class="title">
+                <div class="platform-hinted " data-platform-hinted="data-platform-hinted"><div class="content sourceset-dependent-content" data-active="" data-togglable=":Terix-Core:dokkaHtmlPartial/main"><div class="symbol monospace"><span class="token keyword">open </span><span class="token keyword">override </span><span class="token keyword">fun </span><a href="apply.html"><span class="token function">apply</span></a><span class="token punctuation">(</span><span class="parameters "><span class="parameter ">originalPane<span class="token operator">: </span><a href="index.html">T</a><span class="token punctuation">, </span></span><span class="parameter ">view<span class="token operator">: </span><span data-unresolved-link="org.incendo.interfaces.core.view/InterfaceView///PointingToDeclaration/">InterfaceView</span><span class="token operator">&lt;</span><span class="token keyword"></span><a href="index.html">T</a><span class="token punctuation">, </span><span class="token keyword"></span><a href="index.html">U</a><span class="token operator">&gt;</span></span></span><span class="token punctuation">)</span><span class="token operator">: </span><a href="index.html">T</a></div></div></div>
+              </div>
+            </div>
+          </div>
+        </div>
+<a data-name="-121462731%2FFunctions%2F301628108" anchor-label="backwardElement" id="-121462731%2FFunctions%2F301628108" data-filterable-set=":Terix-Core:dokkaHtmlPartial/main"></a>
+        <div class="table-row" data-filterable-current=":Terix-Core:dokkaHtmlPartial/main" data-filterable-set=":Terix-Core:dokkaHtmlPartial/main">
+          <div class="main-subrow keyValue ">
+            <div class=""><span class="inline-flex">
+                <div><a href="backward-element.html"><span>backward</span><wbr><span><span>Element</span></span></a></div>
+<span class="anchor-wrapper"><span class="anchor-icon" pointing-to="-121462731%2FFunctions%2F301628108"></span>
+                  <div class="copy-popup-wrapper "><span class="copy-popup-icon"></span><span>Link copied to clipboard</span></div>
+                </span></span></div>
+            <div>
+              <div class="title">
+                <div class="platform-hinted " data-platform-hinted="data-platform-hinted"><div class="content sourceset-dependent-content" data-active="" data-togglable=":Terix-Core:dokkaHtmlPartial/main"><div class="symbol monospace"><span class="token keyword"></span><span class="token keyword">fun </span><a href="backward-element.html"><span class="token function">backwardElement</span></a><span class="token punctuation">(</span><span class="parameters "><span class="parameter ">position<span class="token operator">: </span><span data-unresolved-link="org.incendo.interfaces.core.util/Vector2///PointingToDeclaration/">Vector2</span><span class="token punctuation">, </span></span><span class="parameter ">builder<span class="token operator">: </span><a href="../index.html#1197372303%2FClasslikes%2F301628108">TransformFunction</a><span class="token operator">&lt;</span><span class="token keyword"></span><a href="index.html">S</a><span class="token punctuation">, </span><span class="token keyword"></span><a href="index.html">T</a><span class="token punctuation">, </span><span class="token keyword"></span><a href="index.html">U</a><span class="token operator">&gt;</span></span></span><span class="token punctuation">)</span></div><div class="brief "><p class="paragraph">Sets the backward element.</p></div></div></div>
+              </div>
+            </div>
+          </div>
+        </div>
+<a data-name="1742720114%2FFunctions%2F301628108" anchor-label="dimensions" id="1742720114%2FFunctions%2F301628108" data-filterable-set=":Terix-Core:dokkaHtmlPartial/main"></a>
+        <div class="table-row" data-filterable-current=":Terix-Core:dokkaHtmlPartial/main" data-filterable-set=":Terix-Core:dokkaHtmlPartial/main">
+          <div class="main-subrow keyValue ">
+            <div class=""><span class="inline-flex">
+                <div><a href="dimensions.html"><span><span>dimensions</span></span></a></div>
+<span class="anchor-wrapper"><span class="anchor-icon" pointing-to="1742720114%2FFunctions%2F301628108"></span>
+                  <div class="copy-popup-wrapper "><span class="copy-popup-icon"></span><span>Link copied to clipboard</span></div>
+                </span></span></div>
+            <div>
+              <div class="title">
+                <div class="platform-hinted " data-platform-hinted="data-platform-hinted"><div class="content sourceset-dependent-content" data-active="" data-togglable=":Terix-Core:dokkaHtmlPartial/main"><div class="symbol monospace"><span class="token keyword"></span><span class="token keyword">fun </span><a href="dimensions.html"><span class="token function">dimensions</span></a><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token operator">: </span><span data-unresolved-link="org.incendo.interfaces.core.util/Vector2///PointingToDeclaration/">Vector2</span></div><div class="brief "><p class="paragraph">Returns the dimensions of the paginated view</p></div></div></div>
+              </div>
+            </div>
+          </div>
+        </div>
+<a data-name="1927636251%2FFunctions%2F301628108" anchor-label="forwardElement" id="1927636251%2FFunctions%2F301628108" data-filterable-set=":Terix-Core:dokkaHtmlPartial/main"></a>
+        <div class="table-row" data-filterable-current=":Terix-Core:dokkaHtmlPartial/main" data-filterable-set=":Terix-Core:dokkaHtmlPartial/main">
+          <div class="main-subrow keyValue ">
+            <div class=""><span class="inline-flex">
+                <div><a href="forward-element.html"><span>forward</span><wbr><span><span>Element</span></span></a></div>
+<span class="anchor-wrapper"><span class="anchor-icon" pointing-to="1927636251%2FFunctions%2F301628108"></span>
+                  <div class="copy-popup-wrapper "><span class="copy-popup-icon"></span><span>Link copied to clipboard</span></div>
+                </span></span></div>
+            <div>
+              <div class="title">
+                <div class="platform-hinted " data-platform-hinted="data-platform-hinted"><div class="content sourceset-dependent-content" data-active="" data-togglable=":Terix-Core:dokkaHtmlPartial/main"><div class="symbol monospace"><span class="token keyword"></span><span class="token keyword">fun </span><a href="forward-element.html"><span class="token function">forwardElement</span></a><span class="token punctuation">(</span><span class="parameters "><span class="parameter ">position<span class="token operator">: </span><span data-unresolved-link="org.incendo.interfaces.core.util/Vector2///PointingToDeclaration/">Vector2</span><span class="token punctuation">, </span></span><span class="parameter ">builder<span class="token operator">: </span><a href="../index.html#1197372303%2FClasslikes%2F301628108">TransformFunction</a><span class="token operator">&lt;</span><span class="token keyword"></span><a href="index.html">S</a><span class="token punctuation">, </span><span class="token keyword"></span><a href="index.html">T</a><span class="token punctuation">, </span><span class="token keyword"></span><a href="index.html">U</a><span class="token operator">&gt;</span></span></span><span class="token punctuation">)</span></div><div class="brief "><p class="paragraph">Sets the forward element.</p></div></div></div>
+              </div>
+            </div>
+          </div>
+        </div>
+<a data-name="-1806972824%2FFunctions%2F301628108" anchor-label="maxPage" id="-1806972824%2FFunctions%2F301628108" data-filterable-set=":Terix-Core:dokkaHtmlPartial/main"></a>
+        <div class="table-row" data-filterable-current=":Terix-Core:dokkaHtmlPartial/main" data-filterable-set=":Terix-Core:dokkaHtmlPartial/main">
+          <div class="main-subrow keyValue ">
+            <div class=""><span class="inline-flex">
+                <div><a href="max-page.html"><span>max</span><wbr><span><span>Page</span></span></a></div>
+<span class="anchor-wrapper"><span class="anchor-icon" pointing-to="-1806972824%2FFunctions%2F301628108"></span>
+                  <div class="copy-popup-wrapper "><span class="copy-popup-icon"></span><span>Link copied to clipboard</span></div>
+                </span></span></div>
+            <div>
+              <div class="title">
+                <div class="platform-hinted " data-platform-hinted="data-platform-hinted"><div class="content sourceset-dependent-content" data-active="" data-togglable=":Terix-Core:dokkaHtmlPartial/main"><div class="symbol monospace"><span class="token keyword"></span><span class="token keyword">fun </span><a href="max-page.html"><span class="token function">maxPage</span></a><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token operator">: </span><span><span class="token annotation builtin">@</span><span data-unresolved-link="org.checkerframework.common.value.qual/IntRange///PointingToDeclaration/"><span class="token annotation builtin">IntRange</span></span><span class="token punctuation">(</span><span>from<span class="token operator"> = </span><span class="breakable-word"><span class="token constant">0</span></span></span><wbr><span class="token punctuation">)</span>&nbsp;</span><a href="https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-int/index.html">Int</a></div><div class="brief "><p class="paragraph">Returns the maximum page number.</p></div></div></div>
+              </div>
+            </div>
+          </div>
+        </div>
+<a data-name="-17529283%2FFunctions%2F301628108" anchor-label="nextPage" id="-17529283%2FFunctions%2F301628108" data-filterable-set=":Terix-Core:dokkaHtmlPartial/main"></a>
+        <div class="table-row" data-filterable-current=":Terix-Core:dokkaHtmlPartial/main" data-filterable-set=":Terix-Core:dokkaHtmlPartial/main">
+          <div class="main-subrow keyValue ">
+            <div class=""><span class="inline-flex">
+                <div><a href="next-page.html"><span>next</span><wbr><span><span>Page</span></span></a></div>
+<span class="anchor-wrapper"><span class="anchor-icon" pointing-to="-17529283%2FFunctions%2F301628108"></span>
+                  <div class="copy-popup-wrapper "><span class="copy-popup-icon"></span><span>Link copied to clipboard</span></div>
+                </span></span></div>
+            <div>
+              <div class="title">
+                <div class="platform-hinted " data-platform-hinted="data-platform-hinted"><div class="content sourceset-dependent-content" data-active="" data-togglable=":Terix-Core:dokkaHtmlPartial/main"><div class="symbol monospace"><span class="token keyword"></span><span class="token keyword">fun </span><a href="next-page.html"><span class="token function">nextPage</span></a><span class="token punctuation">(</span><span class="token punctuation">)</span></div><div class="brief "><p class="paragraph">Switch to the next page.</p></div></div></div>
+              </div>
+            </div>
+          </div>
+        </div>
+<a data-name="1319172464%2FFunctions%2F301628108" anchor-label="page" id="1319172464%2FFunctions%2F301628108" data-filterable-set=":Terix-Core:dokkaHtmlPartial/main"></a>
+        <div class="table-row" data-filterable-current=":Terix-Core:dokkaHtmlPartial/main" data-filterable-set=":Terix-Core:dokkaHtmlPartial/main">
+          <div class="main-subrow keyValue ">
+            <div class=""><span class="inline-flex">
+                <div><a href="page.html"><span><span>page</span></span></a></div>
+<span class="anchor-wrapper"><span class="anchor-icon" pointing-to="1319172464%2FFunctions%2F301628108"></span>
+                  <div class="copy-popup-wrapper "><span class="copy-popup-icon"></span><span>Link copied to clipboard</span></div>
+                </span></span></div>
+            <div>
+              <div class="title">
+                <div class="platform-hinted " data-platform-hinted="data-platform-hinted"><div class="content sourceset-dependent-content" data-active="" data-togglable=":Terix-Core:dokkaHtmlPartial/main"><div class="symbol monospace"><span class="token keyword"></span><span class="token keyword">fun </span><a href="page.html"><span class="token function">page</span></a><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token operator">: </span><span><span class="token annotation builtin">@</span><span data-unresolved-link="org.checkerframework.common.value.qual/IntRange///PointingToDeclaration/"><span class="token annotation builtin">IntRange</span></span><span class="token punctuation">(</span><span>from<span class="token operator"> = </span><span class="breakable-word"><span class="token constant">0</span></span></span><wbr><span class="token punctuation">)</span>&nbsp;</span><a href="https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-int/index.html">Int</a></div><div class="brief "><p class="paragraph">Returns the current page number.</p></div></div></div>
+              </div>
+            </div>
+          </div>
+        </div>
+<a data-name="-1849359845%2FFunctions%2F301628108" anchor-label="pageProperty" id="-1849359845%2FFunctions%2F301628108" data-filterable-set=":Terix-Core:dokkaHtmlPartial/main"></a>
+        <div class="table-row" data-filterable-current=":Terix-Core:dokkaHtmlPartial/main" data-filterable-set=":Terix-Core:dokkaHtmlPartial/main">
+          <div class="main-subrow keyValue ">
+            <div class=""><span class="inline-flex">
+                <div><a href="page-property.html"><span>page</span><wbr><span><span>Property</span></span></a></div>
+<span class="anchor-wrapper"><span class="anchor-icon" pointing-to="-1849359845%2FFunctions%2F301628108"></span>
+                  <div class="copy-popup-wrapper "><span class="copy-popup-icon"></span><span>Link copied to clipboard</span></div>
+                </span></span></div>
+            <div>
+              <div class="title">
+                <div class="platform-hinted " data-platform-hinted="data-platform-hinted"><div class="content sourceset-dependent-content" data-active="" data-togglable=":Terix-Core:dokkaHtmlPartial/main"><div class="symbol monospace"><span class="token keyword"></span><span class="token keyword">fun </span><a href="page-property.html"><span class="token function">pageProperty</span></a><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token operator">: </span><span data-unresolved-link="org.incendo.interfaces.core.transform/InterfaceProperty///PointingToDeclaration/">InterfaceProperty</span><span class="token operator">&lt;</span><span class="token keyword"></span><a href="https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-int/index.html">Int</a><span class="token operator">&gt;</span></div><div class="brief "><p class="paragraph">Get the property containing the pagination's current page.</p></div></div></div>
+              </div>
+            </div>
+          </div>
+        </div>
+<a data-name="-489071785%2FFunctions%2F301628108" anchor-label="pages" id="-489071785%2FFunctions%2F301628108" data-filterable-set=":Terix-Core:dokkaHtmlPartial/main"></a>
+        <div class="table-row" data-filterable-current=":Terix-Core:dokkaHtmlPartial/main" data-filterable-set=":Terix-Core:dokkaHtmlPartial/main">
+          <div class="main-subrow keyValue ">
+            <div class=""><span class="inline-flex">
+                <div><a href="pages.html"><span><span>pages</span></span></a></div>
+<span class="anchor-wrapper"><span class="anchor-icon" pointing-to="-489071785%2FFunctions%2F301628108"></span>
+                  <div class="copy-popup-wrapper "><span class="copy-popup-icon"></span><span>Link copied to clipboard</span></div>
+                </span></span></div>
+            <div>
+              <div class="title">
+                <div class="platform-hinted " data-platform-hinted="data-platform-hinted"><div class="content sourceset-dependent-content" data-active="" data-togglable=":Terix-Core:dokkaHtmlPartial/main"><div class="symbol monospace"><span class="token keyword"></span><span class="token keyword">fun </span><a href="pages.html"><span class="token function">pages</span></a><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token operator">: </span><span><span class="token annotation builtin">@</span><span data-unresolved-link="org.checkerframework.common.value.qual/IntRange///PointingToDeclaration/"><span class="token annotation builtin">IntRange</span></span><span class="token punctuation">(</span><span>from<span class="token operator"> = </span><span class="breakable-word"><span class="token constant">1</span></span></span><wbr><span class="token punctuation">)</span>&nbsp;</span><a href="https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-int/index.html">Int</a></div><div class="brief "><p class="paragraph">Returns the number of pages.</p></div></div></div>
+              </div>
+            </div>
+          </div>
+        </div>
+<a data-name="1289094073%2FFunctions%2F301628108" anchor-label="previousPage" id="1289094073%2FFunctions%2F301628108" data-filterable-set=":Terix-Core:dokkaHtmlPartial/main"></a>
+        <div class="table-row" data-filterable-current=":Terix-Core:dokkaHtmlPartial/main" data-filterable-set=":Terix-Core:dokkaHtmlPartial/main">
+          <div class="main-subrow keyValue ">
+            <div class=""><span class="inline-flex">
+                <div><a href="previous-page.html"><span>previous</span><wbr><span><span>Page</span></span></a></div>
+<span class="anchor-wrapper"><span class="anchor-icon" pointing-to="1289094073%2FFunctions%2F301628108"></span>
+                  <div class="copy-popup-wrapper "><span class="copy-popup-icon"></span><span>Link copied to clipboard</span></div>
+                </span></span></div>
+            <div>
+              <div class="title">
+                <div class="platform-hinted " data-platform-hinted="data-platform-hinted"><div class="content sourceset-dependent-content" data-active="" data-togglable=":Terix-Core:dokkaHtmlPartial/main"><div class="symbol monospace"><span class="token keyword"></span><span class="token keyword">fun </span><a href="previous-page.html"><span class="token function">previousPage</span></a><span class="token punctuation">(</span><span class="token punctuation">)</span></div><div class="brief "><p class="paragraph">Switch to the previous page.</p></div></div></div>
+              </div>
+            </div>
+          </div>
+        </div>
+<a data-name="-1766048308%2FFunctions%2F301628108" anchor-label="properties" id="-1766048308%2FFunctions%2F301628108" data-filterable-set=":Terix-Core:dokkaHtmlPartial/main"></a>
+        <div class="table-row" data-filterable-current=":Terix-Core:dokkaHtmlPartial/main" data-filterable-set=":Terix-Core:dokkaHtmlPartial/main">
+          <div class="main-subrow keyValue ">
+            <div class=""><span class="inline-flex">
+                <div><a href="properties.html"><span><span>properties</span></span></a></div>
+<span class="anchor-wrapper"><span class="anchor-icon" pointing-to="-1766048308%2FFunctions%2F301628108"></span>
+                  <div class="copy-popup-wrapper "><span class="copy-popup-icon"></span><span>Link copied to clipboard</span></div>
+                </span></span></div>
+            <div>
+              <div class="title">
+                <div class="platform-hinted " data-platform-hinted="data-platform-hinted"><div class="content sourceset-dependent-content" data-active="" data-togglable=":Terix-Core:dokkaHtmlPartial/main"><div class="symbol monospace"><span class="token keyword">open </span><span class="token keyword">override </span><span class="token keyword">fun </span><a href="properties.html"><span class="token function">properties</span></a><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token operator">: </span><a href="https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-array/index.html">Array</a><span class="token operator">&lt;</span><span class="token keyword"></span><span data-unresolved-link="org.incendo.interfaces.core.transform/InterfaceProperty///PointingToDeclaration/">InterfaceProperty</span><span class="token operator">&lt;</span><span class="token operator">*</span><span class="token operator">&gt;</span><span class="token operator">&gt;</span></div></div></div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+      <div class="footer">
+        <span class="go-to-top-icon"><a href="#content" id="go-to-top-link"></a></span><span>© 2022 Copyright</span><span class="pull-right"><span>Generated by </span><a href="https://github.com/Kotlin/dokka"><span>dokka</span><span class="padded-icon"></span></a></span>
+      </div>
+    </div>
+</div>
+
+</body></html>
+
