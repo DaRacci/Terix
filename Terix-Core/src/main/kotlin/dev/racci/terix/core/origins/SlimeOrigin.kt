@@ -40,7 +40,7 @@ import org.bukkit.inventory.meta.PotionMeta
 import org.bukkit.potion.PotionEffectType
 import org.bukkit.potion.PotionType
 import java.time.Duration
-import kotlin.reflect.KFunction
+import kotlin.reflect.KFunction1
 import kotlin.time.Duration.Companion.seconds
 
 // TODO -> CAke.
@@ -127,12 +127,12 @@ public class SlimeOrigin(override val plugin: Terix) : Origin() {
 
         healthCache.putEnterTask(player) {
             do {
-                task(player, HealthCache::inc) {
+                task(player, healthCache::inc) {
                     if (damageCache[player] == null || damageCache[player]!!.plus(DAMAGE_WAIT_TIME) > now()) {
-                        player.health += 0.5
+                        player.health = (player.health + 0.5).coerceAtMost(player.getAttribute(Attribute.GENERIC_MAX_HEALTH)!!.value)
                     }
                 }
-            } while (healthCache[player].amount != MAX_HEALTH_BONUS && player.inWater)
+            } while (healthCache[player].amount < (MAX_HEALTH_BONUS / 2.0) && player.inWater)
         }
     }
 
@@ -141,26 +141,28 @@ public class SlimeOrigin(override val plugin: Terix) : Origin() {
         if (previousType != LiquidType.WATER) return
 
         healthCache.putExitTask(player) {
-            do {
-                task(player, HealthCache::dec)
-            } while (healthCache[player].amount > 0.0 && !player.inWater)
+            while (healthCache[player].amount > 0.0 && !player.inWater) {
+                task(player, healthCache::dec)
+            }
         }
     }
 
     private suspend fun task(
         player: Player,
-        function: KFunction<Unit>,
+        function: KFunction1<Player, Unit>,
         extraAction: () -> Unit = {}
     ) {
         val instance = player.getAttribute(Attribute.GENERIC_MAX_HEALTH)!!
 
         instance.removeModifier(healthCache[player])
-        function.call(healthCache, player)
+        logger.debug { "Removed modifier ${healthCache[player]}" }
+        function.call(player)
+        logger.debug { "Added modifier ${healthCache[player]}" }
         instance.addModifier(healthCache[player])
 
         extraAction()
 
-        delay(1.seconds)
+        delay(250)
     }
 
     private val lastDamage = Caffeine.newBuilder()
@@ -168,18 +170,18 @@ public class SlimeOrigin(override val plugin: Terix) : Origin() {
         .build<Player, Instant>()
 
     @OriginEventSelector(EventSelector.ENTITY)
-    public fun onDamage(event: EntityDamageEvent) {
-        val last = lastDamage.getIfPresent(event.entity.castOrThrow())
+    public fun EntityDamageEvent.slimeballDrop() {
+        val last = lastDamage.getIfPresent(this.entity.castOrThrow())
         val now = now()
 
         if (last != null && (last + 15.seconds) > now()) return
 
-        lastDamage.put(event.entity.castOrThrow(), now)
-        event.entity.location.dropItem(ItemStack(Material.SLIME_BALL))
+        lastDamage.put(this.entity.castOrThrow(), now)
+        this.entity.location.dropItem(ItemStack(Material.SLIME_BALL))
     }
 
-    private inner class HealthCache {
-        private val modifierCache = Array(MAX_HEALTH_BONUS.toInt()) { i ->
+    public inner class HealthCache {
+        private val modifierCache = Array(MAX_HEALTH_BONUS + 1) { i ->
             dslMutator<AttributeModifierBuilder> {
                 amount = convertIndex(i)
                 operation = AttributeModifier.Operation.ADD_NUMBER
@@ -189,17 +191,17 @@ public class SlimeOrigin(override val plugin: Terix) : Origin() {
         private val playerMap: PlayerMap<Int> = PlayerMap()
         private val runningTask: PlayerMap<Pair<CoroutineTask, Boolean>> = PlayerMap()
 
-        operator fun get(player: Player): AttributeModifier = this.modifierCache[this.playerMap.computeIfAbsent(player) { 0 }]
+        public operator fun get(player: Player): AttributeModifier = this.modifierCache[this.playerMap.computeIfAbsent(player) { 0 }]
 
-        fun inc(player: Player) {
+        public fun inc(player: Player) {
             playerMap[player] = convertAmount(this[player].amount) + 1
         }
 
-        fun dec(player: Player) {
+        public fun dec(player: Player) {
             playerMap[player] = convertAmount(this[player].amount) - 1
         }
 
-        fun putEnterTask(
+        public fun putEnterTask(
             player: Player,
             block: suspend () -> Unit
         ) {
@@ -207,7 +209,7 @@ public class SlimeOrigin(override val plugin: Terix) : Origin() {
             runningTask.computeIfAbsent(player) { newTask(player, block) to true }
         }
 
-        fun putExitTask(
+        public fun putExitTask(
             player: Player,
             block: suspend () -> Unit
         ) {
@@ -226,13 +228,13 @@ public class SlimeOrigin(override val plugin: Terix) : Origin() {
             runningTask.remove(player)
         }
 
-        private fun convertIndex(index: Int): Double = index / 2.0
+        internal fun convertIndex(index: Int): Double = (index / 2.0)
 
-        private fun convertAmount(amount: Double): Int = (amount * 2).toInt()
+        internal fun convertAmount(amount: Double): Int = (amount * 2).toInt()
     }
 
     private companion object {
-        const val MAX_HEALTH_BONUS = 5.0
+        const val MAX_HEALTH_BONUS = 20
         val DAMAGE_WAIT_TIME = 8.seconds
     }
 }
