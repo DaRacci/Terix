@@ -3,6 +3,8 @@ import org.jetbrains.dokka.gradle.DokkaPlugin
 import org.jetbrains.kotlinx.serialization.gradle.SerializationGradleSubplugin
 import java.net.URL
 
+// Workaround for (https://youtrack.jetbrains.com/issue/KTIJ-19369)
+@Suppress("DSL_SCOPE_VIOLATION")
 plugins {
     alias(libs.plugins.minix.nms)
     alias(libs.plugins.minix.kotlin)
@@ -13,8 +15,8 @@ plugins {
     alias(libs.plugins.minecraft.pluginYML)
     alias(libs.plugins.dokka)
 
-//    alias(libs.plugins.kotlin.atomicfu)
-    id("dev.racci.slimjar") version "1.3.3"
+    alias(libs.plugins.kotlin.atomicfu)
+    alias(libs.plugins.slimjar)
 }
 
 bukkit {
@@ -24,13 +26,14 @@ bukkit {
     apiVersion = "1.19"
     version = rootProject.version.toString()
     main = "dev.racci.terix.core.TerixImpl"
-    load = PluginLoadOrder.STARTUP
+    load = PluginLoadOrder.POSTWORLD
     depend = listOf("Minix")
     softDepend = listOf(
         "PlaceholderAPI",
         "Lands",
         "EcoEnchants",
-        "ProtocolLib"
+        "ProtocolLib",
+        "LibsDisguises"
     )
 }
 
@@ -84,7 +87,7 @@ subprojects {
         testImplementation(rootProject.libs.bundles.kotlin)
         testImplementation(rootProject.libs.bundles.kotlinx)
         testImplementation(rootProject.libs.bundles.testing)
-        testImplementation(rootProject.libs.minecraft.bstats)
+        testImplementation(rootProject.libs.minecraft.bstats.base)
         testImplementation(rootProject.libs.koin.test)
         testImplementation(rootProject.libs.koin.test.junit5)
         testImplementation("dev.racci:Minix-NMS:$minixVersion")
@@ -93,7 +96,11 @@ subprojects {
     }
 
     configurations {
-        testImplementation.get().exclude("org.jetbrains.kotlin", "kotlin-test-junit")
+        all {
+            exclude("org.jetbrains.kotlin", "kotlin-test-junit")
+            exclude("org.spigotmc")
+            exclude(module = "paper-api")
+        }
     }
 
     tasks {
