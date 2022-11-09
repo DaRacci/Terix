@@ -43,8 +43,3 @@ public val Player.originPassiveModifiers: Map<AttributeInstance, List<AttributeM
         .mapNotNull { attr -> this.getAttribute(attr) }
         .associateWith { attr -> attr.modifiers.filter { mod -> mod.name.matches(AttributeModifierBuilder.regex) } }
         .filterValues { mods -> mods.isNotEmpty() }
-
-public fun Player.sanitise() {
-    allOriginPotions.map(PotionEffect::getType).forEach(this::removePotionEffect)
-    originPassiveModifiers.forEach { it.value.forEach(it.key::removeModifier) }
-}

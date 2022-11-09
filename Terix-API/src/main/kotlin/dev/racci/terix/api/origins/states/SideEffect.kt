@@ -1,7 +1,7 @@
 package dev.racci.terix.api.origins.states
 
 public sealed class SideEffect {
-    public open val name = this::class.simpleName ?: throw IllegalStateException("Anonymous classes aren't supported.")
+    public open val name: String = this::class.simpleName ?: throw IllegalStateException("Anonymous classes aren't supported.")
 
     public object WET : SideEffect()
     public object DRY : SideEffect()

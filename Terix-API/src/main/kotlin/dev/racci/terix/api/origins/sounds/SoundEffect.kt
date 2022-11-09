@@ -2,7 +2,7 @@ package dev.racci.terix.api.origins.sounds
 
 import net.kyori.adventure.key.Key
 
-public class SoundEffect(
+public data class SoundEffect(
     public val resourceKey: Key,
     public val volume: Float = 1f,
     public val pitch: Float = 1f,
