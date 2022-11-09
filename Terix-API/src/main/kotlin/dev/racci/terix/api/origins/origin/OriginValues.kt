@@ -30,8 +30,6 @@ import org.bukkit.event.entity.EntityDamageEvent
 import org.bukkit.potion.PotionEffect
 
 public sealed class OriginValues : WithPlugin<MinixPlugin> {
-    private val specials = arrayOfNulls<Boolean>(2)
-
     @MinixInternal
     public val eventListener: KListener<MinixPlugin> = object : KListener<MinixPlugin> {
         override val plugin get() = this@OriginValues.plugin
@@ -48,16 +46,8 @@ public sealed class OriginValues : WithPlugin<MinixPlugin> {
 
     public open val requirements: PersistentList<Pair<Component, (Player) -> Boolean>> = persistentListOf()
 
-    public open var fireImmunity: Boolean
-        get() = specials[0] ?: false
-        protected set(value) {
-            specials[0] = value
-        }
-    public open var waterBreathing: Boolean
-        get() = specials[1] ?: false
-        protected set(value) {
-            specials[1] = value
-        }
+    public open var fireImmunity: Boolean = false
+    public open var waterBreathing: Boolean = false
 
     public val item: OriginItem = OriginItem()
     public val sounds: SoundEffects = SoundEffects()
