@@ -11,7 +11,7 @@ import kotlin.math.sin
 import kotlin.time.Duration
 import kotlin.time.Duration.Companion.seconds
 
-public class DragonBreath(override val origin: Origin) : Ability(AbilityType.TRIGGER) {
+public class DragonBreath(override val origin: Origin) : KeybindAbility(AbilityType.TRIGGER) {
     override val cooldown: Duration = 10.seconds
 
     // TODO -> Less NMS bullshitery

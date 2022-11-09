@@ -21,7 +21,7 @@ import org.bukkit.potion.PotionEffectType
 import java.util.UUID
 import kotlin.time.Duration
 
-public class Levitate(override val origin: Origin) : Ability(AbilityType.TOGGLE) {
+public class Levitate(override val origin: Origin) : KeybindAbility(AbilityType.TOGGLE) {
 
     private val glideMap = HashSet<Player>()
 

@@ -2,10 +2,6 @@ package dev.racci.terix.core.origins
 
 import dev.racci.minix.api.annotations.RunAsync
 import dev.racci.minix.api.collections.PlayerMap
-import dev.racci.minix.api.destructors.component1
-import dev.racci.minix.api.destructors.component2
-import dev.racci.minix.api.destructors.component3
-import dev.racci.minix.api.destructors.component4
 import dev.racci.minix.api.events.keybind.PlayerDoubleSecondaryEvent
 import dev.racci.minix.api.events.player.PlayerMoveFullXYZEvent
 import dev.racci.minix.api.extensions.cancel

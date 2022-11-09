@@ -12,7 +12,7 @@ import org.bukkit.util.Vector
 import kotlin.time.Duration
 import kotlin.time.Duration.Companion.seconds
 
-public class Teleport(override val origin: Origin) : Ability(AbilityType.TRIGGER) {
+public class Teleport(override val origin: Origin) : KeybindAbility(AbilityType.TRIGGER) {
     override val cooldown: Duration = 3.seconds
 
     override suspend fun onActivate(player: Player) {

@@ -27,7 +27,7 @@ import java.util.UUID
 import kotlin.time.Duration
 
 // TODO -> Per player instances
-public abstract class Ability(
+public abstract class KeybindAbility(
     private val abilityType: AbilityType
 ) : WithPlugin<Terix> {
     protected abstract val origin: Origin
@@ -39,7 +39,7 @@ public abstract class Ability(
     /** The duration before the ability can be activated again. */
     public open val cooldown: Duration = 20.ticks
 
-    public open val name: String = this::class.simpleName ?: throw IllegalStateException("Ability name is null")
+    public open val name: String = this::class.simpleName ?: throw IllegalStateException("KeybindAbility name is null")
 
     /**
      * Called when the ability is activated.
@@ -115,9 +115,9 @@ public abstract class Ability(
         val containers = player.persistentDataContainer.get(NAMESPACE, PersistentDataType.TAG_CONTAINER_ARRAY)?.toMutableList() ?: mutableListOf<PersistentDataContainer>()
         val container = player.persistentDataContainer.get(NAMESPACE, PersistentDataType.TAG_CONTAINER) ?: DirtyCraftPersistentDataContainer(CraftPersistentDataTypeRegistry())
 
-        container.set(NAMESPACES[0], PersistentDataType.STRING, this@Ability.name)
-        this@Ability.abilityCache[player.uniqueId]?.toEpochMilliseconds()?.let { container.set(NAMESPACES[1], PersistentDataType.LONG, it) }
-        if (this@Ability.isActivated(player.uniqueId)) container.set(NAMESPACES[2], PersistentDataType.BYTE, 1)
+        container.set(NAMESPACES[0], PersistentDataType.STRING, this@KeybindAbility.name)
+        this@KeybindAbility.abilityCache[player.uniqueId]?.toEpochMilliseconds()?.let { container.set(NAMESPACES[1], PersistentDataType.LONG, it) }
+        if (this@KeybindAbility.isActivated(player.uniqueId)) container.set(NAMESPACES[2], PersistentDataType.BYTE, 1)
 
         containers.add(container)
         player.persistentDataContainer.set(NAMESPACE, PersistentDataType.TAG_CONTAINER_ARRAY, containers.toTypedArray())

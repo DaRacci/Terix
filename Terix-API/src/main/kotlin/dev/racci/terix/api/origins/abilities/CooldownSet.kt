@@ -9,7 +9,7 @@ import java.util.UUID
 import kotlin.time.Duration
 import kotlin.time.Duration.Companion.seconds
 
-internal class CooldownSet(private val ability: Ability) {
+internal class CooldownSet(private val ability: KeybindAbility) {
     // If Instant is null, cooldown is expired.
     // If Boolean is true, ability is active.
     private val cacheMap = hashMapOf<UUID, Pair<Boolean, Instant?>>()

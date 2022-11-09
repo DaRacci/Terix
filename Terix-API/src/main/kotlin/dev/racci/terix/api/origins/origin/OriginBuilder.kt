@@ -16,7 +16,8 @@ import dev.racci.terix.api.dsl.TimedAttributeBuilder
 import dev.racci.terix.api.dsl.TitleBuilder
 import dev.racci.terix.api.dsl.dslMutator
 import dev.racci.terix.api.origins.OriginItem
-import dev.racci.terix.api.origins.abilities.Ability
+import dev.racci.terix.api.origins.abilities.KeybindAbility
+import dev.racci.terix.api.origins.abilities.PassiveAbility
 import dev.racci.terix.api.origins.enums.KeyBinding
 import dev.racci.terix.api.origins.states.State
 import net.minecraft.world.food.Foods
@@ -567,20 +568,30 @@ public sealed class OriginBuilder : OriginValues() {
     /** A Utility class for building abilities. */
     public inner class AbilityBuilder {
 
-        public fun <T : Ability> KeyBinding.add(
+        public fun <T : KeybindAbility> KeyBinding.add(
             clazz: KClass<out T>,
             builder: T.() -> Unit = {}
-        ): Ability? = abilities.put(this, OriginService.generateAbility(clazz, this@OriginBuilder).also(builder.castOrThrow()))
+        ): KeybindAbility? = abilities.put(this, OriginService.generateAbility(clazz, this@OriginBuilder).also(builder.castOrThrow()))
 
-        public inline fun <reified T : Ability> KeyBinding.add(
+        public inline fun <reified T : KeybindAbility> KeyBinding.add(
             noinline builder: T.() -> Unit = {}
-        ): Ability? = add(T::class, builder)
+        ): KeybindAbility? = add(T::class, builder)
+
+        /**
+         * Adds a passive ability that is granted with this origin.
+         *
+         * @param T The type of ability to add.
+         * @param configure A builder function to configure the ability on creation.
+         */
+        public inline fun <reified T : PassiveAbility> withPassive(
+            noinline configure: suspend T.() -> Unit = {}
+        ) { passiveAbilities.add(PassiveAbilityGenerator(T::class, configure.castOrThrow())) }
     }
 
     /** A Utility class for building biome triggers. */
     public inner class BiomeBuilder {
 
-        public operator fun <T : Ability> Biome.plusAssign(ability: KClass<out T>) {
+        public operator fun <T : KeybindAbility> Biome.plusAssign(ability: KClass<out T>) {
             TODO("Not implemented yet")
         }
     }

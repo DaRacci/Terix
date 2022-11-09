@@ -13,6 +13,7 @@ import dev.racci.minix.api.events.world.WorldDayEvent
 import dev.racci.minix.api.events.world.WorldNightEvent
 import dev.racci.minix.api.extension.Extension
 import dev.racci.minix.api.extensions.cancel
+import dev.racci.minix.api.extensions.collections.clear
 import dev.racci.minix.api.extensions.collections.computeAndRemove
 import dev.racci.minix.api.extensions.event
 import dev.racci.minix.api.extensions.events
@@ -38,6 +39,7 @@ import dev.racci.terix.api.extensions.playSound
 import dev.racci.terix.api.origins.OriginHelper
 import dev.racci.terix.api.origins.OriginHelper.activateOrigin
 import dev.racci.terix.api.origins.OriginHelper.deactivateOrigin
+import dev.racci.terix.api.origins.abilities.PassiveAbility
 import dev.racci.terix.api.origins.enums.KeyBinding
 import dev.racci.terix.api.origins.origin.ActionPropBuilder
 import dev.racci.terix.api.origins.origin.Origin
@@ -96,6 +98,7 @@ import java.util.UUID
 import kotlin.reflect.KProperty1
 import kotlin.time.Duration.Companion.seconds
 
+// TODO -> This class is disgusting, needs to be cleaned up
 @MappedExtension(Terix::class, "Listener Service", [DataService::class])
 public class ListenerService(override val plugin: Terix) : Extension<Terix>() {
     private val terixConfig by inject<DataService>().inject<TerixConfig>()
@@ -105,6 +108,14 @@ public class ListenerService(override val plugin: Terix) : Extension<Terix>() {
 
     @Suppress("kotlin:S3776")
     override suspend fun handleEnable() {
+        event<PlayerOriginChangeEvent>(EventPriority.MONITOR, true) {
+            preOrigin.activePassiveAbilities[this.player].clear(PassiveAbility::unregister)
+            newOrigin.passiveAbilities
+                .map { generator -> generator.of(this.player) }
+                .onEach { passive -> newOrigin.activePassiveAbilities[this.player].add(passive) }
+                .forEach { passive -> passive.register() }
+        }
+
         event<BeaconEffectEvent>(EventPriority.HIGH, true) {
             if (shouldIgnore()) return@event
 

@@ -21,6 +21,8 @@ import org.bukkit.event.entity.EntityPickupItemEvent
 // TODO -> Eating raw items gives the same as cooked food since hes hot.
 // TODO -> Eating Cooked food gives less since it becomes overcooked.
 // TODO -> Cake.
+// TODO -> Walk on obsidian
+// TODO -> holding food cooks it
 public class NetherbornOrigin(override val plugin: Terix) : Origin() {
 
     override val name: String = "Netherborn"

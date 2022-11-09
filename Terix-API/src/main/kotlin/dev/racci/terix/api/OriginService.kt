@@ -1,7 +1,8 @@
 package dev.racci.terix.api
 
 import dev.racci.minix.api.utils.getKoin
-import dev.racci.terix.api.origins.abilities.Ability
+import dev.racci.terix.api.origins.abilities.KeybindAbility
+import dev.racci.terix.api.origins.abilities.PassiveAbility
 import dev.racci.terix.api.origins.origin.Origin
 import dev.racci.terix.api.origins.origin.OriginBuilder
 import kotlinx.collections.immutable.PersistentMap
@@ -18,9 +19,9 @@ public interface OriginService {
 
     @Throws(NoSuchElementException::class)
     public fun generateAbility(
-        ability: KClass<out Ability>,
+        ability: KClass<out KeybindAbility>,
         origin: OriginBuilder // Allows access inside builder, will still only ever be an Origin.
-    ): Ability
+    ): KeybindAbility
 
     @Throws(NoSuchElementException::class)
     public fun getOrigin(name: String): Origin
