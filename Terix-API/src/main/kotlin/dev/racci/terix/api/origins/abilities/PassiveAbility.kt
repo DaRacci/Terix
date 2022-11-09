@@ -3,6 +3,7 @@ package dev.racci.terix.api.origins.abilities
 import dev.racci.minix.api.extensions.SimpleKListener
 import dev.racci.minix.api.extensions.WithPlugin
 import dev.racci.minix.api.extensions.event
+import dev.racci.minix.api.extensions.unregisterListener
 import dev.racci.terix.api.Terix
 import dev.racci.terix.api.annotations.DispatcherContext
 import dev.racci.terix.api.origins.origin.Origin
@@ -47,5 +48,6 @@ public abstract class PassiveAbility public constructor(
     @API(status = API.Status.INTERNAL)
     public suspend fun unregister() {
         this.onDeactivate()
+        listener.unregisterListener()
     }
 }
