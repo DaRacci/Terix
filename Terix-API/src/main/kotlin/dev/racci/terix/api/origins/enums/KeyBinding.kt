@@ -1,6 +1,7 @@
 package dev.racci.terix.api.origins.enums
 
 import dev.racci.minix.api.events.keybind.ComboEvent
+import dev.racci.minix.api.events.keybind.PlayerDoubleOffhandEvent
 import dev.racci.minix.api.events.keybind.PlayerDoublePrimaryEvent
 import dev.racci.minix.api.events.keybind.PlayerDoubleSecondaryEvent
 import dev.racci.minix.api.events.keybind.PlayerOffhandEvent
@@ -15,7 +16,7 @@ import dev.racci.minix.api.events.keybind.PlayerSneakSecondaryEvent
 import kotlin.reflect.KClass
 
 public enum class KeyBinding(public val event: KClass<out ComboEvent>) {
-    DOUBLE_OFFHAND(dev.racci.minix.api.events.keybind.PlayerDoubleOffhandEvent::class),
+    DOUBLE_OFFHAND(PlayerDoubleOffhandEvent::class),
 
     // DOUBLE_SNEAK(), // TODO: Event
     DOUBLE_RIGHT_CLICK(PlayerDoubleSecondaryEvent::class),
