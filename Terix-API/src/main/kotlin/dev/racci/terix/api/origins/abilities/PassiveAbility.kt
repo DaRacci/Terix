@@ -3,7 +3,7 @@ package dev.racci.terix.api.origins.abilities
 import dev.racci.minix.api.extensions.SimpleKListener
 import dev.racci.minix.api.extensions.WithPlugin
 import dev.racci.minix.api.extensions.event
-import dev.racci.minix.api.plugin.MinixPlugin
+import dev.racci.terix.api.Terix
 import dev.racci.terix.api.annotations.DispatcherContext
 import dev.racci.terix.api.origins.origin.Origin
 import org.apiguardian.api.API
@@ -11,12 +11,14 @@ import org.bukkit.entity.Player
 import org.bukkit.event.EventPriority
 import org.bukkit.event.entity.EntityEvent
 import org.bukkit.event.player.PlayerEvent
+import org.koin.core.component.inject
 
 public abstract class PassiveAbility public constructor(
     protected val abilityPlayer: Player,
     protected val linkedOrigin: Origin,
-    final override val plugin: MinixPlugin
-) : WithPlugin<MinixPlugin> {
+) : WithPlugin<Terix> {
+    final override val plugin: Terix by inject()
+
     @PublishedApi
     internal val listener: SimpleKListener = SimpleKListener(plugin)
 

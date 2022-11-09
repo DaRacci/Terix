@@ -82,7 +82,7 @@ public sealed class OriginValues : WithPlugin<MinixPlugin> {
     ) {
         public suspend fun of(player: Player): PassiveAbility {
             val constructor = abilityKClass.primaryConstructor ?: throw OriginCreationException("No primary constructor for ability ${abilityKClass.simpleName}")
-            val ability = constructor.call(player, TerixPlayer.cachedOrigin(player), getKoin().get<Terix>())
+            val ability = constructor.call(player, TerixPlayer.cachedOrigin(player))
 
             abilityBuilder(ability)
             return ability
