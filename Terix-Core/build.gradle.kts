@@ -1,7 +1,3 @@
-plugins {
-    id("dev.racci.minix.nms")
-}
-
 val minixVersion: String by rootProject
 
 dependencies {

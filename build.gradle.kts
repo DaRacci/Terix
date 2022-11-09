@@ -56,6 +56,7 @@ dependencies {
 }
 
 subprojects {
+    apply<Dev_racci_minix_nmsPlugin>()
     apply<Dev_racci_minix_kotlinPlugin>()
     apply<Dev_racci_minix_purpurmcPlugin>()
     apply<SerializationGradleSubplugin>()
@@ -75,7 +76,7 @@ subprojects {
     dependencies {
         compileOnly(rootProject.libs.minecraft.minix)
         compileOnly(rootProject.libs.minecraft.minix.core)
-        compileOnly(rootProject.libs.minecraft.api.libsDisguises)
+        compileOnly(rootProject.libs.minecraft.api.libsDisguises) { exclude("org.spigotmc", "spigot") }
 
         compileOnly(platform("io.arrow-kt:arrow-stack:1.1.3"))
         compileOnly("io.arrow-kt:arrow-core")
@@ -95,11 +96,16 @@ subprojects {
         testImplementation(rootProject.libs.minecraft.api.placeholderAPI)
     }
 
+    java{
+        withJavadocJar()
+        withSourcesJar()
+    }
+
     configurations {
         all {
             exclude("org.jetbrains.kotlin", "kotlin-test-junit")
-            exclude("org.spigotmc")
-            exclude(module = "paper-api")
+            exclude("org.spigotmc", "spigot")
+            exclude("io.papermc.paper", "paper-api")
         }
     }
 
@@ -159,11 +165,5 @@ allprojects {
 
     kotlin {
         explicitApiWarning()
-    }
-
-    configurations.configureEach {
-        exclude("me.carleslc.Simple-YAML", "Simple-Configuration")
-        exclude("me.carleslc.Simple-YAML", "Simple-Yaml")
-        exclude("com.github.technove", "Flare")
     }
 }

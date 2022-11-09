@@ -9,17 +9,6 @@ pluginManagement {
         maven("https://repo.racci.dev/releases")
         maven("https://papermc.io/repo/repository/maven-public/")
     }
-
-    resolutionStrategy {
-        val minixVersion: String by settings
-        val kotlinVersion: String by settings
-        val conventions = kotlinVersion.plus("-").plus(minixVersion.substringAfterLast('.'))
-        eachPlugin {
-            if (requested.id.id.startsWith("dev.racci.minix")) {
-                useVersion(conventions)
-            }
-        }
-    }
 }
 
 dependencyResolutionManagement {
