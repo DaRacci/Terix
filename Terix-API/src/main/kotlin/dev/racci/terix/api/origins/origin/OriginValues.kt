@@ -44,8 +44,6 @@ public sealed class OriginValues : WithPlugin<MinixPlugin> {
 
     public open val colour: TextColor = NamedTextColor.WHITE
 
-    public open val permission: String? = null
-
     public open val becomeOriginTitle: TitleBuilder? = null
 
     public open val requirements: PersistentList<Pair<Component, (Player) -> Boolean>> = persistentListOf()

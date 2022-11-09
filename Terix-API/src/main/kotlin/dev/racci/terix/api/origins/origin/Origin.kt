@@ -12,14 +12,6 @@ import org.bukkit.entity.Player
 @API(status = API.Status.MAINTAINED, since = "1.0.0")
 public abstract class Origin : OriginBuilder() {
 
-    /**
-     * Checks if the player has permission for this origin.
-     *
-     * @param player The player to check.
-     * @return True if the player has permission, false otherwise.
-     */
-    public open suspend fun hasPermission(player: Player): Boolean = permission?.let(player::hasPermission) ?: true
-
     /** Called when Terix first registers this origin. */
     public open suspend fun handleRegister(): Unit = Unit
 

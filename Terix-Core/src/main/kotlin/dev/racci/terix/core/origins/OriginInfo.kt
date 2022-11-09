@@ -53,7 +53,6 @@ public object OriginInfo {
                 appendKeyValue("Name", name)
                 appendKeyValue("Colour", colour)
                 appendKeyValue("DisplayName", displayName)
-                appendKeyValue("Permission", permission)
             }
         }
 

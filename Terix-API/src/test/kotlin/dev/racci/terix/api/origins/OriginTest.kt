@@ -76,16 +76,6 @@ internal class OriginTest {
     }
 
     @Test
-    fun getPermission() {
-        assertEquals("test.permission", origin.permission)
-    }
-
-    @Test
-    fun getBecomeOriginTitle() {
-        assertEquals("test.permission", origin.permission)
-    }
-
-    @Test
     fun getAttributeModifiers() {
         assertEquals(2, origin.attributeModifiers.size)
 
