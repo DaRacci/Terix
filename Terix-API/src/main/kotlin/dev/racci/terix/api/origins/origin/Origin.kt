@@ -3,6 +3,8 @@ package dev.racci.terix.api.origins.origin
 import dev.racci.terix.api.events.PlayerOriginChangeEvent
 import org.apiguardian.api.API
 import org.bukkit.entity.Player
+import kotlin.reflect.KProperty1
+import kotlin.reflect.full.declaredMemberProperties
 
 // TODO -> Player levels
 // TODO -> Per player instances of origins
@@ -39,9 +41,21 @@ public abstract class Origin : OriginBuilder() {
     /** Called each game tick. */
     public open suspend fun onTick(player: Player): Unit = Unit
 
-    final override fun toString(): String {
-        return "Origin(name='$name', item=$item, " +
-            "abilities=$abilities, stateBlock=$stateBlocks, stateDamageTicks=$stateDamageTicks, " +
-            "damageActions=$damageActions, customFoodProperties=$customFoodProperties, customFoodActions=$customFoodActions)"
+    final override fun toString(): String = buildString {
+        fun appender(property: KProperty1<OriginValues, *>) {
+            if (last() != '(') append(", ")
+            append(property.name)
+            append("='")
+            append(property.get(this@Origin))
+            append('\'')
+        }
+
+        append("Origin(")
+
+        OriginValues::class.declaredMemberProperties
+            .filter { it.annotations.isEmpty() }
+            .forEach { prop -> appender(prop) }
+
+        append(')')
     }
 }
