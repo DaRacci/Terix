@@ -3,6 +3,7 @@ package dev.racci.terix.api.origins.abilities
 import dev.racci.minix.api.destructors.component1
 import dev.racci.minix.api.destructors.component2
 import dev.racci.minix.api.destructors.component3
+import dev.racci.minix.api.events.player.PlayerMoveXYZEvent
 import dev.racci.minix.api.extensions.cancel
 import dev.racci.minix.api.extensions.event
 import dev.racci.minix.api.extensions.onlinePlayers
@@ -20,14 +21,12 @@ import org.bukkit.potion.PotionEffectType
 import java.util.UUID
 import kotlin.time.Duration
 
-// TODO -> Don't force elytra if the player isn't moving.
-// TODO -> If the player is still only levitate up.
 public class Levitate(override val origin: Origin) : Ability(AbilityType.TOGGLE) {
 
     private val glideMap = HashSet<Player>()
 
     init {
-        event<dev.racci.minix.api.events.player.PlayerMoveXYZEvent>(EventPriority.MONITOR, true) {
+        event<PlayerMoveXYZEvent>(EventPriority.MONITOR, true) {
             if (!this@Levitate.isActivated(this.player.uniqueId)) return@event
             if (this.from.z == this.to.z && this.from.x == this.to.x) return@event
 
