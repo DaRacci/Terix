@@ -96,7 +96,7 @@ subprojects {
         testImplementation(rootProject.libs.minecraft.api.placeholderAPI)
     }
 
-    java{
+    java {
         withJavadocJar()
         withSourcesJar()
     }

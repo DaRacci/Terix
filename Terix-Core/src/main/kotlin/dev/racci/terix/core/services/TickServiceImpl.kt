@@ -20,10 +20,11 @@ import dev.racci.minix.nms.aliases.toNMS
 import dev.racci.terix.api.OriginService
 import dev.racci.terix.api.Terix
 import dev.racci.terix.api.TerixPlayer
-import dev.racci.terix.api.TerixPlayer.User.origin
 import dev.racci.terix.api.events.PlayerOriginChangeEvent
 import dev.racci.terix.api.origins.origin.Origin
 import dev.racci.terix.api.origins.states.State
+import dev.racci.terix.api.services.TickService
+import dev.racci.terix.api.services.TickService.Companion.TICK_RATE
 import dev.racci.terix.core.extensions.inDarkness
 import dev.racci.terix.core.extensions.inRain
 import dev.racci.terix.core.extensions.inSunlight
@@ -41,6 +42,7 @@ import dev.racci.terix.core.services.runnables.SunlightTick
 import dev.racci.terix.core.services.runnables.WaterTick
 import kotlinx.collections.immutable.persistentHashMapOf
 import kotlinx.collections.immutable.toPersistentHashSet
+import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableSharedFlow
@@ -67,8 +69,8 @@ import java.util.UUID
 import java.util.concurrent.ConcurrentHashMap
 import kotlin.math.roundToInt
 
-@MappedExtension(Terix::class, "Tick Service", [OriginService::class], threadCount = 4)
-public class TickService(override val plugin: Terix) : Extension<Terix>() {
+@MappedExtension(Terix::class, "Tick Service", [OriginService::class], TickService::class, 4)
+public class TickServiceImpl(override val plugin: Terix) : Extension<Terix>(), TickService {
     private val delayChannel = Channel<Unit>(0)
     private val mutex = Mutex()
     private val playerQueue = ArrayDeque<Player>()
@@ -79,7 +81,9 @@ public class TickService(override val plugin: Terix) : Extension<Terix>() {
     /** The queue of players which have disconnected. (Slightly faster performance than checking [Player.isOnline]) */
     private val removeQueue = ConcurrentHashMap.newKeySet<UUID>()
 
-    public val playerFlow: SharedFlow<Player> = internalFlow.asSharedFlow()
+    override val playerFlow: SharedFlow<Player> = internalFlow.asSharedFlow()
+
+    override val threadContext: CoroutineDispatcher get() = this.dispatcher.get()
 
     override suspend fun handleEnable() {
         // TODO -> Only load these once
@@ -247,8 +251,4 @@ public class TickService(override val plugin: Terix) : Extension<Terix>() {
         yieldAll(origin.stateBlocks.keys)
         yieldAll(origin.attributeModifiers.keys)
     }.distinct()
-
-    public companion object : ExtensionCompanion<TickService>() {
-        public const val TICK_RATE: Int = 2
-    }
 }

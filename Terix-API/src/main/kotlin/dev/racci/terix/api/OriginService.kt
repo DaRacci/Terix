@@ -2,7 +2,6 @@ package dev.racci.terix.api
 
 import dev.racci.minix.api.utils.getKoin
 import dev.racci.terix.api.origins.abilities.KeybindAbility
-import dev.racci.terix.api.origins.abilities.PassiveAbility
 import dev.racci.terix.api.origins.origin.Origin
 import dev.racci.terix.api.origins.origin.OriginBuilder
 import kotlinx.collections.immutable.PersistentMap

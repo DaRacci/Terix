@@ -15,8 +15,8 @@ import org.bukkit.event.player.PlayerEvent
 import org.koin.core.component.inject
 
 public abstract class PassiveAbility public constructor(
-    protected val abilityPlayer: Player,
-    protected val linkedOrigin: Origin,
+    public val abilityPlayer: Player,
+    public val linkedOrigin: Origin,
 ) : WithPlugin<Terix> {
     final override val plugin: Terix by inject()
 
@@ -31,22 +31,35 @@ public abstract class PassiveAbility public constructor(
     @DispatcherContext(DispatcherContext.Context.ASYNC)
     protected open suspend fun onDeactivate(): Unit = Unit
 
+    @JvmName("subscribeEntity")
     protected inline fun <reified T : EntityEvent> subscribe(
         priority: EventPriority = EventPriority.HIGHEST,
         ignoreCancelled: Boolean = false,
         forceAsync: Boolean = false,
         noinline handler: suspend T.() -> Unit
     ): Unit = listener.event<T>(plugin, priority, ignoreCancelled, forceAsync) {
-        if (this is PlayerEvent && player === abilityPlayer || this.entity === abilityPlayer) handler(this)
+        if (this.entity.uniqueId == abilityPlayer.uniqueId) handler(this)
+    }
+
+    @JvmName("subscribePlayer")
+    protected inline fun <reified T : PlayerEvent> subscribe(
+        priority: EventPriority = EventPriority.MONITOR,
+        ignoreCancelled: Boolean = false,
+        forceAsync: Boolean = false,
+        noinline handler: suspend T.() -> Unit
+    ): Unit = listener.event<T>(plugin, priority, ignoreCancelled, forceAsync) {
+        if (player === abilityPlayer) handler(this)
     }
 
     @API(status = API.Status.INTERNAL)
     public suspend fun register() {
+        logger.debug { "Registering passive ability $this for player ${abilityPlayer.name}." }
         this.onActivate()
     }
 
     @API(status = API.Status.INTERNAL)
     public suspend fun unregister() {
+        logger.debug { "Unregistering passive ability $this for player ${abilityPlayer.name}." }
         this.onDeactivate()
         listener.unregisterListener()
     }

@@ -6,10 +6,10 @@ import dev.racci.minix.api.annotations.MinixInternal
 import dev.racci.minix.api.extensions.KListener
 import dev.racci.minix.api.extensions.WithPlugin
 import dev.racci.minix.api.plugin.MinixPlugin
+import dev.racci.minix.api.plugin.logger.MinixLogger
 import dev.racci.minix.api.utils.collections.muiltimap.MutableMultiMap
 import dev.racci.minix.api.utils.collections.multiMapOf
 import dev.racci.minix.api.utils.getKoin
-import dev.racci.terix.api.Terix
 import dev.racci.terix.api.TerixPlayer
 import dev.racci.terix.api.data.ItemMatcher
 import dev.racci.terix.api.dsl.TimedAttributeBuilder
@@ -83,6 +83,10 @@ public sealed class OriginValues : WithPlugin<MinixPlugin> {
         public suspend fun of(player: Player): PassiveAbility {
             val constructor = abilityKClass.primaryConstructor ?: throw OriginCreationException("No primary constructor for ability ${abilityKClass.simpleName}")
             val ability = constructor.call(player, TerixPlayer.cachedOrigin(player))
+
+            repeat(10) {
+                getKoin().get<MinixLogger>().debug { "Created ability ${ability::class.simpleName} for player ${player.name}" }
+            }
 
             abilityBuilder(ability)
             return ability

@@ -5,7 +5,7 @@ import dev.racci.minix.api.utils.getKoin
 import dev.racci.terix.api.Terix
 import dev.racci.terix.api.origins.origin.Origin
 import dev.racci.terix.api.origins.states.State
-import dev.racci.terix.core.services.TickService
+import dev.racci.terix.api.services.TickService
 import org.bukkit.entity.Player
 import kotlin.reflect.KProperty0
 

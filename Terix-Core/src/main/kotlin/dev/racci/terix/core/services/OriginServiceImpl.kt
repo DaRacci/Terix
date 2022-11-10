@@ -16,8 +16,8 @@ import dev.racci.terix.api.Terix
 import dev.racci.terix.api.TerixPlayer
 import dev.racci.terix.api.annotations.OriginEventSelector
 import dev.racci.terix.api.data.TerixConfig
-import dev.racci.terix.api.origins.abilities.KeybindAbility
 import dev.racci.terix.api.origins.abilities.DragonBreath
+import dev.racci.terix.api.origins.abilities.KeybindAbility
 import dev.racci.terix.api.origins.abilities.Levitate
 import dev.racci.terix.api.origins.abilities.Teleport
 import dev.racci.terix.api.origins.abilities.Transform

@@ -1,6 +1,7 @@
 package dev.racci.terix.api.origins
 
 import dev.racci.minix.api.extensions.WithPlugin
+import dev.racci.minix.api.extensions.collections.clear
 import dev.racci.terix.api.OriginService
 import dev.racci.terix.api.Terix
 import dev.racci.terix.api.TerixPlayer
@@ -99,6 +100,10 @@ public object OriginHelper : KoinComponent, WithPlugin<Terix> {
 
             State.recalculateAllStates(player)
             State.getPlayerStates(player).forEach { it.activate(player, origin) }
+            origin.passiveAbilities
+                .map { generator -> generator.of(player) }
+                .onEach { passive -> origin.activePassiveAbilities.put(player, passive) }
+                .forEach { passive -> passive.register() }
         }
     }
 
@@ -126,6 +131,8 @@ public object OriginHelper : KoinComponent, WithPlugin<Terix> {
                         instance.removeModifier(modifier)
                     }
             }
+
+            origin.activePassiveAbilities[player].clear { unregister() }
         }
     }
 
