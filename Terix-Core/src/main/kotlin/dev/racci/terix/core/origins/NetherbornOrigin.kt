@@ -1,5 +1,6 @@
 package dev.racci.terix.core.origins
 
+import dev.racci.minix.api.utils.kotlin.ifNotEmpty
 import dev.racci.minix.api.utils.minecraft.MaterialTagsExtension
 import dev.racci.terix.api.Terix
 import dev.racci.terix.api.annotations.OriginEventSelector
@@ -84,14 +85,10 @@ public class NetherbornOrigin(override val plugin: Terix) : Origin() {
     }
 
     private fun ensureDrySponge(player: Player) {
-        var update = false
-
-        for (item in player.inventory) {
-            if (item.type != Material.WET_SPONGE) continue
-            item.type = Material.SPONGE
-            update = true
-        }
-
-        if (update) player.updateInventory()
+        player.inventory
+            .filterNotNull()
+            .filter { item -> item.type == Material.WET_SPONGE }
+            .onEach { item -> item.type = Material.SPONGE }
+            .ifNotEmpty { player.updateInventory() }
     }
 }
