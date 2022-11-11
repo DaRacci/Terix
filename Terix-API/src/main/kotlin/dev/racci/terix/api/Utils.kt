@@ -22,7 +22,7 @@ public fun Player.sentryUser(): User = sentryUsers.getOrPut(uniqueId) {
     user.id = this.uniqueId.toString()
     user.username = this.name
     user.ipAddress = this.address.address.hostAddress
-    user.others = mapOf(
+    user.data = mapOf(
         "minecraft_protocol" to this.protocolVersion.toString(),
         "minecraft_brand" to this.clientBrandName.orEmpty(),
         "terix_origin" to TerixPlayer.cachedOrigin(this).name
