@@ -2,6 +2,55 @@
 All notable changes to this project will be documented in this file. See [conventional commits](https://www.conventionalcommits.org/) for commit guidelines.
 
 - - -
+## [v1.2.0](https://github.com/DaRacci/Terix/compare/v1.1.0..v1.2.0) - 2022-11-11
+#### Bug Fixes
+- **(Bee)** EventSelector type - ([ad3ca72](https://github.com/DaRacci/Terix/commit/ad3ca72faa961a35716bfee2fd4c20022525922b)) - [@DaRacci](https://github.com/DaRacci)
+- **(Blizz)** EventSelector type - ([3166ffb](https://github.com/DaRacci/Terix/commit/3166ffb5bc25128176628255e23012b582709c78)) - [@DaRacci](https://github.com/DaRacci)
+- **(FluidWalker)** Cleanup on shutdown - ([55807c0](https://github.com/DaRacci/Terix/commit/55807c0aa5d6037b74b2ee7751e54503aec5c069)) - [@DaRacci](https://github.com/DaRacci)
+- **(FluidWalker)** check for origin change for removal - ([e787d51](https://github.com/DaRacci/Terix/commit/e787d51ad88a2f91a9a2efa590893c6a8864b0f3)) - [@DaRacci](https://github.com/DaRacci)
+- **(KeyBinding)** Add import - ([cb67821](https://github.com/DaRacci/Terix/commit/cb678212f84abd7d3d07051498b8b92316f8c245)) - [@DaRacci](https://github.com/DaRacci)
+- **(Netherborn)** NullPointer - ([2dcea09](https://github.com/DaRacci/Terix/commit/2dcea0977216307af835123bb5c03f775b3132c9)) - [@DaRacci](https://github.com/DaRacci)
+- **(OriginValues)** Just use standard properties - ([7b067e2](https://github.com/DaRacci/Terix/commit/7b067e2fe6d8c829a5f95a3c9c6bd9bdf0db5c74)) - [@DaRacci](https://github.com/DaRacci)
+- **(PassiveAbility)** Unregister listener - ([968d1aa](https://github.com/DaRacci/Terix/commit/968d1aa43e50f8388b3570afa3157280b25ce9a3)) - [@DaRacci](https://github.com/DaRacci)
+- **(Trail)** Assign job and cancel after deactivated - ([54a95b8](https://github.com/DaRacci/Terix/commit/54a95b88bdec9fe0861c3a235d795ef10b528d67)) - [@DaRacci](https://github.com/DaRacci)
+- **(cog)** gradle changelog title - ([03c27de](https://github.com/DaRacci/Terix/commit/03c27de9597dd1a83fad24a13beb7c686ce55676)) - [@DaRacci](https://github.com/DaRacci)
+- Compilation - ([7251495](https://github.com/DaRacci/Terix/commit/72514958a4ffb630e3bef03002c790b0476c21f3)) - [@DaRacci](https://github.com/DaRacci)
+- Sentry relocation - ([c91b105](https://github.com/DaRacci/Terix/commit/c91b105b1793d740dec0ff597889dadb7e5f03f4)) - [@DaRacci](https://github.com/DaRacci)
+- Use non deprecated thing - ([726f299](https://github.com/DaRacci/Terix/commit/726f2992df1e0dc7b35eb6b3ae526dfa019ed045)) - [@DaRacci](https://github.com/DaRacci)
+- Add methods - ([e69be0e](https://github.com/DaRacci/Terix/commit/e69be0e9b22f02fa1d4c90e53f557bb9498ba443)) - [@DaRacci](https://github.com/DaRacci)
+- ConcurrentModification - ([a798882](https://github.com/DaRacci/Terix/commit/a7988821b748895bd90839ed310c1c3882729a17)) - [@DaRacci](https://github.com/DaRacci)
+- Make sure passives get registered - ([a8a243c](https://github.com/DaRacci/Terix/commit/a8a243cd483b32090b86ee5dd36dcfdc558ff7a6)) - [@DaRacci](https://github.com/DaRacci)
+- EventSelector compat check and cast errors - ([f0f722b](https://github.com/DaRacci/Terix/commit/f0f722b2f9ae7d2e3fab6b0d59cbcacfffaaf0d2)) - [@DaRacci](https://github.com/DaRacci)
+- import - ([d269bef](https://github.com/DaRacci/Terix/commit/d269bef808c732070f058343a60b29b533a1c196)) - [@DaRacci](https://github.com/DaRacci)
+#### Build system
+- Activate K2 Compiler for core module - ([353e9a1](https://github.com/DaRacci/Terix/commit/353e9a1439b4762f4a9c7eb64de71ae8ab4d25f2)) - [@DaRacci](https://github.com/DaRacci)
+- Remove kotlin serialization plugin - ([69d5e28](https://github.com/DaRacci/Terix/commit/69d5e288313151b6b3ef964d7eb172cf14df92ed)) - [@DaRacci](https://github.com/DaRacci)
+#### Features
+- **(LifeSteal)** Change to percentage taken and add mutable event. - ([c96b893](https://github.com/DaRacci/Terix/commit/c96b893dcd87f478689668f6aeb0dbb30a24d1f8)) - [@DaRacci](https://github.com/DaRacci)
+- **(Netherborn)** Lava walker - ([9db832b](https://github.com/DaRacci/Terix/commit/9db832be4b32e41437c6156a13e2e405b73f67b1)) - [@DaRacci](https://github.com/DaRacci)
+- **(Vampire)** LifeSteal now works - ([163a6b8](https://github.com/DaRacci/Terix/commit/163a6b8b5e34c9675c73380387b96a1a681ddc68)) - [@DaRacci](https://github.com/DaRacci)
+- Convert subscribe to event selector - ([50a8550](https://github.com/DaRacci/Terix/commit/50a8550f15e92a45bae832a0ea3a12c096b360cf)) - [@DaRacci](https://github.com/DaRacci)
+- Trail and FluidWalker passive abilities with some fixes - ([698977e](https://github.com/DaRacci/Terix/commit/698977eb2537bce1755da2af53d9bbbc2eda5adb)) - [@DaRacci](https://github.com/DaRacci)
+- PassiveAbilities - ([9a7ca28](https://github.com/DaRacci/Terix/commit/9a7ca2899b2e9d050e4b7c9aa681117e5c4e0669)) - [@DaRacci](https://github.com/DaRacci)
+#### Miscellaneous Chores
+- **(Ktlint)** baseline - ([aef5d7b](https://github.com/DaRacci/Terix/commit/aef5d7bca5cfc992d40bfdc6622362ba0dd6cc74)) - [@DaRacci](https://github.com/DaRacci)
+- Add baselines for KtLint - ([1c9e2b0](https://github.com/DaRacci/Terix/commit/1c9e2b0e54ef39e36ab225b533e5a74e9d3665c9)) - [@DaRacci](https://github.com/DaRacci)
+#### Refactoring
+- **(FluidWalker)** Chunked block removal. - ([9ef1a86](https://github.com/DaRacci/Terix/commit/9ef1a86c7fc9efbe4efbf36ddcddb306a6dc197b)) - [@DaRacci](https://github.com/DaRacci)
+- **(Origin)** Better toString - ([901ea67](https://github.com/DaRacci/Terix/commit/901ea670c8bf8d82262e7f2d44fead9e5c62e85c)) - [@DaRacci](https://github.com/DaRacci)
+- **(PassiveAbility)** Inject plugin - ([0f38fb8](https://github.com/DaRacci/Terix/commit/0f38fb87e1dfd30211ce9c997a9a105b6d12a5c6)) - [@DaRacci](https://github.com/DaRacci)
+- TemporaryReplacement class - ([7acf96d](https://github.com/DaRacci/Terix/commit/7acf96de2ef73e44f1d8d3b0ece39d6dd9a5e570)) - [@DaRacci](https://github.com/DaRacci)
+- Arrow Analysis - ([4498f6e](https://github.com/DaRacci/Terix/commit/4498f6e8ff584b67625c7737a6e72a31f4b4d3c4)) - [@DaRacci](https://github.com/DaRacci)
+- Cleanup and bypass cooldown permission. - ([e11f04e](https://github.com/DaRacci/Terix/commit/e11f04eea0c9e61564cfefb315869444d4b3d028)) - [@DaRacci](https://github.com/DaRacci)
+- Little bit of cleanup in gradle - ([0a72e87](https://github.com/DaRacci/Terix/commit/0a72e872d8eb195a16306818212ab2d1428a0e51)) - [@DaRacci](https://github.com/DaRacci)
+- cleanup - ([4938185](https://github.com/DaRacci/Terix/commit/4938185b2aabb3157458f7c8351e7f2027fd2df9)) - [@DaRacci](https://github.com/DaRacci)
+- cleanup - ([bb5d445](https://github.com/DaRacci/Terix/commit/bb5d445ebf8b00b39494575b2bb3dee5e35f514a)) - [@DaRacci](https://github.com/DaRacci)
+- Remove permission string in favour of requirements - ([56c8f1e](https://github.com/DaRacci/Terix/commit/56c8f1e0cad456b308105aaa55cfa7acba2c171e)) - [@DaRacci](https://github.com/DaRacci)
+#### Style
+- KtLint format - ([b9448c8](https://github.com/DaRacci/Terix/commit/b9448c86edda670bdff851a411a9bf0bf9cbdd6e)) - [@DaRacci](https://github.com/DaRacci)
+
+- - -
+
 ## [v1.1.0](https://github.com/DaRacci/Terix/compare/v1.0.1..v1.1.0) - 2022-11-08
 #### Bug Fixes
 - **(Slime)** Health bonus - ([2e17405](https://github.com/DaRacci/Terix/commit/2e1740537f4bf20e07d718791ff216efb724b438)) - [@DaRacci](https://github.com/DaRacci)
