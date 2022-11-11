@@ -6,6 +6,7 @@ plugins {
 
 dependencies {
     testImplementation(project(":Terix-Core"))
+    compileOnly(libs.minecraft.particles)
 }
 
 tasks {

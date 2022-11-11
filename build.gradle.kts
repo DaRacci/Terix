@@ -1,6 +1,5 @@
 import net.minecrell.pluginyml.bukkit.BukkitPluginDescription.PluginLoadOrder
 import org.jetbrains.dokka.gradle.DokkaPlugin
-import org.jetbrains.kotlinx.serialization.gradle.SerializationGradleSubplugin
 import java.net.URL
 
 // Workaround for (https://youtrack.jetbrains.com/issue/KTIJ-19369)
@@ -52,6 +51,7 @@ dependencies {
     implementation(project(":Terix-API"))
 
     slim("com.frengor:ultimateadvancementapi-shadeable:2.2.1")
+    slim(libs.minecraft.particles)
 }
 
 subprojects {

@@ -1,33 +1,27 @@
 package dev.racci.terix.core.origins
 
-import dev.racci.minix.api.events.keybind.PlayerSneakSecondaryEvent
 import dev.racci.minix.api.extensions.cancel
 import dev.racci.minix.api.extensions.parse
 import dev.racci.minix.api.extensions.playSound
 import dev.racci.minix.api.extensions.reflection.castOrThrow
-import dev.racci.minix.api.extensions.reflection.safeCast
 import dev.racci.minix.api.utils.minecraft.MaterialTagsExtension
-import dev.racci.minix.api.utils.now
-import dev.racci.minix.nms.aliases.toNMS
 import dev.racci.terix.api.Terix
 import dev.racci.terix.api.annotations.OriginEventSelector
 import dev.racci.terix.api.dsl.FoodPropertyBuilder
 import dev.racci.terix.api.dsl.dslMutator
 import dev.racci.terix.api.origins.OriginHelper
 import dev.racci.terix.api.origins.abilities.Transform
+import dev.racci.terix.api.origins.abilities.passives.LifeSteal
 import dev.racci.terix.api.origins.enums.EventSelector
 import dev.racci.terix.api.origins.enums.KeyBinding
 import dev.racci.terix.api.origins.origin.Origin
 import dev.racci.terix.api.origins.sounds.SoundEffect
 import dev.racci.terix.api.origins.states.State
-import kotlinx.datetime.Instant
 import me.libraryaddict.disguise.disguisetypes.DisguiseType
 import me.libraryaddict.disguise.disguisetypes.MobDisguise
 import net.kyori.adventure.text.format.TextColor
-import net.minecraft.world.damagesource.DamageSource
 import org.bukkit.Material
 import org.bukkit.Sound
-import org.bukkit.entity.LivingEntity
 import org.bukkit.entity.Player
 import org.bukkit.event.entity.EntityDamageEvent
 import org.bukkit.event.entity.EntityDamageEvent.DamageCause
@@ -39,11 +33,9 @@ import xyz.xenondevs.particle.ParticleBuilder
 import xyz.xenondevs.particle.ParticleEffect
 import java.awt.Color
 import kotlin.time.Duration.Companion.INFINITE
-import kotlin.time.Duration.Companion.seconds
 
 // TODO -> Cake good.
 public class VampireOrigin(override val plugin: Terix) : Origin() {
-    private val cooldowns = mutableMapOf<Player, Instant>()
     private val potionWatch = mutableSetOf<Player>()
 
     override val name: String = "Vampire"
@@ -113,16 +105,28 @@ public class VampireOrigin(override val plugin: Terix) : Origin() {
             KeyBinding.DOUBLE_OFFHAND.add<Transform> {
                 this.disguise = MobDisguise(DisguiseType.BAT)
             }
+
+            withPassive<LifeSteal> {
+                this.onLifeSteal = { player, target, _ ->
+                    ParticleBuilder(ParticleEffect.FALLING_DUST)
+                        .setColor(Color.RED)
+                        .setAmount(6)
+                        .setLocation(target.location)
+                        .display(player)
+
+                    target.location.playSound(Sound.BLOCK_SCULK_SENSOR_CLICKING, 1.0f, 1.0f)
+                }
+            }
         }
     }
 
     @OriginEventSelector(EventSelector.ENTITY)
-    public fun onDamage(event: EntityDamageEvent) {
-        when (event.cause.ordinal) {
-            DamageCause.WITHER.ordinal -> event.cancel()
+    public fun EntityDamageEvent.onDamage() {
+        when (this.cause.ordinal) {
+            DamageCause.WITHER.ordinal -> this.cancel()
             in 17..18 -> {
-                event.cancel()
-                OriginHelper.increaseHealth(event.entity.castOrThrow<Player>(), event.damage)
+                this.cancel()
+                OriginHelper.increaseHealth(this.entity.castOrThrow(), this.damage)
             }
         }
     }
@@ -142,7 +146,7 @@ public class VampireOrigin(override val plugin: Terix) : Origin() {
         if (action != EntityPotionEffectEvent.Action.ADDED) return
         if (cause != EntityPotionEffectEvent.Cause.FOOD) return
 
-        if (potionWatch.remove(entity.castOrThrow<Player>())) cancel()
+        if (potionWatch.remove(entity.castOrThrow())) cancel()
     }
 
     @OriginEventSelector(EventSelector.PLAYER)
@@ -151,46 +155,5 @@ public class VampireOrigin(override val plugin: Terix) : Origin() {
             Material.ROTTEN_FLESH, Material.SPIDER_EYE -> potionWatch += player
             else -> return
         }
-    }
-
-    // TODO: Sucking sound
-    @OriginEventSelector(EventSelector.PLAYER)
-    public fun PlayerSneakSecondaryEvent.onSneakRightClick() {
-        val now = now()
-        if (player in cooldowns) {
-            val inst = cooldowns[player]!!
-
-            if (inst + 1.seconds > now) return
-            cooldowns -= player
-        }
-
-        val entity = entity as? LivingEntity ?: return
-
-        val amountTaken = (player.maxHealth - player.health).coerceAtMost(2.0)
-        val vampAmount = (entity.maxHealth / 8).coerceAtMost(entity.health.coerceAtMost(amountTaken))
-        val killing = entity.maxHealth - vampAmount <= 0.0
-
-        player.health += vampAmount
-        player.sendHealthUpdate()
-        ParticleBuilder(ParticleEffect.FALLING_DUST)
-            .setColor(Color.RED)
-            .setAmount(6)
-            .setLocation(entity.location)
-            .display()
-
-        if (killing) {
-            val nmsPlayer = player.toNMS()
-
-            entity.killer = player
-            nmsPlayer.health = 0.0f
-
-            sync { nmsPlayer.die(DamageSource.playerAttack(player.toNMS())) }
-            return
-        }
-
-        entity.location.playSound(Sound.BLOCK_SCULK_SENSOR_CLICKING, 1.0f, 1.0f)
-        entity.health = (entity.health - vampAmount)
-        entity.safeCast<Player>()?.sendHealthUpdate()
-        cooldowns[player] = now
     }
 }
