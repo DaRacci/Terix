@@ -9,7 +9,7 @@ fi
 git push origin v"${2}" || exit 1 # Push the new version tag for the release
 
 SEMIPATH=build/libs/Terix
-cog changelog v"${1}"..v"${2}" | gh release create "v$2" -F - -t "Terix release $2" $SEMIPATH-$2.jar Terix-API/$SEMIPATH-API-$2-sources.jar Terix-Core/$SEMIPATH-Core-$2.jar
+cog changelog v"${1}"..v"${2}" | gh release create "v$2" -F - -t "Terix release $2" $SEMIPATH-$2.jar Terix-Core/$SEMIPATH-Core-$2.jar
 
 git push origin master || exit 1 # Push the new version tag for the release
 
