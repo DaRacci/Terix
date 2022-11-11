@@ -67,7 +67,13 @@ public class TerixPlayer(public val uuid: EntityID<UUID>) : UUIDEntity(uuid) {
 
         override fun cachedTicks(player: Player): PlayerTickCache = tickCache[player.uniqueId]
 
+        @JvmName("cachedOriginNotNull")
+        @Suppress("INAPPLICABLE_JVM_NAME")
         override fun cachedOrigin(player: Player): Origin = originCache[player.uniqueId]
+
+        @JvmName("cachedOriginNullable")
+        @Suppress("INAPPLICABLE_JVM_NAME")
+        override fun cachedOrigin(player: Player?): Origin? = player?.let { originCache[it.uniqueId] }
 
         // TODO: Implement defaulting to the default origin
         // Actually, is this needed?
