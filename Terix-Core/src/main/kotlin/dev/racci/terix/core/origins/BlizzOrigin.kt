@@ -80,7 +80,7 @@ public class BlizzOrigin(override val plugin: Terix) : Origin() {
         event.player.lockFreezeTicks(false)
     }
 
-    @OriginEventSelector(EventSelector.PLAYER)
+    @OriginEventSelector(EventSelector.OFFENDER)
     public fun EntityDamageByEntityEvent.handle() {
         entity.freezeTicks += 20
     }
