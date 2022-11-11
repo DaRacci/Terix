@@ -11,7 +11,6 @@ plugins {
     alias(libs.plugins.minix.copyjar)
     alias(libs.plugins.minix.purpurmc)
 
-    alias(libs.plugins.kotlin.serialization)
     alias(libs.plugins.minecraft.pluginYML)
     alias(libs.plugins.dokka)
 
@@ -59,7 +58,6 @@ subprojects {
     apply<Dev_racci_minix_nmsPlugin>()
     apply<Dev_racci_minix_kotlinPlugin>()
     apply<Dev_racci_minix_purpurmcPlugin>()
-    apply<SerializationGradleSubplugin>()
     apply<DokkaPlugin>()
 
     repositories {
