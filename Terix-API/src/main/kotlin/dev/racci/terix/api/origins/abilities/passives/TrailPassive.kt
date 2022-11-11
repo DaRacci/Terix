@@ -1,11 +1,14 @@
 package dev.racci.terix.api.origins.abilities.passives
 
 import arrow.core.Some
+import arrow.optics.copy
 import dev.racci.minix.api.coroutine.scope
 import dev.racci.minix.api.events.player.PlayerMoveFullXYZEvent
 import dev.racci.minix.api.extensions.collections.clear
 import dev.racci.minix.api.utils.now
 import dev.racci.terix.api.annotations.OriginEventSelector
+import dev.racci.terix.api.data.TemporaryReplacement
+import dev.racci.terix.api.data.replacedState
 import dev.racci.terix.api.origins.abilities.PassiveAbility
 import dev.racci.terix.api.origins.enums.EventSelector
 import dev.racci.terix.api.origins.origin.Origin
@@ -15,12 +18,8 @@ import kotlinx.coroutines.flow.filter
 import kotlinx.coroutines.flow.launchIn
 import kotlinx.coroutines.flow.onEach
 import kotlinx.coroutines.plus
-import kotlinx.datetime.Instant
-import org.bukkit.Location
 import org.bukkit.Material
-import org.bukkit.block.Block
 import org.bukkit.block.BlockFace
-import org.bukkit.block.BlockState
 import org.bukkit.entity.Player
 import org.bukkit.event.player.PlayerChangedWorldEvent
 import org.bukkit.metadata.FixedMetadataValue
@@ -32,9 +31,14 @@ public class TrailPassive(
     player: Player,
     origin: Origin
 ) : PassiveAbility(player, origin) {
-    private val fixedMetadata = FixedMetadataValue(plugin, abilityPlayer.uniqueId.toString())
-    private val blockMeta: String by lazy { "${origin.name}-trail-${material.name}" }
-    private val trailCache = linkedSetOf<TrailPart>()
+    private val trailCache = linkedSetOf<TemporaryReplacement>()
+    private val templateReplacement by lazy {
+        TemporaryReplacement(
+            FixedMetadataValue(plugin, abilityPlayer.uniqueId.toString()),
+            player.location.block.state,
+            material.createBlockData(),
+        )
+    }
     private lateinit var job: Job
 
     public var material: Material by Delegates.notNull()
@@ -50,7 +54,7 @@ public class TrailPassive(
 
     override suspend fun onDeactivate() {
         job.cancel()
-        sync { trailCache.clear { resetLayer() } }
+        sync { trailCache.clear { undoCommit() } }
     }
 
     @OriginEventSelector(EventSelector.PLAYER)
@@ -60,7 +64,7 @@ public class TrailPassive(
 
     @OriginEventSelector(EventSelector.ENTITY)
     public suspend fun PlayerChangedWorldEvent.handle() {
-        trailCache.clear { resetLayer() }
+        trailCache.clear { undoCommit() }
     }
 
     private fun newTailPart() = RayCastingSupplier.of(abilityPlayer)
@@ -68,16 +72,22 @@ public class TrailPassive(
         .filter { block -> block.isSolid }
         .map { block -> block.getRelative(BlockFace.UP) }
         .filter { block -> block.type.isEmpty }
-        .tap { block -> sync { addLayer(block) } }
+        .tap { block ->
+            sync {
+                templateReplacement.copy {
+                    TemporaryReplacement.replacedState set block.state
+                }.commit().also(trailCache::add)
+            }
+        }
 
     private fun removeIfExpired() {
         if (trailCache.size <= 1) return
 
         Some(trailCache.first())
-            .filter { layer -> now() > layer.placed + trailDuration }
+            .filter { layer -> now() > layer.committedAt + trailDuration }
             .tap { layer -> trailCache.remove(layer) }
-            .filterNot { layer -> layer.mutated() }
-            .tap { layer -> sync { layer.resetLayer() } }
+            .filterNot { layer -> layer.beenMutated() }
+            .tap { layer -> sync { layer.undoCommit() } }
     }
 
     private fun removeIfLimit() {
@@ -85,35 +95,7 @@ public class TrailPassive(
 
         Some(trailCache.first())
             .tap { layer -> trailCache.remove(layer) }
-            .filterNot { layer -> layer.mutated() }
-            .tap { layer -> sync { layer.resetLayer() } }
-    }
-
-    private fun addLayer(block: Block): TrailPart {
-        val layer = TrailPart(block.location, this, block.state)
-        layer.setLayer()
-        trailCache.add(layer)
-        return layer
-    }
-
-    public data class TrailPart(
-        val pos: Location,
-        val ref: TrailPassive,
-        val beforeState: BlockState,
-        val placed: Instant = now(),
-    ) {
-        public fun setLayer() {
-            pos.block.type = ref.material
-            pos.block.setMetadata(ref.blockMeta, ref.fixedMetadata)
-        }
-
-        public fun mutated(): Boolean {
-            val state = pos.block.state
-            return state.type != ref.material || !state.hasMetadata(ref.blockMeta) || !state.getMetadata(ref.blockMeta).contains(ref.fixedMetadata)
-        }
-
-        public fun resetLayer() {
-            pos.block.blockData = beforeState.blockData
-        }
+            .filterNot { layer -> layer.beenMutated() }
+            .tap { layer -> sync { layer.undoCommit() } }
     }
 }
