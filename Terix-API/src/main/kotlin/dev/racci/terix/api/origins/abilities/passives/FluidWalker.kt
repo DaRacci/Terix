@@ -9,6 +9,7 @@ import dev.racci.minix.api.utils.minecraft.rangeTo
 import dev.racci.minix.api.utils.ticks
 import dev.racci.minix.nms.aliases.toNMS
 import dev.racci.terix.api.Terix
+import dev.racci.terix.api.TerixPlayer
 import dev.racci.terix.api.annotations.OriginEventSelector
 import dev.racci.terix.api.extensions.above
 import dev.racci.terix.api.origins.abilities.PassiveAbility
@@ -76,9 +77,11 @@ public class FluidWalker(
         init {
             scheduler { runnable ->
                 val removing = arrayListOf<RemovalEntry>()
+                val currentOrigin = mutableMapOf<Player, Origin>()
                 for (entry in needingRemoval) {
                     when {
-                        entry.pos.world != entry.ref.abilityPlayer.world ||
+                        entry.ref.linkedOrigin !== currentOrigin.getOrPut(entry.ref.abilityPlayer) { TerixPlayer.cachedOrigin(entry.ref.abilityPlayer) } ||
+                            entry.pos.world != entry.ref.abilityPlayer.world ||
                             entry.pos.distance(entry.ref.abilityPlayer.location.toCenterLocation()) > entry.ref.radius -> removing.add(entry)
                     }
                 }
