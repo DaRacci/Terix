@@ -4,7 +4,6 @@ import dev.racci.minix.api.annotations.RunAsync
 import dev.racci.minix.api.collections.PlayerMap
 import dev.racci.minix.api.extensions.cancel
 import dev.racci.minix.api.extensions.reflection.castOrThrow
-import dev.racci.minix.api.extensions.reflection.safeCast
 import dev.racci.minix.api.utils.adventure.PartialComponent.Companion.message
 import dev.racci.minix.api.utils.now
 import dev.racci.terix.api.Terix
@@ -139,10 +138,10 @@ public class BeeOrigin(override val plugin: Terix) : Origin() {
     }
 
     @RunAsync
-    @OriginEventSelector(EventSelector.ENTITY)
+    @OriginEventSelector(EventSelector.OFFENDER)
     public fun EntityDamageByEntityEvent.handle() {
-        val attacker = damager.safeCast<Player>() ?: return
-        stingerAttack(damager.castOrThrow(), attacker)
+        val victim = entity as? Player ?: return
+        stingerAttack(damager.castOrThrow(), victim)
     }
 
     @OriginEventSelector(EventSelector.ENTITY)
