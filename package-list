@@ -7,14 +7,17 @@ dev.racci.terix.api.annotations
 dev.racci.terix.api.data
 dev.racci.terix.api.dsl
 dev.racci.terix.api.events
+dev.racci.terix.api.events.abilities
 dev.racci.terix.api.exceptions
 dev.racci.terix.api.extensions
 dev.racci.terix.api.origins
 dev.racci.terix.api.origins.abilities
+dev.racci.terix.api.origins.abilities.passives
 dev.racci.terix.api.origins.enums
 dev.racci.terix.api.origins.origin
 dev.racci.terix.api.origins.sounds
 dev.racci.terix.api.origins.states
+dev.racci.terix.api.services
 module:Terix-Core
 dev.racci.terix.core
 dev.racci.terix.core.commands.arguments
