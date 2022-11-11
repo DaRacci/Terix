@@ -6,6 +6,7 @@ import dev.racci.terix.api.Terix
 import dev.racci.terix.api.annotations.OriginEventSelector
 import dev.racci.terix.api.dsl.FoodPropertyBuilder
 import dev.racci.terix.api.dsl.dslMutator
+import dev.racci.terix.api.origins.abilities.passives.FluidWalker
 import dev.racci.terix.api.origins.enums.EventSelector
 import dev.racci.terix.api.origins.origin.Origin
 import dev.racci.terix.api.origins.sounds.SoundEffect
@@ -22,7 +23,6 @@ import org.bukkit.event.entity.EntityPickupItemEvent
 // TODO -> Eating raw items gives the same as cooked food since hes hot.
 // TODO -> Eating Cooked food gives less since it becomes overcooked.
 // TODO -> Cake.
-// TODO -> Walk on obsidian
 // TODO -> holding food cooks it
 public class NetherbornOrigin(override val plugin: Terix) : Origin() {
 
@@ -66,6 +66,13 @@ public class NetherbornOrigin(override val plugin: Terix) : Origin() {
         item {
             material = Material.LAVA_BUCKET
             lore = "<light_purple>A breath of fire that can be used to summon a dragon."
+        }
+
+        abilities {
+            withPassive<FluidWalker> {
+                this.fluidType = Material.LAVA
+                this.replacement = Material.CRYING_OBSIDIAN
+            }
         }
     }
 
