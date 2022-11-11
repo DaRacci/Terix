@@ -134,9 +134,7 @@ subprojects {
         explicitApiWarning()
     }
 
-    sourceSets.forEach {
-        it.kotlin.srcDir("$buildDir/generated/ksp/main/kotlin")
-    }
+    sourceSets.getByName("main").kotlin.srcDir("$buildDir/generated/ksp/main/kotlin")
 
     configurations {
         all {
