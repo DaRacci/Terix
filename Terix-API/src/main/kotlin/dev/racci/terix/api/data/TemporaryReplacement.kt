@@ -1,4 +1,3 @@
-@file:JvmName("TemporaryReplacement")
 package dev.racci.terix.api.data
 
 import arrow.analysis.pre
