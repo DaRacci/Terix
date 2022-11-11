@@ -1,15 +1,14 @@
 package dev.racci.terix.api.origins.origin
 
 import arrow.core.Either
-import com.google.common.collect.LinkedHashMultimap
+import com.google.common.collect.Multimap
+import com.google.common.collect.Multimaps
 import dev.racci.minix.api.annotations.MinixInternal
 import dev.racci.minix.api.extensions.KListener
 import dev.racci.minix.api.extensions.WithPlugin
 import dev.racci.minix.api.plugin.MinixPlugin
-import dev.racci.minix.api.plugin.logger.MinixLogger
 import dev.racci.minix.api.utils.collections.muiltimap.MutableMultiMap
 import dev.racci.minix.api.utils.collections.multiMapOf
-import dev.racci.minix.api.utils.getKoin
 import dev.racci.terix.api.TerixPlayer
 import dev.racci.terix.api.data.ItemMatcher
 import dev.racci.terix.api.dsl.TimedAttributeBuilder
@@ -33,9 +32,12 @@ import org.bukkit.attribute.AttributeModifier
 import org.bukkit.entity.Player
 import org.bukkit.event.entity.EntityDamageEvent
 import org.bukkit.potion.PotionEffect
+import java.util.concurrent.ConcurrentHashMap
+import java.util.concurrent.ConcurrentHashMap.newKeySet
 import kotlin.reflect.KClass
 import kotlin.reflect.full.primaryConstructor
 
+// TODO -> Return non mutable versions of all elements
 public sealed class OriginValues : WithPlugin<MinixPlugin> {
     @MinixInternal
     public val eventListener: KListener<MinixPlugin> = object : KListener<MinixPlugin> {
@@ -67,7 +69,7 @@ public sealed class OriginValues : WithPlugin<MinixPlugin> {
 
     public val abilities: MutableMap<KeyBinding, KeybindAbility> by lazy(::mutableMapOf)
     public val passiveAbilities: ArrayList<PassiveAbilityGenerator> by lazy(::arrayListOf)
-    public val activePassiveAbilities: LinkedHashMultimap<Player, PassiveAbility> by lazy { LinkedHashMultimap.create() }
+    public val activePassiveAbilities: Multimap<Player, PassiveAbility> by lazy { Multimaps.newSetMultimap(ConcurrentHashMap(), ::newKeySet) }
 
     public val customMatcherFoodProperties: HashMap<ItemMatcher, FoodProperties> by lazy(::hashMapOf)
     public val customFoodProperties: HashMap<Material, FoodProperties> by lazy(::hashMapOf)
