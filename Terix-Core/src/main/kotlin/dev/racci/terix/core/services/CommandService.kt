@@ -29,6 +29,7 @@ import dev.racci.terix.api.Terix
 import dev.racci.terix.api.TerixPlayer
 import dev.racci.terix.api.events.PlayerOriginChangeEvent
 import dev.racci.terix.api.origins.origin.Origin
+import dev.racci.terix.core.commands.TerixPermissions
 import dev.racci.terix.core.commands.arguments.OriginArgument
 import dev.racci.terix.core.commands.arguments.OriginInfoArgument
 import dev.racci.terix.core.data.Lang
@@ -66,7 +67,7 @@ public class CommandService(override val plugin: Terix) : Extension<Terix>() {
                 RichDescription.of(MiniMessage.miniMessage().deserialize("Get the origin of a player."))
             ) {
                 mutate { it.flag(playerFlag) }
-                permission(Permission.of("terix.command.origin.get"))
+                permission(TerixPermissions.commandOriginGet)
                 suspendingHandler(supervisor, dispatcher.get()) { context -> getOrigin(context.sender, getTargetOrThrow(context)) }
             }
 
@@ -83,7 +84,7 @@ public class CommandService(override val plugin: Terix) : Extension<Terix>() {
                         null
                     )
                 )
-                permission(Permission.of("terix.command.origin.set"))
+                permission(TerixPermissions.commandOriginSet)
                 suspendingHandler(supervisor, dispatcher.get()) { context -> setOrigin(context.sender, getTargetOrThrow(context), context.get("origin")) }
             }
 
@@ -91,7 +92,7 @@ public class CommandService(override val plugin: Terix) : Extension<Terix>() {
                 "menu",
                 RichDescription.of(MiniMessage.miniMessage().deserialize("Open the origin menu."))
             ) {
-                permission(Permission.of("terix.command.origin.menu"))
+                permission(TerixPermissions.menu)
                 mutate { it.flag(playerFlag) }
                 suspendingHandler(supervisor, plugin.minecraftDispatcher) { context -> get<GUIService>().openMenu(getTargetOrThrow(context)) }
             }
@@ -100,68 +101,49 @@ public class CommandService(override val plugin: Terix) : Extension<Terix>() {
                 "choice",
                 RichDescription.of(MiniMessage.miniMessage().deserialize("Parent choice commands."))
             ) {
-                permission(Permission.of("terix.command.origin.choice"))
+                permission(TerixPermissions.commandChoiceGet.or(TerixPermissions.commandChoiceSet))
 
                 this.registerCopy(
                     "get",
                     RichDescription.of(MiniMessage.miniMessage().deserialize("Gets the remaining choices of a player."))
                 ) {
                     mutate { it.flag(playerFlag) }
-                    permission(Permission.of("terix.command.origin.choice.get"))
+                    permission(TerixPermissions.commandChoiceGet)
                     suspendingHandler(supervisor, dispatcher.get()) { context -> getChoices(context.sender, getTargetOrThrow(context)) }
                 }
 
-                this.registerCopy(
+                registerCopy(
                     "add",
                     RichDescription.of(MiniMessage.miniMessage().deserialize("Adds a choice to a player."))
                 ) {
                     mutate { it.flag(playerFlag) }
-                    permission(Permission.of("terix.command.origin.choice.add"))
+                    permission(TerixPermissions.commandChoiceSet)
                     argument(IntegerArgument.of("amount"))
                     suspendingHandler(supervisor, dispatcher.get()) { context -> addChoices(context.sender, getTargetOrThrow(context), context.get("amount")) }
-                }
-
-                this.registerCopy(
+                }.registerCopy(
                     "remove",
                     RichDescription.of(MiniMessage.miniMessage().deserialize("Removes a choice from a player."))
-                ) {
-                    mutate { it.flag(playerFlag) }
-                    permission(Permission.of("terix.command.origin.choice.remove"))
-                    argument(IntegerArgument.of("amount"))
-                    suspendingHandler(supervisor, dispatcher.get()) { context -> removeChoices(context.sender, getTargetOrThrow(context), context.get("amount")) }
-                }
+                ) { suspendingHandler(supervisor, dispatcher.get()) { context -> removeChoices(context.sender, getTargetOrThrow(context), context.get("amount")) } }
             }
 
             this.registerCopy(
                 "grant",
-                RichDescription.of(MiniMessage.miniMessage().deserialize("Explicitly grants an origin skipping any requirements."))
+                RichDescription.of(MiniMessage.miniMessage().deserialize("Parent grant commands."))
             ) {
-                mutate { it.flag(playerFlag) }
-                permission(Permission.of("terix.command.origin.grant"))
-                argument(
-                    OriginArgument(
-                        "origin",
-                        true,
-                        RichDescription.of(MiniMessage.miniMessage().deserialize("The origin to grant the player."))
-                    )
-                )
-                suspendingHandler(supervisor, dispatcher.get()) { context -> grantOrigin(context.sender, getTargetOrThrow(context), context.get("origin")) }
-            }
+                permission(TerixPermissions.commandGrantAdd.or(TerixPermissions.commandGrantRevoke))
 
-            this.registerCopy(
-                "ungrant",
-                RichDescription.of(MiniMessage.miniMessage().deserialize("Removes the explicit access given to a player."))
-            ) {
-                mutate { it.flag(playerFlag) }
-                permission(Permission.of("terix.command.origin.grant"))
-                argument(
-                    OriginArgument(
-                        "origin",
-                        true,
-                        RichDescription.of(MiniMessage.miniMessage().deserialize("The origin to remove the player's access to."))
-                    )
-                )
-                suspendingHandler(supervisor, dispatcher.get()) { ctx -> ungrantOrigin(ctx.sender, getTargetOrThrow(ctx), ctx.get("origin")) }
+                this.registerCopy(
+                    "add",
+                    RichDescription.of(MiniMessage.miniMessage().deserialize("Explicitly grants an origin skipping any requirements."))
+                ) {
+                    mutate { it.flag(playerFlag) }
+                    permission(TerixPermissions.commandGrantAdd)
+                    argument(OriginArgument("origin", true, RichDescription.of(MiniMessage.miniMessage().deserialize("The target origin."))))
+                    suspendingHandler(supervisor, dispatcher.get()) { context -> grantOrigin(context.sender, getTargetOrThrow(context), context.get("origin")) }
+                }.registerCopy(
+                    "revoke",
+                    RichDescription.of(MiniMessage.miniMessage().deserialize("Removes the explicit access given to a player."))
+                ) { suspendingHandler(supervisor, dispatcher.get()) { context -> ungrantOrigin(context.sender, getTargetOrThrow(context), context.get("origin")) } }
             }
 
             this.registerCopy(

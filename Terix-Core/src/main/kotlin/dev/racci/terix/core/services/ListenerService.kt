@@ -16,6 +16,7 @@ import dev.racci.minix.api.extensions.cancel
 import dev.racci.minix.api.extensions.collections.computeAndRemove
 import dev.racci.minix.api.extensions.event
 import dev.racci.minix.api.extensions.events
+import dev.racci.minix.api.extensions.hasPermissionOrStar
 import dev.racci.minix.api.extensions.inOverworld
 import dev.racci.minix.api.extensions.onlinePlayers
 import dev.racci.minix.api.extensions.pdc
@@ -44,6 +45,7 @@ import dev.racci.terix.api.origins.sounds.SoundEffect
 import dev.racci.terix.api.origins.sounds.SoundEffects
 import dev.racci.terix.api.origins.states.State
 import dev.racci.terix.api.origins.states.State.Companion.convertLiquidToState
+import dev.racci.terix.core.commands.TerixPermissions
 import dev.racci.terix.core.data.Lang
 import dev.racci.terix.core.extensions.message
 import dev.racci.terix.core.extensions.originTime
@@ -189,20 +191,10 @@ public class ListenerService(override val plugin: Terix) : Extension<Terix>() {
         }
 
         event<FoodLevelChangeEvent>(EventPriority.MONITOR, false, forceAsync = true) {
-            val player = this.entity as? Player ?: run {
-                logger.debug { "FoodLevelChangeEvent was not a player" }
-                return@event
-            }
-            val (event, action) = finishEventAction[player] ?: run {
-                logger.debug { "finishEventAction didn't contain event." }
-                return@event
-            }
+            val player = this.entity as? Player ?: return@event
+            val (event, action) = finishEventAction[player] ?: return@event
 
-            if (this !== event) {
-                logger.debug { "FoodLevelChangeEvent was not the same as the original event." }
-                return@event
-            } // Not our event. Ignore.
-            logger.debug { "Finishing food level change event for ${player.name}" }
+            if (this !== event) return@event // Not our event. Ignore.
 
             finishEventAction.remove(player)
             if (event.isCancelled) return@event
@@ -235,12 +227,12 @@ public class ListenerService(override val plugin: Terix) : Extension<Terix>() {
             }
 
             val now = now()
-            if (!bypassCooldown && player.originTime + terixConfig.intervalBeforeChange > now) {
+            if (!this.player.hasPermissionOrStar(TerixPermissions.selectionBypassCooldown.permission) && !bypassCooldown && player.originTime + terixConfig.intervalBeforeChange > now) {
                 result = PlayerOriginChangeEvent.Result.ON_COOLDOWN
                 return@event cancel()
             }
 
-            if (!bypassCooldown) player.originTime = now
+            if (!this.player.hasPermissionOrStar(TerixPermissions.selectionBypassCooldown.permission) && !bypassCooldown) player.originTime = now
 
             transaction(getKoin().getProperty("terix:database")) { TerixPlayer[player.uniqueId].origin = newOrigin }
             OriginHelper.changeTo(player, preOrigin, newOrigin) // TODO: This should cover the removeUnfulfilled method

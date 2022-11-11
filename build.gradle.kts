@@ -1,3 +1,4 @@
+import net.minecrell.pluginyml.bukkit.BukkitPluginDescription.Permission.Default
 import net.minecrell.pluginyml.bukkit.BukkitPluginDescription.PluginLoadOrder
 import org.jetbrains.dokka.gradle.DokkaPlugin
 import java.net.URL
@@ -33,6 +34,27 @@ bukkit {
         "ProtocolLib",
         "LibsDisguises"
     )
+    permissions {
+        register("terix.selection.bypass-cooldown") {
+            description = "Allows bypassing the cooldown for changing origins."
+            default = Default.OP
+        }
+
+        register("terix.command.origin.get") {
+            description = "Allows using the /origin get command."
+            default = Default.OP
+        }
+
+        register("terix.command.origin.set") {
+            description = "Allows using the /origin set command."
+            default = Default.OP
+        }
+
+        register("terix.menu") {
+            description = "Allows using the /origin menu command."
+            default = Default.TRUE
+        }
+    }
 }
 
 tasks {
