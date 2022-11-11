@@ -1,12 +1,15 @@
 package dev.racci.terix.api.origins.abilities.passives
 
 import dev.racci.terix.api.annotations.OriginEventSelector
+import dev.racci.terix.api.events.abilities.LifeStealEvent
 import dev.racci.terix.api.extensions.emptyLambdaThree
+import dev.racci.terix.api.extensions.onSuccess
 import dev.racci.terix.api.origins.abilities.PassiveAbility
 import dev.racci.terix.api.origins.enums.EventSelector
 import dev.racci.terix.api.origins.origin.Origin
 import org.bukkit.entity.LivingEntity
 import org.bukkit.entity.Player
+import org.bukkit.event.EventPriority
 import org.bukkit.event.entity.EntityDamageByEntityEvent
 
 public class LifeSteal(
@@ -14,32 +17,30 @@ public class LifeSteal(
     origin: Origin,
 ) : PassiveAbility(player, origin) {
     public var maximumStolenHealth: Double = 2.0
+    public var stolenPercentage: Float = 0.3F
     public var onLifeSteal: (Player, LivingEntity, Double) -> Unit = Unit.emptyLambdaThree()
 
-    @OriginEventSelector(EventSelector.OFFENDER)
+    @OriginEventSelector(EventSelector.OFFENDER, EventPriority.MONITOR)
     public fun EntityDamageByEntityEvent.handle() {
-        logger.debug { "Handling life steal event" }
         if (abilityPlayer.attackCooldown < 1.0F) return
+
         val target = entity as? LivingEntity ?: return
+        val gainedHealth = getStolenPercentage(this.finalDamage)
 
-        val (stolenAmount, _) = getStolenAmount(target)
+        if (gainedHealth <= 0.0) return
 
-        logger.debug { "Stolen amount: $stolenAmount" }
-
-        abilityPlayer.health += stolenAmount
-        abilityPlayer.sendHealthUpdate()
-        onLifeSteal(abilityPlayer, target, stolenAmount)
-
-        this.damage += stolenAmount
-        (target as? Player)?.sendHealthUpdate()
+        LifeStealEvent(this@LifeSteal, this, gainedHealth).onSuccess { event ->
+            abilityPlayer.health += event.actualStolenAmount
+            abilityPlayer.sendHealthUpdate()
+            onLifeSteal(abilityPlayer, target, event.actualStolenAmount)
+        }
     }
 
-    /** Returns the amount stolen paired to if it will kill the target. */
-    private fun getStolenAmount(target: LivingEntity): Pair<Double, Boolean> {
+    private fun getStolenBonus(target: LivingEntity): Double {
         val amountTaken = (abilityPlayer.maxHealth - abilityPlayer.health).coerceAtMost(maximumStolenHealth)
-        println("Amount taken: $amountTaken")
         val vampAmount = target.health.coerceAtMost(amountTaken)
-        println("Vamp amount: $vampAmount")
-        return vampAmount to (target.health - vampAmount <= 0.0)
+        return vampAmount
     }
+
+    private fun getStolenPercentage(damage: Double) = (damage * stolenPercentage).coerceAtMost(maximumStolenHealth)
 }
