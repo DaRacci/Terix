@@ -1,7 +1,9 @@
 package dev.racci.terix.api.origins.enums
 
-import dev.racci.minix.api.extensions.reflection.safeCast
-import dev.racci.terix.api.origins.enums.EventSelector.PlayerSelector
+import arrow.core.Either
+import arrow.core.left
+import arrow.core.right
+import dev.racci.minix.api.extensions.reflection.castOrThrow
 import dev.racci.terix.api.origins.origin.Origin
 import org.apiguardian.api.API
 import org.bukkit.entity.Player
@@ -15,48 +17,59 @@ import org.bukkit.event.player.PlayerEvent
 import kotlin.reflect.KClass
 import kotlin.reflect.KFunction
 import kotlin.reflect.full.extensionReceiverParameter
+import kotlin.reflect.full.isSuperclassOf
 import kotlin.reflect.full.valueParameters
+import kotlin.reflect.jvm.jvmErasure
 
-@Suppress("UnusedReceiverParameter")
 @API(status = API.Status.EXPERIMENTAL, since = "1.0.0")
-public enum class EventSelector(public val selector: TargetSelector<Any, *>) {
+public enum class EventSelector(public val selector: TargetSelector<*, *>) {
     /** Selects the entity from an [EntityEvent]. */
-    ENTITY(PlayerSelector<EntityEvent> { it.entity as? Player }),
+    ENTITY(PlayerSelector(EntityEvent::class) { (this.entity as? Player) }),
 
     /** Selects the player from a [PlayerEvent]. */
-    PLAYER(PlayerSelector<PlayerEvent> { it.player }),
+    PLAYER(PlayerSelector(PlayerEvent::class) { this.player }),
 
     /** Selects the killer from an [EntityDeathEvent]. */
-    KILLER(PlayerSelector<EntityDeathEvent> { it.entity.killer }),
+    KILLER(PlayerSelector(EntityDeathEvent::class) { this.entity.killer }),
 
     /** Selects the target from an [EntityTargetLivingEntityEvent]. */
-    TARGET(PlayerSelector<EntityTargetLivingEntityEvent> { it.target.safeCast() }),
+    TARGET(PlayerSelector(EntityTargetLivingEntityEvent::class) { (this.target as? Player) }),
 
     /** Selects the shooter from any [EntityEvent] where the entity is a [Projectile]. */
-    SHOOTER(PlayerSelector<EntityEvent> { it.entity.safeCast<Projectile>()?.shooter.safeCast() }),
+    SHOOTER(PlayerSelector(EntityEvent::class) { ((this.entity as? Projectile)?.shooter as? Player) }),
 
     /** Selects the damager from an [EntityDamageByEntityEvent]. */
-    OFFENDER(PlayerSelector<EntityDamageByEntityEvent> { it.damager.safeCast() });
+    OFFENDER(PlayerSelector(EntityDamageByEntityEvent::class) { (this.damager as? Player) });
 
-    public sealed interface TargetSelector<out E : Any, R : Any> {
-        public operator fun invoke(event: @UnsafeVariance E): R?
+    public operator fun invoke(event: Event): Either<Player?, Origin?> = selector.castOrThrow<TargetSelector<Event, *>>()(event)
+
+    public sealed interface TargetSelector<E : Event, R : Either<Player?, Origin?>> {
+        public val eventType: KClass<E>
+        public operator fun invoke(event: E): R
+
+        public fun isApplicable(event: KClass<*>): Boolean = eventType.isSuperclassOf(event)
 
         public companion object {
-            public inline fun <reified E : Any> TargetSelector<E, *>.isCompatible(func: KFunction<*>): Boolean {
-                if (func.extensionReceiverParameter != null && func.extensionReceiverParameter!!.type.classifier.safeCast<KClass<E>>() != null) return true
-                if (func.valueParameters.size != 1) return false
-                if (func.valueParameters[0].type.classifier.safeCast<E>() == null) return false
+            public fun <E : Event> TargetSelector<E, *>.isCompatible(func: KFunction<*>): Boolean {
+                val receiver = func.valueParameters.getOrElse(0) { func.extensionReceiverParameter } ?: return false
+                val receiverType = receiver.type.jvmErasure
 
-                return true
+                return func.parameters.size == 2 && this.isApplicable(receiverType)
             }
         }
     }
 
-    public fun interface PlayerSelector<E : Event> : TargetSelector<E, Player> {
-        override operator fun invoke(event: E): Player?
+    public class PlayerSelector<E : Event>(
+        override val eventType: KClass<E>,
+        public val selector: E.() -> Player?
+    ) : TargetSelector<E, Either<Player?, Nothing>> {
+        override operator fun invoke(event: E): Either<Player?, Nothing> = selector(event).left()
     }
 
-    public fun interface OriginSelector<E : Event> : TargetSelector<E, Origin> {
-        override operator fun invoke(event: E): Origin?
+    public class OriginSelector<E : Event>(
+        override val eventType: KClass<E>,
+        public val selector: E.() -> Origin?
+    ) : TargetSelector<E, Either<Nothing, Origin?>> {
+        override operator fun invoke(event: E): Either<Nothing, Origin?> = selector(event).right()
     }
 }

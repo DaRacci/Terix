@@ -84,10 +84,6 @@ public sealed class OriginValues : WithPlugin<MinixPlugin> {
             val constructor = abilityKClass.primaryConstructor ?: throw OriginCreationException("No primary constructor for ability ${abilityKClass.simpleName}")
             val ability = constructor.call(player, TerixPlayer.cachedOrigin(player))
 
-            repeat(10) {
-                getKoin().get<MinixLogger>().debug { "Created ability ${ability::class.simpleName} for player ${player.name}" }
-            }
-
             abilityBuilder(ability)
             return ability
         }

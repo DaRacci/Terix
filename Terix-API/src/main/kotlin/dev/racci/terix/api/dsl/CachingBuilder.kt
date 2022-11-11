@@ -2,7 +2,6 @@ package dev.racci.terix.api.dsl
 
 import dev.racci.minix.api.extensions.reflection.accessWith
 import dev.racci.minix.api.extensions.reflection.castOrThrow
-import dev.racci.minix.api.extensions.reflection.safeCast
 import kotlinx.coroutines.runBlocking
 import kotlin.properties.PropertyDelegateProvider
 import kotlin.properties.ReadWriteProperty
@@ -40,7 +39,7 @@ public abstract class CachingBuilder<T> {
     protected fun <R> KProperty0<R>.watcherOrNull(): R? {
         return runBlocking {
             this@watcherOrNull.accessWith {
-                (this.getDelegate() as ChangeWatcher<*>).value.safeCast()
+                (this.getDelegate() as ChangeWatcher<*>).value as? R
             }
         }
     }

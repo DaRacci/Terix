@@ -128,7 +128,7 @@ public abstract class KeybindAbility(
         val containers = player.persistentDataContainer.get(NAMESPACE, PersistentDataType.TAG_CONTAINER_ARRAY)
         if (containers.isNullOrEmpty()) return@async
 
-        val newContainers = containers.filter { it.get(NAMESPACES[0], PersistentDataType.STRING) != name }
+        val newContainers = containers.orEmpty().filter { it.get(NAMESPACES[0], PersistentDataType.STRING) != name }
         player.persistentDataContainer.set(NAMESPACE, PersistentDataType.TAG_CONTAINER_ARRAY, newContainers.toTypedArray())
     }
 

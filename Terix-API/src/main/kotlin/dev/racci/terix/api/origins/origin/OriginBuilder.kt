@@ -477,6 +477,7 @@ public sealed class OriginBuilder : OriginValues() {
         ): Unit = materials.forEach { actionModifier(it, action) }
 
         @JvmName("plusAssignMaterial")
+        @OverloadResolutionByLambdaReturnType
         public operator fun Material.plusAssign(builder: DSLMutator<FoodPropertyBuilder>): Unit = modifyFood(this, builder)
 
         @JvmName("timesAssignMaterial")
@@ -486,15 +487,19 @@ public sealed class OriginBuilder : OriginValues() {
         public operator fun Material.divAssign(number: Number): Unit = divModifier(this, number)
 
         @JvmName("potionEffectMaterial")
+        @OverloadResolutionByLambdaReturnType
         public operator fun Material.plusAssign(builder: DSLMutator<PotionEffectBuilder>): Unit = potionEffect(this, builder)
 
         @JvmName("attributeModifierMaterial")
+        @OverloadResolutionByLambdaReturnType
         public operator fun Material.plusAssign(builder: DSLMutator<TimedAttributeBuilder>): Unit = attributeModifier(this, builder)
 
         @JvmName("actionModifierMaterial")
+        @OverloadResolutionByLambdaReturnType
         public operator fun Material.plusAssign(builder: ActionPropBuilder): Unit = actionModifier(this, builder)
 
         @JvmName("plusAssignMaterialIterable")
+        @OverloadResolutionByLambdaReturnType
         public operator fun Iterable<Material>.plusAssign(builder: DSLMutator<FoodPropertyBuilder>): Unit = modifyFood(this, builder)
 
         @JvmName("timesAssignMaterialIterable")
@@ -504,15 +509,19 @@ public sealed class OriginBuilder : OriginValues() {
         public operator fun Iterable<Material>.divAssign(number: Number): Unit = divModifier(this, number)
 
         @JvmName("potionEffectMaterialIterable")
+        @OverloadResolutionByLambdaReturnType
         public operator fun Iterable<Material>.plusAssign(builder: DSLMutator<PotionEffectBuilder>): Unit = potionEffect(this, builder)
 
         @JvmName("attributeModifierMaterialIterable")
+        @OverloadResolutionByLambdaReturnType
         public operator fun Iterable<Material>.plusAssign(builder: DSLMutator<TimedAttributeBuilder>): Unit = attributeModifier(this, builder)
 
         @JvmName("actionModifierMaterialIterable")
+        @OverloadResolutionByLambdaReturnType
         public operator fun Iterable<Material>.plusAssign(builder: ActionPropBuilder): Unit = actionModifier(this, builder)
 
         @JvmName("plusAssignMaterialSetTag")
+        @OverloadResolutionByLambdaReturnType
         public operator fun MaterialSetTag.plusAssign(builder: DSLMutator<FoodPropertyBuilder>): Unit = modifyFood(this.values, builder)
 
         @JvmName("timesAssignMaterialSetTag")
@@ -522,23 +531,24 @@ public sealed class OriginBuilder : OriginValues() {
         public operator fun MaterialSetTag.divAssign(number: Number): Unit = divModifier(this.values, number)
 
         @JvmName("potionEffectMaterialSetTag")
+        @OverloadResolutionByLambdaReturnType
         public operator fun MaterialSetTag.plusAssign(builder: DSLMutator<PotionEffectBuilder>): Unit = potionEffect(this.values, builder)
 
         @JvmName("attributeModifierMaterialSetTag")
+        @OverloadResolutionByLambdaReturnType
         public operator fun MaterialSetTag.plusAssign(builder: DSLMutator<TimedAttributeBuilder>): Unit = attributeModifier(this.values, builder)
 
         @JvmName("actionModifierMaterialSetTag")
+        @OverloadResolutionByLambdaReturnType
         public operator fun MaterialSetTag.plusAssign(builder: ActionPropBuilder): Unit = actionModifier(this.values, builder)
 
         @OverloadResolutionByLambdaReturnType
         @JvmName("plusAssignMaterialSetTagIterable")
         public operator fun Iterable<MaterialSetTag>.plusAssign(builder: DSLMutator<FoodPropertyBuilder>): Unit = modifyFood(this.flatMap { it.values }, builder)
 
-        @OverloadResolutionByLambdaReturnType
         @JvmName("timesAssignMaterialSetTagIterable")
         public operator fun Iterable<MaterialSetTag>.timesAssign(number: Number): Unit = timesModifier(this.flatMap { it.values }, number)
 
-        @OverloadResolutionByLambdaReturnType
         @JvmName("divAssignMaterialSetTagIterable")
         public operator fun Iterable<MaterialSetTag>.divAssign(number: Number): Unit = divModifier(this.flatMap { it.values }, number)
 
@@ -554,11 +564,9 @@ public sealed class OriginBuilder : OriginValues() {
         @JvmName("actionModifierMaterialSetTagIterable")
         public operator fun Iterable<MaterialSetTag>.plusAssign(builder: ActionPropBuilder): Unit = actionModifier(this.flatMap { it.values }, builder)
 
-        @OverloadResolutionByLambdaReturnType
         @JvmName("plusMaterialIterable")
         public operator fun Iterable<Material>.plus(number: Number): Unit = plusFood(this, number)
 
-        @OverloadResolutionByLambdaReturnType
         @JvmName("plusMaterialSingle")
         public operator fun Material.plus(number: Number): Unit = plusFood(this, number)
 

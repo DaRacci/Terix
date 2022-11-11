@@ -19,7 +19,6 @@ import dev.racci.minix.api.extensions.events
 import dev.racci.minix.api.extensions.inOverworld
 import dev.racci.minix.api.extensions.onlinePlayers
 import dev.racci.minix.api.extensions.pdc
-import dev.racci.minix.api.extensions.reflection.safeCast
 import dev.racci.minix.api.extensions.scheduler
 import dev.racci.minix.api.flow.eventFlow
 import dev.racci.minix.api.services.DataService
@@ -190,7 +189,7 @@ public class ListenerService(override val plugin: Terix) : Extension<Terix>() {
         }
 
         event<FoodLevelChangeEvent>(EventPriority.MONITOR, false, forceAsync = true) {
-            val player = this.entity.safeCast<Player>() ?: run {
+            val player = this.entity as? Player ?: run {
                 logger.debug { "FoodLevelChangeEvent was not a player" }
                 return@event
             }

@@ -1,8 +1,8 @@
 package dev.racci.terix.core.services
 
+import arrow.core.toOption
 import dev.racci.minix.api.annotations.MappedExtension
 import dev.racci.minix.api.annotations.MinixDsl
-import dev.racci.minix.api.annotations.MinixInternal
 import dev.racci.minix.api.annotations.RunAsync
 import dev.racci.minix.api.extension.Extension
 import dev.racci.minix.api.extensions.event
@@ -40,7 +40,6 @@ import dev.racci.terix.core.origins.VampireOrigin
 import kotlinx.collections.immutable.PersistentMap
 import kotlinx.collections.immutable.toPersistentMap
 import org.bukkit.event.Event
-import org.bukkit.event.HandlerList
 import java.time.Duration
 import kotlin.reflect.KClass
 import kotlin.reflect.KFunction
@@ -131,21 +130,27 @@ public class OriginServiceImpl(override val plugin: Terix) : OriginService, Exte
         block(modifierCache.get(AbilityModifier::class).castOrThrow())
     }
 
-    private val eventMap = multiMapOf<Origin, Pair<KFunction<Event>, suspend Event.(EventSelector) -> Unit>>()
+    private val eventMap = multiMapOf<Origin, Pair<KFunction<*>, suspend (Event, EventSelector) -> Unit>>()
     private fun registerForwarders(origin: Origin) {
         origin::class.declaredMembers.asSequence()
-            .filterIsInstance<KFunction<Event>>()
+            .filterIsInstance<KFunction<*>>()
+            .filter { it.returnType.classifier == Unit::class }
             .filter { func -> func.hasAnnotation<OriginEventSelector>() }
             .filter { func -> func.findAnnotation<OriginEventSelector>()!!.selector.selector.isCompatible(func) }
             .forEach { func ->
                 eventMap.put(
                     origin,
-                    Pair(func) { selector ->
-                        val selected = selector.selector.invoke(this) ?: return@Pair
-                        val selectedOrigin = selected as? Origin ?: TerixPlayer.cachedOrigin(selected.castOrThrow())
-
-                        if (origin !== selectedOrigin) return@Pair
-                        func.callSuspend(origin, this)
+                    Pair(func) { event, annotation ->
+                        annotation(event).fold(
+                            ifLeft = { player -> TerixPlayer.cachedOrigin(player) },
+                            ifRight = { selectedOrigin -> selectedOrigin }
+                        ).toOption()
+                            .filter { selectedOrigin -> selectedOrigin === origin }
+                            .tap { logger.trace { "Calling $func in ${origin.name} with $event" } }
+                            .map { selectedOrigin ->
+                                logger.debug { "Calling $func in ${origin.name} with $event" }
+                                func.callSuspend(selectedOrigin, event)
+                            }
                     }
                 )
             }
@@ -163,14 +168,9 @@ public class OriginServiceImpl(override val plugin: Terix) : OriginService, Exte
                 priority = selectorAnnotation.priority,
                 ignoreCancelled = selectorAnnotation.ignoreCancelled,
                 forceAsync = func.hasAnnotation<RunAsync>(),
-                block = { handler(selectorAnnotation.selector) }
+                block = { handler(this, selectorAnnotation.selector) }
             )
         }
-    }
-
-    @OptIn(MinixInternal::class)
-    private fun deactivateEvents(origin: Origin) {
-        HandlerList.unregisterAll(origin.eventListener)
     }
 
     public inner class RegistryModifier {
