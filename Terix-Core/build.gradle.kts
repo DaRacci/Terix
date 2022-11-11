@@ -23,6 +23,6 @@ dependencies {
 tasks.compileKotlin {
     kotlinOptions {
         this.freeCompilerArgs += "-opt-in=dev.racci.minix.api.annotations.MinixInternal"
-        useK2 = true
+        useK2 = false
     }
 }

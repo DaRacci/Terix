@@ -1,5 +1,6 @@
 package dev.racci.terix.api.origins.origin
 
+import arrow.analysis.unsafeCall
 import dev.racci.terix.api.events.PlayerOriginChangeEvent
 import org.apiguardian.api.API
 import org.bukkit.entity.Player
@@ -43,7 +44,7 @@ public abstract class Origin : OriginBuilder() {
 
     final override fun toString(): String = buildString {
         fun appender(property: KProperty1<OriginValues, *>) {
-            if (last() != '(') append(", ")
+            if (unsafeCall(last()) != '(') append(", ")
             append(property.name)
             append("='")
             append(property.get(this@Origin))

@@ -18,7 +18,6 @@ class TestOrigin : Origin() {
     override val colour = NamedTextColor.AQUA!!
     override var fireImmunity = true
     override var waterBreathing = true
-    override val permission = "test.permission"
     override val becomeOriginTitle = TitleBuilder("<white><bold>Test".parse(), "<aqua><italic>Subtitle".parse())
 
     override suspend fun handleRegister() {

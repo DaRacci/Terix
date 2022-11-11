@@ -73,7 +73,7 @@ public abstract class CachingBuilder<T> {
         if (cached != other.cached) return false
         if (dirty != other.dirty) return false
 
-        return watcherValues.withIndex().all { (index, value) -> value == other.watcherValues[index] }
+        return watcherValues.withIndex().all { (index, value) -> value == other.watcherValues.getOrNull(index) }
     }
 
     final override fun hashCode(): Int {

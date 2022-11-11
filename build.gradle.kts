@@ -1,6 +1,8 @@
+import com.google.devtools.ksp.gradle.KspGradleSubplugin
 import net.minecrell.pluginyml.bukkit.BukkitPluginDescription.Permission.Default
 import net.minecrell.pluginyml.bukkit.BukkitPluginDescription.PluginLoadOrder
 import org.jetbrains.dokka.gradle.DokkaPlugin
+import org.jlleitschuh.gradle.ktlint.KtlintExtension
 import java.net.URL
 
 // Workaround for (https://youtrack.jetbrains.com/issue/KTIJ-19369)
@@ -9,13 +11,15 @@ plugins {
     alias(libs.plugins.minix.nms)
     alias(libs.plugins.minix.kotlin)
     alias(libs.plugins.minix.copyjar)
-    alias(libs.plugins.minix.purpurmc)
+    alias(libs.plugins.minix.purpurmc) apply false
 
     alias(libs.plugins.minecraft.pluginYML)
     alias(libs.plugins.dokka)
 
-    alias(libs.plugins.kotlin.atomicfu)
+    alias(libs.plugins.kotlin.atomicfu) apply false
     alias(libs.plugins.slimjar)
+    alias(libs.plugins.arrow) apply false
+    id("com.google.devtools.ksp") version "1.7.21-1.0.8"
 }
 
 bukkit {
@@ -81,6 +85,7 @@ subprojects {
     apply<Dev_racci_minix_kotlinPlugin>()
     apply<Dev_racci_minix_purpurmcPlugin>()
     apply<DokkaPlugin>()
+    apply<KspGradleSubplugin>()
 
     repositories {
         mavenLocal()
@@ -98,9 +103,15 @@ subprojects {
         compileOnly(rootProject.libs.minecraft.minix.core)
         compileOnly(rootProject.libs.minecraft.api.libsDisguises) { exclude("org.spigotmc", "spigot") }
 
-        compileOnly(platform("io.arrow-kt:arrow-stack:1.1.3"))
-        compileOnly("io.arrow-kt:arrow-core")
-        compileOnly("io.arrow-kt:arrow-fx-coroutines")
+        compileOnly(rootProject.libs.arrow.core)
+        compileOnly(rootProject.libs.arrow.optics)
+        compileOnly(rootProject.libs.arrow.fx.stm)
+        compileOnly(rootProject.libs.arrow.fx.coroutines)
+
+        compileOnly("io.arrow-kt", "arrow-analysis-laws", rootProject.libs.plugins.arrow.get().version.requiredVersion)
+        compileOnly("io.arrow-kt", "arrow-analysis-types", rootProject.libs.plugins.arrow.get().version.requiredVersion)
+
+        ksp(rootProject.libs.arrow.optics.ksp)
 
         testImplementation(platform(kotlin("bom")))
         testImplementation(rootProject.libs.minecraft.minix)
@@ -119,6 +130,14 @@ subprojects {
     java {
         withJavadocJar()
         withSourcesJar()
+    }
+
+    kotlin {
+        explicitApiWarning()
+    }
+
+    sourceSets.forEach {
+        it.kotlin.srcDir("$buildDir/generated/ksp/main/kotlin")
     }
 
     configurations {
@@ -183,7 +202,9 @@ allprojects {
         maven("https://nexus.frengor.com/repository/public/")
     }
 
-    kotlin {
-        explicitApiWarning()
+    configure<KtlintExtension> {
+        filter {
+            this.exclude("**/generated/**")
+        }
     }
 }

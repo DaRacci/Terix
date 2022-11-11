@@ -1,5 +1,6 @@
 package dev.racci.terix.api.origins.origin
 
+import arrow.analysis.unsafeCall
 import arrow.core.Either
 import com.destroystokyo.paper.MaterialSetTag
 import com.github.benmanes.caffeine.cache.Caffeine
@@ -38,7 +39,7 @@ public sealed class OriginBuilder : OriginValues() {
 
     private val builderCache: LoadingCache<KClass<*>, Any> = Caffeine.newBuilder()
         .expireAfterAccess(Duration.ofSeconds(15)) // Unneeded after the origin's registered & built.
-        .build { kClass -> kClass.constructors.first().call(this) }
+        .build { kClass -> unsafeCall(kClass.constructors.first()).call(this) }
 
     private inline fun <reified T : Any> builder(): T = builderCache[T::class].castOrThrow()
 
@@ -417,6 +418,7 @@ public sealed class OriginBuilder : OriginValues() {
             value: Number
         ): Unit = materials.forEach { timesModifier(it, value) }
 
+        @Suppress("UnsatCallPre")
         @JvmName("divModifierSingle")
         public fun divModifier(
             material: Material,

@@ -1,5 +1,7 @@
 package dev.racci.terix.api.origins.states
 
+import arrow.analysis.pre
+import arrow.analysis.unsafeCall
 import dev.racci.minix.api.data.enums.LiquidType
 import dev.racci.minix.api.data.enums.LiquidType.Companion.liquidType
 import dev.racci.minix.api.extensions.WithPlugin
@@ -215,20 +217,12 @@ public sealed class State : WithPlugin<Terix> {
         player: Player,
         origin: Origin
     ) = async {
-        origin.stateTitles[this@State]?.let { title ->
-            logger.trace(scope = CATEGORY) { "Invoking title $title" }
-            title.invoke(player)
-        }
-
-        origin.stateBlocks[this@State]?.let { block ->
-            logger.trace(scope = CATEGORY) { "Invoking state block" }
-            block.invoke(player)
-        }
+        origin.stateTitles[this@State]?.invoke(player)
+        origin.stateBlocks[this@State]?.invoke(player)
 
         origin.attributeModifiers[this@State]?.takeUnless(Collection<*>::isEmpty)?.forEach { (attribute, modifier) ->
             with(player.getAttribute(attribute)) {
                 if (this == null) return@forEach logger.debug(scope = CATEGORY) { "Attribute instance $attribute not found" }
-                logger.trace(scope = CATEGORY) { "Adding modifier $modifier to $this" }
                 addModifier(modifier)
             }
         }
@@ -241,7 +235,6 @@ public sealed class State : WithPlugin<Terix> {
         origin.attributeModifiers[this@State]?.takeUnless(Collection<*>::isEmpty)?.forEach { (attribute, modifier) ->
             with(player.getAttribute(attribute)) {
                 if (this == null) return@forEach plugin.log.debug(scope = CATEGORY) { "Attribute instance $attribute not found" }
-                plugin.log.trace(scope = CATEGORY) { "Removing modifier $modifier from $this" }
                 removeModifier(modifier)
             }
         }
@@ -253,7 +246,6 @@ public sealed class State : WithPlugin<Terix> {
         origin: Origin
     ) = sync {
         origin.statePotions[this@State]?.takeUnless(Collection<*>::isEmpty)?.forEach { potion ->
-            plugin.log.trace(scope = CATEGORY) { "Adding potion ${potion.type}" }
             player.addPotionEffect(potion)
         }
     }
@@ -263,7 +255,6 @@ public sealed class State : WithPlugin<Terix> {
         origin: Origin
     ) = sync {
         origin.statePotions[this@State]?.takeUnless(Collection<*>::isEmpty)?.map(PotionEffect::getType)?.forEach {
-            plugin.log.trace(scope = CATEGORY) { "Removing potion $it" }
             player.removePotionEffect(it)
         }
     }
@@ -344,7 +335,10 @@ public sealed class State : WithPlugin<Terix> {
 
         public fun getPlayerStates(player: Player): PersistentSet<State> = activeStates[player]?.toPersistentSet() ?: emptySet<State>().toPersistentSet()
 
-        public fun fromOrdinal(ordinal: Int): State = values[ordinal]
+        public fun fromOrdinal(ordinal: Int): State {
+            pre(ordinal < ordinalInc.value) { "Ordinal $ordinal is out of bounds" }
+            return unsafeCall(values[ordinal])
+        }
 
         public fun valueOf(name: String): State {
             plugin.log.debug { values.joinToString(", ") { it.name } }
