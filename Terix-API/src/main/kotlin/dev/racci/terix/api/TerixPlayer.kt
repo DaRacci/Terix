@@ -38,7 +38,15 @@ public class TerixPlayer(public val uuid: EntityID<UUID>) : UUIDEntity(uuid) {
 
     public interface Cache {
         public operator fun get(player: Player): TerixPlayer
+
+        @JvmName("cachedOriginNotNull")
+        @Suppress("INAPPLICABLE_JVM_NAME")
         public fun cachedOrigin(player: Player): Origin
+
+        @JvmName("cachedOriginNullable")
+        @Suppress("INAPPLICABLE_JVM_NAME")
+        public fun cachedOrigin(player: Player?): Origin?
+
         public fun cachedTicks(player: Player): PlayerTickCache
     }
 

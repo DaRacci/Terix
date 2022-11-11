@@ -5,6 +5,7 @@ import dev.racci.minix.api.extensions.collections.clear
 import dev.racci.terix.api.OriginService
 import dev.racci.terix.api.Terix
 import dev.racci.terix.api.TerixPlayer
+import dev.racci.terix.api.TerixPlayer.User.origin
 import dev.racci.terix.api.dsl.AttributeModifierBuilder
 import dev.racci.terix.api.dsl.PotionEffectBuilder
 import dev.racci.terix.api.origins.origin.Origin
@@ -59,22 +60,15 @@ public object OriginHelper : KoinComponent, WithPlugin<Terix> {
         if (oldOrigin != null) {
             activeStates.forEach { it.deactivate(player, oldOrigin) }
             activeStates.map { getOriginPotions(player, it) }.forEach(removePotions::addAll)
+            unregisterPassives(oldOrigin, player)
         }
 
         sync {
             removePotions.forEach(player::removePotionEffect)
             activeStates.forEach { newOrigin.statePotions[it]?.let(player::addPotionEffects) }
-//            when {
-//                oldOrigin?.nightVision == true && !newOrigin.nightVision -> {
-//                    removePotions += PotionEffectType.NIGHT_VISION
-//                }
-//                oldOrigin?.nightVision != true && newOrigin.nightVision -> {
-//                    val state = activeStates.find { transaction { TerixPlayer[player].nightVision == it } } ?: return@sync
-//                    player.addPotionEffect(nightVisionPotion(newOrigin, state))
-//                }
-//            }
         }
 
+        registerPassives(newOrigin, player)
         activeStates.forEach { it.activate(player, newOrigin) }
         if (player.health < curHealth) player.health = curHealth.coerceAtMost(player.getAttribute(Attribute.GENERIC_MAX_HEALTH)!!.value)
     }
@@ -100,39 +94,36 @@ public object OriginHelper : KoinComponent, WithPlugin<Terix> {
 
             State.recalculateAllStates(player)
             State.getPlayerStates(player).forEach { it.activate(player, origin) }
-            origin.passiveAbilities
-                .map { generator -> generator.of(player) }
-                .onEach { passive -> origin.activePassiveAbilities.put(player, passive) }
-                .forEach { passive -> passive.register() }
+            registerPassives(origin, player)
         }
     }
 
     /** Designed to be invoked for when a player needs everything disabled. */
     public suspend fun deactivateOrigin(player: Player) {
-        getOriginPotions(player, null)
-            .onEach { logger.trace { "Removing potion effect $it from ${player.name}" } }
-            .forEach(player::removePotionEffect)
+        sentryScoped(player, "OriginHelper.deactivateOrigin", "Deactivating ${origin.name} for ${player.name}") {
+            sync { getOriginPotions(player, null).forEach(player::removePotionEffect) }
 
-        async {
-            val origin = TerixPlayer.cachedOrigin(player)
-            origin.handleDeactivate(player)
-            origin.abilities.values.forEach { it.deactivate(player) }
-            State.activeStates.remove(player)
-            player.setImmuneToFire(null)
-            player.setCanBreathUnderwater(null)
+            async {
+                val origin = TerixPlayer.cachedOrigin(player)
+                origin.handleDeactivate(player)
+                origin.abilities.values.forEach { it.deactivate(player) }
+                State.activeStates.remove(player)
+                player.setImmuneToFire(null)
+                player.setCanBreathUnderwater(null)
 
-            for (attribute in Attribute.values()) {
-                val instance = player.getAttribute(attribute) ?: continue
-                if (instance.modifiers.isEmpty()) continue
+                for (attribute in Attribute.values()) {
+                    val instance = player.getAttribute(attribute) ?: continue
+                    if (instance.modifiers.isEmpty()) continue
 
-                instance.modifiers.associateWith { AttributeModifierBuilder.regex.matchEntire(it.name) }
-                    .forEach { (modifier, match) ->
-                        if (match == null) return@forEach
-                        instance.removeModifier(modifier)
-                    }
+                    instance.modifiers.associateWith { AttributeModifierBuilder.regex.matchEntire(it.name) }
+                        .forEach { (modifier, match) ->
+                            if (match == null) return@forEach
+                            instance.removeModifier(modifier)
+                        }
+                }
+
+                unregisterPassives(origin, player)
             }
-
-            origin.activePassiveAbilities[player].clear { unregister() }
         }
     }
 
@@ -164,6 +155,19 @@ public object OriginHelper : KoinComponent, WithPlugin<Terix> {
         val match = PotionEffectBuilder.regex.find(potion.key?.asString().orEmpty()) ?: return null
         return OriginService.getOriginOrNull(match.groups["from"]?.value)
     }
+
+    public suspend fun unregisterPassives(
+        origin: Origin,
+        player: Player
+    ): Unit = origin.activePassiveAbilities[player].clear { unregister() }
+
+    public suspend fun registerPassives(
+        origin: Origin,
+        player: Player
+    ): Unit = origin.passiveAbilities
+        .map { generator -> generator.of(player) }
+        .onEach { passive -> origin.activePassiveAbilities.put(player, passive) }
+        .forEach { passive -> passive.register() }
 
     public enum class IgnoreReason(public val description: String) { GAMEMODE("Not in survival or adventure mode") }
 }

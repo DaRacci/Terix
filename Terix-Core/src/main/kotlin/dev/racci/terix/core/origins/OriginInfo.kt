@@ -42,11 +42,6 @@ public object OriginInfo {
         }
     }
 
-    // TODO: Nightvision, water breathing, fire immune
-    // TODO: Attribute modifiers
-    // TODO: Titles
-    // TODO: Potions
-    // TODO: food (blocks, potions, attributes, multipliers)
     public object Types : PropertyFinder<Info>(KeyMode.CAPITALISED) {
         public val GENERAL: Info by Info {
             text {
