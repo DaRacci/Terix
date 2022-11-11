@@ -104,7 +104,6 @@ subprojects {
         compileOnly(rootProject.libs.minecraft.api.libsDisguises) { exclude("org.spigotmc", "spigot") }
 
         compileOnly(rootProject.libs.arrow.core)
-        compileOnly(rootProject.libs.arrow.optics)
         compileOnly(rootProject.libs.arrow.fx.stm)
         compileOnly(rootProject.libs.arrow.fx.coroutines)
 
@@ -128,8 +127,7 @@ subprojects {
     }
 
     java {
-        withJavadocJar()
-        withSourcesJar()
+//        withSourcesJar()
     }
 
     kotlin {
@@ -177,6 +175,8 @@ tasks {
                 dep.moduleGroup == "org.incendo.interfaces"
         }
 
+        val minixPrefix = "dev.racci.minix.libs"
+        relocate("io.sentry", "$minixPrefix.io.sentry")
         relocate("org.incendo.interfaces", "dev.racci.terix.libs.interfaces")
     }
 
@@ -200,6 +200,10 @@ tasks {
 allprojects {
     repositories {
         maven("https://nexus.frengor.com/repository/public/")
+    }
+
+    dependencies {
+        compileOnly(rootProject.libs.arrow.optics)
     }
 
     configure<KtlintExtension> {
