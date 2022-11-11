@@ -2,7 +2,6 @@ package dev.racci.terix.api.extensions
 
 import dev.racci.minix.api.utils.kotlin.ifTrue
 import org.bukkit.event.Event
-import sun.jvm.hotspot.oops.CellTypeState.value
 import kotlin.contracts.ExperimentalContracts
 import kotlin.contracts.InvocationKind
 import kotlin.contracts.contract
