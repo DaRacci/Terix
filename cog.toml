@@ -8,7 +8,7 @@ post_bump_hooks = [
 tag_prefix = "v"
 
 [commit_types]
-gradle = { changelog_title = "Build" }
+gradle = { changelog_title = "Build system" }
 format = { changelog_title = "Formatting" }
 
 [changelog]
