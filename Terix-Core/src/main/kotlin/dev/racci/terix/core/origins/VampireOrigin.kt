@@ -10,8 +10,8 @@ import dev.racci.terix.api.annotations.OriginEventSelector
 import dev.racci.terix.api.dsl.FoodPropertyBuilder
 import dev.racci.terix.api.dsl.dslMutator
 import dev.racci.terix.api.origins.OriginHelper
-import dev.racci.terix.api.origins.abilities.Transform
-import dev.racci.terix.api.origins.abilities.passives.LifeSteal
+import dev.racci.terix.api.origins.abilities.keybind.Transform
+import dev.racci.terix.api.origins.abilities.passive.LifeSteal
 import dev.racci.terix.api.origins.enums.EventSelector
 import dev.racci.terix.api.origins.enums.KeyBinding
 import dev.racci.terix.api.origins.origin.Origin

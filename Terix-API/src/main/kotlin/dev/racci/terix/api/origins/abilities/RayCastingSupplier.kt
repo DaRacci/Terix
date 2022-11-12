@@ -1,4 +1,4 @@
-package dev.racci.terix.api.origins.abilities.passives
+package dev.racci.terix.api.origins.abilities
 
 import arrow.core.Option
 import com.github.benmanes.caffeine.cache.AsyncLoadingCache

@@ -3,7 +3,7 @@ package dev.racci.terix.api.dsl
 import dev.racci.minix.api.extensions.inWholeTicks
 import dev.racci.minix.api.extensions.ticks
 import dev.racci.terix.api.OriginService
-import dev.racci.terix.api.origins.abilities.KeybindAbility
+import dev.racci.terix.api.origins.abilities.keybind.KeybindAbility
 import dev.racci.terix.api.origins.origin.Origin
 import dev.racci.terix.api.origins.origin.OriginValues
 import dev.racci.terix.api.origins.states.State

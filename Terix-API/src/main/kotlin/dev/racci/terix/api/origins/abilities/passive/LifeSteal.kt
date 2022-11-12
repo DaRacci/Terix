@@ -1,10 +1,9 @@
-package dev.racci.terix.api.origins.abilities.passives
+package dev.racci.terix.api.origins.abilities.passive
 
 import dev.racci.terix.api.annotations.OriginEventSelector
 import dev.racci.terix.api.events.abilities.LifeStealEvent
 import dev.racci.terix.api.extensions.emptyLambdaThree
 import dev.racci.terix.api.extensions.onSuccess
-import dev.racci.terix.api.origins.abilities.PassiveAbility
 import dev.racci.terix.api.origins.enums.EventSelector
 import dev.racci.terix.api.origins.origin.Origin
 import org.bukkit.entity.LivingEntity

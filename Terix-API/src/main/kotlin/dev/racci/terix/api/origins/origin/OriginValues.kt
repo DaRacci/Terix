@@ -15,8 +15,8 @@ import dev.racci.terix.api.dsl.TimedAttributeBuilder
 import dev.racci.terix.api.dsl.TitleBuilder
 import dev.racci.terix.api.exceptions.OriginCreationException
 import dev.racci.terix.api.origins.OriginItem
-import dev.racci.terix.api.origins.abilities.KeybindAbility
-import dev.racci.terix.api.origins.abilities.PassiveAbility
+import dev.racci.terix.api.origins.abilities.keybind.KeybindAbility
+import dev.racci.terix.api.origins.abilities.passive.PassiveAbility
 import dev.racci.terix.api.origins.enums.KeyBinding
 import dev.racci.terix.api.origins.sounds.SoundEffects
 import dev.racci.terix.api.origins.states.State

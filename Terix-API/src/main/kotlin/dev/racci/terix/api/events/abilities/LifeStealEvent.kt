@@ -1,6 +1,6 @@
 package dev.racci.terix.api.events.abilities
 
-import dev.racci.terix.api.origins.abilities.PassiveAbility
+import dev.racci.terix.api.origins.abilities.passive.PassiveAbility
 import org.bukkit.event.entity.EntityDamageByEntityEvent
 
 public class LifeStealEvent internal constructor(

@@ -1,4 +1,4 @@
-package dev.racci.terix.api.origins.abilities
+package dev.racci.terix.api.origins.abilities.keybind
 
 import dev.racci.minix.api.destructors.component1
 import dev.racci.minix.api.destructors.component2

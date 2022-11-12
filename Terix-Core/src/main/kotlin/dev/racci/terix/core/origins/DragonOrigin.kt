@@ -9,7 +9,7 @@ import dev.racci.terix.api.Terix
 import dev.racci.terix.api.annotations.OriginEventSelector
 import dev.racci.terix.api.dsl.FoodPropertyBuilder
 import dev.racci.terix.api.dsl.dslMutator
-import dev.racci.terix.api.origins.abilities.DragonBreath
+import dev.racci.terix.api.origins.abilities.keybind.DragonBreath
 import dev.racci.terix.api.origins.enums.EventSelector
 import dev.racci.terix.api.origins.enums.KeyBinding
 import dev.racci.terix.api.origins.origin.Origin

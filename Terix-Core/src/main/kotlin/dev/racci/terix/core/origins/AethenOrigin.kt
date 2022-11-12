@@ -19,7 +19,7 @@ import dev.racci.terix.api.annotations.OriginEventSelector
 import dev.racci.terix.api.dsl.dslMutator
 import dev.racci.terix.api.events.PlayerOriginChangeEvent
 import dev.racci.terix.api.origins.OriginHelper
-import dev.racci.terix.api.origins.abilities.Levitate
+import dev.racci.terix.api.origins.abilities.keybind.Levitate
 import dev.racci.terix.api.origins.enums.EventSelector
 import dev.racci.terix.api.origins.enums.KeyBinding
 import dev.racci.terix.api.origins.origin.Origin

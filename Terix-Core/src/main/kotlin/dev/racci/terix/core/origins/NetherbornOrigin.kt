@@ -6,7 +6,7 @@ import dev.racci.terix.api.Terix
 import dev.racci.terix.api.annotations.OriginEventSelector
 import dev.racci.terix.api.dsl.FoodPropertyBuilder
 import dev.racci.terix.api.dsl.dslMutator
-import dev.racci.terix.api.origins.abilities.passives.FluidWalker
+import dev.racci.terix.api.origins.abilities.passive.FluidWalker
 import dev.racci.terix.api.origins.enums.EventSelector
 import dev.racci.terix.api.origins.origin.Origin
 import dev.racci.terix.api.origins.sounds.SoundEffect

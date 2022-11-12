@@ -1,4 +1,4 @@
-package dev.racci.terix.api.origins.abilities
+package dev.racci.terix.api.origins.abilities.keybind
 
 import dev.racci.minix.api.coroutine.asyncDispatcher
 import dev.racci.minix.api.extensions.WithPlugin
@@ -10,6 +10,7 @@ import dev.racci.terix.api.events.PlayerAbilityActivateEvent
 import dev.racci.terix.api.events.PlayerAbilityDeactivateEvent
 import dev.racci.terix.api.events.PlayerOriginChangeEvent
 import dev.racci.terix.api.origins.OriginHelper
+import dev.racci.terix.api.origins.abilities.CooldownSet
 import dev.racci.terix.api.origins.origin.Origin
 import dev.racci.terix.api.sentryScoped
 import kotlinx.datetime.Instant

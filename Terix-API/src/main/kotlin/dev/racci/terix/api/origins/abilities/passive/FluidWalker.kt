@@ -1,4 +1,4 @@
-package dev.racci.terix.api.origins.abilities.passives
+package dev.racci.terix.api.origins.abilities.passive
 
 import arrow.core.getOrElse
 import dev.racci.minix.api.coroutine.launch
@@ -15,7 +15,7 @@ import dev.racci.terix.api.Terix
 import dev.racci.terix.api.TerixPlayer
 import dev.racci.terix.api.annotations.OriginEventSelector
 import dev.racci.terix.api.extensions.above
-import dev.racci.terix.api.origins.abilities.PassiveAbility
+import dev.racci.terix.api.origins.abilities.RayCastingSupplier
 import dev.racci.terix.api.origins.enums.EventSelector
 import dev.racci.terix.api.origins.origin.Origin
 import net.minecraft.core.BlockPos

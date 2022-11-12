@@ -3,6 +3,7 @@ package dev.racci.terix.api.origins.abilities
 import dev.racci.minix.api.extensions.onlinePlayers
 import dev.racci.minix.api.extensions.scheduler
 import dev.racci.minix.api.utils.now
+import dev.racci.terix.api.origins.abilities.keybind.KeybindAbility
 import kotlinx.datetime.Instant
 import org.bukkit.entity.Player
 import java.util.UUID

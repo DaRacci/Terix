@@ -1,4 +1,4 @@
-package dev.racci.terix.api.origins.abilities
+package dev.racci.terix.api.origins.abilities.passive
 
 import arrow.analysis.unsafeCall
 import arrow.core.Option

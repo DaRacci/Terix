@@ -1,4 +1,4 @@
-package dev.racci.terix.api.origins.abilities.passives
+package dev.racci.terix.api.origins.abilities.passive
 
 import arrow.core.Some
 import arrow.optics.copy
@@ -9,7 +9,7 @@ import dev.racci.minix.api.utils.now
 import dev.racci.terix.api.annotations.OriginEventSelector
 import dev.racci.terix.api.data.TemporaryReplacement
 import dev.racci.terix.api.data.replacedState
-import dev.racci.terix.api.origins.abilities.PassiveAbility
+import dev.racci.terix.api.origins.abilities.RayCastingSupplier
 import dev.racci.terix.api.origins.enums.EventSelector
 import dev.racci.terix.api.origins.origin.Origin
 import dev.racci.terix.api.services.TickService

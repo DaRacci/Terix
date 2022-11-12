@@ -1,4 +1,4 @@
-package dev.racci.terix.api.origins.abilities
+package dev.racci.terix.api.origins.abilities.keybind
 
 import dev.racci.minix.nms.aliases.toNMS
 import dev.racci.terix.api.origins.origin.Origin

@@ -5,7 +5,7 @@ import dev.racci.minix.api.extensions.round
 import dev.racci.minix.api.utils.PropertyFinder
 import dev.racci.minix.api.utils.collections.muiltimap.MultiMap
 import dev.racci.minix.api.utils.getKoin
-import dev.racci.terix.api.origins.abilities.KeybindAbility
+import dev.racci.terix.api.origins.abilities.keybind.KeybindAbility
 import dev.racci.terix.api.origins.enums.KeyBinding
 import dev.racci.terix.api.origins.origin.Origin
 import dev.racci.terix.api.origins.sounds.SoundEffect

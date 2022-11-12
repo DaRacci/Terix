@@ -1,7 +1,7 @@
 package dev.racci.terix.api.events
 
 import dev.racci.minix.api.events.CompanionEventHandler
-import dev.racci.terix.api.origins.abilities.KeybindAbility
+import dev.racci.terix.api.origins.abilities.keybind.KeybindAbility
 import org.bukkit.entity.Player
 import org.bukkit.event.HandlerList
 
