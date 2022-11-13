@@ -17,12 +17,6 @@ tasks {
     }
 }
 
-afterEvaluate {
-    components.forEach {
-        println(it.name)
-    }
-}
-
 publishing {
     repositories.maven {
         name = "RacciRepo"

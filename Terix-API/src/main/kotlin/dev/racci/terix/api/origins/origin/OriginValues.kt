@@ -1,6 +1,5 @@
 package dev.racci.terix.api.origins.origin
 
-import arrow.analysis.pre
 import arrow.core.Either
 import com.google.common.collect.Multimap
 import dev.racci.minix.api.annotations.MinixInternal
@@ -88,8 +87,6 @@ public sealed class OriginValues : WithPlugin<MinixPlugin> {
         public val name: String = abilityKClass.simpleName!!
 
         public suspend fun of(player: Player): A {
-            pre(player.isOnline) { "Player must be online to generate ability" }
-
             val constructor = abilityKClass.primaryConstructor ?: throw OriginCreationException("No primary constructor for ability ${abilityKClass.simpleName}")
             val ability = constructor.call(player, TerixPlayer.cachedOrigin(player))
 

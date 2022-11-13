@@ -1,6 +1,5 @@
 package dev.racci.terix.api.origins.abilities.keybind
 
-import arrow.analysis.pre
 import dev.racci.minix.api.extensions.WithPlugin
 import dev.racci.minix.api.extensions.event
 import dev.racci.minix.api.extensions.ticks
@@ -40,7 +39,6 @@ public abstract class KeybindAbility : Ability() {
 
     /** Call only from inside [onActivate] to show a failed ability. */
     protected fun failActivation() {
-        pre(!isActivated) { "Ability was not activated." }
         this.activatedAt = null
     }
 

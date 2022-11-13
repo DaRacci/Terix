@@ -18,7 +18,6 @@ plugins {
 
     alias(libs.plugins.kotlin.atomicfu) apply false
     alias(libs.plugins.slimjar)
-    alias(libs.plugins.arrow) apply false
     id("com.google.devtools.ksp") version "1.7.21-1.0.8"
 }
 
@@ -106,9 +105,6 @@ subprojects {
         compileOnly(rootProject.libs.arrow.core)
         compileOnly(rootProject.libs.arrow.fx.stm)
         compileOnly(rootProject.libs.arrow.fx.coroutines)
-
-        compileOnly("io.arrow-kt", "arrow-analysis-laws", rootProject.libs.plugins.arrow.get().version.requiredVersion)
-        compileOnly("io.arrow-kt", "arrow-analysis-types", rootProject.libs.plugins.arrow.get().version.requiredVersion)
 
         ksp(rootProject.libs.arrow.optics.ksp)
 
@@ -208,5 +204,9 @@ allprojects {
         filter {
             this.exclude("**/generated/**")
         }
+    }
+
+    tasks.compileKotlin {
+        this.kotlinOptions.useK2 = false
     }
 }

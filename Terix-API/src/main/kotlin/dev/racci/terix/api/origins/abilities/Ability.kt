@@ -1,6 +1,5 @@
 package dev.racci.terix.api.origins.abilities
 
-import arrow.analysis.unsafeCall
 import arrow.core.Option
 import com.github.benmanes.caffeine.cache.Caffeine
 import dev.racci.minix.api.annotations.RunAsync
@@ -82,7 +81,7 @@ public abstract class Ability : WithPlugin<Terix> {
     private fun activateEvents() {
         forwarders[this::class].forEach { func ->
             val selectorAnnotation = func.findAnnotation<OriginEventSelector>()!!
-            val kClass = (func.extensionReceiverParameter?.type?.classifier ?: unsafeCall(func.valueParameters[0]).type.classifier).castOrThrow<KClass<Event>>()
+            val kClass = (func.extensionReceiverParameter?.type?.classifier ?: func.valueParameters[0].type.classifier).castOrThrow<KClass<Event>>()
 
             this.listener.event(
                 kClass,

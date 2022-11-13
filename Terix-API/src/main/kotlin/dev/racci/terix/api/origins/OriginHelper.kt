@@ -50,7 +50,7 @@ public object OriginHelper : KoinComponent, WithPlugin<Terix> {
         player: Player,
         oldOrigin: Origin?,
         newOrigin: Origin
-    ) {
+    ): Unit = sentryScoped(player, "OriginHelper.changeTo", "Changing from ${oldOrigin?.name} to ${newOrigin.name}") {
         player.setImmuneToFire(newOrigin.fireImmunity)
         player.setCanBreathUnderwater(newOrigin.waterBreathing)
 

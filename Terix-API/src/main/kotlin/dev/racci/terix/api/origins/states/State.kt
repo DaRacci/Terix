@@ -1,7 +1,5 @@
 package dev.racci.terix.api.origins.states
 
-import arrow.analysis.pre
-import arrow.analysis.unsafeCall
 import dev.racci.minix.api.data.enums.LiquidType
 import dev.racci.minix.api.data.enums.LiquidType.Companion.liquidType
 import dev.racci.minix.api.extensions.WithPlugin
@@ -336,8 +334,7 @@ public sealed class State : WithPlugin<Terix> {
         public fun getPlayerStates(player: Player): PersistentSet<State> = activeStates[player]?.toPersistentSet() ?: emptySet<State>().toPersistentSet()
 
         public fun fromOrdinal(ordinal: Int): State {
-            pre(ordinal < ordinalInc.value) { "Ordinal $ordinal is out of bounds" }
-            return unsafeCall(values[ordinal])
+            return values[ordinal]
         }
 
         public fun valueOf(name: String): State {
