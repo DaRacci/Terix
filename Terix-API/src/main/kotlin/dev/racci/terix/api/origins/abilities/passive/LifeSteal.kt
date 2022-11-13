@@ -12,9 +12,9 @@ import org.bukkit.event.EventPriority
 import org.bukkit.event.entity.EntityDamageByEntityEvent
 
 public class LifeSteal(
-    player: Player,
-    origin: Origin,
-) : PassiveAbility(player, origin) {
+    override val abilityPlayer: Player,
+    override val linkedOrigin: Origin
+) : PassiveAbility() {
     public var maximumStolenHealth: Double = 2.0
     public var stolenPercentage: Float = 0.3F
     public var onLifeSteal: (Player, LivingEntity, Double) -> Unit = Unit.emptyLambdaThree()

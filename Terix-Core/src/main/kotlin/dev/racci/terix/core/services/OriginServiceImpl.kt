@@ -16,15 +16,9 @@ import dev.racci.terix.api.Terix
 import dev.racci.terix.api.TerixPlayer
 import dev.racci.terix.api.annotations.OriginEventSelector
 import dev.racci.terix.api.data.TerixConfig
-import dev.racci.terix.api.origins.abilities.keybind.DragonBreath
-import dev.racci.terix.api.origins.abilities.keybind.KeybindAbility
-import dev.racci.terix.api.origins.abilities.keybind.Levitate
-import dev.racci.terix.api.origins.abilities.keybind.Teleport
-import dev.racci.terix.api.origins.abilities.keybind.Transform
 import dev.racci.terix.api.origins.enums.EventSelector
 import dev.racci.terix.api.origins.enums.EventSelector.TargetSelector.Companion.isCompatible
 import dev.racci.terix.api.origins.origin.Origin
-import dev.racci.terix.api.origins.origin.OriginBuilder
 import dev.racci.terix.core.extensions.sanitise
 import dev.racci.terix.core.origins.AethenOrigin
 import dev.racci.terix.core.origins.AxolotlOrigin
@@ -58,7 +52,6 @@ public class OriginServiceImpl(override val plugin: Terix) : OriginService, Exte
     private var dirtyCache: List<String>? = null
     private var dirtyRegistry: PersistentMap<String, Origin>? = null
 
-    public val abilities: MutableMap<KClass<out KeybindAbility>, (Origin) -> KeybindAbility> = mutableMapOf()
     public val registry: PersistentMap<String, Origin>
         get() = dirtyRegistry ?: origins.values.associateBy { it.name.lowercase() }.toPersistentMap().also { dirtyRegistry = it }
     public val registeredOrigins: List<String>
@@ -68,7 +61,6 @@ public class OriginServiceImpl(override val plugin: Terix) : OriginService, Exte
     override val defaultOrigin: Origin get() = registry.getOrElse(getKoin().get<DataService>().get<TerixConfig>().defaultOrigin) { origins[HumanOrigin::class]!! }
 
     override suspend fun handleEnable() {
-        populateAbilities()
         populateRegistry()
 
         origins.values.forEach(::activateEvents)
@@ -95,15 +87,6 @@ public class OriginServiceImpl(override val plugin: Terix) : OriginService, Exte
         }
     }
 
-    private suspend fun populateAbilities() {
-        abilities {
-            add<Levitate>()
-            add<Teleport>()
-            add<Transform>()
-            add<DragonBreath>()
-        }
-    }
-
     override fun getOrigins(): PersistentMap<KClass<out Origin>, Origin> = origins.toPersistentMap()
 
     override fun getOrigin(origin: KClass<out Origin>): Origin = origins[origin] ?: throw NoSuchElementException("Origin ${origin.simpleName} not found")
@@ -117,18 +100,8 @@ public class OriginServiceImpl(override val plugin: Terix) : OriginService, Exte
         return registry[name.lowercase()]
     }
 
-    override fun generateAbility(
-        ability: KClass<out KeybindAbility>,
-        origin: OriginBuilder
-    ): KeybindAbility = abilities[ability]!!(origin as Origin)
-
     @MinixDsl
     public suspend fun registry(block: suspend RegistryModifier.() -> Unit) { block(modifierCache.get(RegistryModifier::class).castOrThrow()) }
-
-    @MinixDsl
-    public suspend fun abilities(block: suspend AbilityModifier.() -> Unit) {
-        block(modifierCache.get(AbilityModifier::class).castOrThrow())
-    }
 
     private val eventMap = multiMapOf<Origin, Pair<KFunction<*>, suspend (Event, EventSelector) -> Unit>>()
     private fun registerForwarders(origin: Origin) {
@@ -194,22 +167,6 @@ public class OriginServiceImpl(override val plugin: Terix) : OriginService, Exte
                 logger.debug { "Creating origin ${kClazz.simpleName}" }
                 kClazz.primaryConstructor!!.call(plugin)
             }
-        }
-    }
-
-    public inner class AbilityModifier {
-
-        @MinixDsl
-        public fun add(
-            kClass: KClass<out KeybindAbility>,
-            abilityBuilder: (Origin) -> KeybindAbility
-        ) {
-            abilities[kClass] = abilityBuilder
-        }
-
-        @MinixDsl
-        public inline fun <reified T : KeybindAbility> add(kClass: KClass<T> = T::class) {
-            add(T::class) { kClass.primaryConstructor!!.call(it) }
         }
     }
 

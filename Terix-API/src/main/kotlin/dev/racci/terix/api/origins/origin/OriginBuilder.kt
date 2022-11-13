@@ -7,7 +7,6 @@ import com.github.benmanes.caffeine.cache.Caffeine
 import com.github.benmanes.caffeine.cache.LoadingCache
 import dev.racci.minix.api.annotations.MinixDsl
 import dev.racci.minix.api.extensions.reflection.castOrThrow
-import dev.racci.terix.api.OriginService
 import dev.racci.terix.api.data.ItemMatcher
 import dev.racci.terix.api.dsl.AttributeModifierBuilder
 import dev.racci.terix.api.dsl.DSLMutator
@@ -578,14 +577,16 @@ public sealed class OriginBuilder : OriginValues() {
     /** A Utility class for building abilities. */
     public inner class AbilityBuilder {
 
-        public fun <T : KeybindAbility> KeyBinding.add(
-            clazz: KClass<out T>,
-            builder: T.() -> Unit = {}
-        ): KeybindAbility? = abilities.put(this, OriginService.generateAbility(clazz, this@OriginBuilder).also(builder.castOrThrow()))
-
+        /**
+         * Adds a keybinding bound ability that is granted with this origin.
+         *
+         * @receiver The keybinding to bind the ability to.
+         * @param T The type of ability to add.
+         * @param configure A builder function to configure the ability on creation.
+         */
         public inline fun <reified T : KeybindAbility> KeyBinding.add(
-            noinline builder: T.() -> Unit = {}
-        ): KeybindAbility? = add(T::class, builder)
+            noinline configure: suspend T.(abilityPlayer: Player) -> Unit = {}
+        ) { keybindAbilityGenerators.put(this, AbilityGenerator(T::class, configure.castOrThrow())) }
 
         /**
          * Adds a passive ability that is granted with this origin.
@@ -594,11 +595,12 @@ public sealed class OriginBuilder : OriginValues() {
          * @param configure A builder function to configure the ability on creation.
          */
         public inline fun <reified T : PassiveAbility> withPassive(
-            noinline configure: suspend T.() -> Unit = {}
-        ) { passiveAbilities.add(PassiveAbilityGenerator(T::class, configure.castOrThrow())) }
+            noinline configure: suspend T.(abilityPlayer: Player) -> Unit = {}
+        ) { passiveAbilityGenerators.add(AbilityGenerator(T::class, configure.castOrThrow())) }
     }
 
     /** A Utility class for building biome triggers. */
+    // TODO
     public inner class BiomeBuilder {
 
         public operator fun <T : KeybindAbility> Biome.plusAssign(ability: KClass<out T>) {

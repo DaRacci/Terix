@@ -12,6 +12,7 @@ import kotlin.reflect.full.declaredMemberProperties
 // TODO -> Potion modifier system (eg preventing potion effects and modifying them)
 // TODO -> Attribute modifier system (eg preventing attribute modifiers and modifying them)
 // TODO -> Internal tracking UID
+// TODO -> Templating data class
 @API(status = API.Status.MAINTAINED, since = "1.0.0")
 public abstract class Origin : OriginBuilder() {
 

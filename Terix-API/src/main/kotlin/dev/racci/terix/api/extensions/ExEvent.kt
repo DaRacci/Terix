@@ -1,4 +1,4 @@
-package dev.racci.terix.api.extensions
+package dev.racci.terix.api.extensions // ktlint-disable filename
 
 import dev.racci.minix.api.utils.kotlin.ifTrue
 import org.bukkit.event.Event

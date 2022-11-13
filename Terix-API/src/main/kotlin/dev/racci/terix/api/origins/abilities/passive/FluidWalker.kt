@@ -33,9 +33,9 @@ import kotlin.properties.Delegates
 
 // TODO -> sounds and particle in center location
 public class FluidWalker(
-    player: Player,
-    origin: Origin
-) : PassiveAbility(player, origin) {
+    override val abilityPlayer: Player,
+    override val linkedOrigin: Origin
+) : PassiveAbility() {
     public var radius: Double = 3.0
     public var fluidType: Material by Delegates.notNull()
     public var replacement: Material by Delegates.notNull()

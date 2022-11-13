@@ -12,6 +12,7 @@ import org.bukkit.event.EventPriority
  * @property ignoreCancelled Whether to ignore cancelled events.
  */
 // TODO -> CompileTime annotation processor
+// TODO -> Version for abilities which includes ignore if not activated.
 @Target(AnnotationTarget.FUNCTION)
 @Retention(AnnotationRetention.RUNTIME)
 public annotation class OriginEventSelector(

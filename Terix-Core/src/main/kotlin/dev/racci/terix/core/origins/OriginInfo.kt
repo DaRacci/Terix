@@ -1,13 +1,14 @@
 package dev.racci.terix.core.origins
 
+import com.google.common.collect.Multimap
 import dev.racci.minix.api.extensions.reflection.castOrThrow
 import dev.racci.minix.api.extensions.round
 import dev.racci.minix.api.utils.PropertyFinder
 import dev.racci.minix.api.utils.collections.muiltimap.MultiMap
 import dev.racci.minix.api.utils.getKoin
-import dev.racci.terix.api.origins.abilities.keybind.KeybindAbility
 import dev.racci.terix.api.origins.enums.KeyBinding
 import dev.racci.terix.api.origins.origin.Origin
+import dev.racci.terix.api.origins.origin.OriginValues
 import dev.racci.terix.api.origins.sounds.SoundEffect
 import dev.racci.terix.api.origins.states.State
 import dev.racci.terix.core.data.Lang
@@ -67,10 +68,9 @@ public object OriginInfo {
         }
 
         public val ABILITIES: Info by Info {
-            if (this.abilities.isEmpty()) return@Info Component.empty()
-
             text {
-                iterate(this, abilities, KeyBinding::name, KeybindAbility::name)
+                iterate(this, keybindAbilityGenerators, KeyBinding::name, OriginValues.AbilityGenerator<*>::name)
+                iterate(this, passiveAbilityGenerators, OriginValues.AbilityGenerator<*>::name)
             }
         }
 
@@ -189,9 +189,15 @@ public object OriginInfo {
             key: String,
             value: Any?
         ) = append {
-            getKoin().get<Lang>().origin.descriptor.bodyLine[
+            getKoin().get<Lang>().origin.descriptor.keyedBodyLine[
                 "key" to { key },
                 "value" to { value ?: "null" }
+            ]
+        }
+
+        private fun TextComponent.Builder.appendValue(value: () -> Any) = append {
+            getKoin().get<Lang>().origin.descriptor.bodyLine[
+                "value" to { value() }
             ]
         }
 
@@ -202,6 +208,14 @@ public object OriginInfo {
             valueMapper: V.() -> String = { toString() },
             entryMapper: (V.(E) -> String)? = null
         ) = iterate(builder, multiMap.entries, keyMapper, valueMapper, entryMapper)
+
+        private fun <E, V> iterate(
+            builder: TextComponent.Builder,
+            multiMap: Multimap<E, V>,
+            keyMapper: E.() -> String,
+            valueMapper: V.() -> String = { toString() },
+            entryMapper: (V.(E) -> String)? = null
+        ) = iterate(builder, multiMap.entries(), keyMapper, valueMapper, entryMapper)
 
         private fun <E, V> iterate(
             builder: TextComponent.Builder,
@@ -230,6 +244,22 @@ public object OriginInfo {
                 } else format(value.castOrThrow())
 
                 builder.appendKeyValue(keyName, formatted)
+            }
+        }
+
+        private fun <V> iterate(
+            builder: TextComponent.Builder,
+            collection: Collection<V>,
+            valueMapper: V.() -> String
+        ) {
+            for (value in collection) {
+                builder.appendValue {
+                    when {
+                        value is Collection<*> && value.size > 1 -> value.joinToString("\n    ", "\n    ", "\n") { valueMapper(it.castOrThrow()) }
+                        value is Collection<*> -> valueMapper(value.first().castOrThrow())
+                        else -> valueMapper(value)
+                    }
+                }
             }
         }
 

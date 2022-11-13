@@ -1,136 +1,93 @@
 package dev.racci.terix.api.origins.abilities.keybind
 
-import dev.racci.minix.api.coroutine.asyncDispatcher
+import arrow.analysis.pre
 import dev.racci.minix.api.extensions.WithPlugin
 import dev.racci.minix.api.extensions.event
 import dev.racci.minix.api.extensions.ticks
+import dev.racci.minix.api.flow.playerEventFlow
+import dev.racci.minix.api.utils.now
 import dev.racci.terix.api.Terix
+import dev.racci.terix.api.TerixPlayer.User.origin
 import dev.racci.terix.api.dsl.PotionEffectBuilder
-import dev.racci.terix.api.events.PlayerAbilityActivateEvent
-import dev.racci.terix.api.events.PlayerAbilityDeactivateEvent
 import dev.racci.terix.api.events.PlayerOriginChangeEvent
-import dev.racci.terix.api.origins.OriginHelper
-import dev.racci.terix.api.origins.abilities.CooldownSet
-import dev.racci.terix.api.origins.origin.Origin
-import dev.racci.terix.api.sentryScoped
+import dev.racci.terix.api.origins.abilities.Ability
+import dev.racci.terix.api.origins.enums.KeyBinding
+import kotlinx.coroutines.flow.filter
+import kotlinx.coroutines.flow.onEach
 import kotlinx.datetime.Instant
+import org.apiguardian.api.API
 import org.bukkit.NamespacedKey
 import org.bukkit.craftbukkit.v1_19_R1.persistence.CraftPersistentDataTypeRegistry
 import org.bukkit.craftbukkit.v1_19_R1.persistence.DirtyCraftPersistentDataContainer
-import org.bukkit.entity.Player
 import org.bukkit.event.EventPriority
 import org.bukkit.event.player.PlayerJoinEvent
 import org.bukkit.persistence.PersistentDataContainer
 import org.bukkit.persistence.PersistentDataType
 import org.bukkit.potion.PotionEffect
-import org.koin.core.component.inject
-import java.util.UUID
 import kotlin.time.Duration
 
 // TODO -> Per player instances
-public abstract class KeybindAbility(
-    private val abilityType: AbilityType
-) : WithPlugin<Terix> {
-    protected abstract val origin: Origin
-    private val abilityCache: CooldownSet by lazy { CooldownSet(this) }
+// TODO -> Concurrent protection / mutex lock
+// TODO -> Separate into toggleable and trigger-able abilities
+public abstract class KeybindAbility : Ability() {
+    protected var activatedAt: Instant? = null
     private val namespacedKey: NamespacedKey by lazy { NamespacedKey(plugin, "origin_ability_${origin.name}/${this.name}") }
-
-    final override val plugin: Terix by inject()
 
     /** The duration before the ability can be activated again. */
     public open val cooldown: Duration = 20.ticks
 
-    public open val name: String = this::class.simpleName ?: throw IllegalStateException("KeybindAbility name is null")
-
-    /**
-     * Called when the ability is activated.
-     * This is always called off the main thread.
-     *
-     * @param player The player who activated the ability.
-     */
-    public open suspend fun onActivate(player: Player): Unit = Unit
-
-    /**
-     * Called when the ability is deactivated.
-     * This is always called off the main thread.
-     *
-     * @param player The player who deactivated the ability.
-     */
-    public open suspend fun onDeactivate(player: Player): Unit = Unit
-
-    /**
-     * Attempts to toggle this [player]'s ability.
-     *
-     * If the ability type is [AbilityType.TRIGGER], this will try to activate it.
-     * If the ability type is [AbilityType.TOGGLE] and the ability is active for the player, this will try to deactivate it.
-     *
-     * @param player to toggle the ability for.
-     * @return If the ability is on cooldown, this will return null. Otherwise, it will return true.
-     */
-    public suspend fun toggle(player: Player): Boolean? = when {
-        OriginHelper.shouldIgnorePlayer(player) -> false
-        this.abilityCache.containsCooldown(player.uniqueId) -> null
-        this.isActivated(player.uniqueId) -> this.deactivate(player)
-        else -> this.activate(player, null)
-    }
+    public abstract val isActivated: Boolean
 
     /** Call only from inside [onActivate] to show a failed ability. */
-    protected fun failActivation(player: Player) {
-        this.abilityCache.remove(player.uniqueId, true)
+    protected fun failActivation() {
+        pre(!isActivated) { "Ability was not activated." }
+        this.activatedAt = null
     }
-
-    protected fun isActivated(uuid: UUID): Boolean = abilityType == AbilityType.TOGGLE && uuid in abilityCache
 
     protected fun taggedPotion(potionEffectBuilder: PotionEffectBuilder): PotionEffect = potionEffectBuilder.apply { key = namespacedKey }.get()
 
     protected fun isTagged(potionEffect: PotionEffect): Boolean = potionEffect.key == namespacedKey
 
-    internal suspend fun activate(
-        player: Player,
-        forceValue: Instant?
-    ): Boolean {
-        if (!this.abilityCache.add(player.uniqueId, forceValue)) return false
-        if (!PlayerAbilityActivateEvent(player, this).callEvent()) return false
+    @API(status = API.Status.INTERNAL)
+    protected fun cooldownRemaining(): Duration = cooldown - (now() - activatedAt!!)
 
-        this.addToPersistentData(player)
-        sentryScoped(player, SCOPE, "$name.activate", context = plugin.asyncDispatcher) {
-            this.onActivate(player)
+    @API(status = API.Status.INTERNAL)
+    protected fun cooldownExpired(): Boolean = activatedAt == null || ((activatedAt!! + cooldown) >= now())
+
+    internal fun activateWithKeybinding(keybind: KeyBinding) = playerEventFlow(
+        keybind.event,
+        player = abilityPlayer,
+        plugin = plugin,
+        priority = EventPriority.MONITOR,
+        ignoreCancelled = true,
+        listener = this.listener
+    ).onEach { _ ->
+        when (this) {
+            is TogglingKeybindAbility -> this.toggle()
+            is TriggeringKeybindAbility -> this.trigger()
         }
-        return true
-    }
+    }.abilitySubscription()
 
-    internal suspend fun deactivate(player: Player): Boolean {
-        if (!PlayerAbilityDeactivateEvent(player, this).callEvent()) return false
-
-        this.abilityCache -= player.uniqueId
-        this.removeFromPersistentData(player)
-
-        sentryScoped(player, SCOPE, "$name.deactivate", context = plugin.asyncDispatcher) {
-            this.onDeactivate(player)
-        }
-        return true
-    }
-
-    private fun addToPersistentData(player: Player) = async {
+    internal fun addToPersistentData() = async {
         return@async // FIXME
-        val containers = player.persistentDataContainer.get(NAMESPACE, PersistentDataType.TAG_CONTAINER_ARRAY)?.toMutableList() ?: mutableListOf<PersistentDataContainer>()
-        val container = player.persistentDataContainer.get(NAMESPACE, PersistentDataType.TAG_CONTAINER) ?: DirtyCraftPersistentDataContainer(CraftPersistentDataTypeRegistry())
+        val containers = abilityPlayer.persistentDataContainer.get(NAMESPACE, PersistentDataType.TAG_CONTAINER_ARRAY)?.toMutableList() ?: mutableListOf<PersistentDataContainer>()
+        val container = abilityPlayer.persistentDataContainer.get(NAMESPACE, PersistentDataType.TAG_CONTAINER) ?: DirtyCraftPersistentDataContainer(CraftPersistentDataTypeRegistry())
 
         container.set(NAMESPACES[0], PersistentDataType.STRING, this@KeybindAbility.name)
-        this@KeybindAbility.abilityCache[player.uniqueId]?.toEpochMilliseconds()?.let { container.set(NAMESPACES[1], PersistentDataType.LONG, it) }
-        if (this@KeybindAbility.isActivated(player.uniqueId)) container.set(NAMESPACES[2], PersistentDataType.BYTE, 1)
+//        this@KeybindAbility.abilityCache[abilityPlayer.uniqueId]?.toEpochMilliseconds()?.let { container.set(NAMESPACES[1], PersistentDataType.LONG, it) }
+//        if (this@KeybindAbility.isActivated(abilityPlayer.uniqueId)) container.set(NAMESPACES[2], PersistentDataType.BYTE, 1)
 
         containers.add(container)
-        player.persistentDataContainer.set(NAMESPACE, PersistentDataType.TAG_CONTAINER_ARRAY, containers.toTypedArray())
+        abilityPlayer.persistentDataContainer.set(NAMESPACE, PersistentDataType.TAG_CONTAINER_ARRAY, containers.toTypedArray())
     }
 
-    private fun removeFromPersistentData(player: Player) = async {
+    internal fun removeFromPersistentData() = async {
         return@async // FIXME
-        val containers = player.persistentDataContainer.get(NAMESPACE, PersistentDataType.TAG_CONTAINER_ARRAY)
+        val containers = abilityPlayer.persistentDataContainer.get(NAMESPACE, PersistentDataType.TAG_CONTAINER_ARRAY)
         if (containers.isNullOrEmpty()) return@async
 
         val newContainers = containers.orEmpty().filter { it.get(NAMESPACES[0], PersistentDataType.STRING) != name }
-        player.persistentDataContainer.set(NAMESPACE, PersistentDataType.TAG_CONTAINER_ARRAY, newContainers.toTypedArray())
+        abilityPlayer.persistentDataContainer.set(NAMESPACE, PersistentDataType.TAG_CONTAINER_ARRAY, newContainers.toTypedArray())
     }
 
     public companion object : WithPlugin<Terix> {
@@ -141,7 +98,6 @@ public abstract class KeybindAbility(
             NamespacedKey.fromString("origin.abilities.cooldown", plugin)!!,
             NamespacedKey.fromString("origin.abilities.active", plugin)!!
         )
-        public const val SCOPE: String = "origin.abilities"
 
         init {
             event<PlayerJoinEvent>(EventPriority.MONITOR, true) {
@@ -167,6 +123,4 @@ public abstract class KeybindAbility(
             event<PlayerOriginChangeEvent>(EventPriority.MONITOR, true) { player.persistentDataContainer.remove(NAMESPACE) }
         }
     }
-
-    public enum class AbilityType { TOGGLE, TRIGGER }
 }

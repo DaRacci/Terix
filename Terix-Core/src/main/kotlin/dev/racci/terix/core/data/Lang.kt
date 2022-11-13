@@ -85,13 +85,12 @@ public class Lang : LangConfig<Terix>() {
         }
 
         @ConfigSerializable
-        public class Descriptor : InnerLang() {
-            public var head: PartialComponent = PartialComponent.of("<prefix:origins> Information about <origin>:<category>")
-
-            public var bodyLine: PartialComponent = PartialComponent.of("    <aqua><key> <white>»</white> <value></aqua>")
-
-            public var footer: PartialComponent = PartialComponent.of("<prefix:origins>End of information.")
-        }
+        public data class Descriptor(
+            public val head: PartialComponent = PartialComponent.of("<prefix:origins> Information about <origin>:<category>"),
+            public val keyedBodyLine: PartialComponent = PartialComponent.of("    <aqua><key> <white>»</white> <value></aqua>"),
+            public val bodyLine: PartialComponent = PartialComponent.of("    <aqua><value></aqua>"),
+            public val footer: PartialComponent = PartialComponent.of("<prefix:origins>End of information.")
+        ) : InnerLang()
     }
 
     @ConfigSerializable
@@ -114,6 +113,6 @@ public class Lang : LangConfig<Terix>() {
         val hasGrant: PartialComponent = PartialComponent.of("<i:false><gray>You have a grant and don't require the above."),
         val changeFree: PartialComponent = PartialComponent.of("<i:false>You have <gray><amount></gray> free changes remaining."),
         val changeTime: PartialComponent = PartialComponent.of("<i:false>You can change your origin now."),
-        val changeTimeCooldown: PartialComponent = PartialComponent.of("<i:false>You can change your origin in <gray><cooldown></gray>."),
+        val changeTimeCooldown: PartialComponent = PartialComponent.of("<i:false>You can change your origin in <gray><cooldown></gray>.")
     ) : InnerLang()
 }

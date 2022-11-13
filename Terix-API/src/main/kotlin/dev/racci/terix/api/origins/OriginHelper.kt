@@ -8,6 +8,7 @@ import dev.racci.terix.api.TerixPlayer
 import dev.racci.terix.api.TerixPlayer.User.origin
 import dev.racci.terix.api.dsl.AttributeModifierBuilder
 import dev.racci.terix.api.dsl.PotionEffectBuilder
+import dev.racci.terix.api.origins.abilities.Ability
 import dev.racci.terix.api.origins.origin.Origin
 import dev.racci.terix.api.origins.states.State
 import dev.racci.terix.api.sentryScoped
@@ -60,7 +61,7 @@ public object OriginHelper : KoinComponent, WithPlugin<Terix> {
         if (oldOrigin != null) {
             activeStates.forEach { it.deactivate(player, oldOrigin) }
             activeStates.map { getOriginPotions(player, it) }.forEach(removePotions::addAll)
-            unregisterPassives(oldOrigin, player)
+            unregisterAbilities(oldOrigin, player)
         }
 
         sync {
@@ -68,7 +69,7 @@ public object OriginHelper : KoinComponent, WithPlugin<Terix> {
             activeStates.forEach { newOrigin.statePotions[it]?.let(player::addPotionEffects) }
         }
 
-        registerPassives(newOrigin, player)
+        registerAbilities(newOrigin, player)
         activeStates.forEach { it.activate(player, newOrigin) }
         if (player.health < curHealth) player.health = curHealth.coerceAtMost(player.getAttribute(Attribute.GENERIC_MAX_HEALTH)!!.value)
     }
@@ -94,7 +95,7 @@ public object OriginHelper : KoinComponent, WithPlugin<Terix> {
 
             State.recalculateAllStates(player)
             State.getPlayerStates(player).forEach { it.activate(player, origin) }
-            registerPassives(origin, player)
+            registerAbilities(origin, player)
         }
     }
 
@@ -106,10 +107,10 @@ public object OriginHelper : KoinComponent, WithPlugin<Terix> {
             async {
                 val origin = TerixPlayer.cachedOrigin(player)
                 origin.handleDeactivate(player)
-                origin.abilities.values.forEach { it.deactivate(player) }
                 State.activeStates.remove(player)
                 player.setImmuneToFire(null)
                 player.setCanBreathUnderwater(null)
+                unregisterAbilities(origin, player)
 
                 for (attribute in Attribute.values()) {
                     val instance = player.getAttribute(attribute) ?: continue
@@ -121,8 +122,6 @@ public object OriginHelper : KoinComponent, WithPlugin<Terix> {
                             instance.removeModifier(modifier)
                         }
                 }
-
-                unregisterPassives(origin, player)
             }
         }
     }
@@ -156,18 +155,29 @@ public object OriginHelper : KoinComponent, WithPlugin<Terix> {
         return OriginService.getOriginOrNull(match.groups["from"]?.value)
     }
 
-    public suspend fun unregisterPassives(
+    private suspend fun unregisterAbilities(
         origin: Origin,
         player: Player
-    ): Unit = origin.activePassiveAbilities[player].clear { unregister() }
+    ) {
+        origin.activeKeybindAbilities[player].clear(Ability::unregister)
+        origin.activePassiveAbilities[player].clear(Ability::unregister)
+    }
 
-    public suspend fun registerPassives(
+    private suspend fun registerAbilities(
         origin: Origin,
         player: Player
-    ): Unit = origin.passiveAbilities
-        .map { generator -> generator.of(player) }
-        .onEach { passive -> origin.activePassiveAbilities.put(player, passive) }
-        .forEach { passive -> passive.register() }
+    ) {
+        origin.passiveAbilityGenerators
+            .map { generator -> generator.of(player) }
+            .onEach { passive -> origin.activePassiveAbilities.put(player, passive) }
+            .forEach { passive -> passive.register() }
+
+        origin.keybindAbilityGenerators.entries()
+            .map { (keybind, generator) -> keybind to generator.of(player) }
+            .onEach { (_, ability) -> origin.activeKeybindAbilities.put(player, ability) }
+            .onEach { (keybind, ability) -> ability.activateWithKeybinding(keybind) }
+            .forEach { (_, ability) -> ability.register() }
+    }
 
     public enum class IgnoreReason(public val description: String) { GAMEMODE("Not in survival or adventure mode") }
 }

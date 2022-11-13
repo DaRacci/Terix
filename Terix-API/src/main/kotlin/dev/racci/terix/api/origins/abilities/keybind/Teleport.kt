@@ -12,30 +12,33 @@ import org.bukkit.util.Vector
 import kotlin.time.Duration
 import kotlin.time.Duration.Companion.seconds
 
-public class Teleport(override val origin: Origin) : KeybindAbility(AbilityType.TRIGGER) {
+public class Teleport(
+    override val abilityPlayer: Player,
+    override val linkedOrigin: Origin
+) : TriggeringKeybindAbility() {
     override val cooldown: Duration = 3.seconds
 
-    override suspend fun onActivate(player: Player) {
-        val loc = this.getTargetLocation(player) ?: return this.invalidLocation(player)
-        val sequence = BlockIterator(player.world, loc.toVector(), Vector(0, -90, 0), 0.0, 32).asSequence()
-        val block = sequence.firstOrNull { it.type.isSolid } ?: return this.invalidLocation(player)
+    override suspend fun handleTrigger() {
+        val loc = this.getTargetLocation() ?: return this.invalidLocation()
+        val sequence = BlockIterator(abilityPlayer.world, loc.toVector(), Vector(0, -90, 0), 0.0, 32).asSequence()
+        val block = sequence.firstOrNull { it.type.isSolid } ?: return this.invalidLocation()
 
-        this.correctLocation(loc, player, block)
-        player.teleportAsync(loc)
+        this.correctLocation(loc, abilityPlayer, block)
+        abilityPlayer.teleportAsync(loc)
     }
 
-    private fun getTargetLocation(player: Player): Location? {
-        val rayTrace = player.rayTraceBlocks(64.0, FluidCollisionMode.NEVER) ?: return null
-        val hitLocation = rayTrace.hitPosition.toLocation(player.world)
+    private fun getTargetLocation(): Location? {
+        val rayTrace = abilityPlayer.rayTraceBlocks(64.0, FluidCollisionMode.NEVER) ?: return null
+        val hitLocation = rayTrace.hitPosition.toLocation(abilityPlayer.world)
         // Align to the eye direction
-        hitLocation.add(player.eyeLocation.direction.normalize().multiply(-0.7))
+        hitLocation.add(abilityPlayer.eyeLocation.direction.normalize().multiply(-0.7))
 
         return hitLocation
     }
 
-    private fun invalidLocation(player: Player) {
-        this.failActivation(player)
-        return player.playSound(INVALID_LOCATION)
+    private fun invalidLocation() {
+        this.failActivation()
+        return abilityPlayer.playSound(INVALID_LOCATION)
     }
 
     private fun correctLocation(

@@ -6,6 +6,7 @@ import arrow.core.left
 import arrow.core.right
 import com.destroystokyo.paper.event.player.PlayerPostRespawnEvent
 import dev.racci.minix.api.annotations.MappedExtension
+import dev.racci.minix.api.coroutine.scope
 import dev.racci.minix.api.data.enums.LiquidType
 import dev.racci.minix.api.data.enums.LiquidType.Companion.liquidType
 import dev.racci.minix.api.extension.Extension
@@ -14,6 +15,7 @@ import dev.racci.minix.api.extensions.collections.clear
 import dev.racci.minix.api.extensions.collections.computeAndRemove
 import dev.racci.minix.api.extensions.event
 import dev.racci.minix.api.extensions.onlinePlayers
+import dev.racci.minix.api.utils.kotlin.ifTrue
 import dev.racci.minix.api.utils.ticks
 import dev.racci.minix.nms.aliases.NMSWorld
 import dev.racci.minix.nms.aliases.toNMS
@@ -25,6 +27,7 @@ import dev.racci.terix.api.origins.origin.Origin
 import dev.racci.terix.api.origins.states.State
 import dev.racci.terix.api.services.TickService
 import dev.racci.terix.api.services.TickService.Companion.TICK_RATE
+import dev.racci.terix.api.services.TickService.Companion.playerFlow
 import dev.racci.terix.core.extensions.inDarkness
 import dev.racci.terix.core.extensions.inRain
 import dev.racci.terix.core.extensions.inSunlight
@@ -45,14 +48,20 @@ import kotlinx.collections.immutable.toPersistentHashSet
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.delay
+import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.SharedFlow
 import kotlinx.coroutines.flow.asSharedFlow
 import kotlinx.coroutines.flow.buffer
+import kotlinx.coroutines.flow.catch
 import kotlinx.coroutines.flow.conflate
+import kotlinx.coroutines.flow.filter
 import kotlinx.coroutines.flow.flow
+import kotlinx.coroutines.flow.launchIn
 import kotlinx.coroutines.flow.mapNotNull
 import kotlinx.coroutines.flow.onEach
+import kotlinx.coroutines.plus
+import kotlinx.coroutines.runBlocking
 import kotlinx.coroutines.sync.Mutex
 import kotlinx.coroutines.sync.withLock
 import kotlinx.coroutines.yield
@@ -71,14 +80,16 @@ import kotlin.math.roundToInt
 
 @MappedExtension(Terix::class, "Tick Service", [OriginService::class], TickService::class, 4)
 public class TickServiceImpl(override val plugin: Terix) : Extension<Terix>(), TickService {
+    // TODO -> Count subscriptions that want the player so we can remove the tick if no one wants it.
+    private val tickingPlayers = HashSet(ConcurrentHashMap.newKeySet<UUID>())
     private val delayChannel = Channel<Unit>(0)
-    private val mutex = Mutex()
-    private val playerQueue = ArrayDeque<Player>()
+    private val arrayQueueMutex = Mutex()
+    private val playerQueue = ArrayDeque<Player>() // TODO -> Possibly thread local groups of players to avoid mutex usage.
     private val internalFlow = MutableSharedFlow<Player>()
     private val motherTickers = mutableMapOf<Player, MotherTicker>()
     private var tickables = persistentHashMapOf<Either<State, Predicate<Origin>>, (Player, Origin) -> ChildTicker>()
 
-    /** The queue of players which have disconnected. (Slightly faster performance than checking [Player.isOnline]) */
+    /** The queue of players that have disconnected or have no subscribers. */
     private val removeQueue = ConcurrentHashMap.newKeySet<UUID>()
 
     override val playerFlow: SharedFlow<Player> = internalFlow.asSharedFlow()
@@ -103,15 +114,10 @@ public class TickServiceImpl(override val plugin: Terix) : Extension<Terix>(), T
         event<PlayerJoinEvent>(EventPriority.MONITOR, true) {
             val origin = TerixPlayer.cachedOrigin(player)
             rehabMother(player, origin)
-
-            if (!removeQueue.remove(player.uniqueId)) {
-                mutex.withLock { playerQueue.addLast(player) }
-            }
-
-            delayChannel.trySend(Unit)
         }
 
         event<PlayerQuitEvent> {
+            tickingPlayers.remove(player.uniqueId)
             removeQueue.add(player.uniqueId)
         }
 
@@ -129,38 +135,50 @@ public class TickServiceImpl(override val plugin: Terix) : Extension<Terix>(), T
         motherTickers.clear { _, mother -> mother.endSuffering() }
     }
 
-    private suspend fun startTicker() = launch(dispatcher.get()) {
-        flow {
-            while (state != ExtensionState.DISABLED) {
-                if (!loaded || onlinePlayers.isEmpty()) {
-                    logger.debug { "Awaiting players..." }
-                    delayChannel.receive()
-                } // Wait for players to join or for this to load.
-
-                if (playerQueue.isEmpty()) {
-                    delay(10); continue
-                } // If empty delay for 10ms and then try again.
-
-                val player = mutex.withLock { playerQueue.removeFirst() }
-                emit(player)
-            }
-        }.onEach(::runTicker)
-            .buffer()
-            .onEach(internalFlow::emit)
-            .collect { player ->
-                yield()
-                delay(TICK_RATE.ticks)
-                if (removeQueue.remove(player.uniqueId)) return@collect
-                mutex.withLock { playerQueue.addLast(player) }
-            }
+    // TODO -> Construct a cache of filtered flows, which can be used to reduce the amount of filtering done.
+    override fun filteredPlayer(player: Player): Flow<Player> = runBlocking {
+        appendPlayer(player)
+        playerFlow.filter { it.uniqueId == player.uniqueId }
     }
 
-    private fun startInternalTickListeners() = launch(dispatcher.get()) {
-        playerFlow
-            .conflate()
-            .onEach { player -> TerixPlayer.cachedOrigin(player).onTick(player) }
-            .mapNotNull(motherTickers::get).collect(MotherTicker::run)
+    private suspend fun appendPlayer(player: Player) = tickingPlayers.add(player.uniqueId).ifTrue {
+        if (!removeQueue.remove(player.uniqueId)) { // Ensures we don't add a duplicate player.
+            arrayQueueMutex.withLock { playerQueue.addLast(player) }
+        }
+        delayChannel.trySend(Unit)
     }
+
+    private suspend fun startTicker() = flow {
+        while (state != ExtensionState.DISABLED) {
+            if (!loaded || onlinePlayers.isEmpty()) {
+                logger.debug { "Awaiting players..." }
+                delayChannel.receive()
+            } // Wait for players to join or for this to load.
+
+            if (playerQueue.isEmpty()) {
+                delay(12); continue
+            } // If empty delay for 12ms (Half a tick) and then try again.
+
+            val player = arrayQueueMutex.withLock { playerQueue.removeFirst() }
+            emit(player)
+        }
+    }.onEach(::runTicker)
+        .buffer()
+        .onEach(internalFlow::emit)
+        .onEach { player ->
+            yield()
+            delay(TICK_RATE.ticks)
+            if (removeQueue.remove(player.uniqueId)) return@onEach
+            arrayQueueMutex.withLock { playerQueue.addLast(player) }
+        }.launchIn(plugin.scope + dispatcher.get())
+
+    private fun startInternalTickListeners() = playerFlow
+        .conflate()
+        .onEach { player -> TerixPlayer.cachedOrigin(player).onTick(player) }
+        .mapNotNull(motherTickers::get)
+        .onEach(MotherTicker::run)
+        .catch { logger.error(it) { "Error in internal tick listener." } }
+        .launchIn(plugin.scope + dispatcher.get())
 
     private fun runTicker(
         player: Player
@@ -218,7 +236,7 @@ public class TickServiceImpl(override val plugin: Terix) : Extension<Terix>(), T
         brightness > 0.5f &&
         level.isDay
 
-    private fun rehabMother(
+    private suspend fun rehabMother(
         player: Player,
         origin: Origin
     ) {
@@ -238,10 +256,10 @@ public class TickServiceImpl(override val plugin: Terix) : Extension<Terix>(), T
 
         if (children.isEmpty()) {
             logger.debug { "No tickables for ${player.name}." }
-            return
+        } else {
+            motherTickers[player] = MotherTicker(this, children.toPersistentHashSet())
+            appendPlayer(player)
         }
-
-        motherTickers[player] = MotherTicker(this, children.toPersistentHashSet())
     }
 
     private fun presentStates(origin: Origin): Sequence<State> = sequence {

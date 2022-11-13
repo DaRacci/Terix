@@ -6,12 +6,11 @@ if [ -z "$1" ] || [ -z "$2" ]; then
   exit 1
 fi
 
+git push origin || exit 1
 git push origin v"${2}" || exit 1 # Push the new version tag for the release
 
 SEMIPATH=build/libs/Terix
 cog changelog v"${1}"..v"${2}" | gh release create "v$2" -F - -t "Terix release $2" $SEMIPATH-$2.jar Terix-Core/$SEMIPATH-Core-$2.jar
-
-git push origin master || exit 1 # Push the new version tag for the release
 
 gh workflow run "docs.yml" # Generate the documentation
 

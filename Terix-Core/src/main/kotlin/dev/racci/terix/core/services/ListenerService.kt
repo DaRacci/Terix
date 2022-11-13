@@ -38,7 +38,6 @@ import dev.racci.terix.api.extensions.playSound
 import dev.racci.terix.api.origins.OriginHelper
 import dev.racci.terix.api.origins.OriginHelper.activateOrigin
 import dev.racci.terix.api.origins.OriginHelper.deactivateOrigin
-import dev.racci.terix.api.origins.enums.KeyBinding
 import dev.racci.terix.api.origins.origin.ActionPropBuilder
 import dev.racci.terix.api.origins.origin.Origin
 import dev.racci.terix.api.origins.sounds.SoundEffect
@@ -248,14 +247,6 @@ public class ListenerService(override val plugin: Terix) : Extension<Terix>() {
 
             preOrigin.handleChangeOrigin(this)
             newOrigin.handleBecomeOrigin(this)
-        }
-
-        events(*KeyBinding.values().map(KeyBinding::event).toTypedArray()) {
-            val clazz = KeyBinding.fromEvent(this::class)
-            val origin = TerixPlayer.cachedOrigin(player)
-
-            val ability = origin.abilities[clazz] ?: return@events
-            ability.toggle(player)
         }
 
         event(EventPriority.HIGHEST, ignoreCancelled = true, forceAsync = false, block = ::handle)

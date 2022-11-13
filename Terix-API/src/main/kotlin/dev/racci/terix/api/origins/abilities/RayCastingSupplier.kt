@@ -18,6 +18,6 @@ public object RayCastingSupplier {
         .buildAsync<Player, RayTraceResult?> { player -> player.world.rayTraceBlocks(player.location, Vector(0.0, -90.0, 0.0), RAY_DIST, FluidCollisionMode.ALWAYS, true) }
 
     public fun of(
-        player: Player,
+        player: Player
     ): Option<RayTraceResult> = Option.fromNullable(rayCastCache.get(player).get())
 }

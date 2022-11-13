@@ -5,14 +5,17 @@ import me.libraryaddict.disguise.DisguiseAPI
 import me.libraryaddict.disguise.disguisetypes.Disguise
 import org.bukkit.entity.Player
 
-public class Transform(override val origin: Origin) : KeybindAbility(AbilityType.TOGGLE) {
+public class Transform(
+    override val abilityPlayer: Player,
+    override val linkedOrigin: Origin
+) : TogglingKeybindAbility() {
     public lateinit var disguise: Disguise
 
-    override suspend fun onActivate(player: Player) {
-        DisguiseAPI.disguiseEntity(player, disguise)
+    override suspend fun handleActivation() {
+        DisguiseAPI.disguiseEntity(abilityPlayer, disguise)
     }
 
-    override suspend fun onDeactivate(player: Player) {
-        DisguiseAPI.undisguiseToAll(player)
+    override suspend fun handleDeactivation() {
+        DisguiseAPI.undisguiseToAll(abilityPlayer)
     }
 }

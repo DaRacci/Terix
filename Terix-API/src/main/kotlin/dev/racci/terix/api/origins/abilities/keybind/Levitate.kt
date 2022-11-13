@@ -1,93 +1,84 @@
 package dev.racci.terix.api.origins.abilities.keybind
 
-import dev.racci.minix.api.destructors.component1
-import dev.racci.minix.api.destructors.component2
-import dev.racci.minix.api.destructors.component3
 import dev.racci.minix.api.events.player.PlayerMoveXYZEvent
 import dev.racci.minix.api.extensions.cancel
-import dev.racci.minix.api.extensions.event
-import dev.racci.minix.api.extensions.onlinePlayers
-import dev.racci.minix.api.extensions.taskAsync
-import dev.racci.minix.api.extensions.ticks
+import dev.racci.terix.api.annotations.OriginEventSelector
 import dev.racci.terix.api.dsl.PotionEffectBuilder
 import dev.racci.terix.api.dsl.dslMutator
 import dev.racci.terix.api.extensions.playSound
+import dev.racci.terix.api.origins.enums.EventSelector
 import dev.racci.terix.api.origins.origin.Origin
-import dev.racci.terix.api.sentryBreadcrumb
+import dev.racci.terix.api.services.TickService
+import kotlinx.coroutines.flow.filter
+import kotlinx.coroutines.flow.onEach
 import org.bukkit.entity.Player
-import org.bukkit.event.EventPriority
 import org.bukkit.event.entity.EntityToggleGlideEvent
 import org.bukkit.potion.PotionEffectType
-import java.util.UUID
+import org.bukkit.util.Vector
 import kotlin.time.Duration
 
-public class Levitate(override val origin: Origin) : KeybindAbility(AbilityType.TOGGLE) {
+public class Levitate(
+    override val abilityPlayer: Player,
+    override val linkedOrigin: Origin
+) : TogglingKeybindAbility() {
+    private var glidingActive: Boolean = false
+    private lateinit var lastVector: Vector
 
-    private val glideMap = HashSet<Player>()
+    // TODO -> Apply velocity
+    @OriginEventSelector(EventSelector.PLAYER)
+    public fun PlayerMoveXYZEvent.ensureGliding() {
+        if (!isActivated || glidingActive) return
 
-    init {
-        event<PlayerMoveXYZEvent>(EventPriority.MONITOR, true) {
-            if (!this@Levitate.isActivated(this.player.uniqueId)) return@event
-            if (this.from.z == this.to.z && this.from.x == this.to.x) return@event
+        val difference = from.subtract(to)
+        if (difference.x in -0.1..0.1 && difference.y != 0.0 && difference.z in -0.1..0.1) return // If the player is only moving vertically, don't activate gliding.
 
-            startGliding(player)
-            player.velocity.add(player.location.direction.normalize().multiply(3))
-        }
+        abilityBreadcrumb("glidingActivate")
+        glidingActive = true
+        player.isGliding = true
+    }
 
-        event<EntityToggleGlideEvent>(EventPriority.LOWEST, true) {
-            val player = entity as? Player ?: return@event
-            if (glideMap.contains(player)) cancel()
-        }
+    @OriginEventSelector(EventSelector.ENTITY, ignoreCancelled = false)
+    public fun EntityToggleGlideEvent.cancelReversion() {
+        if (isActivated) cancel()
+    }
 
-        val locTracker = HashMap<UUID, Pair<Double, Double>>()
-        taskAsync(repeatDelay = 1.ticks) {
-            if (onlinePlayers.isEmpty()) return@taskAsync
-            if (glideMap.isEmpty()) return@taskAsync
+    override suspend fun handleAbilityGained() {
+        TickService.filteredPlayer(abilityPlayer)
+            .filter { isActivated }
+            .filter {
+                val newVector = abilityPlayer.location.toVector()
 
-            for (player in glideMap) {
-                if (locTracker.putIfAbsent(player.uniqueId, player.location.y to player.location.y) == null) continue
-
-                locTracker.computeIfPresent(player.uniqueId) { _, (lastX, lastZ) ->
-                    val (newX, _, newZ) = player.location
-                    val diffX = newX - lastX
-                    val diffZ = newZ - lastZ
-
-                    if (diffX == 0.0 || diffZ == 0.0) {
-                        player.isGliding = false
-                        glideMap -= player
-                    }
-
-                    newX to newZ
+                if (!::lastVector.isInitialized) {
+                    lastVector = newVector
+                    return@filter false
                 }
-            }
-        }
+
+                val difference = lastVector.clone().subtract(newVector)
+                lastVector = newVector
+                difference.x in -0.1..0.1 && difference.z in -0.1..0.1
+            }.onEach { player ->
+                abilityBreadcrumb("glidingDeactivate")
+                player.isGliding = false
+                glidingActive = false
+            }.abilitySubscription()
     }
 
-    override suspend fun onActivate(player: Player) {
-        player.playSound(SOUND.first, SOUND.second, SOUND.third)
-        sync { player.addPotionEffect(taggedPotion(LEVITATION)) }
+    override suspend fun handleActivation() {
+        abilityPlayer.playSound(SOUND.first, SOUND.second, SOUND.third)
+        sync { abilityPlayer.addPotionEffect(taggedPotion(LEVITATION)) }
     }
 
-    override suspend fun onDeactivate(player: Player) {
-        glideMap -= player
+    override suspend fun handleDeactivation() {
+        glidingActive = false
         val types = mutableListOf<PotionEffectType>()
-        for (potion in player.activePotionEffects) {
+        for (potion in abilityPlayer.activePotionEffects) {
             if (potion.type != PotionEffectType.LEVITATION || !isTagged(potion)) continue
             types += potion.type
             break
         }
 
-        player.playSound(SOUND.first, SOUND.second, SOUND.third)
-        sync { types.forEach(player::removePotionEffect) }
-    }
-
-    private fun startGliding(player: Player) {
-        if (glideMap.contains(player)) return
-
-        sentryBreadcrumb(SCOPE, "levitate.gliding.start")
-
-        glideMap += player
-        player.isGliding = true
+        abilityPlayer.playSound(SOUND.first, SOUND.second, SOUND.third)
+        sync { types.forEach(abilityPlayer::removePotionEffect) }
     }
 
     private companion object {

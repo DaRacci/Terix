@@ -1,8 +1,8 @@
 package dev.racci.terix.api.origins.origin
 
+import arrow.analysis.pre
 import arrow.core.Either
 import com.google.common.collect.Multimap
-import com.google.common.collect.Multimaps
 import dev.racci.minix.api.annotations.MinixInternal
 import dev.racci.minix.api.extensions.KListener
 import dev.racci.minix.api.extensions.WithPlugin
@@ -14,7 +14,9 @@ import dev.racci.terix.api.data.ItemMatcher
 import dev.racci.terix.api.dsl.TimedAttributeBuilder
 import dev.racci.terix.api.dsl.TitleBuilder
 import dev.racci.terix.api.exceptions.OriginCreationException
+import dev.racci.terix.api.extensions.concurrentMultimap
 import dev.racci.terix.api.origins.OriginItem
+import dev.racci.terix.api.origins.abilities.Ability
 import dev.racci.terix.api.origins.abilities.keybind.KeybindAbility
 import dev.racci.terix.api.origins.abilities.passive.PassiveAbility
 import dev.racci.terix.api.origins.enums.KeyBinding
@@ -32,8 +34,6 @@ import org.bukkit.attribute.AttributeModifier
 import org.bukkit.entity.Player
 import org.bukkit.event.entity.EntityDamageEvent
 import org.bukkit.potion.PotionEffect
-import java.util.concurrent.ConcurrentHashMap
-import java.util.concurrent.ConcurrentHashMap.newKeySet
 import kotlin.reflect.KClass
 import kotlin.reflect.full.primaryConstructor
 
@@ -67,9 +67,12 @@ public sealed class OriginValues : WithPlugin<MinixPlugin> {
     public val stateTitles: MutableMap<State, TitleBuilder> by lazy(::mutableMapOf)
     public val stateBlocks: MutableMap<State, suspend (Player) -> Unit> by lazy(::mutableMapOf)
 
-    public val abilities: MutableMap<KeyBinding, KeybindAbility> by lazy(::mutableMapOf)
-    public val passiveAbilities: ArrayList<PassiveAbilityGenerator> by lazy(::arrayListOf)
-    public val activePassiveAbilities: Multimap<Player, PassiveAbility> by lazy { Multimaps.newSetMultimap(ConcurrentHashMap(), ::newKeySet) }
+    // TODO -> More flexibility with keybindings
+    public val keybindAbilityGenerators: Multimap<KeyBinding, AbilityGenerator<KeybindAbility>> by lazy(::concurrentMultimap)
+    public val passiveAbilityGenerators: ArrayList<AbilityGenerator<PassiveAbility>> by lazy(::arrayListOf)
+
+    public val activeKeybindAbilities: Multimap<Player, KeybindAbility> by lazy(::concurrentMultimap)
+    public val activePassiveAbilities: Multimap<Player, PassiveAbility> by lazy(::concurrentMultimap)
 
     public val customMatcherFoodProperties: HashMap<ItemMatcher, FoodProperties> by lazy(::hashMapOf)
     public val customFoodProperties: HashMap<Material, FoodProperties> by lazy(::hashMapOf)
@@ -78,15 +81,19 @@ public sealed class OriginValues : WithPlugin<MinixPlugin> {
     public val attributeModifiers: MutableMultiMap<State, Pair<Attribute, AttributeModifier>> by lazy(::multiMapOf)
     public val damageActions: MutableMap<EntityDamageEvent.DamageCause, suspend EntityDamageEvent.() -> Unit> by lazy(::mutableMapOf)
 
-    public data class PassiveAbilityGenerator @PublishedApi internal constructor(
-        public val abilityKClass: KClass<out PassiveAbility>,
-        public val abilityBuilder: suspend PassiveAbility.() -> Unit
+    public data class AbilityGenerator<A : Ability> @PublishedApi internal constructor(
+        public val abilityKClass: KClass<out A>,
+        public val abilityBuilder: suspend A.(abilityPlayer: Player) -> Unit
     ) {
-        public suspend fun of(player: Player): PassiveAbility {
+        public val name: String = abilityKClass.simpleName!!
+
+        public suspend fun of(player: Player): A {
+            pre(player.isOnline) { "Player must be online to generate ability" }
+
             val constructor = abilityKClass.primaryConstructor ?: throw OriginCreationException("No primary constructor for ability ${abilityKClass.simpleName}")
             val ability = constructor.call(player, TerixPlayer.cachedOrigin(player))
 
-            abilityBuilder(ability)
+            abilityBuilder(ability, player)
             return ability
         }
     }
