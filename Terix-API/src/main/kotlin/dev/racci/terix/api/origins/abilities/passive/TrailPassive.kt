@@ -76,7 +76,7 @@ public class TrailPassive(
         if (trailCache.size <= 1) return
 
         Some(trailCache.first())
-            .filter { layer -> now() > layer.committedAt + trailDuration }
+            .filter { layer -> now() > layer.committedAt!! + trailDuration }
             .tap { layer -> trailCache.remove(layer) }
             .filterNot { layer -> layer.beenMutated() }
             .tap { layer -> sync { layer.undoCommit() } }
