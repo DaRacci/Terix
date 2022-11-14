@@ -80,23 +80,28 @@ public class BeeOrigin(override val plugin: Terix) : Origin() {
 
             Material.ORANGE_TULIP += dslMutator<PotionEffectBuilder> {
                 type = PotionEffectType.FIRE_RESISTANCE
+                duration = 60.seconds
             }
 
             Material.RED_TULIP += dslMutator<PotionEffectBuilder> {
                 type = PotionEffectType.INCREASE_DAMAGE
+                duration = 60.seconds
             }
 
             Material.BLUE_ORCHID += dslMutator<PotionEffectBuilder> {
                 type = PotionEffectType.WATER_BREATHING
+                duration = 60.seconds
             }
 
             Material.DEAD_BUSH += dslMutator<PotionEffectBuilder> {
                 type = PotionEffectType.HUNGER
+                duration = 15.seconds
             }
 
             Material.ROSE_BUSH += dslMutator<PotionEffectBuilder> {
                 type = PotionEffectType.HUNGER
                 amplifier = 3
+                duration = 60.seconds
             } // TODO -> Half heard of damage, 4 hunger and instant health??
 
             Material.ROSE_BUSH += { player: Player -> player.damage(0.5) }
@@ -108,18 +113,22 @@ public class BeeOrigin(override val plugin: Terix) : Origin() {
 
             Material.CORNFLOWER += dslMutator<PotionEffectBuilder> {
                 type = PotionEffectType.SPEED
+                duration = 60.seconds
             }
 
             Material.LILY_OF_THE_VALLEY += dslMutator<PotionEffectBuilder> {
                 type = PotionEffectType.INVISIBILITY
+                duration = 60.seconds
             }
 
             Material.LILAC += dslMutator<PotionEffectBuilder> {
                 type = PotionEffectType.ABSORPTION
+                duration = 60.seconds
             }
 
             Material.PEONY += dslMutator<PotionEffectBuilder> {
                 type = PotionEffectType.FAST_DIGGING
+                duration = 60.seconds
             }
 
             Material.WITHER_ROSE += { player: Player ->
@@ -128,12 +137,14 @@ public class BeeOrigin(override val plugin: Terix) : Origin() {
 
             Material.SUNFLOWER += dslMutator<PotionEffectBuilder> {
                 type = PotionEffectType.NIGHT_VISION
+                duration = 60.seconds
             }
 
-            Material.SUNFLOWER += dslMutator<PotionEffectBuilder> {
-                type = PotionEffectType.HUNGER
-                amplifier = 2
-            }
+//            Material.SUNFLOWER += dslMutator<PotionEffectBuilder> {
+//                type = PotionEffectType.HUNGER
+//                amplifier = 2
+//                duration = 60.seconds
+//            }
         }
     }
 
