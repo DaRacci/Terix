@@ -1,5 +1,6 @@
 package dev.racci.terix.core.origins
 
+import com.destroystokyo.paper.MaterialTags
 import dev.racci.terix.api.Terix
 import dev.racci.terix.api.annotations.OriginEventSelector
 import dev.racci.terix.api.dsl.FoodPropertyBuilder
@@ -45,7 +46,7 @@ public class BlizzOrigin(override val plugin: Terix) : Origin() {
                 saturationModifier = 3f
                 fastFood = true
             }
-            listOf(Material.TROPICAL_FISH, Material.PUFFERFISH, Material.SALMON, Material.COD) *= 3
+            MaterialTags.RAW_FISH *= 3
             listOf(Material.COOKED_SALMON, Material.COOKED_COD) /= 3
         }
 

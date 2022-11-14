@@ -1,5 +1,6 @@
 package dev.racci.terix.core.origins
 
+import com.destroystokyo.paper.MaterialTags
 import dev.racci.terix.api.Terix
 import dev.racci.terix.api.annotations.OriginEventSelector
 import dev.racci.terix.api.origins.enums.EventSelector
@@ -25,10 +26,7 @@ public class AxolotlOrigin(override val plugin: Terix) : Origin() {
 
         food {
             listOf(
-                Material.SALMON,
-                Material.COD,
-                Material.PUFFERFISH,
-                Material.TROPICAL_FISH,
+                *MaterialTags.RAW_FISH.values.toTypedArray(),
                 Material.KELP
             ) *= 2.0
         }

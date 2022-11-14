@@ -62,7 +62,7 @@ public class AethenOrigin(override val plugin: Terix) : Origin() {
     private val lightMutex = Mutex(false)
     private val playerLocations = ConcurrentHashMap<Player, LightLocation>()
     private val missingPotion = PlayerMap<PotionEffect>()
-    private val regenPotion = PotionEffect(PotionEffectType.REGENERATION, 10 * 20, 1, true)
+    private val regenPotion = PotionEffect(PotionEffectType.REGENERATION, 10 * 20, 3, true)
     private val regenCache = mutableMapOf<UUID, Instant>()
     private val regenCooldown = 3.minutes
 
@@ -174,6 +174,7 @@ public class AethenOrigin(override val plugin: Terix) : Origin() {
         sync { missingPotion.computeAndRemove(player, player::addPotionEffect) }
     }
 
+    // TODO -> Ability
     @RunAsync
     @OriginEventSelector(EventSelector.PLAYER)
     public fun PlayerDoubleSecondaryEvent.handle() {
