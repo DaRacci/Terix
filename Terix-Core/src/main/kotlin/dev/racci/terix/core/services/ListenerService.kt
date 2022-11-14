@@ -67,7 +67,6 @@ import net.minecraft.advancements.CriteriaTriggers
 import net.minecraft.server.level.ServerPlayer
 import net.minecraft.stats.Stats
 import net.minecraft.world.InteractionHand
-import net.minecraft.world.effect.MobEffectInstance
 import net.minecraft.world.food.FoodProperties
 import org.bukkit.Material
 import org.bukkit.Sound
@@ -203,9 +202,14 @@ public class ListenerService(override val plugin: Terix) : Extension<Terix>() {
             val origin = TerixPlayer.cachedOrigin(player)
 
             origin.customFoodActions[this.item!!.type]?.forEach { it.fold({ it(player) }, { it(player) }) }
-            origin.customFoodProperties[this.item!!.type]?.effects?.forEach { pair ->
-                if (player.world.toNMS().random.nextFloat() >= pair.second) return@forEach
-                player.toNMS().addEffect(MobEffectInstance(pair.first), EntityPotionEffectEvent.Cause.FOOD)
+
+            val nmsPlayer = player.toNMS()
+            val potions = origin.customFoodProperties[this.item!!.type]?.effects?.filter { pair -> nmsPlayer.level.random.nextFloat() >= pair.second }
+
+            if (!potions.isNullOrEmpty()) {
+                sync {
+                    potions.forEach { pair -> nmsPlayer.addEffect(pair.first, EntityPotionEffectEvent.Cause.FOOD) }
+                }
             }
 
             player.sendHealthUpdate()
