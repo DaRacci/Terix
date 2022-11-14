@@ -119,11 +119,7 @@ public class OriginServiceImpl(override val plugin: Terix) : OriginService, Exte
                             ifRight = { selectedOrigin -> selectedOrigin }
                         ).toOption()
                             .filter { selectedOrigin -> selectedOrigin === origin }
-                            .tap { logger.trace { "Calling $func in ${origin.name} with $event" } }
-                            .map { selectedOrigin ->
-                                logger.debug { "Calling $func in ${origin.name} with $event" }
-                                func.callSuspend(selectedOrigin, event)
-                            }
+                            .map { selectedOrigin -> func.callSuspend(selectedOrigin, event) }
                     }
                 )
             }
