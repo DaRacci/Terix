@@ -12,7 +12,7 @@ public class Transform(
     public lateinit var disguise: Disguise
 
     override suspend fun handleActivation() {
-        DisguiseAPI.disguiseToAll(abilityPlayer, disguise)
+        sync { DisguiseAPI.disguiseToAll(abilityPlayer, disguise) }
     }
 
     override suspend fun handleDeactivation() {
