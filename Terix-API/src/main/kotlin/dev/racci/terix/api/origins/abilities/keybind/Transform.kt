@@ -16,6 +16,6 @@ public class Transform(
     }
 
     override suspend fun handleDeactivation() {
-        DisguiseAPI.undisguiseToAll(abilityPlayer)
+        sync { DisguiseAPI.undisguiseToAll(abilityPlayer) }
     }
 }
