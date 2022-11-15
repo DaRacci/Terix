@@ -66,6 +66,7 @@ public suspend fun sentryScoped(
             block()
         } catch (e: Exception) {
             Sentry.captureException(e)
+            throw e
         } finally {
             terix.log.trace(scope = SCOPE) { "Exited scope for player ${player.name}" }
             Sentry.popScope()
