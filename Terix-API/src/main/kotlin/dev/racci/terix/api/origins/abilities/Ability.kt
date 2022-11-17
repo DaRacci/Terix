@@ -65,14 +65,20 @@ public abstract class Ability : WithPlugin<Terix> {
     @DispatcherContext(DispatcherContext.Context.ASYNC)
     protected open suspend fun handleAbilityLost(): Unit = Unit
 
+    internal open suspend fun handleInternalGained(): Unit = Unit
+
+    internal open suspend fun handleInternalLost(): Unit = Unit
+
     internal suspend fun register() {
         logger.debug { "Registering ability $this for player ${abilityPlayer.name}." }
         this.activateEvents()
+        this.handleInternalGained()
         this.handleAbilityGained()
     }
 
     internal suspend fun unregister() {
         logger.debug { "Unregistering ability $this for player ${abilityPlayer.name}." }
+        this.handleInternalLost()
         this.handleAbilityLost()
         this.listener.unregisterListener()
         this.abilityJobs.clear { cancel(CancellationException("Ability has been unregistered.")) }

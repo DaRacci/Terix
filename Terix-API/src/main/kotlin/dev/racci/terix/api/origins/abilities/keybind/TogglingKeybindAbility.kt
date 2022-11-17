@@ -7,10 +7,11 @@ import dev.racci.terix.api.events.PlayerAbilityDeactivateEvent
 import dev.racci.terix.api.extensions.onSuccess
 import dev.racci.terix.api.origins.OriginHelper
 import dev.racci.terix.api.sentryScoped
+import org.bukkit.event.Event
 
 public abstract class TogglingKeybindAbility : KeybindAbility() {
 
-    public override var isActivated: Boolean = false
+    public var isActivated: Boolean = false; private set
 
     /** Called when the abilities keybind has been toggled on. */
     public abstract suspend fun handleActivation()
@@ -18,26 +19,22 @@ public abstract class TogglingKeybindAbility : KeybindAbility() {
     /** Called when the ability is deactivated. */
     public abstract suspend fun handleDeactivation()
 
-    /**
-     * Attempts to toggle this ability.
-     *
-     * @return If the ability is on cooldown, this will return null. Otherwise, it will return true.
-     */
-    public suspend fun toggle(): Boolean? = when {
-        OriginHelper.shouldIgnorePlayer(abilityPlayer) -> false
-        this.activatedAt != null && this.activatedAt!! + cooldown > now() -> null
-        this.isActivated -> this.deactivate(true)
-        else -> this.activate()
+    final override suspend fun handleKeybind(event: Event) {
+        when {
+            OriginHelper.shouldIgnorePlayer(abilityPlayer) || !this.cooldownExpired() -> return
+            this.isActivated -> this.deactivate(true)
+            else -> this.activate()
+        }
     }
 
-    internal suspend fun activate(): Boolean = PlayerAbilityActivateEvent(abilityPlayer, this).onSuccess {
+    private suspend fun activate(): Boolean = PlayerAbilityActivateEvent(abilityPlayer, this).onSuccess {
         this.isActivated = true
         this.addToPersistentData()
         this.activatedAt = now()
         sentryScoped(abilityPlayer, SCOPE, "$name.activate", context = plugin.asyncDispatcher, block = this::handleActivation)
     }
 
-    internal suspend fun deactivate(cancellable: Boolean): Boolean = PlayerAbilityDeactivateEvent(abilityPlayer, this, cancellable).onSuccess {
+    private suspend fun deactivate(cancellable: Boolean): Boolean = PlayerAbilityDeactivateEvent(abilityPlayer, this, cancellable).onSuccess {
         this.isActivated = false
         this.removeFromPersistentData()
         sentryScoped(abilityPlayer, SCOPE, "$name.deactivate", context = plugin.asyncDispatcher, block = this::handleDeactivation)

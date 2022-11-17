@@ -11,13 +11,13 @@ import dev.racci.terix.api.dsl.PotionEffectBuilder
 import dev.racci.terix.api.events.PlayerOriginChangeEvent
 import dev.racci.terix.api.origins.abilities.Ability
 import dev.racci.terix.api.origins.enums.KeyBinding
-import kotlinx.coroutines.flow.filter
 import kotlinx.coroutines.flow.onEach
 import kotlinx.datetime.Instant
 import org.apiguardian.api.API
 import org.bukkit.NamespacedKey
 import org.bukkit.craftbukkit.v1_19_R1.persistence.CraftPersistentDataTypeRegistry
 import org.bukkit.craftbukkit.v1_19_R1.persistence.DirtyCraftPersistentDataContainer
+import org.bukkit.event.Event
 import org.bukkit.event.EventPriority
 import org.bukkit.event.player.PlayerJoinEvent
 import org.bukkit.persistence.PersistentDataContainer
@@ -25,17 +25,13 @@ import org.bukkit.persistence.PersistentDataType
 import org.bukkit.potion.PotionEffect
 import kotlin.time.Duration
 
-// TODO -> Per player instances
 // TODO -> Concurrent protection / mutex lock
-// TODO -> Separate into toggleable and trigger-able abilities
-public abstract class KeybindAbility : Ability() {
+public sealed class KeybindAbility : Ability() {
     protected var activatedAt: Instant? = null
     private val namespacedKey: NamespacedKey by lazy { NamespacedKey(plugin, "origin_ability_${origin.name}/${this.name}") }
 
     /** The duration before the ability can be activated again. */
     public open val cooldown: Duration = 20.ticks
-
-    public abstract val isActivated: Boolean
 
     /** Call only from inside [onActivate] to show a failed ability. */
     protected fun failActivation() {
@@ -52,6 +48,8 @@ public abstract class KeybindAbility : Ability() {
     @API(status = API.Status.INTERNAL)
     protected fun cooldownExpired(): Boolean = activatedAt == null || ((activatedAt!! + cooldown) >= now())
 
+    protected abstract suspend fun handleKeybind(event: Event)
+
     internal fun activateWithKeybinding(keybind: KeyBinding) = playerEventFlow(
         keybind.event,
         player = abilityPlayer,
@@ -59,12 +57,7 @@ public abstract class KeybindAbility : Ability() {
         priority = EventPriority.MONITOR,
         ignoreCancelled = true,
         listener = this.listener
-    ).onEach { _ ->
-        when (this) {
-            is TogglingKeybindAbility -> this.toggle()
-            is TriggeringKeybindAbility -> this.trigger()
-        }
-    }.abilitySubscription()
+    ).onEach(this::handleKeybind).abilitySubscription()
 
     internal fun addToPersistentData() = async {
         return@async // FIXME

@@ -31,7 +31,6 @@ import org.koin.core.component.get
 import kotlin.time.Duration.Companion.seconds
 
 // TODO -> All normal food gives half a heart of damage, they can only eat flowers.
-// TODO -> Some flowers are edible, some flowers are potion effects.
 public class BeeOrigin(override val plugin: Terix) : Origin() {
     private val stingerInstant = PlayerMap<Instant>()
     private val lowerFood = mutableSetOf<Player>()

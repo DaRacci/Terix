@@ -13,18 +13,20 @@ import dev.racci.minix.api.events.keybind.PlayerSneakDoubleSecondaryEvent
 import dev.racci.minix.api.events.keybind.PlayerSneakOffhandEvent
 import dev.racci.minix.api.events.keybind.PlayerSneakPrimaryEvent
 import dev.racci.minix.api.events.keybind.PlayerSneakSecondaryEvent
+import org.bukkit.event.player.PlayerEvent
+import org.bukkit.event.player.PlayerToggleSneakEvent
 import kotlin.reflect.KClass
 
-public enum class KeyBinding(public val event: KClass<out ComboEvent>) {
+public enum class KeyBinding(public val event: KClass<out PlayerEvent>) {
     DOUBLE_OFFHAND(PlayerDoubleOffhandEvent::class),
 
-    // DOUBLE_SNEAK(), // TODO: Event
+//    DOUBLE_SNEAK(), // TODO: Event
     DOUBLE_RIGHT_CLICK(PlayerDoubleSecondaryEvent::class),
     DOUBLE_LEFT_CLICK(PlayerDoublePrimaryEvent::class),
 
     SINGLE_OFFHAND(PlayerOffhandEvent::class),
 
-    // SINGLE_SNEAK, // TODO: Event
+    SINGLE_SNEAK(PlayerToggleSneakEvent::class), // TODO: Event
     SINGLE_RIGHT_CLICK(PlayerSecondaryEvent::class),
     SINGLE_LEFT_CLICK(PlayerPrimaryEvent::class),
 
@@ -37,7 +39,7 @@ public enum class KeyBinding(public val event: KClass<out ComboEvent>) {
     SNEAK_DOUBLE_LEFT_CLICK(PlayerSneakDoublePrimaryEvent::class);
 
     public companion object {
-        public fun fromEvent(clazz: KClass<out ComboEvent>): KeyBinding = values().find { it.event === clazz } ?: throw IllegalArgumentException("Unknown event class $clazz")
+        public fun fromEvent(clazz: KClass<out PlayerEvent>): KeyBinding = values().find { it.event === clazz } ?: throw IllegalArgumentException("Unknown event class $clazz")
 
         public inline fun <reified T : ComboEvent> fromEvent(): KeyBinding = fromEvent(T::class)
     }

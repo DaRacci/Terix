@@ -6,19 +6,16 @@ import dev.racci.terix.api.events.PlayerAbilityActivateEvent
 import dev.racci.terix.api.extensions.onSuccess
 import dev.racci.terix.api.origins.OriginHelper
 import dev.racci.terix.api.sentryScoped
+import org.bukkit.event.Event
 
 public abstract class TriggeringKeybindAbility : KeybindAbility() {
-
-    /** Will always equal false unless overridden in the ability for custom behaviour. */
-    override val isActivated: Boolean = false
 
     /** Called when the abilities keybind has been triggered. */
     public abstract suspend fun handleTrigger()
 
-    internal suspend fun trigger() {
+    override suspend fun handleKeybind(event: Event) {
         if (OriginHelper.shouldIgnorePlayer(abilityPlayer)) return
         if (!this.cooldownExpired()) return
-        if (this.isActivated) return
 
         PlayerAbilityActivateEvent(abilityPlayer, this).onSuccess {
             this.activatedAt = now()
