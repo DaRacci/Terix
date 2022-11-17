@@ -8,6 +8,7 @@ import dev.racci.terix.api.origins.sounds.SoundEffect
 import dev.racci.terix.api.origins.states.State
 import net.kyori.adventure.text.format.TextColor
 import org.bukkit.Material
+import org.bukkit.attribute.Attribute
 import org.bukkit.potion.PotionEffectType
 import kotlin.time.Duration
 
@@ -34,6 +35,11 @@ public class HumanOrigin(override val plugin: Terix) : Origin() {
                 ambient = true
             }
         }
+
+        attributes {
+            Attribute.GENERIC_LUCK += 1.0
+        }
+
         title {
             State.TimeState.DAY += {
                 title = "<blue>Day".parse()
