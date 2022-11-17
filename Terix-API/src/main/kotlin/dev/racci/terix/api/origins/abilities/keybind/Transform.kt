@@ -12,10 +12,12 @@ public class Transform(
     public lateinit var disguise: Disguise
 
     override suspend fun handleActivation() {
+        DisguiseAPI.setActionBarShown(abilityPlayer, false)
         sync { DisguiseAPI.disguiseToAll(abilityPlayer, disguise) }
     }
 
     override suspend fun handleDeactivation() {
         sync { DisguiseAPI.undisguiseToAll(abilityPlayer) }
+        DisguiseAPI.setActionBarShown(abilityPlayer, true)
     }
 }
