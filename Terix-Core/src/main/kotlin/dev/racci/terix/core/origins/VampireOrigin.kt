@@ -22,6 +22,7 @@ import me.libraryaddict.disguise.disguisetypes.MobDisguise
 import net.kyori.adventure.text.format.TextColor
 import org.bukkit.Material
 import org.bukkit.Sound
+import org.bukkit.attribute.Attribute
 import org.bukkit.entity.Player
 import org.bukkit.event.entity.EntityDamageEvent
 import org.bukkit.event.entity.EntityDamageEvent.DamageCause
@@ -91,6 +92,12 @@ public class VampireOrigin(override val plugin: Terix) : Origin() {
                 duration = INFINITE
                 ambient = true
             }
+        }
+
+        attributes {
+            (State.LightState.DARKNESS to Attribute.GENERIC_ATTACK_KNOCKBACK) *= 1.15
+            (State.LightState.DARKNESS to Attribute.GENERIC_KNOCKBACK_RESISTANCE) *= 1.75
+            (State.LightState.DARKNESS to Attribute.GENERIC_MOVEMENT_SPEED) *= 1.15
         }
 
         item {
