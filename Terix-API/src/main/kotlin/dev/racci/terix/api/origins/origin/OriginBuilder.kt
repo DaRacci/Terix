@@ -7,6 +7,8 @@ import com.github.benmanes.caffeine.cache.LoadingCache
 import dev.racci.minix.api.annotations.MinixDsl
 import dev.racci.minix.api.extensions.reflection.castOrThrow
 import dev.racci.terix.api.data.ItemMatcher
+import dev.racci.terix.api.data.OriginNamespacedTag
+import dev.racci.terix.api.data.OriginNamespacedTag.Companion.applyTag
 import dev.racci.terix.api.dsl.AttributeModifierBuilder
 import dev.racci.terix.api.dsl.DSLMutator
 import dev.racci.terix.api.dsl.FoodPropertyBuilder
@@ -30,6 +32,7 @@ import org.bukkit.event.entity.EntityDamageEvent
 import java.time.Duration
 import kotlin.experimental.ExperimentalTypeInference
 import kotlin.reflect.KClass
+import kotlin.reflect.KProperty1
 
 /** Handles the origins primary variables. */
 @API(status = API.Status.STABLE, since = "1.0.0")
@@ -95,7 +98,10 @@ public sealed class OriginBuilder : OriginValues() {
          * ### Note: The potion key will always be overwritten.
          */
         public operator fun State.plusAssign(mutator: DSLMutator<PotionEffectBuilder>) {
-            statePotions.put(this, mutator.asNew().originKey(this@OriginBuilder, this).get())
+            statePotions.put(
+                this,
+                mutator.asNew().applyTag(OriginNamespacedTag.baseStateOf(this@OriginBuilder, this@plusAssign)).get()
+            )
         }
 
         public operator fun Collection<State>.plusAssign(builder: DSLMutator<PotionEffectBuilder>): Unit = this.forEach { it += builder }
@@ -177,10 +183,10 @@ public sealed class OriginBuilder : OriginValues() {
             this@OriginBuilder.attributeModifiers.put(
                 state,
                 attribute to dslMutator<AttributeModifierBuilder> {
-                    originName(this@OriginBuilder, state)
                     this.attribute = attribute
                     this.operation = operation
                     this.amount = amount.toDouble()
+                    this.name = OriginNamespacedTag.baseStateOf(this@OriginBuilder, state).asString
                 }.asNew().get()
             )
         }
@@ -442,7 +448,7 @@ public sealed class OriginBuilder : OriginValues() {
         ): Unit = modifyFood(
             material,
             dslMutator {
-                addEffect(builder.asNew().foodKey(this@OriginBuilder.name, material.name).get())
+                addEffect(builder.asNew().applyTag(OriginNamespacedTag.baseFoodOf(this@OriginBuilder, material)).get())
             }
         )
 
@@ -583,9 +589,10 @@ public sealed class OriginBuilder : OriginValues() {
          * @param T The type of ability to add.
          * @param configure A builder function to configure the ability on creation.
          */
-        public inline fun <reified T : KeybindAbility> KeyBinding.add(
-            noinline configure: suspend T.(abilityPlayer: Player) -> Unit = {}
-        ) { keybindAbilityGenerators.put(this, AbilityGenerator(T::class, configure.castOrThrow())) }
+        public inline fun <reified A : KeybindAbility> KeyBinding.add(
+            vararg constructorParams: Pair<KProperty1<A, *>, *>,
+            noinline configure: A.() -> Unit = {}
+        ) { keybindAbilityGenerators.put(this, AbilityGenerator(A::class, configure.castOrThrow(), constructorParams.castOrThrow())) }
 
         /**
          * Adds a passive ability that is granted with this origin.
@@ -594,8 +601,9 @@ public sealed class OriginBuilder : OriginValues() {
          * @param configure A builder function to configure the ability on creation.
          */
         public inline fun <reified T : PassiveAbility> withPassive(
-            noinline configure: suspend T.(abilityPlayer: Player) -> Unit = {}
-        ) { passiveAbilityGenerators.add(AbilityGenerator(T::class, configure.castOrThrow())) }
+            vararg constructorParams: Pair<KProperty1<T, *>, *>,
+            noinline configure: T.() -> Unit = {}
+        ) { passiveAbilityGenerators.add(AbilityGenerator(T::class, configure.castOrThrow(), constructorParams.castOrThrow())) }
     }
 
     /** A Utility class for building biome triggers. */

@@ -29,9 +29,8 @@ import dev.racci.minix.api.utils.ticks
 import dev.racci.minix.nms.aliases.toNMS
 import dev.racci.terix.api.Terix
 import dev.racci.terix.api.TerixPlayer
+import dev.racci.terix.api.data.OriginNamespacedTag
 import dev.racci.terix.api.data.TerixConfig
-import dev.racci.terix.api.dsl.AttributeModifierBuilder
-import dev.racci.terix.api.dsl.PotionEffectBuilder
 import dev.racci.terix.api.dsl.TimedAttributeBuilder
 import dev.racci.terix.api.events.PlayerOriginChangeEvent
 import dev.racci.terix.api.extensions.playSound
@@ -46,6 +45,7 @@ import dev.racci.terix.api.origins.states.State
 import dev.racci.terix.api.origins.states.State.Companion.convertLiquidToState
 import dev.racci.terix.core.commands.TerixPermissions
 import dev.racci.terix.core.data.Lang
+import dev.racci.terix.core.extensions.fromOrigin
 import dev.racci.terix.core.extensions.message
 import dev.racci.terix.core.extensions.originTime
 import dev.racci.terix.core.extensions.sanitise
@@ -109,9 +109,7 @@ public class ListenerService(override val plugin: Terix) : Extension<Terix>() {
             if (shouldIgnore()) return@event
 
             player.getPotionEffect(effect.type)?.let { potion ->
-                if (potion.duration > effect.duration &&
-                    potion.key?.asString()?.matches(PotionEffectBuilder.regex) == true
-                ) return@event cancel()
+                if (potion.duration > effect.duration && potion.fromOrigin()) return@event cancel()
             }
         }
 
@@ -454,9 +452,7 @@ public class ListenerService(override val plugin: Terix) : Extension<Terix>() {
 
     private fun BeaconEffectEvent.shouldIgnore(): Boolean {
         val potion = player.getPotionEffect(effect.type) ?: return true
-        return potion.duration < effect.duration ||
-            !potion.hasKey() ||
-            !potion.key!!.asString().matches(PotionEffectBuilder.regex)
+        return potion.duration < effect.duration || !potion.hasKey() || !potion.fromOrigin()
     }
 
     private fun ensureNoFire(
@@ -471,7 +467,7 @@ public class ListenerService(override val plugin: Terix) : Extension<Terix>() {
     private fun EntityPotionEffectEvent.shouldCancel() = entity is Player &&
         cause == EntityPotionEffectEvent.Cause.MILK &&
         oldEffect != null && oldEffect!!.hasKey() &&
-        oldEffect!!.key!!.asString().matches(PotionEffectBuilder.regex)
+        oldEffect!!.fromOrigin()
 
     private fun removeUnfulfilledOrInvalidAttributes(
         player: Player,
@@ -482,12 +478,10 @@ public class ListenerService(override val plugin: Terix) : Extension<Terix>() {
             val inst = player.getAttribute(attribute) ?: continue
 
             for (modifier in inst.modifiers) {
-                val match = AttributeModifierBuilder.regex.find(modifier.name)?.groups ?: continue
-                val state = State.valueOf(match["state"]!!.value.uppercase())
+                val tag = OriginNamespacedTag.fromString(modifier.name) ?: continue
+                val state = tag.getState() ?: continue
 
-                if (state !in activeTriggers ||
-                    match["origin"]!!.value != origin.name.lowercase()
-                ) {
+                if (state !in activeTriggers || !tag.fromOrigin(origin)) {
                     logger.debug { "Removing unfulfilled or invalid attribute: $modifier" }
                     inst.removeModifier(modifier)
                     continue

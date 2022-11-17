@@ -2,7 +2,7 @@ package dev.racci.terix.api.dsl
 
 import Bootstrap
 import dev.racci.terix.api.TestOrigin
-import dev.racci.terix.api.origins.states.State
+import dev.racci.terix.api.data.OriginNamespacedTag
 import org.bukkit.attribute.Attribute
 import org.bukkit.attribute.AttributeModifier
 import org.junit.jupiter.api.AfterAll
@@ -25,7 +25,9 @@ internal class AttributeModifierBuilderTest {
         Bootstrap.startUp()
         angel = TestOrigin()
         name = "origin_modifier_testorigin_darkness"
-        originName = AttributeModifierBuilder.originName(angel, State.LightState.DARKNESS)
+//        originName = AttributeModifierBuilder.apply {
+//            name = OriginNamespacedTag.of(angel, State.LightState.DARKNESS).asString
+//        }
     }
 
     @AfterAll
@@ -40,7 +42,7 @@ internal class AttributeModifierBuilderTest {
 
     @Test
     fun `originName matches correct regex`() {
-        assertTrue(originName.matches(AttributeModifierBuilder.regex))
+        assertTrue(originName.matches(OriginNamespacedTag.REGEX))
     }
 
     @Test

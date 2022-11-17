@@ -38,7 +38,7 @@ public sealed class KeybindAbility : Ability() {
         this.activatedAt = null
     }
 
-    protected fun taggedPotion(potionEffectBuilder: PotionEffectBuilder): PotionEffect = potionEffectBuilder.apply { key = namespacedKey }.get()
+    protected fun taggedPotion(potionEffectBuilder: PotionEffectBuilder): PotionEffect = potionEffectBuilder.applyTag(abilityCustomOf(linkedOrigin, this)).get()
 
     protected fun isTagged(potionEffect: PotionEffect): Boolean = potionEffect.key == namespacedKey
 

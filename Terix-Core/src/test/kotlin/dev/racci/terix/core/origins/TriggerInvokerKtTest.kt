@@ -1,8 +1,6 @@
 package dev.racci.terix.core.origins
 
 import Bootstrap.mockOrigin
-import dev.racci.terix.api.dsl.PotionEffectBuilder
-import dev.racci.terix.api.dsl.dslMutator
 import dev.racci.terix.api.origins.states.State
 import io.mockk.Runs
 import io.mockk.coEvery
@@ -10,7 +8,6 @@ import io.mockk.every
 import io.mockk.just
 import io.mockk.mockk
 import org.bukkit.entity.Player
-import org.bukkit.potion.PotionEffectType
 
 internal class TriggerInvokerKtTest {
 
@@ -41,19 +38,6 @@ internal class TriggerInvokerKtTest {
 
     private fun mockAttributeModifiers() {
         every { mockOrigin.attributeModifiers[State.LightState.SUNLIGHT] } returns mockk()
-    }
-
-    private suspend fun mockPotions() {
-        every { mockOrigin.statePotions[State.LightState.SUNLIGHT] } returns mutableListOf(
-            dslMutator<PotionEffectBuilder> {
-                type = PotionEffectType.REGENERATION
-                originKey("origin", "sunlight")
-            }.asNew().get(),
-            dslMutator<PotionEffectBuilder> {
-                type = PotionEffectType.SPEED
-                originKey("origin", "sunlight")
-            }.asNew().get()
-        )
     }
 
 //    @Test

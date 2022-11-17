@@ -1,13 +1,13 @@
 package dev.racci.terix.api.origins
 
+import arrow.core.toOption
 import dev.racci.minix.api.extensions.WithPlugin
 import dev.racci.minix.api.extensions.collections.clear
-import dev.racci.terix.api.OriginService
 import dev.racci.terix.api.Terix
 import dev.racci.terix.api.TerixPlayer
 import dev.racci.terix.api.TerixPlayer.User.origin
-import dev.racci.terix.api.dsl.AttributeModifierBuilder
-import dev.racci.terix.api.dsl.PotionEffectBuilder
+import dev.racci.terix.api.data.OriginNamespacedTag
+import dev.racci.terix.api.extensions.originPotions
 import dev.racci.terix.api.origins.abilities.Ability
 import dev.racci.terix.api.origins.origin.Origin
 import dev.racci.terix.api.origins.states.State
@@ -60,7 +60,7 @@ public object OriginHelper : KoinComponent, WithPlugin<Terix> {
 
         if (oldOrigin != null) {
             activeStates.forEach { it.deactivate(player, oldOrigin) }
-            activeStates.map { getOriginPotions(player, it) }.forEach(removePotions::addAll)
+            activeStates.map { getBaseOriginPotions(player, it) }.forEach(removePotions::addAll)
             unregisterAbilities(oldOrigin, player)
         }
 
@@ -71,7 +71,8 @@ public object OriginHelper : KoinComponent, WithPlugin<Terix> {
 
         registerAbilities(newOrigin, player)
         activeStates.forEach { it.activate(player, newOrigin) }
-        if (player.health < curHealth) player.health = curHealth.coerceAtMost(player.getAttribute(Attribute.GENERIC_MAX_HEALTH)!!.value)
+        if (player.health < curHealth) player.health =
+            curHealth.coerceAtMost(player.getAttribute(Attribute.GENERIC_MAX_HEALTH)!!.value)
     }
 
     /** Increases the players' health safely by clamping it to the maximum health. */
@@ -102,7 +103,7 @@ public object OriginHelper : KoinComponent, WithPlugin<Terix> {
     /** Designed to be invoked for when a player needs everything disabled. */
     public suspend fun deactivateOrigin(player: Player) {
         sentryScoped(player, "OriginHelper.deactivateOrigin", "Deactivating ${origin.name} for ${player.name}") {
-            sync { getOriginPotions(player, null).forEach(player::removePotionEffect) }
+            sync { getBaseOriginPotions(player, null).forEach(player::removePotionEffect) }
 
             async {
                 val origin = TerixPlayer.cachedOrigin(player)
@@ -116,7 +117,7 @@ public object OriginHelper : KoinComponent, WithPlugin<Terix> {
                     val instance = player.getAttribute(attribute) ?: continue
                     if (instance.modifiers.isEmpty()) continue
 
-                    instance.modifiers.associateWith { AttributeModifierBuilder.regex.matchEntire(it.name) }
+                    instance.modifiers.associateWith { OriginNamespacedTag.REGEX.matchEntire(it.name) }
                         .forEach { (modifier, match) ->
                             if (match == null) return@forEach
                             instance.removeModifier(modifier)
@@ -134,25 +135,23 @@ public object OriginHelper : KoinComponent, WithPlugin<Terix> {
      * @param state The state to get the potions from or null.
      * @return A sequence of the potion effects type.
      */
-    public fun getOriginPotions(
+    // TODO -> Merge into respective sources (State, Food, etc.)
+    public fun getBaseOriginPotions(
         player: Player,
         state: State?
-    ): Sequence<PotionEffectType> = player.activePotionEffects
-        .asSequence()
-        .mapNotNull { effect ->
-            val match = PotionEffectBuilder.regex.find(effect.key?.asString().orEmpty()) ?: return@mapNotNull null
-            if (!(match.groups["type"]?.value == "potion" && state != null && match.groups["state"]?.value == state.name.lowercase())) return@mapNotNull null
-            effect.type
-        }
+    ): Sequence<PotionEffectType> = player.originPotions(false)
+        .filter { (_, tag) -> tag.isCauseTypeState }
+        .filter { (_, tag) -> state == null || tag.fromState(state) }
+        .map { (potion, _) -> potion.type }
 
     public fun potionState(potion: PotionEffect): State? {
-        val match = PotionEffectBuilder.regex.find(potion.key?.asString().orEmpty()) ?: return null
-        return State.values.find { it.name.lowercase() == match.groups["state"]?.value }
+        return OriginNamespacedTag.fromBukkitKey(potion.key).toOption()
+            .filter { it.isCauseTypeState }
+            .map { it.getState() }.orNull()
     }
 
     public fun potionOrigin(potion: PotionEffect): Origin? {
-        val match = PotionEffectBuilder.regex.find(potion.key?.asString().orEmpty()) ?: return null
-        return OriginService.getOriginOrNull(match.groups["from"]?.value)
+        return OriginNamespacedTag.fromBukkitKey(potion.key).toOption().map { it.getOrigin() }.orNull()
     }
 
     private suspend fun unregisterAbilities(
