@@ -11,7 +11,9 @@ import dev.racci.terix.api.annotations.OriginEventSelector
 import dev.racci.terix.api.dsl.FoodPropertyBuilder
 import dev.racci.terix.api.dsl.dslMutator
 import dev.racci.terix.api.events.PlayerOriginChangeEvent
+import dev.racci.terix.api.origins.abilities.keybind.Repulsion
 import dev.racci.terix.api.origins.enums.EventSelector
+import dev.racci.terix.api.origins.enums.KeyBinding
 import dev.racci.terix.api.origins.origin.Origin
 import dev.racci.terix.api.origins.sounds.SoundEffect
 import dev.racci.terix.api.origins.states.State
@@ -101,6 +103,10 @@ public class MerlingOrigin(override val plugin: Terix) : Origin() {
                 <aqua>A mysterious origin.
                 <aqua>It's not clear what it is.
             """.trimIndent()
+        }
+
+        abilities {
+            KeyBinding.DOUBLE_OFFHAND.add<Repulsion>()
         }
 
         Tentacles.addGlobalMiningModifier(NamespacedKey(plugin, "merling_mining")) { player, _ ->
