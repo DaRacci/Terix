@@ -85,9 +85,9 @@ public data class OriginNamespacedTag private constructor(
             append("^terix:origin__")
             append("(?<origin>[a-z]+)")
             append('/')
-            append("(?<source>").append(regexPart<Source>()).append(')')
+            append(regexPart<Source>())
             append('/')
-            append("(?<type>").append(regexPart<CauseType>()).append(')').append("__").append("(?<cause>[a-z_-]+)")
+            append(regexPart<CauseType>()).append("__").append("(?<cause>[a-z_-]+)")
             append("$")
         }.let(::Regex)
 
@@ -106,7 +106,7 @@ public data class OriginNamespacedTag private constructor(
             val match = REGEX.matchEntire(string) ?: return null
             val origin = match.groups["origin"]?.value ?: return null
             val source = match.groups["source"]?.value?.let { Source.valueOf(it.uppercase()) } ?: return null
-            val type = match.groups["type"]?.value?.let { CauseType.valueOf(it.uppercase()) } ?: return null
+            val type = match.groups["causetype"]?.value?.let { CauseType.valueOf(it.uppercase()) } ?: return null
             val cause = match.groups["cause"]?.value ?: return null
 
             return OriginNamespacedTag(origin, source, type, cause)
