@@ -23,9 +23,9 @@ public data class OriginNamespacedTag private constructor(
         buildString {
             append(origin)
             append('/')
-            append(source)
+            append(source.name.lowercase())
             append('/')
-            append(causeType).append("__").append(cause)
+            append(causeType.name.lowercase()).append("__").append(cause)
         }
     }
 
