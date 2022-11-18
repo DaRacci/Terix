@@ -59,6 +59,7 @@ public object OriginHelper : KoinComponent, WithPlugin<Terix> {
         val curHealth = player.health
 
         if (oldOrigin != null) {
+            oldOrigin.handleChangeOrigin(player)
             activeStates.forEach { it.deactivate(player, oldOrigin) }
             activeStates.map { getBaseOriginPotions(player, it) }.forEach(removePotions::addAll)
             unregisterAbilities(oldOrigin, player)
@@ -69,6 +70,7 @@ public object OriginHelper : KoinComponent, WithPlugin<Terix> {
             activeStates.forEach { newOrigin.statePotions[it]?.let(player::addPotionEffects) }
         }
 
+        newOrigin.handleBecomeOrigin(player)
         registerAbilities(newOrigin, player)
         activeStates.forEach { it.activate(player, newOrigin) }
         if (player.health < curHealth) player.health =

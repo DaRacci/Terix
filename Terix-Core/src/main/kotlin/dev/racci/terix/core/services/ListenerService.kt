@@ -246,9 +246,6 @@ public class ListenerService(override val plugin: Terix) : Extension<Terix>() {
             ] message onlinePlayers
 
             if (terixConfig.showTitleOnChange) newOrigin.becomeOriginTitle?.invoke(player)
-
-            preOrigin.handleChangeOrigin(this)
-            newOrigin.handleBecomeOrigin(this)
         }
 
         event(EventPriority.HIGHEST, ignoreCancelled = true, forceAsync = false, block = ::handle)

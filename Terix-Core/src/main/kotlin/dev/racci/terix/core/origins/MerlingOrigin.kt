@@ -10,7 +10,6 @@ import dev.racci.terix.api.TerixPlayer
 import dev.racci.terix.api.annotations.OriginEventSelector
 import dev.racci.terix.api.dsl.FoodPropertyBuilder
 import dev.racci.terix.api.dsl.dslMutator
-import dev.racci.terix.api.events.PlayerOriginChangeEvent
 import dev.racci.terix.api.origins.abilities.keybind.Repulsion
 import dev.racci.terix.api.origins.enums.EventSelector
 import dev.racci.terix.api.origins.enums.KeyBinding
@@ -118,12 +117,12 @@ public class MerlingOrigin(override val plugin: Terix) : Origin() {
         }
     }
 
-    override suspend fun handleBecomeOrigin(event: PlayerOriginChangeEvent) {
-        event.player.isReverseOxygen = true
+    override suspend fun handleBecomeOrigin(player: Player) {
+        player.isReverseOxygen = true
     }
 
-    override suspend fun handleChangeOrigin(event: PlayerOriginChangeEvent) {
-        event.player.isReverseOxygen = false
+    override suspend fun handleChangeOrigin(player: Player) {
+        player.isReverseOxygen = false
     }
 
     @OriginEventSelector(EventSelector.TARGET)

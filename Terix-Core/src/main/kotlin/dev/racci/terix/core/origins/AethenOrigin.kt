@@ -17,7 +17,6 @@ import dev.racci.minix.nms.aliases.toNMS
 import dev.racci.terix.api.Terix
 import dev.racci.terix.api.annotations.OriginEventSelector
 import dev.racci.terix.api.dsl.dslMutator
-import dev.racci.terix.api.events.PlayerOriginChangeEvent
 import dev.racci.terix.api.origins.OriginHelper
 import dev.racci.terix.api.origins.abilities.keybind.Levitate
 import dev.racci.terix.api.origins.enums.EventSelector
@@ -144,8 +143,8 @@ public class AethenOrigin(override val plugin: Terix) : Origin() {
         playerLocations.computeAndRemove(player) { resetLightLevel(this) }
     }
 
-    override suspend fun handleChangeOrigin(event: PlayerOriginChangeEvent) {
-        playerLocations.computeAndRemove(event.player) { resetLightLevel(this) }
+    override suspend fun handleChangeOrigin(player: Player) {
+        playerLocations.computeAndRemove(player) { resetLightLevel(this) }
     }
 
     @OriginEventSelector(EventSelector.PLAYER)

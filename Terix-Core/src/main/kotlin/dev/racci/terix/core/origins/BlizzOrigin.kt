@@ -5,7 +5,6 @@ import dev.racci.terix.api.Terix
 import dev.racci.terix.api.annotations.OriginEventSelector
 import dev.racci.terix.api.dsl.FoodPropertyBuilder
 import dev.racci.terix.api.dsl.dslMutator
-import dev.racci.terix.api.events.PlayerOriginChangeEvent
 import dev.racci.terix.api.origins.abilities.passive.FluidWalker
 import dev.racci.terix.api.origins.abilities.passive.TrailPassive
 import dev.racci.terix.api.origins.enums.EventSelector
@@ -76,8 +75,8 @@ public class BlizzOrigin(override val plugin: Terix) : Origin() {
         player.lockFreezeTicks(true)
     }
 
-    override suspend fun handleChangeOrigin(event: PlayerOriginChangeEvent) {
-        event.player.lockFreezeTicks(false)
+    override suspend fun handleChangeOrigin(player: Player) {
+        player.lockFreezeTicks(false)
     }
 
     @OriginEventSelector(EventSelector.OFFENDER)

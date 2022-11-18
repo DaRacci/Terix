@@ -7,6 +7,8 @@ import dev.racci.minix.api.flow.playerEventFlow
 import dev.racci.minix.api.utils.now
 import dev.racci.terix.api.Terix
 import dev.racci.terix.api.TerixPlayer.User.origin
+import dev.racci.terix.api.data.OriginNamespacedTag.Companion.abilityCustomOf
+import dev.racci.terix.api.data.OriginNamespacedTag.Companion.applyTag
 import dev.racci.terix.api.dsl.PotionEffectBuilder
 import dev.racci.terix.api.events.PlayerOriginChangeEvent
 import dev.racci.terix.api.origins.abilities.Ability

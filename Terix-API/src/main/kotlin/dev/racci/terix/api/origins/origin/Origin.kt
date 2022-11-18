@@ -1,6 +1,5 @@
 package dev.racci.terix.api.origins.origin
 
-import dev.racci.terix.api.events.PlayerOriginChangeEvent
 import org.apiguardian.api.API
 import org.bukkit.entity.Player
 import kotlin.reflect.KProperty1
@@ -31,10 +30,10 @@ public abstract class Origin : OriginBuilder() {
      * Called when the player first becomes this origin.
      * Called before [handleLoad].
      */
-    public open suspend fun handleBecomeOrigin(event: PlayerOriginChangeEvent): Unit = Unit
+    public open suspend fun handleBecomeOrigin(player: Player): Unit = Unit
 
     /** Called when the player changes from this origin. */
-    public open suspend fun handleChangeOrigin(event: PlayerOriginChangeEvent): Unit = Unit
+    public open suspend fun handleChangeOrigin(player: Player): Unit = Unit
 
     /** When the player changes to gm 1 for example. */
     public open suspend fun handleDeactivate(player: Player): Unit = Unit
