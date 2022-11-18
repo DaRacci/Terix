@@ -18,6 +18,7 @@ import dev.racci.terix.api.origins.enums.EventSelector
 import dev.racci.terix.api.origins.enums.EventSelector.TargetSelector.Companion.isCompatible
 import dev.racci.terix.api.origins.origin.Origin
 import dev.racci.terix.api.services.TickService
+import io.ktor.util.collections.ConcurrentSet
 import io.sentry.Breadcrumb
 import io.sentry.Sentry
 import io.sentry.SentryLevel
@@ -25,6 +26,7 @@ import kotlinx.collections.immutable.ImmutableSet
 import kotlinx.collections.immutable.toImmutableSet
 import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.Job
+import kotlinx.coroutines.NonCancellable.cancel
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.catch
 import kotlinx.coroutines.flow.launchIn
@@ -42,7 +44,7 @@ import kotlin.reflect.full.hasAnnotation
 import kotlin.reflect.full.valueParameters
 
 public abstract class Ability : WithPlugin<Terix> {
-    private val abilityJobs = mutableSetOf<Job>()
+    private val abilityJobs = ConcurrentSet<Job>()
 
     @PublishedApi
     internal val listener: SimpleKListener by lazy { SimpleKListener(plugin) }
