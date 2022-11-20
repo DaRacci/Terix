@@ -1,11 +1,11 @@
 package dev.racci.terix.api.origins
 
 import arrow.core.toOption
+import dev.racci.minix.api.coroutine.asyncDispatcher
 import dev.racci.minix.api.extensions.WithPlugin
 import dev.racci.minix.api.extensions.collections.clear
 import dev.racci.terix.api.Terix
 import dev.racci.terix.api.TerixPlayer
-import dev.racci.terix.api.TerixPlayer.User.origin
 import dev.racci.terix.api.data.OriginNamespacedTag
 import dev.racci.terix.api.extensions.originPotions
 import dev.racci.terix.api.origins.abilities.Ability
@@ -37,55 +37,46 @@ public object OriginHelper : KoinComponent, WithPlugin<Terix> {
         return reason != null
     }
 
-    public suspend fun applyBase(
-        player: Player,
-        origin: Origin = TerixPlayer.cachedOrigin(player)
-    ) {
-        State.CONSTANT.activate(player, origin)
-        player.setCanBreathUnderwater(origin.waterBreathing)
-        player.setImmuneToFire(origin.fireImmunity)
-    }
-
     public suspend fun changeTo(
         player: Player,
         oldOrigin: Origin?,
         newOrigin: Origin
     ): Unit = sentryScoped(player, "OriginHelper.changeTo", "Changing from ${oldOrigin?.name} to ${newOrigin.name}") {
-        player.setImmuneToFire(newOrigin.fireImmunity)
-        player.setCanBreathUnderwater(newOrigin.waterBreathing)
-
-        val activeStates = State.getPlayerStates(player)
-        val removePotions = arrayListOf<PotionEffectType>()
-        val curHealth = player.health
-
         if (oldOrigin != null) {
             oldOrigin.handleChangeOrigin(player)
-            activeStates.forEach { it.deactivate(player, oldOrigin) }
-            activeStates.map { getBaseOriginPotions(player, it) }.forEach(removePotions::addAll)
-            unregisterAbilities(oldOrigin, player)
+            this.deactivateOrigin(player, oldOrigin)
         }
 
-        sync {
-            removePotions.forEach(player::removePotionEffect)
-            activeStates.forEach { newOrigin.statePotions[it]?.let(player::addPotionEffects) }
-        }
-
-        newOrigin.handleBecomeOrigin(player)
-        registerAbilities(newOrigin, player)
-        activeStates.forEach { it.activate(player, newOrigin) }
-        if (player.health < curHealth) player.health =
-            curHealth.coerceAtMost(player.getAttribute(Attribute.GENERIC_MAX_HEALTH)!!.value)
+        this.activateOrigin(player, newOrigin)
+        this.setHealth(player, player.getAttribute(Attribute.GENERIC_MAX_HEALTH)!!.value)
     }
 
-    /** Increases the players' health safely by clamping it to the maximum health. */
+    /**
+     * Increases the players' health safely by clamping it within 0 and the maximum health.
+     *
+     * @param player The player to increase the health of.
+     * @param amount The amount to increase the health by.
+     */
     public fun increaseHealth(
         player: Player,
         amount: Double
     ) {
-        val curHealth = player.health
+        val newHealth = player.health + amount
+        this.setHealth(player, newHealth)
+    }
+
+    /**
+     * Set the players' health safely by clamping it within 0 and the maximum health.
+     *
+     * @param player The player to set the health of.
+     * @param amount The amount to set the health to.
+     */
+    public fun setHealth(
+        player: Player,
+        amount: Double
+    ) {
         val maxHealth = player.getAttribute(Attribute.GENERIC_MAX_HEALTH)!!.value
-        val newHealth = curHealth + amount
-        player.health = newHealth.coerceAtMost(maxHealth)
+        player.health = amount.coerceIn(0.0, maxHealth)
     }
 
     /** Designed to be invoked for when a player needs everything to reset. */
@@ -94,37 +85,49 @@ public object OriginHelper : KoinComponent, WithPlugin<Terix> {
         origin: Origin = TerixPlayer.cachedOrigin(player)
     ) {
         sentryScoped(player, "OriginHelper.activateOrigin", "Activating ${origin.name} for ${player.name}") {
-            applyBase(player, origin)
+            player.setCanBreathUnderwater(origin.waterBreathing)
+            player.setImmuneToFire(origin.fireImmunity)
 
             State.recalculateAllStates(player)
+            origin.handleBecomeOrigin(player)
             State.getPlayerStates(player).forEach { it.activate(player, origin) }
-            registerAbilities(origin, player)
+            this.registerAbilities(origin, player)
         }
     }
 
-    /** Designed to be invoked for when a player needs everything disabled. */
-    public suspend fun deactivateOrigin(player: Player) {
-        sentryScoped(player, "OriginHelper.deactivateOrigin", "Deactivating ${origin.name} for ${player.name}") {
+    /**
+     * Completely disables all parts of the players' origin.
+     *
+     * @param player The player to disable the origin for.
+     * @param origin The origin to disable.
+     */
+    public suspend fun deactivateOrigin(
+        player: Player,
+        origin: Origin = TerixPlayer.cachedOrigin(player)
+    ) {
+        sentryScoped(
+            player,
+            "OriginHelper.deactivateOrigin",
+            "Deactivating ${origin.name} for ${player.name}",
+            context = plugin.asyncDispatcher
+        ) {
             sync { getBaseOriginPotions(player, null).forEach(player::removePotionEffect) }
 
-            async {
-                val origin = TerixPlayer.cachedOrigin(player)
-                origin.handleDeactivate(player)
-                State.activeStates.remove(player)
-                player.setImmuneToFire(null)
-                player.setCanBreathUnderwater(null)
-                unregisterAbilities(origin, player)
+            origin.handleDeactivate(player)
+            player.setImmuneToFire(null)
+            player.setCanBreathUnderwater(null)
+            State.activeStates.remove(player)
+            this.unregisterAbilities(origin, player)
 
-                for (attribute in Attribute.values()) {
-                    val instance = player.getAttribute(attribute) ?: continue
-                    if (instance.modifiers.isEmpty()) continue
+            for (attribute in Attribute.values()) {
+                val instance = player.getAttribute(attribute) ?: continue
+                if (instance.modifiers.isEmpty()) continue
 
-                    instance.modifiers.associateWith { OriginNamespacedTag.REGEX.matchEntire(it.name) }
-                        .forEach { (modifier, match) ->
-                            if (match == null) return@forEach
-                            instance.removeModifier(modifier)
-                        }
-                }
+                instance.modifiers.associateWith { OriginNamespacedTag.REGEX.matchEntire(it.name) }
+                    .forEach { (modifier, match) ->
+                        if (match == null) return@forEach
+                        instance.removeModifier(modifier)
+                    }
             }
         }
     }
