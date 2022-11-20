@@ -4,7 +4,7 @@ import net.minecraft.world.effect.MobEffect
 import net.minecraft.world.effect.MobEffectInstance
 import net.minecraft.world.food.FoodProperties
 import org.bukkit.potion.PotionEffect
-import java.util.Optional
+import java.util.ArrayList
 
 public class FoodPropertyBuilder(
     nutrition: Int?,
@@ -32,7 +32,7 @@ public class FoodPropertyBuilder(
     public var isMeat: Boolean by createWatcher(isMeat ?: false)
     public var canAlwaysEat: Boolean by createWatcher(canAlwaysEat ?: false)
     public var fastFood: Boolean by createWatcher(fastFood ?: false)
-    public var effects: java.util.ArrayList<Pair<MobEffectInstance, Float>> by createWatcher(effects ?: arrayListOf())
+    public var effects: ArrayList<Pair<MobEffectInstance, Float>> by createWatcher(effects ?: arrayListOf())
 
     public fun addEffect(effect: PotionEffect) {
         effects.add(
@@ -43,8 +43,7 @@ public class FoodPropertyBuilder(
                 effect.isAmbient,
                 effect.hasParticles(),
                 effect.hasIcon(),
-                effect.key,
-                Optional.empty()
+                effect.key
             ) to 1f
         )
     }

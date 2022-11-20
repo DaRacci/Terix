@@ -238,7 +238,6 @@ public sealed class State : WithPlugin<Terix> {
         }
     }
 
-    // TODO: Cache if the player has their nightvision potion
     private fun addSync(
         player: Player,
         origin: Origin
