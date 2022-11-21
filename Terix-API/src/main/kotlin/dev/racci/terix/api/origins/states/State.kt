@@ -38,12 +38,14 @@ public sealed class State : WithPlugin<Terix> {
     public open val incompatibleStates: Array<out State> = emptyArray()
     public open val providesSideEffects: Array<out SideEffect> = emptyArray()
 
-    public object CONSTANT : State(), StateSource<Nothing> {
+    public sealed class StatedSource<I : Any> : State(), StateSource<I>
+
+    public object CONSTANT : StatedSource<Nothing>() {
         override fun fromPlayer(player: Player): Boolean = true
         override fun getState(input: Nothing): Boolean = true
     }
 
-    public sealed class TimeState : State(), StateSource<World> {
+    public sealed class TimeState : StatedSource<World>() {
         override fun fromPlayer(player: Player): Boolean = this.getState(player.world)
 
         public object DAY : TimeState() {
@@ -57,7 +59,7 @@ public sealed class State : WithPlugin<Terix> {
         }
     }
 
-    public sealed class WorldState : State(), StateSource<Environment> {
+    public sealed class WorldState : StatedSource<Environment>() {
         override fun fromPlayer(player: Player): Boolean = this.getState(player.world.environment)
 
         public object OVERWORLD : WorldState() {
@@ -76,7 +78,7 @@ public sealed class State : WithPlugin<Terix> {
         }
     }
 
-    public sealed class LiquidState : State(), StateSource<Block> {
+    public sealed class LiquidState : StatedSource<Block>() {
         override fun fromPlayer(player: Player): Boolean = this.getState(player.location.block)
 
         public object WATER : LiquidState() {
@@ -97,7 +99,7 @@ public sealed class State : WithPlugin<Terix> {
         }
     }
 
-    public sealed class LightState : State(), StateSource<Player> {
+    public sealed class LightState : StatedSource<Player>() {
         override fun fromPlayer(player: Player): Boolean = this.getState(player)
 
         public object SUNLIGHT : LightState() {
@@ -111,7 +113,7 @@ public sealed class State : WithPlugin<Terix> {
         }
     }
 
-    public sealed class WeatherState : State(), StateSource<Location> {
+    public sealed class WeatherState : StatedSource<Location>() {
         override fun fromPlayer(player: Player): Boolean = this.getState(player.location)
 
         public object RAIN : WeatherState() {
@@ -127,7 +129,7 @@ public sealed class State : WithPlugin<Terix> {
         }
     }
 
-    public sealed class BiomeState : State(), StateSource<Location> {
+    public sealed class BiomeState : StatedSource<Location>() {
         override fun fromPlayer(player: Player): Boolean = this.getState(player.location)
 
         public object WARM : BiomeState() {
@@ -143,37 +145,17 @@ public sealed class State : WithPlugin<Terix> {
         }
     }
 
-    private suspend fun ifContains(
-        player: Player,
-        origin: Origin,
-        required: Boolean,
-        state: State,
-        block: suspend () -> Unit
-    ) {
-        val states = activeStates[player]
-        val isPresent = states?.contains(state) ?: false
-        if (isPresent != required) return
-
-        if (!required) {
-            states?.filter { state in it.incompatibleStates || it in state.incompatibleStates }?.forEach { it.deactivate(player, origin) }
-            activeStates.put(player, state)
-        } else {
-            activeStates.remove(player, state)
-        }
-
-        block()
-    }
-
     public open suspend fun activate(
         player: Player,
         origin: Origin
     ): Unit = sentryScoped(player, CATEGORY, this.sentryMessage(origin)) {
         if (OriginHelper.shouldIgnorePlayer(player)) return@sentryScoped
 
-        ifContains(player, origin, false, this) {
-            this.addAsync(player, origin)
-            this.addSync(player, origin)
-        }
+        deactivateConflictingStates(player, origin)
+        activeStates.put(player, this)
+
+        this.addAsync(player, origin)
+        this.addSync(player, origin)
     }
 
     public open suspend fun deactivate(
@@ -182,10 +164,9 @@ public sealed class State : WithPlugin<Terix> {
     ): Unit = sentryScoped(player, CATEGORY, this.sentryMessage(origin)) {
         if (OriginHelper.shouldIgnorePlayer(player)) return@sentryScoped
 
-        ifContains(player, origin, true, this) {
-            this.removeAsync(player, origin)
-            this.removeSync(player, origin)
-        }
+        activeStates.remove(player, this)
+        this.removeAsync(player, origin)
+        this.removeSync(player, origin)
     }
 
     public open suspend fun exchange(
@@ -195,21 +176,27 @@ public sealed class State : WithPlugin<Terix> {
     ): Unit = sentryScoped(player, CATEGORY, this.sentryMessage(origin, to)) {
         if (OriginHelper.shouldIgnorePlayer(player)) return@sentryScoped
 
-        ifContains(player, origin, true, this) {
-            this.removeAsync(player, origin)
-            this.removeSync(player, origin)
-        }
+        activeStates.remove(player, this)
+        this.removeAsync(player, origin)
+        this.removeSync(player, origin)
 
-        ifContains(player, origin, false, to) {
-            to.addAsync(player, origin)
-            to.addSync(player, origin)
-        }
+        to.deactivateConflictingStates(player, origin)
+        to.addAsync(player, origin)
+        to.addSync(player, origin)
+        activeStates.put(player, to)
     }
 
     init {
         @Suppress("LeakingThis")
-        states.add(this)
+        values += this
     }
+
+    private suspend fun deactivateConflictingStates(
+        player: Player,
+        origin: Origin
+    ) = activeStates[player]
+        .filter { this in it.incompatibleStates || it in this.incompatibleStates }
+        .forEach { state -> state.deactivate(player, origin) }
 
     private suspend fun addAsync(
         player: Player,
@@ -242,9 +229,7 @@ public sealed class State : WithPlugin<Terix> {
         player: Player,
         origin: Origin
     ) = sync {
-        origin.statePotions[this@State]?.takeUnless(Collection<*>::isEmpty)?.forEach { potion ->
-            player.addPotionEffect(potion)
-        }
+        origin.statePotions[this@State]?.forEach(player::addPotionEffect)
     }
 
     private fun removeSync(
@@ -278,13 +263,8 @@ public sealed class State : WithPlugin<Terix> {
         }
     }
 
-    final override fun toString(): String {
-        return name
-    }
-
-    final override fun hashCode(): Int {
-        return name.hashCode()
-    }
+    final override fun toString(): String = name
+    final override fun hashCode(): Int = name.hashCode()
 
     final override fun equals(other: Any?): Boolean {
         if (this === other) return true
@@ -303,34 +283,10 @@ public sealed class State : WithPlugin<Terix> {
         internal val activeStates = multiMapOf<Player, State>()
         private val ordinalInc: AtomicInt = atomic(0)
         private val plugin by getKoin().inject<Terix>()
-        private val states = mutableSetOf<State>()
         public var values: Array<State> = emptyArray()
             private set
-            get() {
-                if (field.size != states.size) {
-                    field = states.toTypedArray()
-                }
-                return field
-            }
 
-        public fun recalculateAllStates(player: Player) {
-            activeStates.remove(player)
-
-            for (state in values) {
-                if (state !is StateSource<*>) {
-                    plugin.log.debug { "Skipping state $state" }
-                    continue
-                }
-
-                if (state.incompatibleStates.any { activeStates[player]?.contains(it) == true }) continue
-                if (!state.fromPlayer(player)) continue
-
-                plugin.log.debug { "Adding state $state" }
-                activeStates.put(player, state)
-            }
-        }
-
-        public fun getPlayerStates(player: Player): PersistentSet<State> = activeStates[player]?.toPersistentSet() ?: emptySet<State>().toPersistentSet()
+        public fun getPlayerStates(player: Player): PersistentSet<State> = activeStates[player].toPersistentSet()
 
         public fun fromOrdinal(ordinal: Int): State {
             return values[ordinal]

@@ -41,7 +41,7 @@ public object OriginHelper : KoinComponent, WithPlugin<Terix> {
         player: Player,
         oldOrigin: Origin?,
         newOrigin: Origin
-    ): Unit = sentryScoped(player, "OriginHelper.changeTo", "Changing from ${oldOrigin?.name} to ${newOrigin.name}") {
+    ): Unit = sentryScoped(player, "OriginHelper.changeTo", "Changing from ${oldOrigin?.name} to ${newOrigin.name}", context = plugin.asyncDispatcher) {
         if (oldOrigin != null) {
             oldOrigin.handleChangeOrigin(player)
             this.deactivateOrigin(player, oldOrigin)
@@ -88,9 +88,12 @@ public object OriginHelper : KoinComponent, WithPlugin<Terix> {
             player.setCanBreathUnderwater(origin.waterBreathing)
             player.setImmuneToFire(origin.fireImmunity)
 
-            State.recalculateAllStates(player)
+            State.values.asSequence()
+                .filterIsInstance<State.StatedSource<*>>()
+                .filter { state -> state.fromPlayer(player) }
+                .forEach { state -> state.activate(player, origin) }
+
             origin.handleBecomeOrigin(player)
-            State.getPlayerStates(player).forEach { it.activate(player, origin) }
             this.registerAbilities(origin, player)
         }
     }
@@ -108,16 +111,15 @@ public object OriginHelper : KoinComponent, WithPlugin<Terix> {
         sentryScoped(
             player,
             "OriginHelper.deactivateOrigin",
-            "Deactivating ${origin.name} for ${player.name}",
-            context = plugin.asyncDispatcher
+            "Deactivating ${origin.name} for ${player.name}"
         ) {
             sync { getBaseOriginPotions(player, null).forEach(player::removePotionEffect) }
 
             origin.handleDeactivate(player)
             player.setImmuneToFire(null)
             player.setCanBreathUnderwater(null)
-            State.activeStates.remove(player)
-            this.unregisterAbilities(origin, player)
+            State.activeStates[player]?.forEach { state -> state.deactivate(player, origin) }
+            unregisterAbilities(origin, player)
 
             for (attribute in Attribute.values()) {
                 val instance = player.getAttribute(attribute) ?: continue
