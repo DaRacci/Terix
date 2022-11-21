@@ -150,6 +150,7 @@ public sealed class State : WithPlugin<Terix> {
         origin: Origin
     ): Unit = sentryScoped(player, CATEGORY, this.sentryMessage(origin)) {
         if (OriginHelper.shouldIgnorePlayer(player)) return@sentryScoped
+        require(!activeStates.containsEntry(player, this)) { "Cannot activate state that is already present" }
 
         deactivateConflictingStates(player, origin)
         activeStates.put(player, this)
@@ -163,6 +164,7 @@ public sealed class State : WithPlugin<Terix> {
         origin: Origin
     ): Unit = sentryScoped(player, CATEGORY, this.sentryMessage(origin)) {
         if (OriginHelper.shouldIgnorePlayer(player)) return@sentryScoped
+        require(activeStates.containsEntry(player, this)) { "Cannot deactivate state that is not present" }
 
         activeStates.remove(player, this)
         this.removeAsync(player, origin)
@@ -175,6 +177,8 @@ public sealed class State : WithPlugin<Terix> {
         to: State
     ): Unit = sentryScoped(player, CATEGORY, this.sentryMessage(origin, to)) {
         if (OriginHelper.shouldIgnorePlayer(player)) return@sentryScoped
+        require(activeStates.containsEntry(player, this)) { "Cannot exchange state that is not present" }
+        require(!activeStates.containsEntry(player, to)) { "Cannot exchange state to state that is already present" }
 
         activeStates.remove(player, this)
         this.removeAsync(player, origin)
