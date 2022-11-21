@@ -160,17 +160,15 @@ public class AethenOrigin(override val plugin: Terix) : Origin() {
         this.player.sendActionBar("<red>You need fresh air to sleep!".parse())
     }
 
-    @RunAsync
     @OriginEventSelector(EventSelector.PLAYER)
     public fun PlayerToggleSneakEvent.handle() {
         if (this.isSneaking) {
             missingPotion[this.player] = this.player.activePotionEffects.first { it.type == PotionEffectType.SLOW_FALLING && it.fromOrigin() }
-
-            sync { player.removePotionEffect(PotionEffectType.SLOW_FALLING) }
+            player.removePotionEffect(PotionEffectType.SLOW_FALLING)
             return
         }
 
-        sync { missingPotion.computeAndRemove(player, player::addPotionEffect) }
+        missingPotion.computeAndRemove(player, player::addPotionEffect)
     }
 
     // TODO -> Ability
