@@ -2,6 +2,7 @@ package dev.racci.terix.api.origins.abilities.keybind
 
 import dev.racci.minix.api.events.player.PlayerMoveXYZEvent
 import dev.racci.minix.api.extensions.cancel
+import dev.racci.minix.api.utils.kotlin.invokeIfNull
 import dev.racci.terix.api.annotations.OriginEventSelector
 import dev.racci.terix.api.dsl.PotionEffectBuilder
 import dev.racci.terix.api.dsl.dslMutator
@@ -70,15 +71,12 @@ public class Levitate(
 
     override suspend fun handleDeactivation() {
         glidingActive = false
-        val types = mutableListOf<PotionEffectType>()
-        for (potion in abilityPlayer.activePotionEffects) {
-            if (potion.type != PotionEffectType.LEVITATION || !isTagged(potion)) continue
-            types += potion.type
-            break
-        }
-
+        abilityPlayer.isGliding = false
         abilityPlayer.playSound(SOUND.first, SOUND.second, SOUND.third)
-        sync { types.forEach(abilityPlayer::removePotionEffect) }
+        abilityPlayer.activePotionEffects.asSequence()
+            .filter { pot -> pot.type == PotionEffectType.LEVITATION }
+            .firstOrNull { pot -> isTagged(pot) }
+            .invokeIfNull { sync { abilityPlayer.removePotionEffect(PotionEffectType.LEVITATION) } }
     }
 
     private companion object {
