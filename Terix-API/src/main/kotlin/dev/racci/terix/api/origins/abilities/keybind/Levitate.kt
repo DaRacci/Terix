@@ -30,7 +30,7 @@ public class Levitate(
         if (!isActivated || glidingActive) return
 
         val difference = from.subtract(to)
-        if (difference.x in -0.1..0.1 && difference.y != 0.0 && difference.z in -0.1..0.1) return // If the player is only moving vertically, don't activate gliding.
+        if (difference.x in DIFFERENCE_RANGE && /*difference.y != 0.0 &&*/ difference.z in DIFFERENCE_RANGE) return // If the player is only moving vertically, don't activate gliding.
 
         abilityBreadcrumb("glidingActivate")
         glidingActive = true
@@ -55,8 +55,8 @@ public class Levitate(
 
                 val difference = lastVector.clone().subtract(newVector)
                 lastVector = newVector
-                difference.x in -0.1..0.1 && difference.z in -0.1..0.1
-            }.onEach { player ->
+                difference.x in DIFFERENCE_RANGE && difference.z in DIFFERENCE_RANGE
+            }.filter { glidingActive }.onEach { player ->
                 abilityBreadcrumb("glidingDeactivate")
                 player.isGliding = false
                 glidingActive = false
@@ -82,6 +82,8 @@ public class Levitate(
     }
 
     private companion object {
+        const val DIFFERENCE_THRESHOLD = 0.05
+        val DIFFERENCE_RANGE = -DIFFERENCE_THRESHOLD..DIFFERENCE_THRESHOLD
         val SOUND = Triple("minecraft:entity.phantom.flap", 1f, 1f)
         val LEVITATION = dslMutator<PotionEffectBuilder> {
             type = PotionEffectType.LEVITATION
