@@ -5,10 +5,10 @@ import dev.racci.minix.api.data.enums.LiquidType.Companion.liquidType
 import dev.racci.minix.api.extensions.WithPlugin
 import dev.racci.minix.api.extensions.isNight
 import dev.racci.minix.api.extensions.reflection.castOrThrow
-import dev.racci.minix.api.utils.collections.multiMapOf
 import dev.racci.minix.api.utils.getKoin
 import dev.racci.minix.nms.aliases.toNMS
 import dev.racci.terix.api.Terix
+import dev.racci.terix.api.extensions.concurrentMultimap
 import dev.racci.terix.api.origins.OriginHelper
 import dev.racci.terix.api.origins.origin.Origin
 import dev.racci.terix.api.sentryScoped
@@ -280,7 +280,7 @@ public sealed class State : WithPlugin<Terix> {
 
     public companion object {
         private const val CATEGORY = "terix.origin.state"
-        internal val activeStates = multiMapOf<Player, State>()
+        internal val activeStates = concurrentMultimap<Player, State>()
         private val ordinalInc: AtomicInt = atomic(0)
         private val plugin by getKoin().inject<Terix>()
         public var values: Array<State> = emptyArray()
