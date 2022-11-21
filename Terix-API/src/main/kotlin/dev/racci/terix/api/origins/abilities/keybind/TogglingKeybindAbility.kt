@@ -1,7 +1,7 @@
 package dev.racci.terix.api.origins.abilities.keybind
 
 import dev.racci.minix.api.coroutine.asyncDispatcher
-import dev.racci.minix.api.utils.now
+import dev.racci.terix.api.data.Cooldown
 import dev.racci.terix.api.events.PlayerAbilityActivateEvent
 import dev.racci.terix.api.events.PlayerAbilityDeactivateEvent
 import dev.racci.terix.api.extensions.onSuccess
@@ -21,8 +21,9 @@ public abstract class TogglingKeybindAbility : KeybindAbility() {
 
     final override suspend fun handleKeybind(event: Event) {
         when {
-            OriginHelper.shouldIgnorePlayer(abilityPlayer) || !this.cooldownExpired() -> return
+            OriginHelper.shouldIgnorePlayer(abilityPlayer) -> return
             this.isActivated -> this.deactivate(true)
+            this.cooldown.notExpired() -> return logger.debug { "Cooldown not expired" }
             else -> this.activate()
         }
     }
@@ -30,7 +31,7 @@ public abstract class TogglingKeybindAbility : KeybindAbility() {
     private suspend fun activate(): Boolean = PlayerAbilityActivateEvent(abilityPlayer, this).onSuccess {
         this.isActivated = true
         this.addToPersistentData()
-        this.activatedAt = now()
+        this.cooldown = Cooldown.of(this.cooldownDuration)
         sentryScoped(abilityPlayer, SCOPE, "$name.activate", context = plugin.asyncDispatcher, block = this::handleActivation)
     }
 

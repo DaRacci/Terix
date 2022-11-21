@@ -16,7 +16,7 @@ public class Teleport(
     override val abilityPlayer: Player,
     override val linkedOrigin: Origin
 ) : TriggeringKeybindAbility() {
-    override val cooldown: Duration = 3.seconds
+    override val cooldownDuration: Duration = 3.seconds
 
     override suspend fun handleTrigger() {
         val loc = this.getTargetLocation() ?: return this.invalidLocation()

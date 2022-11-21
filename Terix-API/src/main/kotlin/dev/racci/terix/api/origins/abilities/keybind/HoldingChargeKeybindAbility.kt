@@ -1,12 +1,12 @@
 package dev.racci.terix.api.origins.abilities.keybind
 
-import dev.racci.minix.api.utils.now
+import dev.racci.terix.api.data.Cooldown
 
 public abstract class HoldingChargeKeybindAbility : ChargeKeybindAbility() {
 
     final override var charge: Float by observable(
         onOvercharge = {
-            activatedAt = now()
+            this.cooldown = Cooldown.of(this.cooldownDuration)
             handleChargeFull()
         },
         onChange = { _, old, new ->

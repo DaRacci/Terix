@@ -1,7 +1,7 @@
 package dev.racci.terix.api.origins.abilities.keybind
 
 import dev.racci.minix.api.extensions.inWholeTicks
-import dev.racci.minix.api.utils.now
+import dev.racci.terix.api.data.Cooldown
 import dev.racci.terix.api.services.TickService
 import kotlinx.coroutines.flow.distinctUntilChanged
 import kotlinx.coroutines.flow.map
@@ -87,7 +87,7 @@ public sealed class ChargeKeybindAbility : KeybindAbility() {
             is PlayerToggleSneakEvent -> when {
                 this.holding && !event.isSneaking -> {
                     this.holding = false
-                    this.activatedAt = now()
+                    this.cooldown = Cooldown.of(this.cooldownDuration)
                     handleChargeRelease(charge)
                 }
                 !this.holding && event.isSneaking -> {

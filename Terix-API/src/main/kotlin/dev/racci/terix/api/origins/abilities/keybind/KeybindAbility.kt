@@ -4,9 +4,9 @@ import dev.racci.minix.api.extensions.WithPlugin
 import dev.racci.minix.api.extensions.event
 import dev.racci.minix.api.extensions.ticks
 import dev.racci.minix.api.flow.playerEventFlow
-import dev.racci.minix.api.utils.now
 import dev.racci.terix.api.Terix
 import dev.racci.terix.api.TerixPlayer.User.origin
+import dev.racci.terix.api.data.Cooldown
 import dev.racci.terix.api.data.OriginNamespacedTag.Companion.abilityCustomOf
 import dev.racci.terix.api.data.OriginNamespacedTag.Companion.applyTag
 import dev.racci.terix.api.dsl.PotionEffectBuilder
@@ -14,8 +14,6 @@ import dev.racci.terix.api.events.PlayerOriginChangeEvent
 import dev.racci.terix.api.origins.abilities.Ability
 import dev.racci.terix.api.origins.enums.KeyBinding
 import kotlinx.coroutines.flow.onEach
-import kotlinx.datetime.Instant
-import org.apiguardian.api.API
 import org.bukkit.NamespacedKey
 import org.bukkit.craftbukkit.v1_19_R1.persistence.CraftPersistentDataTypeRegistry
 import org.bukkit.craftbukkit.v1_19_R1.persistence.DirtyCraftPersistentDataContainer
@@ -29,26 +27,20 @@ import kotlin.time.Duration
 
 // TODO -> Concurrent protection / mutex lock
 public sealed class KeybindAbility : Ability() {
-    protected var activatedAt: Instant? = null
+    protected var cooldown: Cooldown = Cooldown.NONE
     private val namespacedKey: NamespacedKey by lazy { NamespacedKey(plugin, "origin_ability_${origin.name}/${this.name}") }
 
     /** The duration before the ability can be activated again. */
-    public open val cooldown: Duration = 20.ticks
+    public open val cooldownDuration: Duration = 20.ticks
 
     /** Call only from inside [onActivate] to show a failed ability. */
     protected fun failActivation() {
-        this.activatedAt = null
+        this.cooldown = Cooldown.NONE
     }
 
     protected fun taggedPotion(potionEffectBuilder: PotionEffectBuilder): PotionEffect = potionEffectBuilder.applyTag(abilityCustomOf(linkedOrigin, this)).get()
 
     protected fun isTagged(potionEffect: PotionEffect): Boolean = potionEffect.key == namespacedKey
-
-    @API(status = API.Status.INTERNAL)
-    protected fun cooldownRemaining(): Duration = cooldown - (now() - activatedAt!!)
-
-    @API(status = API.Status.INTERNAL)
-    protected fun cooldownExpired(): Boolean = activatedAt == null || ((activatedAt!! + cooldown) >= now())
 
     protected abstract suspend fun handleKeybind(event: Event)
 

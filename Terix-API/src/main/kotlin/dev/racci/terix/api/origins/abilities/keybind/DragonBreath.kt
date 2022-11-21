@@ -15,7 +15,7 @@ public class DragonBreath(
     override val abilityPlayer: Player,
     override val linkedOrigin: Origin
 ) : TriggeringKeybindAbility() {
-    override val cooldown: Duration = 10.seconds
+    override val cooldownDuration: Duration = 10.seconds
 
     // TODO -> Less NMS bullshitery
     override suspend fun handleTrigger() {

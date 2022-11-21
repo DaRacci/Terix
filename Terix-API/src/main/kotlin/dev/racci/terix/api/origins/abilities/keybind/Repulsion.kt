@@ -14,7 +14,7 @@ public class Repulsion(
     override val abilityPlayer: Player,
     override val linkedOrigin: Origin
 ) : TriggeringKeybindAbility() {
-    override val cooldown: Duration = Duration.ZERO
+    override val cooldownDuration: Duration = Duration.ZERO
 
     public var radius: Double = 15.0
     public var strengthMultiplier: Double = 1.0
