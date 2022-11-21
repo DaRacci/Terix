@@ -28,6 +28,10 @@ public abstract class TogglingKeybindAbility : KeybindAbility() {
         }
     }
 
+    final override suspend fun handleInternalLost() {
+        if (this.isActivated) this.deactivate(false)
+    }
+
     private suspend fun activate(): Boolean = PlayerAbilityActivateEvent(abilityPlayer, this).onSuccess {
         this.isActivated = true
         this.addToPersistentData()
