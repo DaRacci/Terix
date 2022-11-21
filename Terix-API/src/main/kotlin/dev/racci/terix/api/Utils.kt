@@ -1,14 +1,22 @@
 package dev.racci.terix.api
 
 import dev.racci.minix.api.coroutine.launch
+import dev.racci.minix.api.extensions.message
 import dev.racci.minix.api.extensions.taskAsync
 import dev.racci.minix.api.scheduler.CoroutineTask
 import dev.racci.minix.api.utils.getKoin
+import dev.racci.minix.api.utils.now
+import dev.racci.terix.api.data.Lang
 import io.sentry.Breadcrumb
 import io.sentry.Sentry
 import io.sentry.SentryLevel
 import io.sentry.protocol.User
 import kotlinx.coroutines.Dispatchers
+import kotlinx.datetime.TimeZone
+import kotlinx.datetime.toLocalDateTime
+import net.kyori.adventure.extra.kotlin.text
+import net.kyori.adventure.text.Component
+import net.kyori.adventure.text.format.NamedTextColor
 import org.bukkit.entity.Player
 import java.util.UUID
 import kotlin.coroutines.CoroutineContext
@@ -66,6 +74,37 @@ public suspend fun sentryScoped(
             block()
         } catch (e: Exception) {
             Sentry.captureException(e)
+            getKoin().get<Lang>().generic.error[
+                "message" to {
+                    text {
+                        append(Component.text("There was an error while within your player scope;"))
+                        val prefix = Component.text("» ").color(NamedTextColor.WHITE)
+                        val timeStamp = now().toLocalDateTime(TimeZone.currentSystemDefault())
+                        append(Component.newline())
+                        append(prefix)
+                        append(Component.text("please report this to a developer with the timestamp of;"))
+                        append(Component.newline())
+                        append(prefix)
+                        append(Component.text("${timeStamp.monthNumber}-${timeStamp.dayOfMonth} ${timeStamp.hour}:${timeStamp.minute}:${timeStamp.second}"))
+                        append(Component.newline())
+                        colorIfAbsent(NamedTextColor.RED)
+
+                        append(prefix)
+                        append(Component.text("[${e::class.simpleName} - ${e.message}] occurred at;").color(NamedTextColor.YELLOW))
+                        append(Component.newline())
+                        append(prefix)
+                        val element = e.stackTrace.first { it.className.startsWith("dev.racci.terix") }
+                        Component.text(element.className.removePrefix("dev.racci.terix."))
+                            .append(Component.text("."))
+                            .append(Component.text(element.methodName))
+                            .color(NamedTextColor.GRAY).also(::append)
+
+                        Component.text(":")
+                            .append(Component.text(element.lineNumber))
+                            .color(NamedTextColor.DARK_GRAY).also(::append)
+                    }
+                }
+            ] message player
             throw e
         } finally {
             terix.log.trace(scope = SCOPE) { "Exited scope for player ${player.name}" }

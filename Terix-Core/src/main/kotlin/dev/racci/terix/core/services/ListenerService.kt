@@ -29,6 +29,7 @@ import dev.racci.minix.api.utils.ticks
 import dev.racci.minix.nms.aliases.toNMS
 import dev.racci.terix.api.Terix
 import dev.racci.terix.api.TerixPlayer
+import dev.racci.terix.api.data.Lang
 import dev.racci.terix.api.data.OriginNamespacedTag
 import dev.racci.terix.api.data.TerixConfig
 import dev.racci.terix.api.dsl.TimedAttributeBuilder
@@ -44,7 +45,6 @@ import dev.racci.terix.api.origins.sounds.SoundEffects
 import dev.racci.terix.api.origins.states.State
 import dev.racci.terix.api.origins.states.State.Companion.convertLiquidToState
 import dev.racci.terix.core.commands.TerixPermissions
-import dev.racci.terix.core.data.Lang
 import dev.racci.terix.core.extensions.fromOrigin
 import dev.racci.terix.core.extensions.message
 import dev.racci.terix.core.extensions.originTime

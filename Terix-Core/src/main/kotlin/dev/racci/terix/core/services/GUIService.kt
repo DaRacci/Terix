@@ -22,10 +22,10 @@ import dev.racci.minix.nms.aliases.toNMS
 import dev.racci.terix.api.OriginService
 import dev.racci.terix.api.Terix
 import dev.racci.terix.api.TerixPlayer
+import dev.racci.terix.api.data.Lang
 import dev.racci.terix.api.data.TerixConfig
 import dev.racci.terix.api.events.PlayerOriginChangeEvent
 import dev.racci.terix.api.origins.origin.Origin
-import dev.racci.terix.core.data.Lang
 import dev.racci.terix.core.extensions.freeChanges
 import dev.racci.terix.core.extensions.originTime
 import dev.racci.terix.core.extensions.toVec

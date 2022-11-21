@@ -18,6 +18,7 @@ import org.bukkit.event.entity.EntityDamageEvent.DamageCause
 
 // TODO -> Walk on powdered snow.
 // TODO -> Cake!
+// TODO -> Freeze ability
 public class BlizzOrigin(override val plugin: Terix) : Origin() {
     override val name: String = "Blizz"
     override val colour: TextColor = TextColor.fromHexString("#7ac2ff")!!

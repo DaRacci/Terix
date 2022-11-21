@@ -8,12 +8,12 @@ import dev.racci.minix.api.utils.adventure.PartialComponent.Companion.message
 import dev.racci.minix.api.utils.now
 import dev.racci.terix.api.Terix
 import dev.racci.terix.api.annotations.OriginEventSelector
+import dev.racci.terix.api.data.Lang
 import dev.racci.terix.api.dsl.PotionEffectBuilder
 import dev.racci.terix.api.dsl.dslMutator
 import dev.racci.terix.api.origins.enums.EventSelector
 import dev.racci.terix.api.origins.origin.Origin
 import dev.racci.terix.api.origins.sounds.SoundEffect
-import dev.racci.terix.core.data.Lang
 import kotlinx.datetime.Instant
 import net.kyori.adventure.text.format.TextColor
 import org.bukkit.Material

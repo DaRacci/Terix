@@ -1,4 +1,4 @@
-package dev.racci.terix.core.data
+package dev.racci.terix.api.data
 
 import dev.racci.minix.api.annotations.MappedConfig
 import dev.racci.minix.api.data.LangConfig
