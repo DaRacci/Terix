@@ -26,6 +26,7 @@ public class Leap(
     }
 
     override suspend fun handleChargeRelease(charge: Float) {
+        if (!abilityPlayer.isOnGround) return failActivation()
         abilityPlayer.playSound(Sound.sound(Key.key("minecraft:entity.slime.jump"), Sound.Source.PLAYER, 1f, charge.reverseByteOrder())) // TODO -> Pitch based on charge
         abilityPlayer.velocity = abilityPlayer.location.direction.multiply(jumpHeight * charge)
     }
