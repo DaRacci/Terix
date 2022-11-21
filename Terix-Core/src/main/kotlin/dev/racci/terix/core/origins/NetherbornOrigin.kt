@@ -71,7 +71,7 @@ public class NetherbornOrigin(override val plugin: Terix) : Origin() {
         abilities {
             withPassive<FluidWalker> {
                 this.fluidType = Material.LAVA
-                this.replacement = Material.CRYING_OBSIDIAN
+                this.replacement = Material.MAGMA_BLOCK
             }
         }
     }
