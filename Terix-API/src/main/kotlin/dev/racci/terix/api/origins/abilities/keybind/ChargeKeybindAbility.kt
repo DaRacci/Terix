@@ -2,6 +2,7 @@ package dev.racci.terix.api.origins.abilities.keybind
 
 import dev.racci.minix.api.extensions.inWholeTicks
 import dev.racci.terix.api.data.Cooldown
+import dev.racci.terix.api.origins.OriginHelper
 import dev.racci.terix.api.services.TickService
 import kotlinx.coroutines.flow.distinctUntilChanged
 import kotlinx.coroutines.flow.map
@@ -83,8 +84,11 @@ public sealed class ChargeKeybindAbility : KeybindAbility() {
     }
 
     final override suspend fun handleKeybind(event: Event) {
-        when (event) {
-            is PlayerToggleSneakEvent -> when {
+        when {
+            OriginHelper.shouldIgnorePlayer(abilityPlayer) -> return
+            this.shouldIgnoreKeybind(event) -> return
+            this.cooldown.notExpired() -> return
+            event is PlayerToggleSneakEvent -> when {
                 this.holding && !event.isSneaking -> {
                     this.holding = false
                     this.cooldown = Cooldown.of(this.cooldownDuration)
