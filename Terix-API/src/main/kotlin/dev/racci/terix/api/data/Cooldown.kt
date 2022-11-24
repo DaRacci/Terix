@@ -18,7 +18,7 @@ public data class Cooldown(
     public fun remaining(): Duration = duration - (now() - start)
 
     /** @return Whether the cooldown is over. */
-    public fun expired(): Boolean = (start + duration) <= now()
+    public fun expired(): Boolean = start == Instant.DISTANT_PAST || (start + duration) <= now()
 
     /** @return Whether the cooldown is not over. */
     public fun notExpired(): Boolean = !expired()

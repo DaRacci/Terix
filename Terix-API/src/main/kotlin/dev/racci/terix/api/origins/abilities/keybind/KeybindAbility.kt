@@ -27,7 +27,7 @@ import kotlin.time.Duration
 
 // TODO -> Concurrent protection / mutex lock
 public sealed class KeybindAbility : Ability() {
-    protected var cooldown: Cooldown = Cooldown.NONE
+    public var cooldown: Cooldown = Cooldown.NONE; protected set
     private val namespacedKey: NamespacedKey by lazy { NamespacedKey(plugin, "origin_ability_${origin.name}/${this.name}") }
 
     /** The duration before the ability can be activated again. */
@@ -39,6 +39,8 @@ public sealed class KeybindAbility : Ability() {
     }
 
     protected fun taggedPotion(potionEffectBuilder: PotionEffectBuilder): PotionEffect = potionEffectBuilder.applyTag(abilityCustomOf(linkedOrigin, this)).get()
+
+    protected fun PotionEffectBuilder.tagged(): PotionEffect = this.applyTag(abilityCustomOf(linkedOrigin, this@KeybindAbility)).get()
 
     protected fun isTagged(potionEffect: PotionEffect): Boolean = potionEffect.key == namespacedKey
 
