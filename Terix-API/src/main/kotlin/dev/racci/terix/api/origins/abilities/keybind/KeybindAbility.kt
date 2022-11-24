@@ -32,7 +32,7 @@ public sealed class KeybindAbility : Ability() {
     private val namespacedKey: NamespacedKey by lazy { NamespacedKey(plugin, "origin_ability_${origin.name}/${this.name}") }
 
     /** The duration before the ability can be activated again. */
-    public open val cooldownDuration: Duration = 20.ticks
+    public abstract val cooldownDuration: Duration
 
     /** Call only from inside [onActivate] to show a failed ability. */
     protected fun failActivation() {
