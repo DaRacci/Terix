@@ -93,7 +93,6 @@ import org.jetbrains.exposed.sql.transactions.transaction
 import org.koin.core.component.inject
 import java.util.UUID
 import kotlin.reflect.KProperty1
-import kotlin.time.Duration.Companion.seconds
 
 // TODO -> This class is disgusting, needs to be cleaned up
 @MappedExtension(Terix::class, "Listener Service", [DataService::class])
@@ -131,15 +130,11 @@ public class ListenerService(override val plugin: Terix) : Extension<Terix>() {
             val origin = TerixPlayer.cachedOrigin(player)
             removeUnfulfilledOrInvalidAttributes(player, origin) // Sometimes we can miss some attributes, so we need to remove them
             activateOrigin(player, origin)
-
-            delay(0.250.seconds)
-            player.sendHealthUpdate()
         }
 
         event<PlayerPostRespawnEvent>(forceAsync = true) {
             val origin = TerixPlayer.cachedOrigin(player)
-            removeUnfulfilledOrInvalidAttributes(player, origin)
-            activateOrigin(player, origin)
+            OriginHelper.recalculateStates(player, origin)
 
             player.health = player.getAttribute(Attribute.GENERIC_MAX_HEALTH)!!.value
         }

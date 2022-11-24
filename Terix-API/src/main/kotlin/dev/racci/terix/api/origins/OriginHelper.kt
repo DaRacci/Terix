@@ -88,10 +88,7 @@ public object OriginHelper : KoinComponent, WithPlugin<Terix> {
             player.setCanBreathUnderwater(origin.waterBreathing)
             player.setImmuneToFire(origin.fireImmunity)
 
-            State.values.asSequence()
-                .filterIsInstance<State.StatedSource<*>>()
-                .filter { state -> state.fromPlayer(player) }
-                .forEach { state -> state.activate(player, origin) }
+            this.recalculateStates(player, origin)
 
             origin.handleBecomeOrigin(player)
             this.registerAbilities(origin, player)
@@ -118,7 +115,7 @@ public object OriginHelper : KoinComponent, WithPlugin<Terix> {
             origin.handleDeactivate(player)
             player.setImmuneToFire(null)
             player.setCanBreathUnderwater(null)
-            State.activeStates[player]?.forEach { state -> state.deactivate(player, origin) }
+            State.activeStates[player].forEach { state -> state.deactivate(player, origin) }
             unregisterAbilities(origin, player)
 
             for (attribute in Attribute.values()) {
@@ -132,6 +129,20 @@ public object OriginHelper : KoinComponent, WithPlugin<Terix> {
                     }
             }
         }
+    }
+
+    public suspend fun recalculateStates(
+        player: Player,
+        origin: Origin = TerixPlayer.cachedOrigin(player)
+    ) {
+        State.activeStates[player].forEach { state ->
+            state.deactivate(player, origin)
+        }
+
+        State.values.asSequence()
+            .filterIsInstance<State.StatedSource<*>>()
+            .filter { state -> state.fromPlayer(player) }
+            .forEach { state -> state.activate(player, origin) }
     }
 
     /**
