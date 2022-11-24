@@ -6,38 +6,31 @@ import dev.racci.minix.api.events.player.PlayerMoveFullXYZEvent
 import dev.racci.minix.api.extensions.collections.clear
 import dev.racci.minix.api.utils.now
 import dev.racci.terix.api.annotations.OriginEventSelector
-import dev.racci.terix.api.data.TemporaryReplacement
+import dev.racci.terix.api.data.TemporaryPlacement
 import dev.racci.terix.api.data.replacedState
 import dev.racci.terix.api.origins.abilities.RayCastingSupplier
 import dev.racci.terix.api.origins.enums.EventSelector
 import dev.racci.terix.api.origins.origin.Origin
 import dev.racci.terix.api.services.TickService
 import kotlinx.coroutines.flow.onEach
-import org.bukkit.Material
 import org.bukkit.block.BlockFace
+import org.bukkit.block.data.BlockData
 import org.bukkit.entity.Player
 import org.bukkit.event.player.PlayerChangedWorldEvent
-import org.bukkit.metadata.FixedMetadataValue
-import kotlin.properties.Delegates
 import kotlin.time.Duration
 import kotlin.time.Duration.Companion.seconds
 
 public class TrailPassive(
     override val abilityPlayer: Player,
-    override val linkedOrigin: Origin
-) : PassiveAbility() {
-    private val trailCache = linkedSetOf<TemporaryReplacement>()
-    private val templateReplacement by lazy {
-        TemporaryReplacement(
-            FixedMetadataValue(plugin, abilityPlayer.uniqueId.toString()),
-            abilityPlayer.location.block.state,
-            material.createBlockData()
-        )
-    }
-
-    public var material: Material by Delegates.notNull()
-    public var trailLength: Int = 3
+    override val linkedOrigin: Origin,
+    override val placementData: BlockData,
+    public var trailLength: Int = 3,
     public var trailDuration: Duration = 1.seconds
+) : PassiveAbility(),
+    TemporaryPlacement.BlockDataProvider,
+    TemporaryPlacement.Immutable {
+    private val trailCache = linkedSetOf<TemporaryPlacement>()
+    private val templateReplacement by TemporaryPlacement
 
     override suspend fun handleAbilityGained() {
         TickService.filteredPlayer(abilityPlayer)
@@ -46,7 +39,7 @@ public class TrailPassive(
     }
 
     override suspend fun handleAbilityLost() {
-        sync { trailCache.clear(TemporaryReplacement::undoCommit) }
+        sync { trailCache.clear(TemporaryPlacement::undoCommit) }
     }
 
     @OriginEventSelector(EventSelector.PLAYER)
@@ -67,7 +60,7 @@ public class TrailPassive(
         .tap { block ->
             sync {
                 templateReplacement.copy {
-                    TemporaryReplacement.replacedState set block.state
+                    TemporaryPlacement.replacedState set block.state
                 }.commit().also(trailCache::add)
             }
         }
