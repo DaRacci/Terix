@@ -2,8 +2,8 @@ package dev.racci.terix.api.origins.abilities.keybind
 
 import dev.racci.minix.api.coroutine.asyncDispatcher
 import dev.racci.terix.api.data.Cooldown
-import dev.racci.terix.api.events.PlayerAbilityActivateEvent
-import dev.racci.terix.api.events.PlayerAbilityDeactivateEvent
+import dev.racci.terix.api.events.abilities.KeybindAbilityActivateEvent
+import dev.racci.terix.api.events.abilities.KeybindAbilityDeactivateEvent
 import dev.racci.terix.api.extensions.onSuccess
 import dev.racci.terix.api.origins.OriginHelper
 import dev.racci.terix.api.sentryScoped
@@ -32,14 +32,14 @@ public abstract class TogglingKeybindAbility : KeybindAbility() {
         if (this.isActivated) this.deactivate(false)
     }
 
-    private suspend fun activate(): Boolean = PlayerAbilityActivateEvent(abilityPlayer, this).onSuccess {
+    private suspend fun activate(): Boolean = KeybindAbilityActivateEvent(this).onSuccess {
         this.isActivated = true
         this.addToPersistentData()
         this.cooldown = Cooldown.of(this.cooldownDuration)
         sentryScoped(abilityPlayer, SCOPE, "$name.activate", context = plugin.asyncDispatcher, block = this::handleActivation)
     }
 
-    private suspend fun deactivate(cancellable: Boolean): Boolean = PlayerAbilityDeactivateEvent(abilityPlayer, this, cancellable).onSuccess {
+    private suspend fun deactivate(cancellable: Boolean): Boolean = KeybindAbilityDeactivateEvent(this, cancellable).onSuccess {
         this.isActivated = false
         this.removeFromPersistentData()
         sentryScoped(abilityPlayer, SCOPE, "$name.deactivate", context = plugin.asyncDispatcher, block = this::handleDeactivation)

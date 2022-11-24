@@ -1,22 +1,19 @@
-package dev.racci.terix.api.events
+package dev.racci.terix.api.events.abilities
 
 import dev.racci.minix.api.events.CompanionEventHandler
-import dev.racci.terix.api.origins.abilities.keybind.KeybindAbility
-import org.bukkit.entity.Player
+import dev.racci.terix.api.origins.abilities.keybind.TogglingKeybindAbility
 import org.bukkit.event.HandlerList
 
 /**
- * Player ability deactivate event
+ * Called when a [TogglingKeybindAbility] is deactivated.
  *
- * @param player The player who activated the ability
  * @param ability The ability that was deactivated.
  * @param cancellable If this event can be cancelled.
  */
-public class PlayerAbilityDeactivateEvent(
-    player: Player,
-    ability: KeybindAbility,
+public class KeybindAbilityDeactivateEvent internal constructor(
+    ability: TogglingKeybindAbility,
     public val cancellable: Boolean
-) : PlayerAbilityEvent(player, ability) {
+) : AbilityEvent<TogglingKeybindAbility>(ability, true) {
     override fun isCancelled(): Boolean {
         return cancellable && super.isCancelled()
     }

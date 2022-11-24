@@ -11,6 +11,7 @@ dependencies {
     compileOnly(rootProject.libs.bundles.cloud.kotlin)
     compileOnly(rootProject.libs.minecraft.particles)
 
+    compileOnly("com.github.LoneDev6:api-itemsadder:3.2.5")
     compileOnly(libs.minecraft.api.ecoEnchants)
     compileOnly("com.willfp:libreforge:3.104.0")
     compileOnly("com.frengor:ultimateadvancementapi-shadeable:2.2.1")

@@ -2,7 +2,6 @@ import com.google.devtools.ksp.gradle.KspGradleSubplugin
 import net.minecrell.pluginyml.bukkit.BukkitPluginDescription.Permission.Default
 import net.minecrell.pluginyml.bukkit.BukkitPluginDescription.PluginLoadOrder
 import org.jetbrains.dokka.gradle.DokkaPlugin
-import org.jlleitschuh.gradle.ktlint.KtlintExtension
 import java.net.URL
 
 // Workaround for (https://youtrack.jetbrains.com/issue/KTIJ-19369)
@@ -35,7 +34,8 @@ bukkit {
         "Lands",
         "EcoEnchants",
         "ProtocolLib",
-        "LibsDisguises"
+        "LibsDisguises",
+        "ItemsAdder"
     )
     permissions {
         register("terix.selection.bypass-cooldown") {
@@ -130,6 +130,8 @@ subprojects {
         explicitApiWarning()
     }
 
+    buildDir = File("$rootDir/build/${project.name}")
+
     sourceSets.getByName("main").kotlin.srcDir("$buildDir/generated/ksp/main/kotlin")
 
     configurations {
@@ -198,12 +200,6 @@ allprojects {
 
     dependencies {
         compileOnly(rootProject.libs.arrow.optics)
-    }
-
-    configure<KtlintExtension> {
-        filter {
-            this.exclude("**/generated/**")
-        }
     }
 
     tasks.compileKotlin {

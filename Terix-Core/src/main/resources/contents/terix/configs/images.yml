@@ -1,0 +1,24 @@
+info:
+  namespace: terix
+font_images:
+  ability_bar_0: &ability_bar
+    suggest_in_command: false
+    show_in_gui: false
+    path: hud/ability_bar/0
+    y_position: -25
+    scale_ratio: 45
+  ability_bar_1:
+    <<: *ability_bar
+    path: hud/ability_bar/1
+  ability_bar_2:
+    <<: *ability_bar
+    path: hud/ability_bar/2
+  ability_bar_3:
+    <<: *ability_bar
+    path: hud/ability_bar/3
+  ability_bar_4:
+    <<: *ability_bar
+    path: hud/ability_bar/4
+  ability_bar_5:
+    <<: *ability_bar
+    path: hud/ability_bar/5

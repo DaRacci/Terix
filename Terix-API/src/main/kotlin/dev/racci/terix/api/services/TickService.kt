@@ -16,6 +16,6 @@ public interface TickService : WithPlugin<Terix> {
     public fun filteredPlayer(player: Player): Flow<Player>
 
     public companion object : TickService by getKoin().get() {
-        public const val TICK_RATE: Int = 2
+        public const val TICK_RATE: Int = 1
     }
 }
