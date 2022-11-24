@@ -127,7 +127,7 @@ public class ListenerService(override val plugin: Terix) : Extension<Terix>() {
 
         event<PlayerQuitEvent>(EventPriority.MONITOR, true) { player.sanitise() }
 
-        event<PlayerJoinEvent>(forceAsync = true) {
+        event<PlayerJoinEvent> {
             val origin = TerixPlayer.cachedOrigin(player)
             removeUnfulfilledOrInvalidAttributes(player, origin) // Sometimes we can miss some attributes, so we need to remove them
             activateOrigin(player, origin)
