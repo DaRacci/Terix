@@ -8,13 +8,17 @@ import dev.racci.terix.api.dsl.dslMutator
 import dev.racci.terix.api.origins.abilities.passive.FluidWalker
 import dev.racci.terix.api.origins.abilities.passive.TrailPassive
 import dev.racci.terix.api.origins.enums.EventSelector
+import dev.racci.terix.api.origins.enums.KeyBinding
 import dev.racci.terix.api.origins.origin.Origin
 import dev.racci.terix.api.origins.sounds.SoundEffect
+import dev.racci.terix.core.origins.abilities.keybind.AOEFreeze
+import dev.racci.terix.core.origins.abilities.keybind.WallErector
 import net.kyori.adventure.text.format.TextColor
 import org.bukkit.Material
 import org.bukkit.entity.Player
 import org.bukkit.event.entity.EntityDamageByEntityEvent
 import org.bukkit.event.entity.EntityDamageEvent.DamageCause
+import kotlin.time.Duration.Companion.seconds
 
 // TODO -> Walk on powdered snow.
 // TODO -> Cake!
@@ -60,14 +64,28 @@ public class BlizzOrigin(override val plugin: Terix) : Origin() {
         }
 
         abilities {
-            withPassive<TrailPassive> {
-                this.material = Material.SNOW
-            }
+            withPassive(
+                TrailPassive::trailLength to 3,
+                TrailPassive::trailDuration to 1.seconds,
+                TrailPassive::placementData to Material.SNOW.createBlockData()
+            )
 
-            withPassive<FluidWalker> {
-                this.fluidType = Material.WATER
-                this.replacement = Material.FROSTED_ICE
-            }
+            withPassive(
+                FluidWalker::placementRadius to 3.0,
+                FluidWalker::placementData to Material.FROSTED_ICE.createBlockData(),
+                FluidWalker::replaceableMaterials to setOf(Material.WATER)
+            )
+
+            KeyBinding.SNEAK_DOUBLE_OFFHAND.add(
+                AOEFreeze::cooldownDuration to 25.seconds,
+                AOEFreeze::freezeDuration to 3.seconds,
+                AOEFreeze::radius to 7.0
+            )
+
+            KeyBinding.SNEAK_LEFT_CLICK.add(
+                WallErector::placementData to Material.PACKED_ICE.createBlockData(),
+                WallErector::placementDuration to 5.seconds
+            )
         }
     }
 
