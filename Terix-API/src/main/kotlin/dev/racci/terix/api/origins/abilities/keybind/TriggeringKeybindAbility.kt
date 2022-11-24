@@ -14,12 +14,20 @@ public abstract class TriggeringKeybindAbility : KeybindAbility() {
     public abstract suspend fun handleTrigger()
 
     override suspend fun handleKeybind(event: Event) {
-        if (OriginHelper.shouldIgnorePlayer(abilityPlayer)) return
-        if (this.cooldown.notExpired()) return
-
-        KeybindAbilityActivateEvent(this).onSuccess {
-            this.cooldown = Cooldown.of(this.cooldownDuration)
-            sentryScoped(abilityPlayer, SCOPE, "$name.trigger", context = plugin.asyncDispatcher, block = this::handleTrigger)
+        when {
+            OriginHelper.shouldIgnorePlayer(abilityPlayer) -> return
+            this.shouldIgnoreKeybind(event) -> return
+            this.cooldown.notExpired() -> return
+            else -> KeybindAbilityActivateEvent(this).onSuccess {
+                this.cooldown = Cooldown.of(this.cooldownDuration)
+                sentryScoped(
+                    abilityPlayer,
+                    SCOPE,
+                    "$name.trigger",
+                    context = plugin.asyncDispatcher,
+                    block = this::handleTrigger
+                )
+            }
         }
     }
 

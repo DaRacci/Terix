@@ -22,8 +22,9 @@ public abstract class TogglingKeybindAbility : KeybindAbility() {
     final override suspend fun handleKeybind(event: Event) {
         when {
             OriginHelper.shouldIgnorePlayer(abilityPlayer) -> return
+            this.shouldIgnoreKeybind(event) -> return
             this.isActivated -> this.deactivate(true)
-            this.cooldown.notExpired() -> return logger.debug { "Cooldown not expired" }
+            this.cooldown.notExpired() -> return
             else -> this.activate()
         }
     }

@@ -1,8 +1,8 @@
 package dev.racci.terix.api.origins.abilities.keybind
 
+import dev.racci.minix.api.events.keybind.ComboEvent
 import dev.racci.minix.api.extensions.WithPlugin
 import dev.racci.minix.api.extensions.event
-import dev.racci.minix.api.extensions.ticks
 import dev.racci.minix.api.flow.playerEventFlow
 import dev.racci.terix.api.Terix
 import dev.racci.terix.api.TerixPlayer.User.origin
@@ -14,6 +14,7 @@ import dev.racci.terix.api.events.PlayerOriginChangeEvent
 import dev.racci.terix.api.origins.abilities.Ability
 import dev.racci.terix.api.origins.enums.KeyBinding
 import kotlinx.coroutines.flow.onEach
+import org.bukkit.Material
 import org.bukkit.NamespacedKey
 import org.bukkit.craftbukkit.v1_19_R1.persistence.CraftPersistentDataTypeRegistry
 import org.bukkit.craftbukkit.v1_19_R1.persistence.DirtyCraftPersistentDataContainer
@@ -46,6 +47,13 @@ public sealed class KeybindAbility : Ability() {
 
     protected abstract suspend fun handleKeybind(event: Event)
 
+    protected fun shouldIgnoreKeybind(event: Event): Boolean {
+        return when (event) {
+            is ComboEvent -> abilityPlayer.activeItem.type == Material.AIR || event.isBlockEvent && event.item?.type?.isBlock == true
+            else -> false
+        }
+    }
+
     internal fun activateWithKeybinding(keybind: KeyBinding) = playerEventFlow(
         keybind.event,
         player = abilityPlayer,
@@ -55,6 +63,8 @@ public sealed class KeybindAbility : Ability() {
         listener = this.listener
     ).onEach(this::handleKeybind).abilitySubscription()
 
+    // FIXME
+    // TODO -> Convert to a NBT Data savable system.
     internal fun addToPersistentData() = async {
         return@async // FIXME
         val containers = abilityPlayer.persistentDataContainer.get(NAMESPACE, PersistentDataType.TAG_CONTAINER_ARRAY)?.toMutableList() ?: mutableListOf<PersistentDataContainer>()
@@ -68,6 +78,7 @@ public sealed class KeybindAbility : Ability() {
         abilityPlayer.persistentDataContainer.set(NAMESPACE, PersistentDataType.TAG_CONTAINER_ARRAY, containers.toTypedArray())
     }
 
+    // FIXME
     internal fun removeFromPersistentData() = async {
         return@async // FIXME
         val containers = abilityPlayer.persistentDataContainer.get(NAMESPACE, PersistentDataType.TAG_CONTAINER_ARRAY)
