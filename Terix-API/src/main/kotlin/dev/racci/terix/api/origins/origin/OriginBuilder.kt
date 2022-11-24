@@ -37,6 +37,7 @@ import kotlin.reflect.KClass
 import kotlin.reflect.KProperty1
 
 /** Handles the origins primary variables. */
+// TODO -> I don't like the current DSL style.
 @API(status = API.Status.STABLE, since = "1.0.0")
 public sealed class OriginBuilder : OriginValues() {
 
@@ -57,22 +58,22 @@ public sealed class OriginBuilder : OriginValues() {
     }
 
     @MinixDsl
-    public suspend fun potions(builder: suspend PotionBuilder.() -> Unit) {
+    public suspend fun Origin.potions(builder: suspend PotionBuilder.() -> Unit) {
         builder(builder())
     }
 
     @MinixDsl
-    public suspend fun attributes(builder: suspend AttributeBuilder.() -> Unit) {
+    public suspend fun Origin.attributes(builder: suspend AttributeBuilder.() -> Unit) {
         builder(builder())
     }
 
     @MinixDsl
-    public suspend fun title(builder: suspend TimeTitleBuilder.() -> Unit) {
+    public suspend fun Origin.title(builder: suspend TimeTitleBuilder.() -> Unit) {
         builder(builder())
     }
 
     @MinixDsl
-    public suspend fun damage(builder: suspend DamageBuilder.() -> Unit) {
+    public suspend fun Origin.damage(builder: suspend DamageBuilder.() -> Unit) {
         builder(builder())
     }
 
