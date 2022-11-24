@@ -105,7 +105,7 @@ public sealed class OriginValues : WithPlugin<MinixPlugin> {
 
                     requireNotNull(parameter) { "No parameter with name $name" }
                     require((parameter.type.isMarkedNullable && value != null) || !parameter.type.isMarkedNullable) { "Value for parameter $name is null but parameter is not nullable" }
-                    if (value != null) require(parameter.type.isSupertypeOf(value::class.starProjectedType)) { "Value for parameter $name is not of type ${parameter.type}" }
+                    if (value != null) require(parameter.type.classifier!!.starProjectedType.isSupertypeOf(value::class.starProjectedType)) { "Value for parameter $name is not of type ${parameter.type}" }
 
                     put(parameter, value)
                 }
