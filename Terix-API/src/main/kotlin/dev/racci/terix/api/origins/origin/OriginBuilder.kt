@@ -1,6 +1,7 @@
 package dev.racci.terix.api.origins.origin
 
 import arrow.core.Either
+import arrow.optics.lens
 import com.destroystokyo.paper.MaterialSetTag
 import com.github.benmanes.caffeine.cache.Caffeine
 import com.github.benmanes.caffeine.cache.LoadingCache
@@ -17,6 +18,7 @@ import dev.racci.terix.api.dsl.TimedAttributeBuilder
 import dev.racci.terix.api.dsl.TitleBuilder
 import dev.racci.terix.api.dsl.dslMutator
 import dev.racci.terix.api.origins.OriginItem
+import dev.racci.terix.api.origins.abilities.Ability
 import dev.racci.terix.api.origins.abilities.keybind.KeybindAbility
 import dev.racci.terix.api.origins.abilities.passive.PassiveAbility
 import dev.racci.terix.api.origins.enums.KeyBinding
@@ -604,6 +606,18 @@ public sealed class OriginBuilder : OriginValues() {
             vararg constructorParams: Pair<KProperty1<T, *>, *>,
             noinline configure: T.() -> Unit = {}
         ) { passiveAbilityGenerators.add(AbilityGenerator(T::class, configure.castOrThrow(), constructorParams.castOrThrow())) }
+
+        public inline fun <reified A : Ability> KeyBinding.builder(): AbilityBuilderHelper<A> = AbilityBuilderHelper(this, A::class)
+
+        @JvmName("buildPassiveAbility")
+        public inline fun <reified A : PassiveAbility> AbilityBuilderHelper<A>.build() {
+            passiveAbilityGenerators.add(this.generator.castOrThrow())
+        }
+
+        @JvmName("buildKeybindAbility")
+        public inline fun <reified A : KeybindAbility> AbilityBuilderHelper<A>.build() {
+            keybindAbilityGenerators.put(this.keyBinding!!, this.generator.castOrThrow())
+        }
     }
 
     /** A Utility class for building biome triggers. */
@@ -617,3 +631,19 @@ public sealed class OriginBuilder : OriginValues() {
 }
 
 public typealias ActionPropBuilder = suspend (Player) -> Unit
+
+// TODO -> More DSL Friendly
+public data class AbilityBuilderHelper<A : Ability> @PublishedApi internal constructor(
+    @PublishedApi internal val keyBinding: KeyBinding? = null,
+    private val abilityKClass: KClass<A>
+) {
+    @PublishedApi
+    internal var generator: OriginValues.AbilityGenerator<A> = OriginValues.AbilityGenerator(abilityKClass, {}, emptyArray())
+    public fun <T> parameter(
+        parameter: KProperty1<A, T>,
+        value: T
+    ): AbilityBuilderHelper<A> {
+        generator = OriginValues.AbilityGenerator<A>::additionalConstructorParams.lens.modify(generator) { current -> current + (parameter to value) }
+        return this
+    }
+}

@@ -77,6 +77,7 @@ dependencies {
 
     slim("com.frengor:ultimateadvancementapi-shadeable:2.2.1")
     slim(libs.minecraft.particles)
+    slim("io.arrow-kt:arrow-optics-reflect:${libs.versions.arrow.get()}")
 }
 
 subprojects {
@@ -105,6 +106,7 @@ subprojects {
         compileOnly(rootProject.libs.arrow.core)
         compileOnly(rootProject.libs.arrow.fx.stm)
         compileOnly(rootProject.libs.arrow.fx.coroutines)
+        compileOnly("io.arrow-kt:arrow-optics-reflect:${rootProject.libs.versions.arrow.get()}")
 
         ksp(rootProject.libs.arrow.optics.ksp)
 
