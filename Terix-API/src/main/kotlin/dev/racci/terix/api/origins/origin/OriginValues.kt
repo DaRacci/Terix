@@ -85,10 +85,10 @@ public sealed class OriginValues : WithPlugin<MinixPlugin> {
     public val attributeModifiers: MutableMultiMap<State, Pair<Attribute, AttributeModifier>> by lazy(::multiMapOf)
     public val damageActions: MutableMap<EntityDamageEvent.DamageCause, suspend EntityDamageEvent.() -> Unit> by lazy(::mutableMapOf)
 
-    public data class AbilityGenerator<out A : Ability> @PublishedApi internal constructor(
+    public data class AbilityGenerator<A : Ability> @PublishedApi internal constructor(
         public val abilityKClass: KClass<out A>,
-        public val abilityBuilder: (@UnsafeVariance A).() -> Unit,
-        public val additionalConstructorParams: Array<Pair<KProperty1<@UnsafeVariance A, *>, *>> = emptyArray()
+        public val abilityBuilder: (A).() -> Unit,
+        public val additionalConstructorParams: Array<Pair<KProperty1<A, *>, *>> = emptyArray()
     ) {
         public val name: String = abilityKClass.simpleName!!
 
