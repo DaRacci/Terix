@@ -16,7 +16,7 @@ public class AttributeModifierBuilder(
 ) : CachingBuilder<AttributeModifier>() {
 
     public var uuid: UUID by createWatcher(uuid ?: UUID.randomUUID())
-    public var attribute: Attribute by createWatcher(attribute)
+    public var attribute: Attribute by createLockingWatcher(attribute)
     public var name: String by createLockingWatcher(name)
     public var amount: Double by createWatcher(amount?.toDouble())
     public var operation: AttributeModifier.Operation by createWatcher(operation)
