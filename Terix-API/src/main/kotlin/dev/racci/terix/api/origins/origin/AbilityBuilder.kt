@@ -42,13 +42,13 @@ public data class AbilityBuilder<A : Ability> @PublishedApi internal constructor
         generator = OriginValues.AbilityGenerator<A>::abilityBuilder.lens.modify(generator) { current -> current.maybeAppend(configure) }
         return this
     }
+}
 
-    public fun keybinding(
-        keyBinding: KeyBinding
-    ): AbilityBuilder<A> {
-        AbilityBuilder<A>::keyBinding.lens.modify(this) { keyBinding.toOption() }
-        return this
-    }
+public fun <A : KeybindAbility> AbilityBuilder<A>.keybinding(
+    keyBinding: KeyBinding
+): AbilityBuilder<A> {
+    AbilityBuilder<A>::keyBinding.lens.modify(this) { keyBinding.toOption() }
+    return this
 }
 
 public inline fun <reified A : KeybindAbility> AbilityBuilder<A>.cooldown(duration: Duration): AbilityBuilder<A> {
