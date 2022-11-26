@@ -78,8 +78,7 @@ public class TerixPlayer(public val uuid: EntityID<UUID>) : UUIDEntity(uuid) {
         // TODO: Implement defaulting to the default origin
         // Actually, is this needed?
         // does jetbrains exposed already have a cache?
-        private val originCache: LoadingCache<UUID, Origin> = Caffeine.newBuilder()
-            .expireAfterAccess(Duration.ofSeconds(15)) // We don't want offline players
+        private val originCache: LoadingCache<UUID, Origin> = Caffeine.newBuilder().weakKeys()
             .refreshAfterWrite(Duration.ofSeconds(15)) // To ensure we are 100% up to date
             .build { uuid: UUID ->
                 val koin = getKoin()
@@ -95,7 +94,7 @@ public class TerixPlayer(public val uuid: EntityID<UUID>) : UUIDEntity(uuid) {
                 originInstance ?: originService.defaultOrigin
             }
 
-        private val tickCache: LoadingCache<UUID, PlayerTickCache> = Caffeine.newBuilder()
+        private val tickCache: LoadingCache<UUID, PlayerTickCache> = Caffeine.newBuilder().weakKeys()
             .expireAfterAccess(Duration.ofSeconds(15))
             .build { PlayerTickCache() }
     }

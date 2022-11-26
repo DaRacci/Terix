@@ -3,8 +3,10 @@ package dev.racci.terix.api.dsl
 import dev.racci.terix.api.data.OriginNamespacedTag
 import org.bukkit.attribute.Attribute
 import org.bukkit.attribute.AttributeModifier
+import org.bukkit.entity.Player
 import java.util.UUID
 
+// TODO -> Maybe just convert to immutable data classes?
 public class AttributeModifierBuilder(
     uuid: UUID? = null,
     attribute: Attribute? = null,
@@ -15,7 +17,7 @@ public class AttributeModifierBuilder(
 
     public var uuid: UUID by createWatcher(uuid ?: UUID.randomUUID())
     public var attribute: Attribute by createWatcher(attribute)
-    public var name: String by createWatcher(name)
+    public var name: String by createLockingWatcher(name)
     public var amount: Double by createWatcher(amount?.toDouble())
     public var operation: AttributeModifier.Operation by createWatcher(operation)
 
