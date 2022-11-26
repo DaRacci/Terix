@@ -59,7 +59,7 @@ public class ItemsAdderIntegration(override val plugin: MinixPlugin) : Integrati
         }
 
         event<KeybindAbilityActivateEvent>(EventPriority.MONITOR, true) {
-            val index = TerixPlayer.cachedOrigin(this.player).activeKeybindAbilities[this.player].indexOf(this.ability)
+            val index = TerixPlayer.cachedOrigin(this.player).abilityData[this.player].indexOf(this.ability)
             PlayerData[this.player].tickAbility(index, this.ability)
         }
 
@@ -105,7 +105,7 @@ public class ItemsAdderIntegration(override val plugin: MinixPlugin) : Integrati
 
     private data class PlayerData(private val playerRef: Player) {
         private val holderWrapper = PlayerHudsHolderWrapper(playerRef)
-        private val cooldownElement = Array(TerixPlayer.cachedOrigin(playerRef).activeKeybindAbilities[playerRef].size) { index ->
+        private val cooldownElement = Array(TerixPlayer.cachedOrigin(playerRef).abilityData[playerRef].size) { index ->
             PlayerCustomHudWrapper(holderWrapper, "terix:ability_bar_$index").apply {
                 this.offsetX += 30 * index
                 this.isVisible = true
@@ -113,7 +113,11 @@ public class ItemsAdderIntegration(override val plugin: MinixPlugin) : Integrati
             }
         }
 
-        fun tick() { TerixPlayer.cachedOrigin(playerRef).activeKeybindAbilities[playerRef].forEachIndexed { index, ability -> tickAbility(index, ability) } }
+        fun tick() {
+            TerixPlayer.cachedOrigin(playerRef).abilityData[playerRef]
+                .filterIsInstance<KeybindAbility>()
+                .forEachIndexed { index, ability -> tickAbility(index, ability) }
+        }
 
         fun tickAbility(
             index: Int,

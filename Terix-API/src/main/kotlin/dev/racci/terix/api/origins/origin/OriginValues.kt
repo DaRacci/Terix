@@ -8,7 +8,6 @@ import arrow.core.getOrElse
 import arrow.optics.lens
 import com.github.benmanes.caffeine.cache.Cache
 import com.github.benmanes.caffeine.cache.Caffeine
-import com.google.common.collect.Multimap
 import dev.racci.minix.api.annotations.MinixInternal
 import dev.racci.minix.api.extensions.KListener
 import dev.racci.minix.api.extensions.WithPlugin
@@ -19,11 +18,9 @@ import dev.racci.terix.api.dsl.AttributeModifierBuilder
 import dev.racci.terix.api.dsl.PotionEffectBuilder
 import dev.racci.terix.api.dsl.TitleBuilder
 import dev.racci.terix.api.exceptions.OriginCreationException
-import dev.racci.terix.api.extensions.concurrentMultimap
 import dev.racci.terix.api.origins.OriginItem
 import dev.racci.terix.api.origins.abilities.Ability
 import dev.racci.terix.api.origins.abilities.keybind.KeybindAbility
-import dev.racci.terix.api.origins.abilities.passive.PassiveAbility
 import dev.racci.terix.api.origins.enums.KeyBinding
 import dev.racci.terix.api.origins.sounds.SoundEffects
 import dev.racci.terix.api.origins.states.State
@@ -80,9 +77,6 @@ public sealed class OriginValues : WithPlugin<MinixPlugin> {
     public val sounds: SoundEffects = SoundEffects()
     public val displayName: Component by lazy { Component.text(name).color(colour) }
 
-    public val activeKeybindAbilities: Multimap<Player, KeybindAbility> by lazy(::concurrentMultimap)
-    public val activePassiveAbilities: Multimap<Player, PassiveAbility> by lazy(::concurrentMultimap)
-
     public var damageActions: PersistentMap<EntityDamageEvent.DamageCause, suspend EntityDamageEvent.() -> Unit> = persistentMapOf(); internal set
 
     public var abilityData: AbilityData = AbilityData(
@@ -127,6 +121,8 @@ public sealed class OriginValues : WithPlugin<MinixPlugin> {
         public val generators: PersistentSet<AbilityGenerator<*>>,
         private val cache: Cache<Player, PlayerAbilityHolder>
     ) {
+        public operator fun get(player: Player): PlayerAbilityHolder = cache.getIfPresent(player) ?: PlayerAbilityHolder.empty
+
         internal suspend fun create(player: Player) {
             val holder = this(player)
             cache.put(player, holder)
@@ -154,8 +150,12 @@ public sealed class OriginValues : WithPlugin<MinixPlugin> {
         }
 
         @JvmInline
-        public value class PlayerAbilityHolder internal constructor(public val abilities: PersistentSet<Ability>) {
+        public value class PlayerAbilityHolder internal constructor(public val abilities: PersistentSet<Ability>) : ImmutableSet<Ability> by abilities {
             public suspend fun close() { abilities.forEach { ability -> ability.unregister() } }
+
+            public companion object {
+                public val empty: PlayerAbilityHolder = PlayerAbilityHolder(persistentSetOf())
+            }
         }
     }
 
