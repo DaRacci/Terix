@@ -3,6 +3,7 @@ package dev.racci.terix.api.dsl
 import dev.racci.minix.api.extensions.reflection.accessWith
 import dev.racci.minix.api.extensions.reflection.castOrThrow
 import kotlinx.coroutines.runBlocking
+import java.lang.ref.WeakReference
 import kotlin.properties.PropertyDelegateProvider
 import kotlin.properties.ReadWriteProperty
 import kotlin.reflect.KProperty
@@ -10,7 +11,7 @@ import kotlin.reflect.KProperty0
 import kotlin.reflect.KProperty1
 
 public abstract class CachingBuilder<T> {
-    @[Transient PublishedApi] internal var cached: T? = null
+    @[Transient PublishedApi] internal var cached: WeakReference<T> = WeakReference(null)
 
     @[Transient PublishedApi] internal var dirty: Boolean = true
 
@@ -25,12 +26,12 @@ public abstract class CachingBuilder<T> {
 
     /** Returns the cached [T] instance, or creates a new one if it is dirty. */
     public fun get(): T {
-        if (dirty) {
-            cached = create()
+        if (dirty || cached.refersTo(null)) {
+            cached = WeakReference(create())
             dirty = false
         }
 
-        return cached!!
+        return cached.get() ?: error("Cached value was null.")
     }
 
     /** Creates a property to be watched and mark this builder as dirty when changed. */
