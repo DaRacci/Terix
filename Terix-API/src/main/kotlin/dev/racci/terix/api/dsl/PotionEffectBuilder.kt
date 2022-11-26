@@ -33,7 +33,7 @@ public class PotionEffectBuilder internal constructor(
         ambient,
         ::particles.watcherOrNull() ?: !ambient,
         ::icon.watcherOrNull() ?: ::particles.watcherOrNull() ?: !ambient,
-        ::tag.watcherOrNull().takeUnless { it == null }?.bukkitKey ?: error("Key was null.")
+        ::tag.watcherOrNull()?.bukkitKey
     )
 
     public operator fun invoke(player: Player) {
