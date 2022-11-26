@@ -2,11 +2,11 @@ package dev.racci.terix.api.origins.states
 
 import org.bukkit.entity.Player
 
-public interface StateSource<I : Any> {
+public sealed interface StateSource<I : Any> {
 
-    public fun getState(input: I): Boolean
+    public operator fun get(input: I): Boolean
 
-    public fun fromPlayer(player: Player): Boolean {
-        return getState(player as? I ?: throw UnsupportedOperationException("Player is not supported"))
+    public operator fun get(player: Player): Boolean {
+        return get(player as? I ?: throw UnsupportedOperationException("Player is not supported"))
     }
 }

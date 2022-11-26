@@ -5,6 +5,7 @@ import dev.racci.minix.api.data.enums.LiquidType.Companion.liquidType
 import dev.racci.minix.api.extensions.WithPlugin
 import dev.racci.minix.api.extensions.isNight
 import dev.racci.minix.api.extensions.reflection.castOrThrow
+import dev.racci.minix.api.utils.RecursionUtils
 import dev.racci.minix.api.utils.getKoin
 import dev.racci.minix.nms.aliases.toNMS
 import dev.racci.terix.api.Terix
@@ -28,6 +29,7 @@ import org.bukkit.block.Block
 import org.bukkit.craftbukkit.v1_19_R1.block.CraftBlock
 import org.bukkit.entity.Player
 import org.koin.core.component.inject
+import kotlin.reflect.KClass
 
 public sealed class State : WithPlugin<Terix> {
     final override val plugin: Terix by inject()
@@ -41,107 +43,107 @@ public sealed class State : WithPlugin<Terix> {
     public sealed class StatedSource<I : Any> : State(), StateSource<I>
 
     public object CONSTANT : StatedSource<Nothing>() {
-        override fun fromPlayer(player: Player): Boolean = true
-        override fun getState(input: Nothing): Boolean = true
+        override fun get(player: Player): Boolean = true
+        override fun get(input: Nothing): Boolean = true
     }
 
     public sealed class TimeState : StatedSource<World>() {
-        override fun fromPlayer(player: Player): Boolean = this.getState(player.world)
+        override fun get(player: Player): Boolean = this[player.world]
 
         public object DAY : TimeState() {
             override val incompatibleStates: Array<out State> = arrayOf(NIGHT)
-            override fun getState(input: World): Boolean = getTimeState(input) === this
+            override fun get(input: World): Boolean = getTimeState(input) === this
         }
 
         public object NIGHT : TimeState() {
             override val incompatibleStates: Array<out State> = arrayOf(DAY)
-            override fun getState(input: World): Boolean = getTimeState(input) === this
+            override fun get(input: World): Boolean = getTimeState(input) === this
         }
     }
 
     public sealed class WorldState : StatedSource<Environment>() {
-        override fun fromPlayer(player: Player): Boolean = this.getState(player.world.environment)
+        override fun get(player: Player): Boolean = this[player.world.environment]
 
         public object OVERWORLD : WorldState() {
             override val incompatibleStates: Array<out State> = arrayOf(NETHER, END)
-            override fun getState(input: Environment): Boolean = input === Environment.NORMAL
+            override fun get(input: Environment): Boolean = input === Environment.NORMAL
         }
 
         public object NETHER : WorldState() {
             override val incompatibleStates: Array<out State> = arrayOf(OVERWORLD, END, TimeState.DAY, TimeState.NIGHT)
-            override fun getState(input: Environment): Boolean = input === Environment.NETHER
+            override fun get(input: Environment): Boolean = input === Environment.NETHER
         }
 
         public object END : WorldState() {
             override val incompatibleStates: Array<out State> = arrayOf(OVERWORLD, NETHER, TimeState.DAY, TimeState.NIGHT)
-            override fun getState(input: Environment): Boolean = input === Environment.THE_END
+            override fun get(input: Environment): Boolean = input === Environment.THE_END
         }
     }
 
     public sealed class LiquidState : StatedSource<Block>() {
-        override fun fromPlayer(player: Player): Boolean = this.getState(player.location.block)
+        override fun get(player: Player): Boolean = this[player.location.block]
 
         public object WATER : LiquidState() {
             override val incompatibleStates: Array<out State> = arrayOf(LAVA, LAND)
             override val providesSideEffects: Array<out SideEffect> = arrayOf(SideEffect.WET)
-            override fun getState(input: Block): Boolean = getLiquidState(input) === this
+            override fun get(input: Block): Boolean = getLiquidState(input) === this
         }
 
         public object LAVA : LiquidState() {
             override val incompatibleStates: Array<out State> = arrayOf(WATER, LAND)
             override val providesSideEffects: Array<out SideEffect> = arrayOf(SideEffect.Temperature.BURNING)
-            override fun getState(input: Block): Boolean = getLiquidState(input) === this
+            override fun get(input: Block): Boolean = getLiquidState(input) === this
         }
 
         public object LAND : LiquidState() {
             override val incompatibleStates: Array<out State> = arrayOf(WATER, LAVA)
-            override fun getState(input: Block): Boolean = getLiquidState(input) === this
+            override fun get(input: Block): Boolean = getLiquidState(input) === this
         }
     }
 
-    public sealed class LightState : StatedSource<Player>() {
-        override fun fromPlayer(player: Player): Boolean = this.getState(player)
+    public sealed class LightState : StatedSource<Nothing>() {
+        override fun get(input: Nothing): Boolean = throw UnsupportedOperationException("LightState is only takes players supported")
 
         public object SUNLIGHT : LightState() {
             override val incompatibleStates: Array<out State> = arrayOf(DARKNESS)
-            override fun getState(input: Player): Boolean = getLightState(input) === this
+            override fun get(player: Player): Boolean = getLightState(player) === this
         }
 
         public object DARKNESS : LightState() {
             override val incompatibleStates: Array<out State> = arrayOf(SUNLIGHT)
-            override fun getState(input: Player): Boolean = getLightState(input) === this
+            override fun get(player: Player): Boolean = getLightState(player) === this
         }
     }
 
     public sealed class WeatherState : StatedSource<Location>() {
-        override fun fromPlayer(player: Player): Boolean = this.getState(player.location)
+        override fun get(player: Player): Boolean = this[player.location]
 
         public object RAIN : WeatherState() {
             override val incompatibleStates: Array<out State> = arrayOf(SNOW)
             override val providesSideEffects: Array<out SideEffect> = arrayOf(SideEffect.WET)
-            override fun getState(input: Location): Boolean = getWeatherState(input) === this
+            override fun get(input: Location): Boolean = getWeatherState(input) === this
         }
 
         public object SNOW : WeatherState() {
             override val incompatibleStates: Array<out State> = arrayOf(RAIN)
             override val providesSideEffects: Array<out SideEffect> = arrayOf(SideEffect.Temperature.COLD)
-            override fun getState(input: Location): Boolean = getWeatherState(input) === this
+            override fun get(input: Location): Boolean = getWeatherState(input) === this
         }
     }
 
     public sealed class BiomeState : StatedSource<Location>() {
-        override fun fromPlayer(player: Player): Boolean = this.getState(player.location)
+        override fun get(player: Player): Boolean = this[player.location]
 
         public object WARM : BiomeState() {
             override val incompatibleStates: Array<out State> = arrayOf(COLD)
             override val providesSideEffects: Array<out SideEffect> = arrayOf(SideEffect.Temperature.HOT)
-            override fun getState(input: Location): Boolean = getBiomeState(input) === this
+            override fun get(input: Location): Boolean = getBiomeState(input) === this
         }
 
         public object COLD : BiomeState() {
             override val incompatibleStates: Array<out State> = arrayOf(WARM)
             override val providesSideEffects: Array<out SideEffect> = arrayOf(SideEffect.Temperature.COLD)
-            override fun getState(input: Location): Boolean = getBiomeState(input) === this
+            override fun get(input: Location): Boolean = getBiomeState(input) === this
         }
     }
 
@@ -188,11 +190,6 @@ public sealed class State : WithPlugin<Terix> {
         to.addAsync(player, origin)
         to.addSync(player, origin)
         activeStates.put(player, to)
-    }
-
-    init {
-        @Suppress("LeakingThis")
-        values += this
     }
 
     private suspend fun deactivateConflictingStates(
@@ -363,6 +360,14 @@ public sealed class State : WithPlugin<Terix> {
             LiquidType.WATER -> LiquidState.WATER
             LiquidType.LAVA -> LiquidState.LAVA
             else -> LiquidState.LAND
+        }
+
+        init {
+            RecursionUtils.recursiveFinder<KClass<out State>>(
+                State::class,
+                finder = { this.sealedSubclasses },
+                filter = { false }
+            ).filter { it.isFinal }.onEach { println(it.simpleName) }.forEach { it.objectInstance!!.let { state -> values += state } }
         }
     }
 }

@@ -139,7 +139,7 @@ public object OriginHelper : KoinComponent, WithPlugin<Terix> {
 
         State.values.asSequence()
             .filterIsInstance<State.StatedSource<*>>()
-            .filter { state -> state.fromPlayer(player) }
+            .filter { state -> state[player] }
             .forEach { state -> state.activate(player, origin) }
     }
 
