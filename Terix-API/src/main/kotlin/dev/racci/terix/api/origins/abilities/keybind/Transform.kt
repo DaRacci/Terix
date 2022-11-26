@@ -4,10 +4,12 @@ import dev.racci.terix.api.origins.origin.Origin
 import me.libraryaddict.disguise.DisguiseAPI
 import me.libraryaddict.disguise.disguisetypes.Disguise
 import org.bukkit.entity.Player
+import kotlin.time.Duration
 
 public class Transform(
     override val abilityPlayer: Player,
-    override val linkedOrigin: Origin
+    override val linkedOrigin: Origin,
+    override val cooldownDuration: Duration
 ) : TogglingKeybindAbility() {
     public lateinit var disguise: Disguise
 

@@ -47,7 +47,6 @@ import org.bukkit.Material
 import org.bukkit.entity.Player
 import org.bukkit.event.entity.EntityDamageEvent
 import org.bukkit.inventory.ItemStack
-import sun.jvm.hotspot.oops.CellTypeState.value
 import kotlin.jvm.Throws
 import kotlin.reflect.KClass
 import kotlin.reflect.KProperty1
@@ -222,7 +221,7 @@ public sealed class OriginValues : WithPlugin<MinixPlugin> {
     public data class AbilityGenerator<A : Ability> @PublishedApi internal constructor(
         public val keybinding: Option<KeyBinding>,
         public val abilityKClass: KClass<out A>,
-        public val abilityBuilder: (A).() -> Unit,
+        public val abilityBuilder: (abilityInstance: A) -> Unit,
         public val additionalConstructorParams: Array<out Pair<KProperty1<A, *>, *>> = emptyArray()
     ) {
         public val name: String = abilityKClass.simpleName!!
