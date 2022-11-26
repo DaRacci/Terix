@@ -775,7 +775,7 @@ public sealed class OriginBuilder : OriginValues() {
     }
 
     /** A Utility class for building abilities. */
-    public class AbilityBuilder private constructor() : BuilderPart<AbilityBuilder.AbilityElement>() {
+    public class AbilityBuilder private constructor() : BuilderPart<AbilityGenerator<*>>() {
 
         /**
          * Adds a keybinding bound ability that is granted with this origin.
@@ -820,24 +820,15 @@ public sealed class OriginBuilder : OriginValues() {
          * @receiver The ability builder to complete.
          */
         public fun AbilityBuilderHelper<*>.build() {
-            AbilityElement(
-                this.keyBinding,
-                this.generator.copy()
-            ).also(::addElement)
+            this.generator.copy().also(::addElement)
         }
 
         override suspend fun insertInto(originValues: OriginValues): Option<Exception> {
-            val mutableAbilities = originValues.abilityData.abilities.builder()
-            for (value in super.getElements()) {
-                mutableAbilities[value.keyBinding] = value.generator
+            AbilityData::generators.lens.modify(originValues.abilityData) { generators ->
+                generators.builder().also { set -> set.addAll(super.getElements()) }.build()
             }
             return None
         }
-
-        public data class AbilityElement @PublishedApi internal constructor(
-            public val keybinding: Option<KeyBinding>,
-            public val generator: AbilityGenerator<*>
-        )
     }
 
     /** A Utility class for building biome triggers. */
