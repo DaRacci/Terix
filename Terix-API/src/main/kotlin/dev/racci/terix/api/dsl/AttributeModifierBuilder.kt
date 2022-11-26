@@ -25,4 +25,8 @@ public class AttributeModifierBuilder(
         amount as? Double ?: amount,
         operation
     )
+
+    public operator fun invoke(player: Player) {
+        player.getAttribute(attribute)?.addModifier(get())
+    }
 }

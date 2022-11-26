@@ -1,16 +1,22 @@
 package dev.racci.terix.api.origins.origin
 
-import arrow.core.Either
+import arrow.core.None
+import arrow.core.Option
+import arrow.core.Some
+import arrow.core.firstOrNone
+import arrow.core.getOrElse
+import arrow.optics.lens
+import com.github.benmanes.caffeine.cache.Cache
+import com.github.benmanes.caffeine.cache.Caffeine
 import com.google.common.collect.Multimap
 import dev.racci.minix.api.annotations.MinixInternal
 import dev.racci.minix.api.extensions.KListener
 import dev.racci.minix.api.extensions.WithPlugin
 import dev.racci.minix.api.plugin.MinixPlugin
-import dev.racci.minix.api.utils.collections.muiltimap.MutableMultiMap
-import dev.racci.minix.api.utils.collections.multiMapOf
 import dev.racci.terix.api.TerixPlayer
 import dev.racci.terix.api.data.ItemMatcher
-import dev.racci.terix.api.dsl.TimedAttributeBuilder
+import dev.racci.terix.api.dsl.AttributeModifierBuilder
+import dev.racci.terix.api.dsl.PotionEffectBuilder
 import dev.racci.terix.api.dsl.TitleBuilder
 import dev.racci.terix.api.exceptions.OriginCreationException
 import dev.racci.terix.api.extensions.concurrentMultimap
@@ -21,18 +27,27 @@ import dev.racci.terix.api.origins.abilities.passive.PassiveAbility
 import dev.racci.terix.api.origins.enums.KeyBinding
 import dev.racci.terix.api.origins.sounds.SoundEffects
 import dev.racci.terix.api.origins.states.State
+import kotlinx.collections.immutable.ImmutableCollection
+import kotlinx.collections.immutable.ImmutableMap
+import kotlinx.collections.immutable.ImmutableSet
 import kotlinx.collections.immutable.PersistentList
+import kotlinx.collections.immutable.PersistentMap
+import kotlinx.collections.immutable.PersistentSet
 import kotlinx.collections.immutable.persistentListOf
+import kotlinx.collections.immutable.persistentMapOf
+import kotlinx.collections.immutable.persistentSetOf
+import kotlinx.collections.immutable.toPersistentMap
+import kotlinx.collections.immutable.toPersistentSet
+import kotlinx.coroutines.runBlocking
 import net.kyori.adventure.text.Component
 import net.kyori.adventure.text.format.NamedTextColor
 import net.kyori.adventure.text.format.TextColor
 import net.minecraft.world.food.FoodProperties
 import org.bukkit.Material
-import org.bukkit.attribute.Attribute
-import org.bukkit.attribute.AttributeModifier
 import org.bukkit.entity.Player
 import org.bukkit.event.entity.EntityDamageEvent
-import org.bukkit.potion.PotionEffect
+import org.bukkit.inventory.ItemStack
+import sun.jvm.hotspot.oops.CellTypeState.value
 import kotlin.jvm.Throws
 import kotlin.reflect.KClass
 import kotlin.reflect.KProperty1
@@ -66,34 +81,154 @@ public sealed class OriginValues : WithPlugin<MinixPlugin> {
     public val sounds: SoundEffects = SoundEffects()
     public val displayName: Component by lazy { Component.text(name).color(colour) }
 
-    public val statePotions: MutableMultiMap<State, PotionEffect> by lazy(::multiMapOf)
-    public val stateDamageTicks: MutableMap<State, Double> by lazy(::mutableMapOf)
-    public val stateTitles: MutableMap<State, TitleBuilder> by lazy(::mutableMapOf)
-    public val stateBlocks: MutableMap<State, suspend (Player) -> Unit> by lazy(::mutableMapOf)
-
-    // TODO -> More flexibility with keybindings
-    public val keybindAbilityGenerators: Multimap<KeyBinding, AbilityGenerator<KeybindAbility>> by lazy(::concurrentMultimap)
-    public val passiveAbilityGenerators: ArrayList<AbilityGenerator<PassiveAbility>> by lazy(::arrayListOf)
-
     public val activeKeybindAbilities: Multimap<Player, KeybindAbility> by lazy(::concurrentMultimap)
     public val activePassiveAbilities: Multimap<Player, PassiveAbility> by lazy(::concurrentMultimap)
 
-    public val customMatcherFoodProperties: HashMap<ItemMatcher, FoodProperties> by lazy(::hashMapOf)
-    public val customFoodProperties: HashMap<Material, FoodProperties> by lazy(::hashMapOf)
-    public val customFoodActions: MutableMultiMap<Material, Either<ActionPropBuilder, TimedAttributeBuilder>> by lazy(::multiMapOf)
+    public var damageActions: PersistentMap<EntityDamageEvent.DamageCause, suspend EntityDamageEvent.() -> Unit> = persistentMapOf(); internal set
 
-    public val attributeModifiers: MutableMultiMap<State, Pair<Attribute, AttributeModifier>> by lazy(::multiMapOf)
-    public val damageActions: MutableMap<EntityDamageEvent.DamageCause, suspend EntityDamageEvent.() -> Unit> by lazy(::mutableMapOf)
+    public var abilityData: AbilityData = AbilityData(
+        persistentSetOf(),
+        Caffeine.newBuilder().removalListener<Player, AbilityData.PlayerAbilityHolder> { _, value, _ ->
+            runBlocking { value?.close() }
+        }.weakKeys().build()
+    )
+    public var foodData: FoodData = FoodData.empty; internal set
+    public var stateData: ImmutableStateMap<StateData> = ImmutableStateMap.building(StateData::empty); internal set
+
+    public class ImmutableStateMap<V> private constructor(private val backingMap: PersistentMap<State, V>) : ImmutableMap<State, V> {
+        override val size: Int by State.values::size
+        override val entries: ImmutableSet<Map.Entry<State, V>> by backingMap::entries
+        override val keys: ImmutableSet<State> by backingMap::keys
+        override val values: ImmutableCollection<V> by backingMap::values
+
+        override fun containsKey(key: State): Boolean = true
+
+        override fun containsValue(value: V): Boolean = backingMap.containsValue(value)
+
+        override fun get(key: State): V = backingMap[key]!!
+
+        override fun isEmpty(): Boolean = false
+
+        public fun <A> modify(
+            state: State,
+            property: KProperty1<V, A>,
+            map: (focus: A) -> A
+        ): ImmutableStateMap<V> {
+            val currentValue = this[state]
+            val newValue = property.lens.modify(currentValue, map)
+            return ImmutableStateMap(backingMap.put(state, newValue))
+        }
+
+        internal companion object {
+            fun <T> building(creator: () -> T): ImmutableStateMap<T> = ImmutableStateMap(State.values.associateWith { creator() }.toPersistentMap())
+        }
+    }
+
+    public data class AbilityData internal constructor(
+        public val generators: PersistentSet<AbilityGenerator<*>>,
+        private val cache: Cache<Player, PlayerAbilityHolder>
+    ) {
+        internal suspend fun create(player: Player) {
+            val holder = this(player)
+            cache.put(player, holder)
+        }
+
+        internal suspend fun close(player: Player) {
+            cache.getIfPresent(player)?.close()
+        }
+
+        private suspend operator fun invoke(player: Player): PlayerAbilityHolder {
+            val abilities = mutableSetOf<Ability>()
+
+            for (generator in generators) {
+                val ability = generator(player).also(abilities::add)
+
+                if (ability is KeybindAbility) {
+                    require(generator.keybinding is Some) { "Keybinding must be set for keybind ability, $ability." }
+                    ability.activateWithKeybinding(generator.keybinding.value)
+                }
+
+                ability.register()
+            }
+
+            return PlayerAbilityHolder(abilities.toPersistentSet())
+        }
+
+        @JvmInline
+        public value class PlayerAbilityHolder internal constructor(public val abilities: PersistentSet<Ability>) {
+            public suspend fun close() { abilities.forEach { ability -> ability.unregister() } }
+        }
+    }
+
+    public data class FoodData internal constructor(
+        val matcherProperties: PersistentMap<ItemMatcher, FoodProperties>,
+        val materialProperties: PersistentMap<Material, FoodProperties>,
+        val materialActions: PersistentMap<Material, PlayerLambda>
+    ) {
+        /**
+         * Attempts to find present food properties for the given [itemStack]
+         * Attempts to find a [FoodProperties] instance from the matchers then fallback to the material.
+         *
+         * @param itemStack The item stack to find food properties for
+         * @return The food properties for the given item stack or null if none are found.
+         */
+        public fun getProperties(itemStack: ItemStack): FoodProperties? {
+            return matcherProperties.entries
+                .firstOrNone { it.key.matches(itemStack) }
+                .map(Map.Entry<*, FoodProperties>::value)
+                .getOrElse { materialProperties[itemStack.type] }
+        }
+
+        /**
+         * Attempts to find present food actions for the given [itemStack]
+         * Attempts to find a [PlayerLambda] instance from the matchers then fallback to the material.
+         *
+         * @param itemStack The item stack to find food actions for
+         * @return The food actions for the given item stack or null if none are found.
+         */
+        public fun getAction(itemStack: ItemStack): PlayerLambda? {
+            return materialActions[itemStack.type]
+        }
+
+        internal companion object {
+            val empty: FoodData = FoodData(
+                persistentMapOf(),
+                persistentMapOf(),
+                persistentMapOf()
+            )
+        }
+    }
+
+    public data class StateData internal constructor(
+        val title: Option<TitleBuilder>,
+        val action: Option<PlayerLambda>,
+        val damage: Option<Double>,
+        val potions: PersistentSet<PotionEffectBuilder>,
+        val modifiers: PersistentSet<AttributeModifierBuilder>
+    ) {
+        public fun isEmpty(): Boolean = title.isEmpty() && action.isEmpty() && damage.isEmpty() && potions.isEmpty() && modifiers.isEmpty()
+
+        internal companion object {
+            val empty: StateData = StateData(
+                None,
+                None,
+                None,
+                persistentSetOf(),
+                persistentSetOf()
+            )
+        }
+    }
 
     public data class AbilityGenerator<A : Ability> @PublishedApi internal constructor(
+        public val keybinding: Option<KeyBinding>,
         public val abilityKClass: KClass<out A>,
         public val abilityBuilder: (A).() -> Unit,
-        public val additionalConstructorParams: Array<Pair<KProperty1<A, *>, *>> = emptyArray()
+        public val additionalConstructorParams: Array<out Pair<KProperty1<A, *>, *>> = emptyArray()
     ) {
         public val name: String = abilityKClass.simpleName!!
 
         @Throws(IllegalArgumentException::class)
-        public fun of(player: Player): A {
+        public operator fun invoke(player: Player): A {
             val constructor = abilityKClass.primaryConstructor ?: throw OriginCreationException("No primary constructor for ability ${abilityKClass.simpleName}")
 
             val constructorMap = buildMap(constructor.parameters.size + 1) {

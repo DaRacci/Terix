@@ -1,6 +1,5 @@
 package dev.racci.terix.core.services
 
-import arrow.core.Either
 import com.destroystokyo.paper.event.block.BeaconEffectEvent
 import com.destroystokyo.paper.event.player.PlayerPostRespawnEvent
 import dev.racci.minix.api.annotations.MappedExtension
@@ -32,14 +31,13 @@ import dev.racci.terix.api.TerixPlayer
 import dev.racci.terix.api.data.Lang
 import dev.racci.terix.api.data.OriginNamespacedTag
 import dev.racci.terix.api.data.TerixConfig
-import dev.racci.terix.api.dsl.TimedAttributeBuilder
 import dev.racci.terix.api.events.PlayerOriginChangeEvent
 import dev.racci.terix.api.extensions.playSound
 import dev.racci.terix.api.origins.OriginHelper
 import dev.racci.terix.api.origins.OriginHelper.activateOrigin
 import dev.racci.terix.api.origins.OriginHelper.deactivateOrigin
-import dev.racci.terix.api.origins.origin.ActionPropBuilder
 import dev.racci.terix.api.origins.origin.Origin
+import dev.racci.terix.api.origins.origin.PlayerLambda
 import dev.racci.terix.api.origins.sounds.SoundEffect
 import dev.racci.terix.api.origins.sounds.SoundEffects
 import dev.racci.terix.api.origins.states.State
@@ -194,10 +192,10 @@ public class ListenerService(override val plugin: Terix) : Extension<Terix>() {
 
             val origin = TerixPlayer.cachedOrigin(player)
 
-            origin.customFoodActions[this.item!!.type]?.forEach { it.fold({ it(player) }, { it(player) }) }
+            origin.foodData.getAction(this.item!!)?.invoke(player)
 
             val nmsPlayer = player.toNMS()
-            val potions = origin.customFoodProperties[this.item!!.type]?.effects?.filter { pair -> nmsPlayer.level.random.nextFloat() >= pair.second }
+            val potions = origin.foodData.getProperties(this.item!!)?.effects?.filter { pair -> nmsPlayer.level.random.nextFloat() >= pair.second }
 
             if (!potions.isNullOrEmpty()) {
                 sync {
@@ -330,17 +328,18 @@ public class ListenerService(override val plugin: Terix) : Extension<Terix>() {
         val origin = TerixPlayer.cachedOrigin(event.player)
         val serverPlayer = event.player.toNMS()
         val hand = serverPlayer.usedItemHand
-        val itemStack = serverPlayer.getItemInHand(hand)
+        val itemStack = event.item!!
+        val nmsItemStack = serverPlayer.getItemInHand(hand)
 
-        val foodInfo = origin.customMatcherFoodProperties.entries.find { it.key.matches(event.item!!) }?.value ?: origin.customFoodProperties[event.item!!.type] ?: itemStack.item.foodProperties
-        val foodActions = origin.customFoodActions[event.item!!.type]
+        val foodActions = origin.foodData.getAction(itemStack)
+        val foodProperties = origin.foodData.getProperties(itemStack) ?: nmsItemStack.item.foodProperties // TODO -> Should we cancel the interaction if its just default?
 
-        if (foodInfo == null && foodActions == null) return
-        if (!serverPlayer.canEat(foodInfo?.canAlwaysEat() != false)) return // Always allow eating if there are only actions.
+        if (foodProperties == null && foodActions == null) return
+        if (!serverPlayer.canEat(foodProperties?.canAlwaysEat() != false)) return // Always allow eating if there are only actions.
 
         channels.computeIfAbsent(event.player.uniqueId) {
             val channel = Channel<Boolean>(2)
-            val finishEatingTime = now() + (if (foodInfo?.isFastFood == true) 16 else 32).ticks
+            val finishEatingTime = now() + (if (foodProperties?.isFastFood == true) 16 else 32).ticks
 
             async {
                 do {
@@ -362,7 +361,7 @@ public class ListenerService(override val plugin: Terix) : Extension<Terix>() {
                             if (now() >= finishEatingTime) {
                                 logger.debug { "PlayerRightClickEvent - Consumed all required." }
                                 event.player.playSound(Sound.ENTITY_PLAYER_BURP.key.key)
-                                modifyFoodEvent(event.player, event.item!!, origin, serverPlayer, hand, itemStack, foodInfo)
+                                modifyFoodEvent(event.player, itemStack, origin, serverPlayer, hand, nmsItemStack, foodProperties)
                                 break
                             }
                         }
@@ -396,6 +395,7 @@ public class ListenerService(override val plugin: Terix) : Extension<Terix>() {
         return false
     }
 
+    // TODO -> This is a bit of a mess, clean it up.
     private fun modifyFoodEvent(
         player: Player,
         item: ItemStack,
@@ -403,17 +403,17 @@ public class ListenerService(override val plugin: Terix) : Extension<Terix>() {
         serverPlayer: ServerPlayer = player.toNMS(),
         hand: InteractionHand = serverPlayer.usedItemHand,
         itemStack: net.minecraft.world.item.ItemStack = serverPlayer.getItemInHand(hand),
-        foodInfo: FoodProperties? = origin.customFoodProperties[item.type],
-        actions: Collection<Either<ActionPropBuilder, TimedAttributeBuilder>>? = origin.customFoodActions[item.type],
+        foodProperties: FoodProperties? = origin.foodData.getProperties(item),
+        lambda: PlayerLambda? = origin.foodData.getAction(item),
         foodLevelChangeEvent: FoodLevelChangeEvent? = null
     ) {
-        if (foodLevelChangeEvent?.isCancelled == true || (actions.isNullOrEmpty() && foodInfo == null)) {
+        if (foodLevelChangeEvent?.isCancelled == true || (lambda == null && foodProperties == null)) {
             return logger.debug { "Nothing to do with this item." }
-        } // There's nothing to do here
+        }
 
         (foodLevelChangeEvent ?: FoodLevelChangeEvent(player, player.foodLevel, item)).apply {
-            val nutrition = foodInfo?.nutrition ?: 0
-            val saturation = if (foodInfo != null) nutrition * foodInfo.saturationModifier else 0f
+            val nutrition = foodProperties?.nutrition ?: 0
+            val saturation = if (foodProperties != null) nutrition * foodProperties.saturationModifier else 0f
             val oldFoodLevel = serverPlayer.foodData.foodLevel
 
             val newFoodLevel = oldFoodLevel + nutrition
@@ -426,7 +426,7 @@ public class ListenerService(override val plugin: Terix) : Extension<Terix>() {
 
             val action = if (foodLevelChangeEvent == null) { event: FoodLevelChangeEvent ->
                 item.amount--
-                serverPlayer.foodData.eat(event.foodLevel - oldFoodLevel, foodInfo?.saturationModifier ?: 0f)
+                serverPlayer.foodData.eat(event.foodLevel - oldFoodLevel, foodProperties?.saturationModifier ?: 0f)
 
                 sync { serverPlayer.awardStat(Stats.ITEM_USED[itemStack.item]) }
                 CriteriaTriggers.CONSUME_ITEM.trigger(serverPlayer, itemStack)
@@ -435,7 +435,7 @@ public class ListenerService(override val plugin: Terix) : Extension<Terix>() {
                 serverPlayer.foodData.saturationLevel = newSaturationLevel
             }
 
-            logger.debug { foodInfo?.effects?.joinToString(", ") { it.first.toString() } }
+            logger.debug { foodProperties?.effects?.joinToString(", ") { it.first.toString() } }
 
             finishEventAction[player] = this to action
             if (foodLevelChangeEvent == null) sync { callEvent() }
@@ -480,12 +480,11 @@ public class ListenerService(override val plugin: Terix) : Extension<Terix>() {
                 }
 
                 // Make sure the attribute is unchanged
-                origin.attributeModifiers[state]?.firstOrNull {
-                    it.first == attribute &&
-                        it.second.name == modifier.name &&
-                        it.second.amount == modifier.amount &&
-                        it.second.operation == modifier.operation &&
-                        it.second.slot == modifier.slot
+                origin.stateData[state].modifiers.firstOrNull {
+                    it.attribute == attribute &&
+                        it.name == modifier.name &&
+                        it.amount == modifier.amount &&
+                        it.operation == modifier.operation
                 } ?: inst.removeModifier(modifier)
             }
         }

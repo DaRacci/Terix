@@ -3,12 +3,10 @@ package dev.racci.terix.api.origins
 import arrow.core.toOption
 import dev.racci.minix.api.coroutine.asyncDispatcher
 import dev.racci.minix.api.extensions.WithPlugin
-import dev.racci.minix.api.extensions.collections.clear
 import dev.racci.terix.api.Terix
 import dev.racci.terix.api.TerixPlayer
 import dev.racci.terix.api.data.OriginNamespacedTag
 import dev.racci.terix.api.extensions.originPotions
-import dev.racci.terix.api.origins.abilities.Ability
 import dev.racci.terix.api.origins.origin.Origin
 import dev.racci.terix.api.origins.states.State
 import dev.racci.terix.api.sentryScoped
@@ -91,7 +89,7 @@ public object OriginHelper : KoinComponent, WithPlugin<Terix> {
             this.recalculateStates(player, origin)
 
             origin.handleBecomeOrigin(player)
-            this.registerAbilities(origin, player)
+            origin.abilityData.create(player)
         }
     }
 
@@ -116,7 +114,7 @@ public object OriginHelper : KoinComponent, WithPlugin<Terix> {
             player.setImmuneToFire(null)
             player.setCanBreathUnderwater(null)
             State.activeStates[player].forEach { state -> state.deactivate(player, origin) }
-            unregisterAbilities(origin, player)
+            origin.abilityData.close(player)
 
             for (attribute in Attribute.values()) {
                 val instance = player.getAttribute(attribute) ?: continue
@@ -170,30 +168,6 @@ public object OriginHelper : KoinComponent, WithPlugin<Terix> {
 
     public fun potionOrigin(potion: PotionEffect): Origin? {
         return OriginNamespacedTag.fromBukkitKey(potion.key).toOption().map { it.getOrigin() }.orNull()
-    }
-
-    private suspend fun unregisterAbilities(
-        origin: Origin,
-        player: Player
-    ) {
-        origin.activeKeybindAbilities[player].clear(Ability::unregister)
-        origin.activePassiveAbilities[player].clear(Ability::unregister)
-    }
-
-    private suspend fun registerAbilities(
-        origin: Origin,
-        player: Player
-    ) {
-        origin.passiveAbilityGenerators
-            .map { generator -> generator.of(player) }
-            .onEach { passive -> origin.activePassiveAbilities.put(player, passive) }
-            .forEach { passive -> passive.register() }
-
-        origin.keybindAbilityGenerators.entries()
-            .map { (keybind, generator) -> keybind to generator.of(player) }
-            .onEach { (_, ability) -> origin.activeKeybindAbilities.put(player, ability) }
-            .onEach { (keybind, ability) -> ability.activateWithKeybinding(keybind) }
-            .forEach { (_, ability) -> ability.register() }
     }
 
     public enum class IgnoreReason(public val description: String) { GAMEMODE("Not in survival or adventure mode") }

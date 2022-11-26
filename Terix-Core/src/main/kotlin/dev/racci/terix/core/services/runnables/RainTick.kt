@@ -29,9 +29,9 @@ public class RainTick(
 
     override suspend fun handleRun() {
         if ((now() - lastTick).ticks < 10) return
-        val rain = origin.stateDamageTicks[State.WeatherState.RAIN] ?: return
-
-        lastTick = now()
-        sync { player.damage(rain) }
+        origin.stateData[State.WeatherState.RAIN].damage.tap { damage ->
+            lastTick = now()
+            sync { player.damage(damage) }
+        }
     }
 }

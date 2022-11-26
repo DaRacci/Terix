@@ -4,7 +4,6 @@ import Bootstrap
 import dev.racci.minix.api.extensions.isNight
 import io.kotest.core.spec.style.FunSpec
 import io.mockk.Runs
-import io.mockk.coVerify
 import io.mockk.every
 import io.mockk.just
 import io.mockk.mockk
@@ -72,14 +71,14 @@ class StateTest : FunSpec({
         return mockkAttributeInstance
     }
 
-    test("addAsync") {
-        val mockkAttributeInstance = playerAttributeSetup()
-
-        every { Bootstrap.mockOrigin.attributeModifiers[State.CONSTANT] } returns mutableListOf(Attribute.GENERIC_MAX_HEALTH to mockk())
-        State.CONSTANT.activate(Bootstrap.mockPlayer, Bootstrap.mockOrigin)
-
-        coVerify { mockkAttributeInstance.addModifier(any()) }
-    }
+//    test("addAsync") {
+//        val mockkAttributeInstance = playerAttributeSetup()
+//
+//        every { Bootstrap.mockOrigin.attributeModifiers[State.CONSTANT] } returns mutableListOf(Attribute.GENERIC_MAX_HEALTH to mockk())
+//        State.CONSTANT.activate(Bootstrap.mockPlayer, Bootstrap.mockOrigin)
+//
+//        coVerify { mockkAttributeInstance.addModifier(any()) }
+//    }
 
     test("getting time state") {
         val world = mockk<World> {

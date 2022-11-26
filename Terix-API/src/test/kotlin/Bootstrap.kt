@@ -3,7 +3,6 @@ import dev.racci.minix.api.scheduler.CoroutineRunnable
 import dev.racci.minix.api.scheduler.CoroutineScheduler
 import dev.racci.minix.api.scheduler.CoroutineTask
 import dev.racci.minix.api.utils.KoinUtils
-import dev.racci.minix.api.utils.collections.multiMapOf
 import dev.racci.minix.core.services.PluginServiceImpl
 import dev.racci.terix.api.OriginService
 import dev.racci.terix.api.Terix
@@ -82,11 +81,11 @@ object Bootstrap {
         startKoin()
         mockkPlugin()
 
-        every { mockOrigin.stateTitles } returns mutableMapOf()
-        every { mockOrigin.statePotions } returns multiMapOf()
-        every { mockOrigin.stateDamageTicks } returns mutableMapOf()
-        every { mockOrigin.stateBlocks } returns mutableMapOf()
-        every { mockOrigin.attributeModifiers } returns multiMapOf()
+//        every { mockOrigin.stateTitles } returns mutableMapOf()
+//        every { mockOrigin.statePotions } returns multiMapOf()
+//        every { mockOrigin.stateDamageTicks } returns mutableMapOf()
+//        every { mockOrigin.stateBlocks } returns mutableMapOf()
+//        every { mockOrigin.attributeModifiers } returns multiMapOf()
 
         every { mockPlayer.name } returns "TestPlayer"
         every { mockPlayer.uniqueId } returns UUID.randomUUID()

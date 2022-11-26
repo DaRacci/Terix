@@ -3,6 +3,7 @@ package dev.racci.terix.api.dsl
 import dev.racci.minix.api.extensions.inWholeTicks
 import dev.racci.minix.api.extensions.ticks
 import dev.racci.terix.api.data.OriginNamespacedTag
+import org.bukkit.entity.Player
 import org.bukkit.potion.PotionEffect
 import org.bukkit.potion.PotionEffectType
 import kotlin.time.Duration
@@ -23,7 +24,7 @@ public class PotionEffectBuilder internal constructor(
     public var ambient: Boolean by createWatcher(ambient ?: false)
     public var particles: Boolean by createWatcher(particles ?: ambient)
     public var icon: Boolean by createWatcher(icon)
-    public var tag: OriginNamespacedTag by createWatcher(tag)
+    public var tag: OriginNamespacedTag by createLockingWatcher(tag)
 
     override fun create(): PotionEffect = PotionEffect(
         ::type.watcherOrNull() ?: error("Type must be set for potion builder."),
@@ -34,4 +35,8 @@ public class PotionEffectBuilder internal constructor(
         ::icon.watcherOrNull() ?: ::particles.watcherOrNull() ?: !ambient,
         ::tag.watcherOrNull().takeUnless { it == null }?.bukkitKey ?: error("Key was null.")
     )
+
+    public operator fun invoke(player: Player) {
+        player.addPotionEffect(get())
+    }
 }

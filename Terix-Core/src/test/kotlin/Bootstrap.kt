@@ -2,7 +2,6 @@ import com.mojang.datafixers.DataFixerBuilder
 import dev.racci.minix.api.scheduler.CoroutineRunnable
 import dev.racci.minix.api.scheduler.CoroutineScheduler
 import dev.racci.minix.api.scheduler.CoroutineTask
-import dev.racci.minix.api.utils.collections.multiMapOf
 import dev.racci.terix.api.Terix
 import dev.racci.terix.api.TerixPlayer
 import dev.racci.terix.api.origins.origin.Origin
@@ -64,11 +63,11 @@ object Bootstrap {
             }
         }
 
-        every { mockOrigin.stateTitles } returns mutableMapOf()
-        every { mockOrigin.statePotions } returns multiMapOf()
-        every { mockOrigin.stateDamageTicks } returns mutableMapOf()
-        every { mockOrigin.stateBlocks } returns mutableMapOf()
-        every { mockOrigin.attributeModifiers } returns multiMapOf()
+//        every { mockOrigin.stateTitles } returns mutableMapOf()
+//        every { mockOrigin.statePotions } returns multiMapOf()
+//        every { mockOrigin.stateDamageTicks } returns mutableMapOf()
+//        every { mockOrigin.stateBlocks } returns mutableMapOf()
+//        every { mockOrigin.attributeModifiers } returns multiMapOf()
 
         every { mockPlayer.name } returns "TestPlayer"
         every { mockPlayer.uniqueId } returns UUID.randomUUID()

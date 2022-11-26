@@ -1,5 +1,6 @@
 package dev.racci.terix.core.services.runnables
 
+import arrow.core.getOrElse
 import dev.racci.minix.api.utils.now
 import dev.racci.minix.api.utils.ticks
 import dev.racci.terix.api.events.OriginWaterBurnEvent
@@ -28,7 +29,7 @@ public class WaterTick(
     }
 
     override suspend fun handleRun() {
-        val water = origin.stateDamageTicks[State.LiquidState.WATER] ?: return
+        val water = origin.stateData[State.LiquidState.WATER].damage.getOrElse { return }
         val event = OriginWaterBurnEvent(player, origin, water)
 
         if (!event.callEvent()) return

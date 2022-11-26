@@ -70,7 +70,7 @@ public class DragonOrigin(override val plugin: Terix) : Origin() {
         }
 
         damage {
-            EntityDamageEvent.DamageCause.DRAGON_BREATH *= 0
+            EntityDamageEvent.DamageCause.DRAGON_BREATH *= 0.0
         }
 
         attributes {

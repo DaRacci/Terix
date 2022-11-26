@@ -74,7 +74,7 @@ public class VampireOrigin(override val plugin: Terix) : Origin() {
             }
         }
         damage {
-            State.LightState.SUNLIGHT += 300
+            State.LightState.SUNLIGHT += 300.0
         }
         title {
             State.LightState.SUNLIGHT += {

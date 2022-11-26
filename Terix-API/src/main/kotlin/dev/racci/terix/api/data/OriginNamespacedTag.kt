@@ -1,5 +1,6 @@
 package dev.racci.terix.api.data
 
+import arrow.core.Either
 import com.destroystokyo.paper.Namespaced
 import com.github.benmanes.caffeine.cache.Caffeine
 import dev.racci.terix.api.OriginService
@@ -140,12 +141,12 @@ public data class OriginNamespacedTag private constructor(
 
         internal fun baseFoodOf(
             origin: OriginValues,
-            material: Material
+            either: Either<Material, ItemMatcher>
         ): OriginNamespacedTag = OriginNamespacedTag(
             origin.name.lowercase(),
             Source.FOOD,
-            CauseType.MATERIAL,
-            material.name.lowercase()
+            either.fold({ CauseType.MATERIAL }, { CauseType.CUSTOM }),
+            either.fold(Material::name, ItemMatcher::toString).lowercase()
         )
 
         public fun abilityCustomOf(

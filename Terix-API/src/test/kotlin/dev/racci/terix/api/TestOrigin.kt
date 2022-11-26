@@ -23,7 +23,7 @@ class TestOrigin : Origin() {
     override suspend fun handleRegister() {
         attributes {
             Attribute.GENERIC_MAX_HEALTH *= 0.5
-            Attribute.GENERIC_MOVEMENT_SPEED /= 4
+            Attribute.GENERIC_MOVEMENT_SPEED /= 4.0
             Pair(State.TimeState.DAY, Attribute.GENERIC_ATTACK_DAMAGE) += 2.0
         }
         title {

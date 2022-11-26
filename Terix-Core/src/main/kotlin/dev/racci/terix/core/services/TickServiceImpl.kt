@@ -263,10 +263,6 @@ public class TickServiceImpl(override val plugin: Terix) : Extension<Terix>(), T
     }
 
     private fun presentStates(origin: Origin): Sequence<State> = sequence {
-        yieldAll(origin.statePotions.keys)
-        yieldAll(origin.stateDamageTicks.keys)
-        yieldAll(origin.stateTitles.keys)
-        yieldAll(origin.stateBlocks.keys)
-        yieldAll(origin.attributeModifiers.keys)
-    }.distinct()
+        yieldAll(origin.stateData.filterValues { !it.isEmpty() }.keys)
+    }
 }

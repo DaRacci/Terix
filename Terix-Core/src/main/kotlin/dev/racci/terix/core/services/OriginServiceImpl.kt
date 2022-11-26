@@ -1,6 +1,9 @@
 package dev.racci.terix.core.services
 
+import arrow.core.Either
+import arrow.core.getOrHandle
 import arrow.core.toOption
+import com.github.benmanes.caffeine.cache.Caffeine
 import dev.racci.minix.api.annotations.MappedExtension
 import dev.racci.minix.api.annotations.MinixDsl
 import dev.racci.minix.api.annotations.RunAsync
@@ -9,7 +12,6 @@ import dev.racci.minix.api.extensions.event
 import dev.racci.minix.api.extensions.onlinePlayers
 import dev.racci.minix.api.extensions.reflection.castOrThrow
 import dev.racci.minix.api.services.DataService
-import dev.racci.minix.api.utils.collections.CollectionUtils.cacheOf
 import dev.racci.minix.api.utils.collections.multiMapOf
 import dev.racci.terix.api.OriginService
 import dev.racci.terix.api.Terix
@@ -34,7 +36,6 @@ import dev.racci.terix.core.origins.VampireOrigin
 import kotlinx.collections.immutable.PersistentMap
 import kotlinx.collections.immutable.toPersistentMap
 import org.bukkit.event.Event
-import java.time.Duration
 import kotlin.reflect.KClass
 import kotlin.reflect.KFunction
 import kotlin.reflect.full.callSuspend
@@ -44,10 +45,15 @@ import kotlin.reflect.full.findAnnotation
 import kotlin.reflect.full.hasAnnotation
 import kotlin.reflect.full.primaryConstructor
 import kotlin.reflect.full.valueParameters
+import kotlin.time.Duration.Companion.minutes
+import kotlin.time.toJavaDuration
 
 @MappedExtension(Terix::class, "Origin Service", [], OriginService::class)
 public class OriginServiceImpl(override val plugin: Terix) : OriginService, Extension<Terix>() {
-    private val modifierCache = cacheOf<KClass<*>, Any>({ constructors.first().call(this@OriginServiceImpl) }, { expireAfterAccess(Duration.ofMinutes(1)) })
+    private val modifierCache = Caffeine.newBuilder()
+        .expireAfterAccess(1.minutes.toJavaDuration())
+        .build<KClass<*>, Any> { kClass -> kClass.primaryConstructor!!.call(this) }
+
     private val origins = mutableMapOf<KClass<out Origin>, Origin>()
     private var dirtyCache: List<String>? = null
     private var dirtyRegistry: PersistentMap<String, Origin>? = null
@@ -146,13 +152,15 @@ public class OriginServiceImpl(override val plugin: Terix) : OriginService, Exte
 
         @MinixDsl
         public suspend fun add(originBuilder: suspend (Terix) -> Origin) {
-            val origin = try {
-                originBuilder(plugin)
-            } catch (e: Exception) {
-                return plugin.log.error(e) { "Exception thrown while instancing origin." }
-            }
+            val origin = Either.catch { originBuilder(plugin) }
+                .getOrHandle { err -> return plugin.log.error(err) { "Exception thrown while instancing origin." } }
 
-            origin.handleRegister()
+            runCatching { origin.handleRegister() }
+                .onFailure { err -> return plugin.log.error(err) { "Exception thrown while registering origin." } }
+
+            origin.builderCache.asMap().values.forEach { builder -> builder.insertInto(origin) }
+            origin.builderCache.invalidateAll()
+
             origins.putIfAbsent(origin::class, origin)
             registerForwarders(origin)
         }

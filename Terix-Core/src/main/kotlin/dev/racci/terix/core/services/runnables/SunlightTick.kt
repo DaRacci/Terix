@@ -1,5 +1,6 @@
 package dev.racci.terix.core.services.runnables
 
+import arrow.core.getOrElse
 import dev.racci.minix.nms.aliases.toNMS
 import dev.racci.terix.api.events.OriginSunlightBurnEvent
 import dev.racci.terix.api.origins.OriginHelper
@@ -35,7 +36,7 @@ public class SunlightTick(
     }
 
     override suspend fun handleRun() {
-        val ticks = origin.stateDamageTicks[State.LightState.SUNLIGHT]?.toInt() ?: return
+        val ticks = origin.stateData[State.LightState.SUNLIGHT].damage.getOrElse { return }.toInt()
         val helmet = player.inventory.helmet
 
         val event = OriginSunlightBurnEvent(player, origin, ticks)

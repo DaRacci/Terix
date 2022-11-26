@@ -8,6 +8,7 @@ import dev.racci.minix.api.extensions.reflection.castOrThrow
 import dev.racci.minix.api.utils.getKoin
 import dev.racci.minix.nms.aliases.toNMS
 import dev.racci.terix.api.Terix
+import dev.racci.terix.api.dsl.PotionEffectBuilder
 import dev.racci.terix.api.extensions.concurrentMultimap
 import dev.racci.terix.api.origins.OriginHelper
 import dev.racci.terix.api.origins.origin.Origin
@@ -26,7 +27,6 @@ import org.bukkit.World.Environment
 import org.bukkit.block.Block
 import org.bukkit.craftbukkit.v1_19_R1.block.CraftBlock
 import org.bukkit.entity.Player
-import org.bukkit.potion.PotionEffect
 import org.koin.core.component.inject
 
 public sealed class State : WithPlugin<Terix> {
@@ -206,44 +206,27 @@ public sealed class State : WithPlugin<Terix> {
         player: Player,
         origin: Origin
     ) = async {
-        origin.stateTitles[this@State]?.invoke(player)
-        origin.stateBlocks[this@State]?.invoke(player)
-
-        origin.attributeModifiers[this@State]?.takeUnless(Collection<*>::isEmpty)?.forEach { (attribute, modifier) ->
-            with(player.getAttribute(attribute)) {
-                if (this == null) return@forEach logger.debug(scope = CATEGORY) { "Attribute instance $attribute not found" }
-                addModifier(modifier)
-            }
+        with(origin.stateData[this@State]) {
+            title.tap { title -> title(player) }
+            action.tap { action -> action(player) }
+            modifiers.forEach { modifier -> modifier(player) }
         }
     }
 
     private fun removeAsync(
         player: Player,
         origin: Origin
-    ) = async {
-        origin.attributeModifiers[this@State]?.takeUnless(Collection<*>::isEmpty)?.forEach { (attribute, modifier) ->
-            with(player.getAttribute(attribute)) {
-                if (this == null) return@forEach plugin.log.debug(scope = CATEGORY) { "Attribute instance $attribute not found" }
-                removeModifier(modifier)
-            }
-        }
-    }
+    ) = async { origin.stateData[this@State].modifiers.forEach { modifier -> modifier(player) } }
 
     private fun addSync(
         player: Player,
         origin: Origin
-    ) = sync {
-        origin.statePotions[this@State]?.forEach(player::addPotionEffect)
-    }
+    ) = sync { origin.stateData[this@State].potions.forEach { it(player) } }
 
     private fun removeSync(
         player: Player,
         origin: Origin
-    ) = sync {
-        origin.statePotions[this@State]?.takeUnless(Collection<*>::isEmpty)?.map(PotionEffect::getType)?.forEach {
-            player.removePotionEffect(it)
-        }
-    }
+    ) = sync { origin.stateData[this@State].potions.map(PotionEffectBuilder::type).forEach(player::removePotionEffect) }
 
     private fun sentryMessage(
         origin: Origin,

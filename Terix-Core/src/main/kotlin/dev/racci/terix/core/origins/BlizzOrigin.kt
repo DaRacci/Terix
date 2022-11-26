@@ -40,7 +40,7 @@ public class BlizzOrigin(override val plugin: Terix) : Origin() {
                 DamageCause.HOT_FLOOR
             ) *= 2.5
 
-            DamageCause.FREEZE /= 3
+            DamageCause.FREEZE /= 3.0
         }
 
         food {

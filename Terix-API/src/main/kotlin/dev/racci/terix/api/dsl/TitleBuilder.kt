@@ -24,7 +24,7 @@ public class TitleBuilder(
         times
     )
 
-    public fun invoke(player: Player) {
+    public operator fun invoke(player: Player) {
         player.showTitle(get())
         ::sound.watcherOrNull()?.let { player.playSound(Sound.sound(it, Sound.Source.AMBIENT, 1f, 1f)) }
     }

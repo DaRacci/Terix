@@ -20,7 +20,8 @@ import kotlin.time.Duration
 
 public class Levitate(
     override val abilityPlayer: Player,
-    override val linkedOrigin: Origin
+    override val linkedOrigin: Origin,
+    override val cooldownDuration: Duration = Duration.ZERO
 ) : TogglingKeybindAbility() {
     private var glidingActive: Boolean = false
     private lateinit var lastVector: Vector
