@@ -52,7 +52,7 @@ public fun <A : KeybindAbility> AbilityBuilder<A>.keybinding(
 }
 
 public inline fun <reified A : KeybindAbility> AbilityBuilder<A>.cooldown(duration: Duration): AbilityBuilder<A> {
-    return parameter(A::class.get(KeybindAbility::cooldown), duration)
+    return parameter(A::class.get(KeybindAbility::cooldownDuration), duration)
 }
 
 public inline fun <reified A> AbilityBuilder<A>.placementRadius(radius: Double): AbilityBuilder<A> where A : Ability, A : TemporaryPlacement.RadiusLimited {
