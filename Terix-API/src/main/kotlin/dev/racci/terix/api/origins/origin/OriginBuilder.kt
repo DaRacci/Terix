@@ -29,7 +29,6 @@ import dev.racci.terix.api.origins.abilities.Ability
 import dev.racci.terix.api.origins.abilities.keybind.KeybindAbility
 import dev.racci.terix.api.origins.abilities.passive.PassiveAbility
 import dev.racci.terix.api.origins.enums.KeyBinding
-import dev.racci.terix.api.origins.origin.OriginValues.AbilityGenerator
 import dev.racci.terix.api.origins.states.State
 import kotlinx.collections.immutable.toPersistentSet
 import net.minecraft.world.effect.MobEffectInstance
@@ -69,27 +68,27 @@ public sealed class OriginBuilder : OriginValues() {
     }
 
     @MinixDsl
-    protected suspend fun potions(builder: suspend PotionBuilder.() -> Unit) {
+    protected suspend fun potions(builder: suspend PotionBuilderPart.() -> Unit) {
         builder(builder())
     }
 
     @MinixDsl
-    protected suspend fun attributes(builder: suspend AttributeBuilder.() -> Unit) {
+    protected suspend fun attributes(builder: suspend AttributeBuilderPart.() -> Unit) {
         builder(builder())
     }
 
     @MinixDsl
-    protected suspend fun title(builder: suspend TimeTitleBuilder.() -> Unit) {
+    protected suspend fun title(builder: suspend TimeTitleBuilderPart.() -> Unit) {
         builder(builder())
     }
 
     @MinixDsl
-    protected suspend fun damage(builder: suspend DamageBuilder.() -> Unit) {
+    protected suspend fun damage(builder: suspend DamageBuilderPart.() -> Unit) {
         builder(builder())
     }
 
     @MinixDsl
-    protected suspend fun food(builder: suspend FoodBuilder.() -> Unit) {
+    protected suspend fun food(builder: suspend FoodBuilderPart.() -> Unit) {
         builder(builder())
     }
 
@@ -99,7 +98,7 @@ public sealed class OriginBuilder : OriginValues() {
     }
 
     @MinixDsl
-    protected suspend fun abilities(builder: suspend AbilityBuilder.() -> Unit) {
+    protected suspend fun abilities(builder: suspend AbilityBuilderPart.() -> Unit) {
         builder(builder())
     }
 
@@ -116,7 +115,7 @@ public sealed class OriginBuilder : OriginValues() {
         public abstract suspend fun insertInto(originValues: OriginValues): Option<Exception>
     }
 
-    public class PotionBuilder private constructor() : BuilderPart<PotionBuilder.PotionElement>() {
+    public class PotionBuilderPart private constructor() : BuilderPart<PotionBuilderPart.PotionElement>() {
 
         /**
          * Adds a [PotionEffect] which will be granted to the player while this state is active.
@@ -161,7 +160,7 @@ public sealed class OriginBuilder : OriginValues() {
         )
     }
 
-    public class AttributeBuilder private constructor() : BuilderPart<AttributeBuilder.AttributeElement>() {
+    public class AttributeBuilderPart private constructor() : BuilderPart<AttributeBuilderPart.AttributeElement>() {
 
         /**
          * Removes this number from the players' base attributes.
@@ -264,7 +263,7 @@ public sealed class OriginBuilder : OriginValues() {
     }
 
     /** A Utility class for building time-based stateTitles. */
-    public class TimeTitleBuilder private constructor() : BuilderPart<TimeTitleBuilder.TimeTitleElement>() {
+    public class TimeTitleBuilderPart private constructor() : BuilderPart<TimeTitleBuilderPart.TimeTitleElement>() {
 
         /**
          * Displays this title to the player when then given trigger is activated.
@@ -296,7 +295,7 @@ public sealed class OriginBuilder : OriginValues() {
     }
 
     /** A Utility class for building damage triggers. */
-    public class DamageBuilder private constructor() : BuilderPart<Either<DamageBuilder.DamageActionElement, DamageBuilder.DamageTickElement>>() {
+    public class DamageBuilderPart private constructor() : BuilderPart<Either<DamageBuilderPart.DamageActionElement, DamageBuilderPart.DamageTickElement>>() {
 
         /**
          * Deals the amount of damage to the player when the given trigger is
@@ -455,7 +454,7 @@ public sealed class OriginBuilder : OriginValues() {
 
     // TODO -> Add a way to clear default potions.
     @OptIn(ExperimentalTypeInference::class)
-    public class FoodBuilder private constructor() : BuilderPart<Either<FoodBuilder.FoodPropertyElement, FoodBuilder.FoodActionElement>>() {
+    public class FoodBuilderPart private constructor() : BuilderPart<Either<FoodBuilderPart.FoodPropertyElement, FoodBuilderPart.FoodActionElement>>() {
 
         @JvmName("exchangeFoodProperties")
         public fun exchangeFoodProperties(
@@ -775,7 +774,7 @@ public sealed class OriginBuilder : OriginValues() {
     }
 
     /** A Utility class for building abilities. */
-    public class AbilityBuilder private constructor() : BuilderPart<AbilityGenerator<*>>() {
+    public class AbilityBuilderPart private constructor() : BuilderPart<AbilityGenerator<*>>() {
 
         /**
          * Adds a keybinding bound ability that is granted with this origin.
@@ -812,14 +811,14 @@ public sealed class OriginBuilder : OriginValues() {
          *
          * @param A The reified type of ability to add.
          */
-        public inline fun <reified A : Ability> newBuilder(): AbilityBuilderHelper<A> = AbilityBuilderHelper(None, A::class)
+        public inline fun <reified A : Ability> newBuilder(): AbilityBuilder<A> = AbilityBuilder(None, A::class)
 
         /**
          * Completes the ability builder and adds the ability to the origin.
          *
          * @receiver The ability builder to complete.
          */
-        public fun AbilityBuilderHelper<*>.build() {
+        public fun AbilityBuilder<*>.build() {
             this.generator.copy().also(::addElement)
         }
 
@@ -837,27 +836,3 @@ public sealed class OriginBuilder : OriginValues() {
 }
 
 public typealias PlayerLambda = suspend (player: Player) -> Unit
-
-// TODO -> More DSL Friendly
-public data class AbilityBuilderHelper<A : Ability> @PublishedApi internal constructor(
-    @PublishedApi internal val keyBinding: Option<KeyBinding>,
-    private val abilityKClass: KClass<A>
-) {
-    @PublishedApi
-    internal var generator: AbilityGenerator<A> = AbilityGenerator(abilityKClass, {}, emptyArray())
-    public fun <T> parameter(
-        parameter: KProperty1<A, T>,
-        value: T
-    ): AbilityBuilderHelper<A> {
-        generator = AbilityGenerator<A>::additionalConstructorParams.lens.modify(generator) { current -> current + (parameter to value) }
-        return this
-    }
-
-    public fun configure(
-        configure: A.() -> Unit
-    ): AbilityBuilderHelper<A> {
-        generator = AbilityGenerator<A>::abilityBuilder.lens.modify(generator) { current -> configure }
-    }
-
-    public fun keybinding(keyBinding: KeyBinding): AbilityBuilderHelper<A> = AbilityBuilderHelper<A>::keyBinding.lens.modify(this) { keyBinding }
-}
