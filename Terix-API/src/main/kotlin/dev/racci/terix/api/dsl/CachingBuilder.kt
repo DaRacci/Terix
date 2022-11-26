@@ -37,6 +37,8 @@ public abstract class CachingBuilder<T> {
     /** Creates a property to be watched and mark this builder as dirty when changed. */
     protected fun <R : Any> createWatcher(initValue: R?): PropertyDelegateProvider<CachingBuilder<*>, ChangeWatcher<R>> = PropertyDelegateProvider { thisRef, property -> ChangeWatcher(thisRef, property, initValue) }
 
+    protected fun <R : Any> createLockingWatcher(initValue: R?): PropertyDelegateProvider<CachingBuilder<*>, ChangeWatcher<R>> = PropertyDelegateProvider { thisRef, property -> LockingChangeWatcher(thisRef, property, initValue) }
+
     protected fun <R> KProperty0<R>.watcherOrNull(): R? {
         return runBlocking {
             this@watcherOrNull.accessWith {
@@ -86,8 +88,8 @@ public abstract class CachingBuilder<T> {
         return result
     }
 
-    protected class ChangeWatcher<R : Any>(
-        private val thisRef: CachingBuilder<*>,
+    protected open class ChangeWatcher<R : Any>(
+        protected val thisRef: CachingBuilder<*>,
         public val property: KProperty<*>,
         initialValue: R?
     ) : ReadWriteProperty<Any?, R> {
@@ -105,6 +107,20 @@ public abstract class CachingBuilder<T> {
 
         init {
             thisRef.watcherSet.add(this.castOrThrow())
+        }
+    }
+
+    protected class LockingChangeWatcher<R : Any>(
+        thisRef: CachingBuilder<*>,
+        property: KProperty<*>,
+        initialValue: R?
+    ) : ChangeWatcher<R>(thisRef, property, initialValue) {
+        private var locked = false
+
+        override fun setValue(thisRef: Any?, property: KProperty<*>, value: R) {
+            if (locked) throw IllegalStateException("Property ${property.name} is locked.")
+            super.setValue(thisRef, property, value)
+            locked = true
         }
     }
 }
