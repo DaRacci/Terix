@@ -69,37 +69,37 @@ public sealed class OriginBuilder : OriginValues() {
     }
 
     @MinixDsl
-    public suspend fun Origin.potions(builder: suspend PotionBuilder.() -> Unit) {
+    protected suspend fun potions(builder: suspend PotionBuilder.() -> Unit) {
         builder(builder())
     }
 
     @MinixDsl
-    public suspend fun Origin.attributes(builder: suspend AttributeBuilder.() -> Unit) {
+    protected suspend fun attributes(builder: suspend AttributeBuilder.() -> Unit) {
         builder(builder())
     }
 
     @MinixDsl
-    public suspend fun Origin.title(builder: suspend TimeTitleBuilder.() -> Unit) {
+    protected suspend fun title(builder: suspend TimeTitleBuilder.() -> Unit) {
         builder(builder())
     }
 
     @MinixDsl
-    public suspend fun Origin.damage(builder: suspend DamageBuilder.() -> Unit) {
+    protected suspend fun damage(builder: suspend DamageBuilder.() -> Unit) {
         builder(builder())
     }
 
     @MinixDsl
-    public suspend fun food(builder: suspend FoodBuilder.() -> Unit) {
+    protected suspend fun food(builder: suspend FoodBuilder.() -> Unit) {
         builder(builder())
     }
 
     @MinixDsl
-    public suspend fun item(builder: suspend OriginItem.() -> Unit) {
+    protected suspend fun item(builder: suspend OriginItem.() -> Unit) {
         builder(item)
     }
 
     @MinixDsl
-    public suspend fun abilities(builder: suspend AbilityBuilder.() -> Unit) {
+    protected suspend fun abilities(builder: suspend AbilityBuilder.() -> Unit) {
         builder(builder())
     }
 
