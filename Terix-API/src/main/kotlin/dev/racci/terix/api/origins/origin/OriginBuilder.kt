@@ -53,7 +53,7 @@ import kotlin.reflect.jvm.isAccessible
 public sealed class OriginBuilder : OriginValues() {
 
     @API(status = API.Status.INTERNAL)
-    public val builderCache: LoadingCache<KClass<out BuilderPart<*>>, BuilderPart<*>> = Caffeine.newBuilder().build { kClass -> kClass.constructors.first().call(this) }
+    public val builderCache: LoadingCache<KClass<out BuilderPart<*>>, BuilderPart<*>> = Caffeine.newBuilder().build { kClass -> kClass.constructors.first().call() }
 
     private inline fun <reified T : BuilderPart<*>> builder(): T = builderCache[T::class].castOrThrow()
 
