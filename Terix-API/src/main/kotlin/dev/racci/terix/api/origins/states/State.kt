@@ -367,7 +367,7 @@ public sealed class State : WithPlugin<Terix> {
                 State::class,
                 finder = { this.sealedSubclasses },
                 filter = { false }
-            ).filter { it.isFinal }.onEach { println(it.simpleName) }.forEach { it.objectInstance!!.let { state -> values += state } }
+            ).filter { it.isFinal }.forEach { it.objectInstance!!.let { state -> values += state } }
         }
     }
 }

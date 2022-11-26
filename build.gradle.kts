@@ -77,9 +77,6 @@ dependencies {
 
     slim("com.frengor:ultimateadvancementapi-shadeable:2.2.1")
     slim(libs.minecraft.particles)
-    slim("io.arrow-kt:arrow-optics-reflect:${libs.versions.arrow.get()}") {
-        this.exclude(group = "org.jetbrains.kotlin")
-    }
 }
 
 subprojects {
