@@ -9,9 +9,9 @@ import kotlin.time.Duration
 public class Transform(
     override val abilityPlayer: Player,
     override val linkedOrigin: Origin,
-    override val cooldownDuration: Duration
+    override val cooldownDuration: Duration,
+    public val disguise: Disguise
 ) : TogglingKeybindAbility() {
-    public lateinit var disguise: Disguise
 
     override suspend fun handleActivation() {
         DisguiseAPI.setActionBarShown(abilityPlayer, false)

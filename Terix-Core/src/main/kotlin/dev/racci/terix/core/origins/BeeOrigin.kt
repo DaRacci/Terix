@@ -139,11 +139,11 @@ public class BeeOrigin(override val plugin: Terix) : Origin() {
                 duration = 60.seconds
             }
 
-//            Material.SUNFLOWER += dslMutator<PotionEffectBuilder> {
-//                type = PotionEffectType.HUNGER
-//                amplifier = 2
-//                duration = 60.seconds
-//            }
+            Material.SUNFLOWER += dslMutator<PotionEffectBuilder> {
+                type = PotionEffectType.HUNGER
+                amplifier = 2
+                duration = 60.seconds
+            }
         }
     }
 

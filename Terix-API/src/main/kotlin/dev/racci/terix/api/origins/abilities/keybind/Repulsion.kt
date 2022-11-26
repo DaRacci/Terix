@@ -12,9 +12,9 @@ import kotlin.time.Duration
 
 public class Repulsion(
     override val abilityPlayer: Player,
-    override val linkedOrigin: Origin
-) : TriggeringKeybindAbility() {
+    override val linkedOrigin: Origin,
     override val cooldownDuration: Duration = Duration.ZERO
+) : TriggeringKeybindAbility() {
 
     public var radius: Double = 15.0
     public var strengthMultiplier: Double = 1.0

@@ -19,6 +19,8 @@ import dev.racci.terix.api.origins.abilities.keybind.Levitate
 import dev.racci.terix.api.origins.enums.EventSelector
 import dev.racci.terix.api.origins.enums.KeyBinding
 import dev.racci.terix.api.origins.origin.Origin
+import dev.racci.terix.api.origins.origin.cooldown
+import dev.racci.terix.api.origins.origin.keybinding
 import dev.racci.terix.api.origins.sounds.SoundEffect
 import dev.racci.terix.api.origins.states.State
 import dev.racci.terix.core.extensions.fromOrigin
@@ -93,9 +95,11 @@ public class AethenOrigin(override val plugin: Terix) : Origin() {
         }
         abilities {
             KeyBinding.DOUBLE_OFFHAND.add<Levitate>()
-            KeyBinding.DOUBLE_RIGHT_CLICK.builder<TargetOrSelf>()
-                .parameter(TargetOrSelf::cooldownDuration, 45.seconds)
+
+            newBuilder<TargetOrSelf>()
                 .parameter(TargetOrSelf::lambda) { target -> sync { target.addPotionEffect(PotionEffect(PotionEffectType.REGENERATION, 10 * 20, 3, true)) } }
+                .keybinding(KeyBinding.DOUBLE_RIGHT_CLICK)
+                .cooldown(45.seconds)
                 .build()
         }
         food {

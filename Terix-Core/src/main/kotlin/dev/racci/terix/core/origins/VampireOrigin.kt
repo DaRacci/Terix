@@ -15,6 +15,8 @@ import dev.racci.terix.api.origins.abilities.passive.LifeSteal
 import dev.racci.terix.api.origins.enums.EventSelector
 import dev.racci.terix.api.origins.enums.KeyBinding
 import dev.racci.terix.api.origins.origin.Origin
+import dev.racci.terix.api.origins.origin.cooldown
+import dev.racci.terix.api.origins.origin.keybinding
 import dev.racci.terix.api.origins.sounds.SoundEffect
 import dev.racci.terix.api.origins.states.State
 import me.libraryaddict.disguise.disguisetypes.DisguiseType
@@ -33,6 +35,7 @@ import org.bukkit.potion.PotionEffectType
 import xyz.xenondevs.particle.ParticleBuilder
 import xyz.xenondevs.particle.ParticleEffect
 import java.awt.Color
+import kotlin.time.Duration
 import kotlin.time.Duration.Companion.INFINITE
 
 // TODO -> Cake good.
@@ -109,12 +112,14 @@ public class VampireOrigin(override val plugin: Terix) : Origin() {
         }
 
         abilities {
-            KeyBinding.DOUBLE_OFFHAND.add<Transform> {
-                this.disguise = MobDisguise(DisguiseType.BAT)
-            }
+            newBuilder<Transform>()
+                .parameter(Transform::disguise, MobDisguise(DisguiseType.BAT))
+                .keybinding(KeyBinding.DOUBLE_OFFHAND)
+                .cooldown(Duration.ZERO)
+                .build()
 
-            withPassive<LifeSteal> {
-                this.onLifeSteal = { player, target, _ ->
+            newBuilder<LifeSteal>()
+                .parameter(LifeSteal::onLifeSteal) { player, target, _ ->
                     ParticleBuilder(ParticleEffect.FALLING_DUST)
                         .setColor(Color.RED)
                         .setAmount(6)
@@ -122,8 +127,7 @@ public class VampireOrigin(override val plugin: Terix) : Origin() {
                         .display(player)
 
                     target.location.playSound(Sound.BLOCK_SCULK_SENSOR_CLICKING, 1.0f, 1.0f)
-                }
-            }
+                }.build()
         }
     }
 

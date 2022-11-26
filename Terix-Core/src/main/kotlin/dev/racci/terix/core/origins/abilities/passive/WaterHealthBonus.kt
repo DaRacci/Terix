@@ -30,13 +30,13 @@ import kotlin.reflect.KFunction0
 import kotlin.time.Duration
 import kotlin.time.Duration.Companion.seconds
 
+// TODO -> Cleanup
 public class WaterHealthBonus(
     override val abilityPlayer: Player,
-    override val linkedOrigin: Origin
-) : PassiveAbility() {
-    public val maxBonus: Int = 20
+    override val linkedOrigin: Origin,
+    public val maxBonus: Int = 20,
     public val damageCooldown: Duration = 8.seconds
-
+) : PassiveAbility() {
     private var lastDamage: Instant = Instant.DISTANT_PAST
     private val modifierCache = Array(maxBonus + 1) { i ->
         dslMutator<AttributeModifierBuilder> {

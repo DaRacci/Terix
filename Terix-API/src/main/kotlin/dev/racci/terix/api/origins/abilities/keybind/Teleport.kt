@@ -14,9 +14,9 @@ import kotlin.time.Duration.Companion.seconds
 
 public class Teleport(
     override val abilityPlayer: Player,
-    override val linkedOrigin: Origin
-) : TriggeringKeybindAbility() {
+    override val linkedOrigin: Origin,
     override val cooldownDuration: Duration = 3.seconds
+) : TriggeringKeybindAbility() {
 
     override suspend fun handleTrigger() {
         val loc = this.getTargetLocation() ?: return this.invalidLocation()

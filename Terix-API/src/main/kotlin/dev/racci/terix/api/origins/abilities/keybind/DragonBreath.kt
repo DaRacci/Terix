@@ -13,9 +13,9 @@ import kotlin.time.Duration.Companion.seconds
 
 public class DragonBreath(
     override val abilityPlayer: Player,
-    override val linkedOrigin: Origin
-) : TriggeringKeybindAbility() {
+    override val linkedOrigin: Origin,
     override val cooldownDuration: Duration = 10.seconds
+) : TriggeringKeybindAbility() {
 
     // TODO -> Less NMS bullshitery
     override suspend fun handleTrigger() {

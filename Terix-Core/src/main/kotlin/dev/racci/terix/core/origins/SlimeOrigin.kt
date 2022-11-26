@@ -13,6 +13,8 @@ import dev.racci.terix.api.origins.abilities.keybind.Leap
 import dev.racci.terix.api.origins.enums.EventSelector
 import dev.racci.terix.api.origins.enums.KeyBinding
 import dev.racci.terix.api.origins.origin.Origin
+import dev.racci.terix.api.origins.origin.cooldown
+import dev.racci.terix.api.origins.origin.keybinding
 import dev.racci.terix.api.origins.sounds.SoundEffect
 import dev.racci.terix.api.origins.states.State
 import dev.racci.terix.core.origins.abilities.passive.WaterHealthBonus
@@ -26,7 +28,7 @@ import org.bukkit.event.entity.EntityDamageEvent
 import org.bukkit.inventory.meta.PotionMeta
 import org.bukkit.potion.PotionEffectType
 import org.bukkit.potion.PotionType
-import java.time.Duration
+import kotlin.time.Duration
 import kotlin.time.Duration.Companion.seconds
 
 // TODO -> CAke.
@@ -88,9 +90,11 @@ public class SlimeOrigin(override val plugin: Terix) : Origin() {
         }
 
         abilities {
-            KeyBinding.SINGLE_SNEAK.add(
-                Leap::chargeTime to 1.seconds
-            )
+            newBuilder<Leap>()
+                .keybinding(KeyBinding.SINGLE_SNEAK)
+                .cooldown(Duration.ZERO)
+                .parameter(Leap::chargeTime, 1.5.seconds)
+                .build()
 
             withPassive<WaterHealthBonus>()
         }

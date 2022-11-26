@@ -10,6 +10,10 @@ import dev.racci.terix.api.origins.abilities.passive.TrailPassive
 import dev.racci.terix.api.origins.enums.EventSelector
 import dev.racci.terix.api.origins.enums.KeyBinding
 import dev.racci.terix.api.origins.origin.Origin
+import dev.racci.terix.api.origins.origin.cooldown
+import dev.racci.terix.api.origins.origin.keybinding
+import dev.racci.terix.api.origins.origin.placementDuration
+import dev.racci.terix.api.origins.origin.placementProvider
 import dev.racci.terix.api.origins.sounds.SoundEffect
 import dev.racci.terix.core.origins.abilities.keybind.AOEFreeze
 import dev.racci.terix.core.origins.abilities.keybind.WallErector
@@ -64,28 +68,30 @@ public class BlizzOrigin(override val plugin: Terix) : Origin() {
         }
 
         abilities {
-            withPassive(
-                TrailPassive::trailLength to 3,
-                TrailPassive::trailDuration to 1.seconds,
-                TrailPassive::placementData to Material.SNOW.createBlockData()
-            )
+            newBuilder<TrailPassive>()
+                .parameter(TrailPassive::trailLength, 3)
+                .parameter(TrailPassive::trailDuration, 1.seconds)
+                .placementProvider(Material.SNOW)
+                .build()
 
-            withPassive(
-                FluidWalker::placementRadius to 3.0,
-                FluidWalker::placementData to Material.FROSTED_ICE.createBlockData(),
-                FluidWalker::replaceableMaterials to setOf(Material.WATER)
-            )
+            newBuilder<FluidWalker>()
+                .parameter(FluidWalker::replaceableMaterials, setOf(Material.WATER))
+                .placementProvider(Material.FROSTED_ICE)
+                .build()
 
-            KeyBinding.SNEAK_DOUBLE_OFFHAND.add(
-                AOEFreeze::cooldownDuration to 25.seconds,
-                AOEFreeze::freezeDuration to 3.seconds,
-                AOEFreeze::radius to 7.0
-            )
+            newBuilder<AOEFreeze>()
+                .parameter(AOEFreeze::radius, 7.0)
+                .parameter(AOEFreeze::freezeDuration, 3.seconds)
+                .keybinding(KeyBinding.SNEAK_DOUBLE_OFFHAND)
+                .cooldown(25.seconds)
+                .build()
 
-            KeyBinding.SNEAK_LEFT_CLICK.add(
-                WallErector::placementData to Material.PACKED_ICE.createBlockData(),
-                WallErector::placementDuration to 5.seconds
-            )
+            newBuilder<WallErector>()
+                .placementProvider(Material.PACKED_ICE)
+                .placementDuration(5.seconds)
+                .keybinding(KeyBinding.SNEAK_LEFT_CLICK)
+                .cooldown(10.seconds)
+                .build()
         }
     }
 

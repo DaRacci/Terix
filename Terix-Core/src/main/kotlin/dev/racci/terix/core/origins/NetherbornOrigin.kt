@@ -9,6 +9,7 @@ import dev.racci.terix.api.dsl.dslMutator
 import dev.racci.terix.api.origins.abilities.passive.FluidWalker
 import dev.racci.terix.api.origins.enums.EventSelector
 import dev.racci.terix.api.origins.origin.Origin
+import dev.racci.terix.api.origins.origin.placementProvider
 import dev.racci.terix.api.origins.sounds.SoundEffect
 import dev.racci.terix.api.origins.states.State
 import net.kyori.adventure.text.format.TextColor
@@ -69,10 +70,10 @@ public class NetherbornOrigin(override val plugin: Terix) : Origin() {
         }
 
         abilities {
-            withPassive<FluidWalker> {
-                this.fluidType = Material.LAVA
-                this.replacement = Material.MAGMA_BLOCK
-            }
+            newBuilder<FluidWalker>()
+                .parameter(FluidWalker::replaceableMaterials, setOf(Material.LAVA))
+                .placementProvider(Material.MAGMA_BLOCK)
+                .build()
         }
     }
 
