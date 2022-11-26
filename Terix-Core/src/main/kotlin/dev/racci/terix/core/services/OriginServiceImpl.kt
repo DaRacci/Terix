@@ -159,7 +159,7 @@ public class OriginServiceImpl(override val plugin: Terix) : OriginService, Exte
                 .onFailure { err -> return plugin.log.error(err) { "Exception thrown while registering origin." } }
 
             origin.builderCache.asMap().values.forEach { builder -> builder.insertInto(origin) }
-            origin.builderCache.invalidateAll()
+            origin.builderCache.invalidateAll() // TODO -> Don't invalidate when origins become per player as this will be reused to create new origins.
 
             origins.putIfAbsent(origin::class, origin)
             registerForwarders(origin)

@@ -115,7 +115,7 @@ public sealed class OriginBuilder : OriginValues() {
         public abstract suspend fun insertInto(originValues: OriginValues): Option<Exception>
     }
 
-    public class PotionBuilderPart private constructor() : BuilderPart<PotionBuilderPart.PotionElement>() {
+    public class PotionBuilderPart internal constructor() : BuilderPart<PotionBuilderPart.PotionElement>() {
 
         /**
          * Adds a [PotionEffect] which will be granted to the player while this state is active.
@@ -160,7 +160,7 @@ public sealed class OriginBuilder : OriginValues() {
         )
     }
 
-    public class AttributeBuilderPart private constructor() : BuilderPart<AttributeBuilderPart.AttributeElement>() {
+    public class AttributeBuilderPart internal constructor() : BuilderPart<AttributeBuilderPart.AttributeElement>() {
 
         /**
          * Removes this number from the players' base attributes.
@@ -263,7 +263,7 @@ public sealed class OriginBuilder : OriginValues() {
     }
 
     /** A Utility class for building time-based stateTitles. */
-    public class TimeTitleBuilderPart private constructor() : BuilderPart<TimeTitleBuilderPart.TimeTitleElement>() {
+    public class TimeTitleBuilderPart internal constructor() : BuilderPart<TimeTitleBuilderPart.TimeTitleElement>() {
 
         /**
          * Displays this title to the player when then given trigger is activated.
@@ -295,7 +295,7 @@ public sealed class OriginBuilder : OriginValues() {
     }
 
     /** A Utility class for building damage triggers. */
-    public class DamageBuilderPart private constructor() : BuilderPart<Either<DamageBuilderPart.DamageActionElement, DamageBuilderPart.DamageTickElement>>() {
+    public class DamageBuilderPart internal constructor() : BuilderPart<Either<DamageBuilderPart.DamageActionElement, DamageBuilderPart.DamageTickElement>>() {
 
         /**
          * Deals the amount of damage to the player when the given trigger is
@@ -454,7 +454,7 @@ public sealed class OriginBuilder : OriginValues() {
 
     // TODO -> Add a way to clear default potions.
     @OptIn(ExperimentalTypeInference::class)
-    public class FoodBuilderPart private constructor() : BuilderPart<Either<FoodBuilderPart.FoodPropertyElement, FoodBuilderPart.FoodActionElement>>() {
+    public class FoodBuilderPart internal constructor() : BuilderPart<Either<FoodBuilderPart.FoodPropertyElement, FoodBuilderPart.FoodActionElement>>() {
 
         @JvmName("exchangeFoodProperties")
         public fun exchangeFoodProperties(
@@ -774,7 +774,7 @@ public sealed class OriginBuilder : OriginValues() {
     }
 
     /** A Utility class for building abilities. */
-    public class AbilityBuilderPart private constructor() : BuilderPart<AbilityGenerator<*>>() {
+    public class AbilityBuilderPart internal constructor() : BuilderPart<AbilityGenerator<*>>() {
 
         /**
          * Adds a keybinding bound ability that is granted with this origin.
@@ -832,7 +832,11 @@ public sealed class OriginBuilder : OriginValues() {
 
     /** A Utility class for building biome triggers. */
     // TODO
-    public inner class BiomeBuilder
+    public class BiomeBuilder internal constructor() : BuilderPart<Nothing>() {
+        override suspend fun insertInto(originValues: OriginValues): Option<Exception> {
+            TODO()
+        }
+    }
 }
 
 public typealias PlayerLambda = suspend (player: Player) -> Unit
