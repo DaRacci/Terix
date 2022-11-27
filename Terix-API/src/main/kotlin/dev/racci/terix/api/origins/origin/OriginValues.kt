@@ -276,8 +276,12 @@ public sealed class OriginValues : WithPlugin<MinixPlugin> {
             return result
         }
 
-        override fun toString(): String {
-            return "AbilityGenerator(abilityKClass=$abilityKClass, abilityBuilder=$abilityBuilder, additionalConstructorParams=${additionalConstructorParams.contentToString()}, name='$name')"
+        override fun toString(): String = buildString {
+            append("AbilityGenerator(")
+            append("abilityKClass=[").append(abilityKClass.simpleName).append("], ")
+            append("abilityKeybinding=[").append(keybinding).append("], ")
+            append("abilityBuilder=[").append(abilityBuilder).append("], ")
+            append("additionalConstructorParams=[").append(additionalConstructorParams.joinToString(", ", "{", "}") { "${it.first.name}:${it.second}" }).append("]")
         }
     }
 }
