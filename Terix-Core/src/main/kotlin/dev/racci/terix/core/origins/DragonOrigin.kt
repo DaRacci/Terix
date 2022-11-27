@@ -116,7 +116,7 @@ public class DragonOrigin(override val plugin: Terix) : Origin() {
 
     @OriginEventSelector(EventSelector.ENTITY)
     public fun EntityPotionEffectEvent.handle() {
-        if (this.action != EntityPotionEffectEvent.Action.ADDED && this.newEffect!!.type == PotionEffectType.WEAKNESS) cancel()
+        if (this.action == EntityPotionEffectEvent.Action.ADDED && this.newEffect!!.type == PotionEffectType.WEAKNESS) cancel()
     }
 
     private fun bedExplosion(event: EntityDamageByBlockEvent) {
