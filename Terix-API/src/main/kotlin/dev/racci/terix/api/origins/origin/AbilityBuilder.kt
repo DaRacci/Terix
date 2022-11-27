@@ -1,6 +1,6 @@
 package dev.racci.terix.api.origins.origin
 
-import arrow.core.Option
+import arrow.core.None
 import arrow.core.toOption
 import arrow.optics.lens
 import dev.racci.minix.api.extensions.reflection.castOrThrow
@@ -9,6 +9,7 @@ import dev.racci.terix.api.extensions.maybeAppend
 import dev.racci.terix.api.origins.abilities.Ability
 import dev.racci.terix.api.origins.abilities.keybind.KeybindAbility
 import dev.racci.terix.api.origins.enums.KeyBinding
+import dev.racci.terix.api.origins.origin.OriginValues.AbilityGenerator
 import org.bukkit.Material
 import org.bukkit.block.data.BlockData
 import kotlin.experimental.ExperimentalTypeInference
@@ -20,36 +21,34 @@ import kotlin.time.Duration
 // TODO -> Add more documentation
 // TODO -> More DSL Friendly
 public data class AbilityBuilder<A : Ability> @PublishedApi internal constructor(
-    @PublishedApi internal val keyBinding: Option<KeyBinding>,
-    private val abilityKClass: KClass<A>
+    @PublishedApi internal var generator: AbilityGenerator<A>
 ) {
-    @PublishedApi
-    internal var generator: OriginValues.AbilityGenerator<A> = OriginValues.AbilityGenerator(keyBinding, abilityKClass, {}, emptyArray())
-
     // FIXME: WHY DOESNT THIS INFER THE CORRECT VALUE TYPE
     @OptIn(ExperimentalTypeInference::class)
     public fun <P : KProperty1<A, T>, T> parameter(
         parameter: P,
         @BuilderInference value: T
-    ): AbilityBuilder<A> {
-        generator = OriginValues.AbilityGenerator<A>::additionalConstructorParams.lens.modify(generator) { current -> arrayOf(*current, Pair(parameter, value)) }
-        return this
-    }
+    ): AbilityBuilder<A> = this.copy(
+        generator = AbilityGenerator<A>::additionalConstructorParams.lens.modify(generator) { current -> arrayOf(*current, Pair(parameter, value)) }
+    )
 
     public fun configure(
         configure: A.() -> Unit
-    ): AbilityBuilder<A> {
-        generator = OriginValues.AbilityGenerator<A>::abilityBuilder.lens.modify(generator) { current -> current.maybeAppend(configure) }
-        return this
+    ): AbilityBuilder<A> = this.copy(
+        generator = AbilityGenerator<A>::abilityBuilder.lens.modify(generator) { current -> current.maybeAppend(configure) }
+    )
+
+    @PublishedApi internal companion object {
+        inline fun <reified A : Ability> of(): AbilityBuilder<A> = AbilityBuilder(AbilityGenerator(None, A::class, {}, emptyArray()))
+        fun <A : Ability> of(abilityKClass: KClass<A>): AbilityBuilder<A> = AbilityBuilder(AbilityGenerator(None, abilityKClass, {}, emptyArray()))
     }
 }
 
 public fun <A : KeybindAbility> AbilityBuilder<A>.keybinding(
     keyBinding: KeyBinding
-): AbilityBuilder<A> {
-    AbilityBuilder<A>::keyBinding.lens.modify(this) { keyBinding.toOption() }
-    return this
-}
+): AbilityBuilder<A> = this.copy(
+    generator = AbilityGenerator<A>::keybinding.lens.modify(generator) { keyBinding.toOption() }
+)
 
 public inline fun <reified A : KeybindAbility> AbilityBuilder<A>.cooldown(duration: Duration): AbilityBuilder<A> {
     return parameter(A::class.get(KeybindAbility::cooldownDuration), duration)
