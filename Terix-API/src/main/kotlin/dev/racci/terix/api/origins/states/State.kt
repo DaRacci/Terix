@@ -14,8 +14,6 @@ import dev.racci.terix.api.extensions.concurrentMultimap
 import dev.racci.terix.api.origins.OriginHelper
 import dev.racci.terix.api.origins.origin.Origin
 import dev.racci.terix.api.sentryScoped
-import kotlinx.atomicfu.AtomicInt
-import kotlinx.atomicfu.atomic
 import kotlinx.collections.immutable.PersistentSet
 import kotlinx.collections.immutable.toPersistentSet
 import net.minecraft.core.BlockPos
@@ -34,7 +32,6 @@ import kotlin.reflect.KClass
 public sealed class State : WithPlugin<Terix> {
     final override val plugin: Terix by inject()
 
-    public val ordinal: Int = ordinalInc.getAndIncrement()
     public val name: String = this::class.simpleName ?: throw IllegalStateException("Anonymous classes aren't supported.")
 
     public open val incompatibleStates: Array<out State> = emptyArray()
@@ -254,7 +251,6 @@ public sealed class State : WithPlugin<Terix> {
         if (this === other) return true
         if (other !is State) return false
 
-        if (ordinal != other.ordinal) return false
         if (name != other.name) return false
         if (!incompatibleStates.contentEquals(other.incompatibleStates)) return false
         if (!providesSideEffects.contentEquals(other.providesSideEffects)) return false
@@ -265,16 +261,14 @@ public sealed class State : WithPlugin<Terix> {
     public companion object {
         private const val CATEGORY = "terix.origin.state"
         internal val activeStates = concurrentMultimap<Player, State>()
-        private val ordinalInc: AtomicInt = atomic(0)
         private val plugin by getKoin().inject<Terix>()
-        public var values: Array<State> = emptyArray()
-            private set
+        public val values: Array<State> = RecursionUtils.recursiveFinder<KClass<out State>>(
+            State::class,
+            finder = { this.sealedSubclasses },
+            filter = { false }
+        ).filter { it.isFinal }.map { it.objectInstance!! }.toTypedArray()
 
         public fun getPlayerStates(player: Player): PersistentSet<State> = activeStates[player].toPersistentSet()
-
-        public fun fromOrdinal(ordinal: Int): State {
-            return values[ordinal]
-        }
 
         public fun valueOf(name: String): State {
             plugin.log.debug { values.joinToString(", ") { it.name } }
@@ -360,14 +354,6 @@ public sealed class State : WithPlugin<Terix> {
             LiquidType.WATER -> LiquidState.WATER
             LiquidType.LAVA -> LiquidState.LAVA
             else -> LiquidState.LAND
-        }
-
-        init {
-            RecursionUtils.recursiveFinder<KClass<out State>>(
-                State::class,
-                finder = { this.sealedSubclasses },
-                filter = { false }
-            ).filter { it.isFinal }.forEach { it.objectInstance!!.let { state -> values += state } }
         }
     }
 }
