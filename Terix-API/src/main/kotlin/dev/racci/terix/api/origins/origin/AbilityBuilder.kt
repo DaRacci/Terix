@@ -72,5 +72,5 @@ public inline fun <reified A> AbilityBuilder<A>.placementDuration(duration: Dura
 
 @PublishedApi
 internal inline fun <reified S, I, T> KClass<S>.get(superProperty: KProperty1<I, T>): KProperty1<S, T> where I : Any, S : I {
-    return this.declaredMemberProperties.first { it.name == superProperty.name && it.returnType.classifier == superProperty.returnType.classifier }.castOrThrow()
+    return this.declaredMemberProperties.find { property -> property.name == superProperty.name }.castOrThrow()
 }
