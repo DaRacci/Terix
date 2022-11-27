@@ -49,7 +49,7 @@ public sealed class KeybindAbility : Ability() {
 
     protected fun shouldIgnoreKeybind(event: Event): Boolean {
         return when (event) {
-            is ComboEvent -> abilityPlayer.activeItem.type == Material.AIR || event.isBlockEvent && event.item?.type?.isBlock == true
+            is ComboEvent -> abilityPlayer.activeItem.type != Material.AIR || event.isBlockEvent && event.item?.type?.isBlock == true
             else -> false
         }
     }
