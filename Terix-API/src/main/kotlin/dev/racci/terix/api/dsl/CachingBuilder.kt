@@ -79,13 +79,8 @@ public abstract class CachingBuilder<T> {
         return watcherValues.withIndex().all { (index, value) -> value == other.watcherValues.getOrNull(index) }
     }
 
-    final override fun hashCode(): Int {
-        var result = cached?.hashCode() ?: 0
-
-        result = 31 * result + dirty.hashCode()
-        watcherValues.forEach { result = 31 * result + it.hashCode() }
-
-        return result
+    final override fun hashCode(): Int = watcherValues.fold(0) { hash, element ->
+        hash * 31 + (element?.hashCode() ?: 0)
     }
 
     protected open class ChangeWatcher<R : Any>(
