@@ -18,7 +18,6 @@ import dev.racci.minix.api.extensions.onlinePlayers
 import dev.racci.minix.api.utils.kotlin.ifTrue
 import dev.racci.minix.api.utils.ticks
 import dev.racci.minix.nms.aliases.NMSWorld
-import dev.racci.minix.nms.aliases.toNMS
 import dev.racci.terix.api.OriginService
 import dev.racci.terix.api.Terix
 import dev.racci.terix.api.TerixPlayer
@@ -27,15 +26,6 @@ import dev.racci.terix.api.origins.origin.Origin
 import dev.racci.terix.api.origins.states.State
 import dev.racci.terix.api.services.TickService
 import dev.racci.terix.api.services.TickService.Companion.TICK_RATE
-import dev.racci.terix.api.services.TickService.Companion.playerFlow
-import dev.racci.terix.core.extensions.inDarkness
-import dev.racci.terix.core.extensions.inRain
-import dev.racci.terix.core.extensions.inSunlight
-import dev.racci.terix.core.extensions.inWater
-import dev.racci.terix.core.extensions.wasInDarkness
-import dev.racci.terix.core.extensions.wasInRain
-import dev.racci.terix.core.extensions.wasInSunlight
-import dev.racci.terix.core.extensions.wasInWater
 import dev.racci.terix.core.services.runnables.AmbientTick
 import dev.racci.terix.core.services.runnables.ChildTicker
 import dev.racci.terix.core.services.runnables.DarknessTick
@@ -50,7 +40,6 @@ import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableSharedFlow
-import kotlinx.coroutines.flow.SharedFlow
 import kotlinx.coroutines.flow.asSharedFlow
 import kotlinx.coroutines.flow.buffer
 import kotlinx.coroutines.flow.catch
@@ -58,6 +47,7 @@ import kotlinx.coroutines.flow.conflate
 import kotlinx.coroutines.flow.filter
 import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.flow.launchIn
+import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.mapNotNull
 import kotlinx.coroutines.flow.onEach
 import kotlinx.coroutines.plus
@@ -84,15 +74,15 @@ public class TickServiceImpl(override val plugin: Terix) : Extension<Terix>(), T
     private val tickingPlayers = HashSet(ConcurrentHashMap.newKeySet<UUID>())
     private val delayChannel = Channel<Unit>(0)
     private val arrayQueueMutex = Mutex()
-    private val playerQueue = ArrayDeque<Player>() // TODO -> Possibly thread local groups of players to avoid mutex usage.
-    private val internalFlow = MutableSharedFlow<Player>()
-    private val motherTickers = mutableMapOf<Player, MotherTicker>()
-    private var tickables = persistentHashMapOf<Either<State, Predicate<Origin>>, (Player, Origin) -> ChildTicker>()
+    private val playerQueue = ArrayDeque<TerixPlayer>() // TODO -> Possibly thread local groups of players to avoid mutex usage.
+    private val internalFlow = MutableSharedFlow<TerixPlayer>()
+    private val motherTickers = mutableMapOf<TerixPlayer, MotherTicker>()
+    private var tickables = persistentHashMapOf<Either<State, Predicate<Origin>>, (TerixPlayer) -> ChildTicker>()
 
     /** The queue of players that have disconnected or have no subscribers. */
     private val removeQueue = ConcurrentHashMap.newKeySet<UUID>()
 
-    override val playerFlow: SharedFlow<Player> = internalFlow.asSharedFlow()
+    override val playerFlow: Flow<Player> = internalFlow.asSharedFlow().map { it.backingPlayer }
 
     override val threadContext: CoroutineDispatcher get() = this.dispatcher.get()
 
@@ -109,11 +99,14 @@ public class TickServiceImpl(override val plugin: Terix) : Extension<Terix>(), T
             { origin: Origin -> origin.sounds.ambientSound != null }.right() to ::AmbientTick
         )
 
-        onlinePlayers.forEach { player -> rehabMother(player, TerixPlayer.cachedOrigin(player)) }
+        onlinePlayers.forEach { player -> rehabMother(TerixPlayer[player]) }
 
-        event<PlayerJoinEvent>(EventPriority.MONITOR, true) {
-            val origin = TerixPlayer.cachedOrigin(player)
-            rehabMother(player, origin)
+        event<PlayerJoinEvent>(EventPriority.MONITOR, true) { rehabMother(TerixPlayer[player]) }
+        event<PlayerOriginChangeEvent>(EventPriority.MONITOR, true) {
+            if (!result.isSuccessful) return@event
+            rehabMother(TerixPlayer[player])
+
+            TerixPlayer[player]
         }
 
         event<PlayerQuitEvent> {
@@ -124,11 +117,6 @@ public class TickServiceImpl(override val plugin: Terix) : Extension<Terix>(), T
         event<PlayerPostRespawnEvent> {
             delayChannel.trySend(Unit) // Gets locked if there was only one player online. (Fuck you weird behaviour)
         }
-
-        event<PlayerOriginChangeEvent> {
-            val origin = TerixPlayer.cachedOrigin(player)
-            rehabMother(player, origin)
-        }
     }
 
     override suspend fun handleDisable() {
@@ -137,11 +125,11 @@ public class TickServiceImpl(override val plugin: Terix) : Extension<Terix>(), T
 
     // TODO -> Construct a cache of filtered flows, which can be used to reduce the amount of filtering done.
     override fun filteredPlayer(player: Player): Flow<Player> = runBlocking {
-        appendPlayer(player)
+        appendPlayer(player as? TerixPlayer ?: TerixPlayer[player])
         playerFlow.filter { it.uniqueId == player.uniqueId }
     }
 
-    private suspend fun appendPlayer(player: Player) = tickingPlayers.add(player.uniqueId).ifTrue {
+    private suspend fun appendPlayer(player: TerixPlayer) = tickingPlayers.add(player.uniqueId).ifTrue {
         if (!removeQueue.remove(player.uniqueId)) { // Ensures we don't add a duplicate player.
             arrayQueueMutex.withLock { playerQueue.addLast(player) }
         }
@@ -174,34 +162,27 @@ public class TickServiceImpl(override val plugin: Terix) : Extension<Terix>(), T
 
     private fun startInternalTickListeners() = playerFlow
         .conflate()
-        .onEach { player -> TerixPlayer.cachedOrigin(player).onTick(player) }
+        .onEach { player -> TerixPlayer[player].origin.onTick(player) }
         .mapNotNull(motherTickers::get)
         .onEach(MotherTicker::run)
         .catch { logger.error(it) { "Error in internal tick listener." } }
         .launchIn(plugin.scope + dispatcher.get())
 
-    private fun runTicker(
-        player: Player
-    ) {
+    private suspend fun runTicker(player: TerixPlayer) {
         if (player.isDead) return // Don't run ticks for dead players.
 
-        val nmsPlayer = player.toNMS()
-        val level = nmsPlayer.level
+        val nmsPlayer = player.handle
+        val nmsLevel = nmsPlayer.level
         val pos = BlockPos(nmsPlayer.x.roundToInt(), nmsPlayer.eyeY.roundToInt(), nmsPlayer.z.roundToInt()) // Player.eyePosition
-        val brightness = level.getMaxLocalRawBrightness(pos)
-        val canSeeSky = level.canSeeSky(pos)
+        val brightness = nmsLevel.getMaxLocalRawBrightness(pos)
+        val canSeeSky = nmsLevel.canSeeSky(pos)
 
-        player.wasInDarkness = player.inDarkness
-        player.inDarkness = inDarkness(brightness, player.inventory)
-
-        player.wasInRain = player.inRain
-        player.inRain = inRain(canSeeSky, level, pos)
-
-        player.wasInWater = player.inWater
-        player.inWater = player.location.block.liquidType == LiquidType.WATER
-
-        player.wasInSunlight = player.inSunlight
-        player.inSunlight = inSunlight(player, canSeeSky, level, brightness)
+        with(TerixPlayer[player].ticks) {
+            sunlight.update { inSunlight(player, canSeeSky, nmsLevel, brightness) }
+            darkness.update { inDarkness(brightness, player.inventory) }
+            water.update { player.location.block.liquidType == LiquidType.WATER }
+            rain.update { nmsLevel.isRainingAt(pos) }
+        }
     }
 
     private fun inDarkness(
@@ -226,39 +207,38 @@ public class TickServiceImpl(override val plugin: Terix) : Extension<Terix>(), T
     ) = biome.precipitation == Biome.Precipitation.RAIN && biome.warmEnoughToRain(pos)
 
     private fun inSunlight(
-        player: Player,
+        player: TerixPlayer,
         canSeeSky: Boolean,
         level: NMSWorld,
         brightness: Int
-    ) = canSeeSky &&
-        !player.inWater &&
-        !player.inRain &&
-        brightness > 0.5f &&
-        level.isDay
+    ) = runBlocking {
+        canSeeSky &&
+            !player.ticks.water.current() &&
+            !player.ticks.rain.current() &&
+            brightness > 0.5f &&
+            level.isDay
+    }
 
-    private suspend fun rehabMother(
-        player: Player,
-        origin: Origin
-    ) {
-        motherTickers.computeAndRemove(player, MotherTicker::endSuffering)
+    private suspend fun rehabMother(terixPlayer: TerixPlayer) {
+        motherTickers.computeAndRemove(terixPlayer, MotherTicker::endSuffering)
 
-        val states = presentStates(origin)
+        val states = presentStates(terixPlayer.origin)
         val children = mutableSetOf<ChildTicker>()
         for ((key, constructor) in tickables) {
             if (!key.fold(
                     { state -> states.contains(state) },
-                    { predicate -> predicate(origin) }
+                    { predicate -> predicate(terixPlayer.origin) }
                 )
             ) continue
 
-            children += constructor(player, origin)
+            children += constructor(terixPlayer)
         }
 
         if (children.isEmpty()) {
-            logger.debug { "No tickables for ${player.name}." }
+            logger.debug { "No tickables for ${terixPlayer.name}." }
         } else {
-            motherTickers[player] = MotherTicker(this, children.toPersistentHashSet())
-            appendPlayer(player)
+            motherTickers[terixPlayer] = MotherTicker(this, children.toPersistentHashSet())
+            appendPlayer(terixPlayer)
         }
     }
 

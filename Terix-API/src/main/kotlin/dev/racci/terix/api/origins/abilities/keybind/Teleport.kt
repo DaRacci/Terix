@@ -1,5 +1,6 @@
 package dev.racci.terix.api.origins.abilities.keybind
 
+import dev.racci.terix.api.TerixPlayer
 import dev.racci.terix.api.origins.origin.Origin
 import net.kyori.adventure.key.Key
 import net.kyori.adventure.sound.Sound
@@ -13,7 +14,7 @@ import kotlin.time.Duration
 import kotlin.time.Duration.Companion.seconds
 
 public class Teleport(
-    override val abilityPlayer: Player,
+    override val abilityPlayer: TerixPlayer,
     override val linkedOrigin: Origin,
     override val cooldownDuration: Duration = 3.seconds
 ) : TriggeringKeybindAbility() {

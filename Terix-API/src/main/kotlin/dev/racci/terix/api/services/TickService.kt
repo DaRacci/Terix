@@ -5,11 +5,10 @@ import dev.racci.minix.api.utils.getKoin
 import dev.racci.terix.api.Terix
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.flow.Flow
-import kotlinx.coroutines.flow.SharedFlow
 import org.bukkit.entity.Player
 
 public interface TickService : WithPlugin<Terix> {
-    public val playerFlow: SharedFlow<Player>
+    public val playerFlow: Flow<Player>
 
     public val threadContext: CoroutineDispatcher
 

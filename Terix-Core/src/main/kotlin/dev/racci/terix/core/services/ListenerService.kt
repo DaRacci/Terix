@@ -230,7 +230,7 @@ public class ListenerService(override val plugin: Terix) : Extension<Terix>() {
 
             transaction(getKoin().getProperty("terix:database")) { TerixPlayer[player.uniqueId].origin = newOrigin }
             OriginHelper.changeTo(player, preOrigin, newOrigin) // TODO: This should cover the removeUnfulfilled method
-            removeUnfulfilledOrInvalidAttributes(player, newOrigin)
+//            removeUnfulfilledOrInvalidAttributes(player, newOrigin)
 
             lang.origin.broadcast[
                 "player" to { player.displayName() },
@@ -461,6 +461,7 @@ public class ListenerService(override val plugin: Terix) : Extension<Terix>() {
         oldEffect != null && oldEffect!!.hasKey() &&
         oldEffect!!.fromOrigin()
 
+    // TODO -> Remove this.
     private fun removeUnfulfilledOrInvalidAttributes(
         player: Player,
         origin: Origin,

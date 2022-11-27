@@ -33,7 +33,7 @@ public fun Player.sentryUser(): User = sentryUsers.getOrPut(uniqueId) {
     user.data = mapOf(
         "minecraft_protocol" to this.protocolVersion.toString(),
         "minecraft_brand" to this.clientBrandName.orEmpty(),
-        "terix_origin" to TerixPlayer.cachedOrigin(this).name
+        "terix_origin" to TerixPlayer[this].origin.name
     )
 
     user

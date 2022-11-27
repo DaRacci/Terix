@@ -12,6 +12,7 @@ import dev.racci.minix.api.extensions.event
 import dev.racci.minix.api.extensions.reflection.castOrThrow
 import dev.racci.minix.api.extensions.unregisterListener
 import dev.racci.terix.api.Terix
+import dev.racci.terix.api.TerixPlayer
 import dev.racci.terix.api.annotations.DispatcherContext
 import dev.racci.terix.api.annotations.OriginEventSelector
 import dev.racci.terix.api.origins.enums.EventSelector
@@ -26,12 +27,10 @@ import kotlinx.collections.immutable.ImmutableSet
 import kotlinx.collections.immutable.toImmutableSet
 import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.Job
-import kotlinx.coroutines.NonCancellable.cancel
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.catch
 import kotlinx.coroutines.flow.launchIn
 import kotlinx.coroutines.plus
-import org.bukkit.entity.Player
 import org.bukkit.event.Event
 import org.koin.core.component.inject
 import kotlin.reflect.KClass
@@ -54,7 +53,7 @@ public abstract class Ability : WithPlugin<Terix> {
     public open val name: String = this::class.simpleName ?: throw IllegalStateException("KeybindAbility name is null")
 
     /** The player who this ability belongs to. */
-    public abstract val abilityPlayer: Player
+    public abstract val abilityPlayer: TerixPlayer
 
     /** The origin instance that this ability belongs to. */
     public abstract val linkedOrigin: Origin

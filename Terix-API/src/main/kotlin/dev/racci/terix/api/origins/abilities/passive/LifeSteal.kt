@@ -1,5 +1,6 @@
 package dev.racci.terix.api.origins.abilities.passive
 
+import dev.racci.terix.api.TerixPlayer
 import dev.racci.terix.api.annotations.OriginEventSelector
 import dev.racci.terix.api.events.abilities.LifeStealEvent
 import dev.racci.terix.api.extensions.emptyLambdaThree
@@ -12,7 +13,7 @@ import org.bukkit.event.EventPriority
 import org.bukkit.event.entity.EntityDamageByEntityEvent
 
 public class LifeSteal(
-    override val abilityPlayer: Player,
+    override val abilityPlayer: TerixPlayer,
     override val linkedOrigin: Origin,
     public val maximumStolenHealth: Double = 2.0,
     public val stolenPercentage: Float = 0.3F,

@@ -2,16 +2,16 @@ package dev.racci.terix.api.origins.abilities.keybind
 
 import com.google.common.base.Predicates
 import dev.racci.minix.nms.aliases.toNMS
+import dev.racci.terix.api.TerixPlayer
 import dev.racci.terix.api.extensions.emptyLambdaOne
 import dev.racci.terix.api.extensions.truePredicateOne
 import dev.racci.terix.api.origins.origin.Origin
 import net.minecraft.world.entity.Entity
 import org.bukkit.entity.LivingEntity
-import org.bukkit.entity.Player
 import kotlin.time.Duration
 
 public class Repulsion(
-    override val abilityPlayer: Player,
+    override val abilityPlayer: TerixPlayer,
     override val linkedOrigin: Origin,
     override val cooldownDuration: Duration = Duration.ZERO
 ) : TriggeringKeybindAbility() {

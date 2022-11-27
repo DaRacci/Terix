@@ -2,30 +2,19 @@ package dev.racci.terix.core.services.runnables
 
 import dev.racci.minix.api.utils.now
 import dev.racci.minix.api.utils.ticks
+import dev.racci.terix.api.TerixPlayer
+import dev.racci.terix.api.TerixPlayer.TickCache
 import dev.racci.terix.api.origins.OriginHelper
-import dev.racci.terix.api.origins.origin.Origin
 import dev.racci.terix.api.origins.states.State
-import dev.racci.terix.core.extensions.inDarkness
-import dev.racci.terix.core.extensions.wasInDarkness
 import kotlinx.datetime.Instant
-import org.bukkit.entity.Player
 
-public class DarknessTick(
-    player: Player,
-    origin: Origin
-) : ChildTicker(
-    player,
-    origin,
-    State.LightState.DARKNESS,
-    player::wasInDarkness,
-    player::inDarkness
-) {
+public class DarknessTick(terixPlayer: TerixPlayer) : ChildTicker(terixPlayer, State.LightState.DARKNESS, TickCache::darkness) {
     private var lastTick = Instant.DISTANT_PAST
-    private val damage = origin.stateData[State.LightState.DARKNESS].damage
+    private val damage = player.origin.stateData[State.LightState.DARKNESS].damage
 
     override suspend fun handleRun() {
         if (OriginHelper.shouldIgnorePlayer(player)) return
-        if (!player.inDarkness) return
+        if (!player.ticks.darkness.current()) return
         if ((now() - lastTick).ticks < 10) return
 
         damage.tap { damage -> sync { player.damage(damage) } }

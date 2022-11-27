@@ -7,6 +7,7 @@ import dev.racci.minix.api.extensions.dropItem
 import dev.racci.minix.api.extensions.taskAsync
 import dev.racci.minix.api.scheduler.CoroutineTask
 import dev.racci.minix.api.utils.now
+import dev.racci.terix.api.TerixPlayer
 import dev.racci.terix.api.annotations.OriginEventSelector
 import dev.racci.terix.api.data.OriginNamespacedTag
 import dev.racci.terix.api.data.OriginNamespacedTag.Companion.applyTag
@@ -16,13 +17,11 @@ import dev.racci.terix.api.origins.OriginHelper
 import dev.racci.terix.api.origins.abilities.passive.PassiveAbility
 import dev.racci.terix.api.origins.enums.EventSelector
 import dev.racci.terix.api.origins.origin.Origin
-import dev.racci.terix.core.extensions.inWater
 import kotlinx.coroutines.delay
 import kotlinx.datetime.Instant
 import org.bukkit.Material
 import org.bukkit.attribute.Attribute
 import org.bukkit.attribute.AttributeModifier
-import org.bukkit.entity.Player
 import org.bukkit.event.EventPriority
 import org.bukkit.event.entity.EntityDamageEvent
 import org.bukkit.inventory.ItemStack
@@ -32,7 +31,7 @@ import kotlin.time.Duration.Companion.seconds
 
 // TODO -> Cleanup
 public class WaterHealthBonus(
-    override val abilityPlayer: Player,
+    override val abilityPlayer: TerixPlayer,
     override val linkedOrigin: Origin,
     public val maxBonus: Int = 20,
     public val damageCooldown: Duration = 8.seconds
@@ -56,7 +55,7 @@ public class WaterHealthBonus(
                         OriginHelper.increaseHealth(abilityPlayer, 0.5)
                     }
                 }
-            } while (currentModifier().amount < (maxBonus / 2.0) && player.inWater)
+            } while (currentModifier().amount < (maxBonus / 2.0) && abilityPlayer.ticks.water.current())
         }
     }
 
@@ -65,7 +64,7 @@ public class WaterHealthBonus(
         if (previousType != LiquidType.WATER) return
 
         putExitTask {
-            while (currentModifier().amount > 0.0 && !abilityPlayer.inWater) {
+            while (currentModifier().amount > 0.0 && !abilityPlayer.ticks.water.current()) {
                 task(::dec)
             }
         }

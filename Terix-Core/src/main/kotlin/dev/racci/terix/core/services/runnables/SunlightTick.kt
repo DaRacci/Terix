@@ -2,29 +2,19 @@ package dev.racci.terix.core.services.runnables
 
 import arrow.core.getOrElse
 import dev.racci.minix.nms.aliases.toNMS
+import dev.racci.terix.api.TerixPlayer
+import dev.racci.terix.api.TerixPlayer.TickCache
 import dev.racci.terix.api.events.OriginSunlightBurnEvent
 import dev.racci.terix.api.origins.OriginHelper
-import dev.racci.terix.api.origins.origin.Origin
 import dev.racci.terix.api.origins.states.State
 import dev.racci.terix.api.services.TickService
-import dev.racci.terix.core.extensions.inSunlight
-import dev.racci.terix.core.extensions.wasInSunlight
 import net.kyori.adventure.extra.kotlin.text
 import net.kyori.adventure.text.Component
 import net.kyori.adventure.text.format.NamedTextColor
 import org.bukkit.craftbukkit.v1_19_R1.inventory.CraftItemStack
 import org.bukkit.entity.Player
 
-public class SunlightTick(
-    player: Player,
-    origin: Origin
-) : ChildTicker(
-    player,
-    origin,
-    State.LightState.SUNLIGHT,
-    player::wasInSunlight,
-    player::inSunlight
-) {
+public class SunlightTick(player: TerixPlayer) : ChildTicker(player, State.LightState.SUNLIGHT, TickCache::sunlight) {
 
     private var exposedTime: Int = 0
 
@@ -32,14 +22,14 @@ public class SunlightTick(
         if (OriginHelper.shouldIgnorePlayer(player)) return false
 
         this.calculateBar()
-        return this.player.inSunlight && exposedTime == GRACE_PERIOD
+        return player.ticks.sunlight.current() && exposedTime == GRACE_PERIOD
     }
 
     override suspend fun handleRun() {
-        val ticks = origin.stateData[State.LightState.SUNLIGHT].damage.getOrElse { return }.toInt()
+        val ticks = player.origin.stateData[State.LightState.SUNLIGHT].damage.getOrElse { return }.toInt()
         val helmet = player.inventory.helmet
 
-        val event = OriginSunlightBurnEvent(player, origin, ticks)
+        val event = OriginSunlightBurnEvent(player, player.origin, ticks)
         if (!event.callEvent()) return
 
         if (helmet != null) {
@@ -55,10 +45,10 @@ public class SunlightTick(
         player.fireTicks = ticks
     }
 
-    private fun calculateBar() {
+    private suspend fun calculateBar() {
         exposedTime += when {
-            !player.inSunlight && exposedTime > 0 -> -TickService.TICK_RATE
-            player.inSunlight && exposedTime < GRACE_PERIOD -> TickService.TICK_RATE
+            !player.ticks.sunlight.current() && exposedTime > 0 -> -TickService.TICK_RATE
+            player.ticks.sunlight.current() && exposedTime < GRACE_PERIOD -> TickService.TICK_RATE
             else -> 0
         }
 

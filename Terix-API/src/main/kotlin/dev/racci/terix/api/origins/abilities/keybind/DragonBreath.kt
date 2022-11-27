@@ -1,9 +1,9 @@
 package dev.racci.terix.api.origins.abilities.keybind
 
 import dev.racci.minix.nms.aliases.toNMS
+import dev.racci.terix.api.TerixPlayer
 import dev.racci.terix.api.origins.origin.Origin
 import net.minecraft.world.phys.Vec3
-import org.bukkit.entity.Player
 import kotlin.math.PI
 import kotlin.math.acos
 import kotlin.math.cos
@@ -12,7 +12,7 @@ import kotlin.time.Duration
 import kotlin.time.Duration.Companion.seconds
 
 public class DragonBreath(
-    override val abilityPlayer: Player,
+    override val abilityPlayer: TerixPlayer,
     override val linkedOrigin: Origin,
     override val cooldownDuration: Duration = 10.seconds
 ) : TriggeringKeybindAbility() {

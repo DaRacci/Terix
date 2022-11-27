@@ -113,7 +113,6 @@ object Bootstrap {
         mockkObject(TerixPlayer.User)
 
         every { TerixPlayer.User.origin } returns mockk()
-        every { TerixPlayer.User.lastOrigin } returns mockk()
         every { TerixPlayer.User.lastChosenTime } returns mockk()
         every { TerixPlayer.User.freeChanges } returns mockk()
 

@@ -3,10 +3,10 @@ package dev.racci.terix.core.origins.abilities.keybind
 import arrow.core.filterIsInstance
 import arrow.core.orElse
 import arrow.core.toOption
+import dev.racci.terix.api.TerixPlayer
 import dev.racci.terix.api.origins.abilities.keybind.TriggeringKeybindAbility
 import dev.racci.terix.api.origins.origin.Origin
 import org.bukkit.entity.LivingEntity
-import org.bukkit.entity.Player
 import kotlin.time.Duration
 
 /**
@@ -21,7 +21,7 @@ import kotlin.time.Duration
  */
 public class TargetOrSelf(
     override val linkedOrigin: Origin,
-    override val abilityPlayer: Player,
+    override val abilityPlayer: TerixPlayer,
     override val cooldownDuration: Duration,
     public val searchDistance: Int,
     public val lambda: suspend (LivingEntity) -> Unit

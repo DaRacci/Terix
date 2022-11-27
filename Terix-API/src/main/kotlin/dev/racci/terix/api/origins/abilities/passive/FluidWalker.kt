@@ -5,6 +5,7 @@ import dev.racci.minix.api.events.player.PlayerMoveFullXYZEvent
 import dev.racci.minix.api.utils.minecraft.rangeTo
 import dev.racci.minix.api.utils.ticks
 import dev.racci.minix.nms.aliases.toNMS
+import dev.racci.terix.api.TerixPlayer
 import dev.racci.terix.api.annotations.OriginEventSelector
 import dev.racci.terix.api.data.TemporaryPlacement
 import dev.racci.terix.api.extensions.above
@@ -17,12 +18,11 @@ import org.bukkit.Material
 import org.bukkit.block.data.BlockData
 import org.bukkit.block.data.Levelled
 import org.bukkit.craftbukkit.v1_19_R1.block.data.CraftBlockData
-import org.bukkit.entity.Player
 import kotlin.time.Duration
 
 // TODO -> sounds and particle in center location
 public class FluidWalker(
-    override val abilityPlayer: Player,
+    override val abilityPlayer: TerixPlayer,
     override val linkedOrigin: Origin,
     override val placementData: BlockData,
     override val placementRadius: Double = 3.0,

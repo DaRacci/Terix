@@ -1,29 +1,19 @@
 package dev.racci.terix.core.services.runnables
 
 import dev.racci.minix.api.utils.now
+import dev.racci.terix.api.TerixPlayer
 import dev.racci.terix.api.extensions.playSound
 import dev.racci.terix.api.origins.OriginHelper
-import dev.racci.terix.api.origins.origin.Origin
 import dev.racci.terix.api.origins.sounds.SoundEffect
 import kotlinx.datetime.Instant
-import org.bukkit.entity.Player
 import kotlin.random.Random
 import kotlin.time.Duration.Companion.seconds
 
-public class AmbientTick(
-    player: Player,
-    origin: Origin
-) : ChildTicker(
-    player,
-    origin,
-    null,
-    null,
-    null
-) {
+public class AmbientTick(terixPlayer: TerixPlayer) : ChildTicker(terixPlayer) {
 
     private var disabled: Boolean = false
     private var nextAmbient: Instant = Instant.DISTANT_FUTURE
-    private val sound: SoundEffect = origin.sounds.ambientSound ?: error("No ambient sound for origin ${origin.name}")
+    private val sound: SoundEffect = player.origin.sounds.ambientSound ?: error("No ambient sound for origin ${player.origin.name}")
 
     private fun ambientTime(): Boolean {
         if (now() < nextAmbient) return false

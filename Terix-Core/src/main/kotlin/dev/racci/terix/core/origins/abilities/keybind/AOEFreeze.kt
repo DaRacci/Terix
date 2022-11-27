@@ -1,6 +1,7 @@
 package dev.racci.terix.core.origins.abilities.keybind
 
 import com.destroystokyo.paper.ParticleBuilder
+import dev.racci.terix.api.TerixPlayer
 import dev.racci.terix.api.dsl.PotionEffectBuilder
 import dev.racci.terix.api.dsl.dslMutator
 import dev.racci.terix.api.origins.abilities.keybind.TriggeringKeybindAbility
@@ -8,7 +9,6 @@ import dev.racci.terix.api.origins.origin.Origin
 import kotlinx.coroutines.delay
 import org.bukkit.Particle
 import org.bukkit.entity.LivingEntity
-import org.bukkit.entity.Player
 import org.bukkit.potion.PotionEffectType
 import kotlin.math.atan2
 import kotlin.math.cos
@@ -16,7 +16,7 @@ import kotlin.math.sin
 import kotlin.time.Duration
 
 public class AOEFreeze(
-    override val abilityPlayer: Player,
+    override val abilityPlayer: TerixPlayer,
     override val linkedOrigin: Origin,
     override val cooldownDuration: Duration,
     public val freezeDuration: Duration,

@@ -3,6 +3,7 @@ package dev.racci.terix.api.origins.abilities.keybind
 import dev.racci.minix.api.events.player.PlayerMoveXYZEvent
 import dev.racci.minix.api.extensions.cancel
 import dev.racci.minix.api.utils.kotlin.invokeIfNull
+import dev.racci.terix.api.TerixPlayer
 import dev.racci.terix.api.annotations.OriginEventSelector
 import dev.racci.terix.api.dsl.PotionEffectBuilder
 import dev.racci.terix.api.dsl.dslMutator
@@ -12,14 +13,13 @@ import dev.racci.terix.api.origins.origin.Origin
 import dev.racci.terix.api.services.TickService
 import kotlinx.coroutines.flow.filter
 import kotlinx.coroutines.flow.onEach
-import org.bukkit.entity.Player
 import org.bukkit.event.entity.EntityToggleGlideEvent
 import org.bukkit.potion.PotionEffectType
 import org.bukkit.util.Vector
 import kotlin.time.Duration
 
 public class Levitate(
-    override val abilityPlayer: Player,
+    override val abilityPlayer: TerixPlayer,
     override val linkedOrigin: Origin,
     override val cooldownDuration: Duration = Duration.ZERO
 ) : TogglingKeybindAbility() {

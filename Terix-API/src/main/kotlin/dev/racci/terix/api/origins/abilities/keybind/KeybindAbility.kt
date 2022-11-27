@@ -5,7 +5,6 @@ import dev.racci.minix.api.extensions.WithPlugin
 import dev.racci.minix.api.extensions.event
 import dev.racci.minix.api.flow.playerEventFlow
 import dev.racci.terix.api.Terix
-import dev.racci.terix.api.TerixPlayer.User.origin
 import dev.racci.terix.api.data.Cooldown
 import dev.racci.terix.api.data.OriginNamespacedTag.Companion.abilityCustomOf
 import dev.racci.terix.api.data.OriginNamespacedTag.Companion.applyTag
@@ -29,7 +28,7 @@ import kotlin.time.Duration
 // TODO -> Concurrent protection / mutex lock
 public sealed class KeybindAbility : Ability() {
     public var cooldown: Cooldown = Cooldown.NONE; protected set
-    private val namespacedKey: NamespacedKey by lazy { NamespacedKey(plugin, "origin_ability_${origin.name}/${this.name}") }
+    private val namespacedKey: NamespacedKey by lazy { NamespacedKey(plugin, "origin_ability_${abilityPlayer.origin.name}/${this.name}") }
 
     /** The duration before the ability can be activated again. */
     public abstract val cooldownDuration: Duration

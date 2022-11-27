@@ -5,6 +5,7 @@ import arrow.optics.copy
 import dev.racci.minix.api.events.player.PlayerMoveFullXYZEvent
 import dev.racci.minix.api.extensions.collections.clear
 import dev.racci.minix.api.utils.now
+import dev.racci.terix.api.TerixPlayer
 import dev.racci.terix.api.annotations.OriginEventSelector
 import dev.racci.terix.api.data.TemporaryPlacement
 import dev.racci.terix.api.data.replacedState
@@ -15,13 +16,12 @@ import dev.racci.terix.api.services.TickService
 import kotlinx.coroutines.flow.onEach
 import org.bukkit.block.BlockFace
 import org.bukkit.block.data.BlockData
-import org.bukkit.entity.Player
 import org.bukkit.event.player.PlayerChangedWorldEvent
 import kotlin.time.Duration
 import kotlin.time.Duration.Companion.seconds
 
 public class TrailPassive(
-    override val abilityPlayer: Player,
+    override val abilityPlayer: TerixPlayer,
     override val linkedOrigin: Origin,
     override val placementData: BlockData,
     public var trailLength: Int = 3,

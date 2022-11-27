@@ -1,17 +1,17 @@
 package dev.racci.terix.api.origins.abilities.keybind
 
 import com.destroystokyo.paper.ParticleBuilder
+import dev.racci.terix.api.TerixPlayer
 import dev.racci.terix.api.origins.abilities.RayCastingSupplier
 import dev.racci.terix.api.origins.origin.Origin
 import io.ktor.utils.io.bits.reverseByteOrder
 import net.kyori.adventure.key.Key
 import net.kyori.adventure.sound.Sound
 import org.bukkit.Particle
-import org.bukkit.entity.Player
 import kotlin.time.Duration
 
 public class Leap(
-    override val abilityPlayer: Player,
+    override val abilityPlayer: TerixPlayer,
     override val linkedOrigin: Origin,
     override val cooldownDuration: Duration,
     override val chargeTime: Duration,

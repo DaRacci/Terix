@@ -2,13 +2,13 @@ package dev.racci.terix.core.origins.abilities.keybind
 
 import com.destroystokyo.paper.block.TargetBlockInfo
 import dev.racci.minix.api.utils.minecraft.rangeTo
+import dev.racci.terix.api.TerixPlayer
 import dev.racci.terix.api.data.TemporaryPlacement
 import dev.racci.terix.api.extensions.above
 import dev.racci.terix.api.origins.abilities.keybind.TriggeringKeybindAbility
 import dev.racci.terix.api.origins.origin.Origin
 import org.bukkit.Location
 import org.bukkit.block.data.BlockData
-import org.bukkit.entity.Player
 import org.bukkit.util.Vector
 import kotlin.math.absoluteValue
 import kotlin.time.Duration
@@ -17,7 +17,7 @@ import kotlin.time.Duration.Companion.seconds
 
 // TODO -> Triggering Charge that builds the wall over time.
 public class WallErector(
-    override val abilityPlayer: Player,
+    override val abilityPlayer: TerixPlayer,
     override val linkedOrigin: Origin,
     override val cooldownDuration: Duration = 1.minutes,
     override val placementDuration: Duration = 5.seconds,
