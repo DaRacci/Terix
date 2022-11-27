@@ -98,7 +98,7 @@ public class AethenOrigin(override val plugin: Terix) : Origin() {
 
             newBuilder<TargetOrSelf>()
                 .parameter(TargetOrSelf::lambda) { target -> sync { target.addPotionEffect(PotionEffect(PotionEffectType.REGENERATION, 10 * 20, 3, true)) } }
-                .parameter(TargetOrSelf::searchDistance, 9.0)
+                .parameter(TargetOrSelf::searchDistance, 9)
                 .keybinding(KeyBinding.DOUBLE_RIGHT_CLICK)
                 .cooldown(45.seconds)
                 .build()
