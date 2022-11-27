@@ -9,7 +9,8 @@ import dev.racci.terix.api.OriginService
 import dev.racci.terix.api.Terix
 import dev.racci.terix.api.TerixPlayer
 import kotlinx.coroutines.runBlocking
-import org.bukkit.event.player.AsyncPlayerPreLoginEvent
+import org.bukkit.event.player.PlayerJoinEvent
+import org.jetbrains.exposed.dao.load
 import org.jetbrains.exposed.sql.Table
 import org.jetbrains.exposed.sql.Transaction
 
@@ -18,8 +19,11 @@ public class StorageService(override val plugin: Terix) : StorageService<Terix>,
     override val managedTable: Table by lazy { TerixPlayer.table } // Lazy to prevent exception on init
 
     override suspend fun handleEnable() {
-        event<AsyncPlayerPreLoginEvent> {
-            withDatabase { TerixPlayer.findById(this@event.uniqueId) ?: TerixPlayer.new(this@event.uniqueId) {} }
+        event<PlayerJoinEvent> {
+            withDatabase {
+                val terixPlayer = TerixPlayer.findById(player.uniqueId) ?: TerixPlayer.new(player.uniqueId) {}
+                terixPlayer.load(TerixPlayer::origin)
+            }
         }
     }
 
