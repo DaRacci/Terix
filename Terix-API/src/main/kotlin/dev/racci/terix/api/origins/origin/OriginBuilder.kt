@@ -137,11 +137,10 @@ public sealed class OriginBuilder : OriginValues() {
          * @param mutator A [DSLMutator] which will be used to configure the [PotionEffect].
          */
         public operator fun Collection<State>.plusAssign(mutator: DSLMutator<PotionEffectBuilder>) {
-            val builder = mutator.asNew()
             this.forEach { state ->
                 PotionElement(
                     state,
-                    builder
+                    mutator.asNew()
                 ).also(::addElement)
             }
         }
