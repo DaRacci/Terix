@@ -26,7 +26,12 @@ public class PlayerOriginChangeEvent(
 ) : KPlayerEvent(player, true) {
     public var result: Result = Result.SUCCESS
 
-    public enum class Result { CURRENT_ORIGIN, ON_COOLDOWN, NO_PERMISSION, SUCCESS }
+    public enum class Result {
+        CURRENT_ORIGIN, ON_COOLDOWN, NO_PERMISSION, SUCCESS;
+
+        public val isSuccessful: Boolean
+            get() = this == SUCCESS
+    }
 
     public companion object : CompanionEventHandler() {
         @JvmStatic override fun getHandlerList(): HandlerList = super.getHandlerList()
