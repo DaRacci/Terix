@@ -6,21 +6,7 @@ huds:
     show:
       auto: false
     type: CUSTOM
-#    type: FRAMES
     x_position_pixels: 100
-#    value:
-#      start: 5
-#      min: 0
-#      max: 5
-#    images:
-#      frames:
-#        - terix:ability_bar_5
-#        - terix:ability_bar_4
-#        - terix:ability_bar_3
-#        - terix:ability_bar_2
-#        - terix:ability_bar_1
-#        - terix:ability_bar_0
-
   ability_bar_1: *ability_bar
   ability_bar_2: *ability_bar
   ability_bar_3: *ability_bar

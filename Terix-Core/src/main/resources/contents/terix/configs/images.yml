@@ -5,8 +5,8 @@ font_images:
     suggest_in_command: false
     show_in_gui: false
     path: hud/ability_bar/0
-    y_position: -25
-    scale_ratio: 45
+    y_position: -15
+    scale_ratio: 50
   ability_bar_1:
     <<: *ability_bar
     path: hud/ability_bar/1

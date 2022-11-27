@@ -12,8 +12,6 @@ import dev.racci.minix.api.coroutine.asyncDispatcher
 import dev.racci.minix.api.coroutine.scope
 import dev.racci.minix.api.extensions.event
 import dev.racci.minix.api.extensions.scheduler
-import dev.racci.minix.api.extensions.server
-import dev.racci.minix.api.integrations.Integration
 import dev.racci.minix.api.plugin.MinixPlugin
 import dev.racci.minix.api.utils.getKoin
 import dev.racci.terix.api.Terix
@@ -22,7 +20,6 @@ import dev.racci.terix.api.events.PlayerOriginChangeEvent
 import dev.racci.terix.api.events.abilities.KeybindAbilityActivateEvent
 import dev.racci.terix.api.origins.abilities.keybind.KeybindAbility
 import dev.racci.terix.api.services.TickService
-import dev.racci.terix.core.TerixImpl
 import kotlinx.coroutines.flow.launchIn
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.onEach
@@ -30,7 +27,6 @@ import kotlinx.coroutines.plus
 import org.bukkit.entity.Player
 import org.bukkit.event.EventPriority
 import org.bukkit.event.player.PlayerJoinEvent
-import java.util.zip.ZipInputStream
 import kotlin.math.roundToInt
 import kotlin.time.Duration.Companion.nanoseconds
 
@@ -38,9 +34,9 @@ import kotlin.time.Duration.Companion.nanoseconds
     "ItemsAdder",
     Terix::class
 )
-public class ItemsAdderIntegration(override val plugin: MinixPlugin) : Integration {
+public class ItemsAdderIntegration(override val plugin: MinixPlugin) : FileExtractorIntegration() {
     override suspend fun handleLoad() {
-        extractDefaultAssets()
+        if (extractDefaultAssets()) logger.warn { "Default assets have been extracted. Please run /iazip to finish the setup." }
     }
 
     override suspend fun handleEnable() {
@@ -72,36 +68,7 @@ public class ItemsAdderIntegration(override val plugin: MinixPlugin) : Integrati
             .launchIn(plugin.scope + plugin.asyncDispatcher)
     }
 
-    private fun extractDefaultAssets() {
-        val src = TerixImpl::class.java.protectionDomain.codeSource
-        val jarLoc = src.location
-        val itemsAdderFolder = server.pluginsFolder.resolve("ItemsAdder")
-        var needsZip = false
-
-        runCatching {
-            logger.info { "Extracting default assets..." }
-            ZipInputStream(jarLoc.openStream()).use { stream ->
-                while (true) {
-                    val entry = stream.nextEntry ?: break
-                    val name = entry.name
-
-                    if (entry.isDirectory || !name.startsWith("contents/")) continue
-
-                    val dest = itemsAdderFolder.resolve(name)
-                    if (!dest.exists()) {
-                        dest.parentFile.mkdirs()
-                        dest.createNewFile()
-                        logger.debug { "Extracting $name" }
-                        plugin.getResource(name)!!.use { input -> dest.outputStream().use(input::copyTo) }
-                        needsZip = true
-                    }
-                }
-            }
-            logger.info { "Finished extracting default assets." }
-        }.onFailure { err -> logger.error(err) { "Failed to extract default assets." } }
-
-        if (needsZip) logger.warn { "Default assets have been extracted. Please run /iazip to finish the setup." }
-    }
+    override fun filterResource(name: String): Boolean = name.startsWith("contents/")
 
     private data class PlayerData(private val playerRef: Player) {
         private val holderWrapper = PlayerHudsHolderWrapper(playerRef)
