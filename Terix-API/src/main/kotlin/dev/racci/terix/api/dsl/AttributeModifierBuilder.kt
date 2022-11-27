@@ -31,4 +31,13 @@ public class AttributeModifierBuilder(
     public operator fun invoke(player: Player) {
         player.getAttribute(attribute)?.addModifier(get())
     }
+
+    public fun remove(player: Player) {
+        val attributeInstance = player.getAttribute(attribute) ?: error("Player doesn't have attribute $attribute")
+        val modifier = attributeInstance.modifiers.find { modifier ->
+            modifier.uniqueId == uuid && modifier.name == name // Quick check
+        } ?: error("Player doesn't have modifier $this")
+
+        attributeInstance.removeModifier(modifier)
+    }
 }

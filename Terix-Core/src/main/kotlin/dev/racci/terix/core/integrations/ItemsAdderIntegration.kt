@@ -2,7 +2,6 @@ package dev.racci.terix.core.integrations
 
 import com.github.benmanes.caffeine.cache.Caffeine
 import com.github.benmanes.caffeine.cache.LoadingCache
-import com.github.benmanes.caffeine.cache.RemovalCause
 import dev.lone.itemsadder.api.Events.ItemsAdderLoadDataEvent
 import dev.lone.itemsadder.api.FontImages.FontImageWrapper
 import dev.lone.itemsadder.api.FontImages.PlayerCustomHudWrapper
@@ -11,9 +10,7 @@ import dev.racci.minix.api.annotations.MappedIntegration
 import dev.racci.minix.api.coroutine.asyncDispatcher
 import dev.racci.minix.api.coroutine.scope
 import dev.racci.minix.api.extensions.event
-import dev.racci.minix.api.extensions.scheduler
 import dev.racci.minix.api.plugin.MinixPlugin
-import dev.racci.minix.api.utils.getKoin
 import dev.racci.terix.api.Terix
 import dev.racci.terix.api.TerixPlayer
 import dev.racci.terix.api.events.PlayerOriginChangeEvent
@@ -28,7 +25,7 @@ import org.bukkit.entity.Player
 import org.bukkit.event.EventPriority
 import org.bukkit.event.player.PlayerJoinEvent
 import kotlin.math.roundToInt
-import kotlin.time.Duration.Companion.nanoseconds
+import kotlin.time.Duration
 
 @MappedIntegration(
     "ItemsAdder",
@@ -70,20 +67,25 @@ public class ItemsAdderIntegration(override val plugin: MinixPlugin) : FileExtra
 
     override fun filterResource(name: String): Boolean = name.startsWith("contents/")
 
-    private data class PlayerData(private val playerRef: Player) {
-        private val holderWrapper = PlayerHudsHolderWrapper(playerRef)
-        private val cooldownElement = Array(TerixPlayer.cachedOrigin(playerRef).abilityData[playerRef].size) { index ->
-            PlayerCustomHudWrapper(holderWrapper, "terix:ability_bar_$index").apply {
-                this.offsetX += 30 * index
+    private data class PlayerData(
+        val playerRef: Player,
+        val abilities: Array<KeybindAbility>
+    ) {
+        val holderWrapper: PlayerHudsHolderWrapper = PlayerHudsHolderWrapper(playerRef)
+        val hudElements: Array<PlayerCustomHudWrapper> = Array(abilities.size) { index ->
+            PlayerCustomHudWrapper(
+                holderWrapper,
+                "terix:ability_bar_$index"
+            ).apply {
+                this.offsetX += (fontImages.last().width + 15) * index
                 this.isVisible = true
+                this.floatValue = fontImages.lastIndex.toFloat()
                 this.addFontImage(fontImages.last())
-            }
+            }.also { holderWrapper.recalculateOffsets(); holderWrapper.sendUpdate() }
         }
 
         fun tick() {
-            TerixPlayer.cachedOrigin(playerRef).abilityData[playerRef]
-                .filterIsInstance<KeybindAbility>()
-                .forEachIndexed { index, ability -> tickAbility(index, ability) }
+            abilities.forEachIndexed { index, ability -> tickAbility(index, ability) }
         }
 
         fun tickAbility(
@@ -92,7 +94,7 @@ public class ItemsAdderIntegration(override val plugin: MinixPlugin) : FileExtra
         ) {
             if (ability.cooldown.expired()) return
 
-            val element = cooldownElement[index]
+            val element = hudElements[index]
             val cooldown = ability.cooldownDuration
             val remaining = ability.cooldown.remaining()
             val imageCount = fontImages.size.dec()
@@ -108,26 +110,47 @@ public class ItemsAdderIntegration(override val plugin: MinixPlugin) : FileExtra
             }
         }
 
+        override fun equals(other: Any?): Boolean {
+            if (this === other) return true
+            if (other !is PlayerData) return false
+
+            if (playerRef != other.playerRef) return false
+            if (!abilities.contentEquals(other.abilities)) return false
+            if (holderWrapper != other.holderWrapper) return false
+            if (!hudElements.contentEquals(other.hudElements)) return false
+
+            return true
+        }
+
+        override fun hashCode(): Int {
+            var result = playerRef.hashCode()
+            result = 31 * result + abilities.contentHashCode()
+            result = 31 * result + holderWrapper.hashCode()
+            result = 31 * result + hudElements.contentHashCode()
+            return result
+        }
+
         companion object {
             internal var fontImages: Array<FontImageWrapper> = emptyArray()
             internal val cache: LoadingCache<Player, PlayerData> = Caffeine.newBuilder().weakKeys()
-                .evictionListener<Player, PlayerData> { _, value, cause ->
-                    when (cause) {
-                        RemovalCause.REPLACED -> scheduleCleanup(value!!.playerRef, value.cooldownElement)
-                        else -> value!!.cooldownElement.forEach { it.isVisible = false }
+                .evictionListener<Player, PlayerData> { _, value, _ ->
+                    if (value == null) return@evictionListener
+
+                    value.hudElements.forEach {
+                        it.isVisible = false
+                        it.clearFontImagesAndRefresh()
                     }
-                }.build(::PlayerData)
+                }.build { player ->
+                    PlayerData(
+                        player,
+                        TerixPlayer.cachedOrigin(player).abilityData[player]
+                            .filterIsInstance<KeybindAbility>()
+                            .filterNot { ability -> ability.cooldownDuration == Duration.ZERO }
+                            .toTypedArray()
+                    )
+                }
 
             operator fun get(player: Player): PlayerData = cache[player]
-
-            private fun scheduleCleanup(
-                player: Player,
-                elements: Array<PlayerCustomHudWrapper>
-            ) {
-                scheduler {
-                    cache[player].cooldownElement.filter { it !in elements }.forEach { it.isVisible = false }
-                }.runAsyncTaskLater(getKoin().get<Terix>(), 1.nanoseconds)
-            }
         }
     }
 }

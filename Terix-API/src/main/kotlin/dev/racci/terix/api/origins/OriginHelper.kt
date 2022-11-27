@@ -108,24 +108,24 @@ public object OriginHelper : KoinComponent, WithPlugin<Terix> {
             "OriginHelper.deactivateOrigin",
             "Deactivating ${origin.name} for ${player.name}"
         ) {
-            sync { getBaseOriginPotions(player, null).forEach(player::removePotionEffect) }
-
             origin.handleDeactivate(player)
             player.setImmuneToFire(null)
             player.setCanBreathUnderwater(null)
             State.activeStates[player].forEach { state -> state.deactivate(player, origin) }
             origin.abilityData.close(player)
 
-            for (attribute in Attribute.values()) {
-                val instance = player.getAttribute(attribute) ?: continue
-                if (instance.modifiers.isEmpty()) continue
+//            sync { getBaseOriginPotions(player, null).forEach(player::removePotionEffect) }
 
-                instance.modifiers.associateWith { OriginNamespacedTag.REGEX.matchEntire(it.name) }
-                    .forEach { (modifier, match) ->
-                        if (match == null) return@forEach
-                        instance.removeModifier(modifier)
-                    }
-            }
+//            for (attribute in Attribute.values()) {
+//                val instance = player.getAttribute(attribute) ?: continue
+//                if (instance.modifiers.isEmpty()) continue
+//
+//                instance.modifiers.associateWith { OriginNamespacedTag.REGEX.matchEntire(it.name) }
+//                    .forEach { (modifier, match) ->
+//                        if (match == null) return@forEach
+//                        instance.removeModifier(modifier)
+//                    }
+//            }
         }
     }
 

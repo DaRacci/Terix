@@ -210,7 +210,7 @@ public sealed class State : WithPlugin<Terix> {
     private fun removeAsync(
         player: Player,
         origin: Origin
-    ) = async { origin.stateData[this@State].modifiers.forEach { modifier -> modifier(player) } }
+    ) = async { origin.stateData[this@State].modifiers.forEach { modifier -> modifier.remove(player) } }
 
     private fun addSync(
         player: Player,
