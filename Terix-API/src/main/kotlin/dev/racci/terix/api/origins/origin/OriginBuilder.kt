@@ -148,7 +148,7 @@ public sealed class OriginBuilder : OriginValues() {
         override suspend fun insertInto(originValues: OriginValues): Option<Exception> {
             super.getElements().associate { it.state to it.builder }
                 .onEach { (state, builder) -> builder.applyTag(OriginNamespacedTag.baseStateOf(originValues, state)) }
-                .forEach { (state, builder) -> originValues.stateData.modify(state, OriginValues.StateData::potions) { potions -> potions.add(builder) } }
+                .forEach { (state, builder) -> originValues.stateData = originValues.stateData.modify(state, OriginValues.StateData::potions) { potions -> potions.add(builder) } }
 
             return None
         }
@@ -226,11 +226,12 @@ public sealed class OriginBuilder : OriginValues() {
         public operator fun Pair<State, Attribute>.divAssign(value: Double): Unit = AttributeElement.of(this, 1.0 / value, AttributeModifier.Operation.MULTIPLY_SCALAR_1).let(::addElement)
 
         override suspend fun insertInto(originValues: OriginValues): Option<Exception> {
-            super.getElements().groupBy(AttributeElement::state).forEach { (state, elements) ->
-                val modifiers = elements.map { element -> element.toBuilder(originValues) }.toPersistentSet()
-                if (modifiers.isEmpty()) {
-                    return@forEach
-                } else originValues.stateData.modify(state, OriginValues.StateData::modifiers) { modifiers }
+            super.getElements().groupBy(AttributeElement::state).map { (state, elements) ->
+                state to elements.map { element -> element.toBuilder(originValues) }.toPersistentSet()
+            }.filter { (_, modifiers) ->
+                modifiers.isNotEmpty()
+            }.forEach { (state, modifiers) ->
+                originValues.stateData = originValues.stateData.modify(state, OriginValues.StateData::modifiers) { modifiers }
             }
 
             return None
@@ -282,7 +283,7 @@ public sealed class OriginBuilder : OriginValues() {
         override suspend fun insertInto(originValues: OriginValues): Option<Exception> {
             super.getElements()
                 .associate { it.state to it.builder }
-                .forEach { (state, builder) -> originValues.stateData.modify(state, OriginValues.StateData::title) { title -> builder.mutateOrNew(title.orNull()).toOption() } }
+                .forEach { (state, builder) -> originValues.stateData = originValues.stateData.modify(state, OriginValues.StateData::title) { title -> builder.mutateOrNew(title.orNull()).toOption() } }
 
             return None
         }
@@ -313,7 +314,7 @@ public sealed class OriginBuilder : OriginValues() {
         /**
          * Calls this lambda when a damage event with the cause is called.
          *
-         * @param value
+         * @param lambda
          */
         public operator fun EntityDamageEvent.DamageCause.plusAssign(lambda: suspend (EntityDamageEvent) -> Unit) {
             DamageActionElement(
@@ -425,7 +426,7 @@ public sealed class OriginBuilder : OriginValues() {
                         } else damageActions[cause] = action
                     },
                     ifRight = { (state, amount) ->
-                        originValues.stateData.modify(state, OriginValues.StateData::damage) { damage ->
+                        originValues.stateData = originValues.stateData.modify(state, OriginValues.StateData::damage) { damage ->
                             damage.fold(
                                 ifEmpty = { amount },
                                 ifSome = { it + amount }
@@ -712,7 +713,7 @@ public sealed class OriginBuilder : OriginValues() {
             for (value in super.getElements()) {
                 value.fold(
                     ifLeft = { element ->
-                        suspend fun FoodProperties?.mutate(either: Either<Material, ItemMatcher>): FoodProperties {
+                        fun FoodProperties?.mutate(either: Either<Material, ItemMatcher>): FoodProperties {
                             val builder = FoodPropertyBuilder(this)
                             element.mutator.on(builder)
                             // TODO -> Filter default potions
@@ -758,6 +759,12 @@ public sealed class OriginBuilder : OriginValues() {
                 )
             }
 
+            originValues.foodData = originValues.foodData.copy(
+                matcherProperties = mutableMatcherProperties.build(),
+                materialProperties = mutableProperties.build(),
+                materialActions = mutableActions.build()
+            )
+
             return None
         }
 
@@ -773,7 +780,7 @@ public sealed class OriginBuilder : OriginValues() {
     }
 
     /** A Utility class for building abilities. */
-    public class AbilityBuilderPart internal constructor() : BuilderPart<AbilityGenerator<*>>() {
+    public class AbilityBuilderPart internal constructor() : BuilderPart<AbilityGenerator<out Ability>>() {
 
         /**
          * Adds a keybinding bound ability that is granted with this origin.
@@ -810,19 +817,19 @@ public sealed class OriginBuilder : OriginValues() {
          *
          * @param A The reified type of ability to add.
          */
-        public inline fun <reified A : Ability> newBuilder(): AbilityBuilder<A> = AbilityBuilder(None, A::class)
+        public inline fun <reified A : Ability> newBuilder(): AbilityBuilder<A> = AbilityBuilder.of()
 
         /**
          * Completes the ability builder and adds the ability to the origin.
          *
          * @receiver The ability builder to complete.
          */
-        public fun AbilityBuilder<*>.build() {
+        public fun <A : Ability> AbilityBuilder<in A>.build() {
             this.generator.copy().also(::addElement)
         }
 
         override suspend fun insertInto(originValues: OriginValues): Option<Exception> {
-            AbilityData::generators.lens.modify(originValues.abilityData) { generators ->
+            originValues.abilityData = AbilityData::generators.lens.modify(originValues.abilityData) { generators ->
                 generators.builder().also { set -> set.addAll(super.getElements()) }.build()
             }
             return None
