@@ -28,7 +28,7 @@ public class Leap(
 
     override suspend fun handleChargeRelease(charge: Float) {
         RayCastingSupplier.of(abilityPlayer)
-            .filter { it.hitPosition.y - abilityPlayer.location.y > jumpHeight }
+            .filter { (abilityPlayer.location.y - it.hitPosition.y) <= jumpHeight }
             .fold(
                 ifEmpty = ::failActivation,
                 ifSome = {
