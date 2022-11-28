@@ -42,10 +42,10 @@ import dev.racci.terix.api.origins.sounds.SoundEffect
 import dev.racci.terix.api.origins.sounds.SoundEffects
 import dev.racci.terix.api.origins.states.State
 import dev.racci.terix.api.origins.states.State.Companion.convertLiquidToState
+import dev.racci.terix.api.services.StorageService
 import dev.racci.terix.core.commands.TerixPermissions
 import dev.racci.terix.core.extensions.fromOrigin
 import dev.racci.terix.core.extensions.message
-import dev.racci.terix.core.extensions.originTime
 import dev.racci.terix.core.extensions.sanitise
 import dev.racci.terix.core.origins.DragonOrigin
 import kotlinx.coroutines.CoroutineScope
@@ -210,27 +210,30 @@ public class ListenerService(override val plugin: Terix) : Extension<Terix>() {
             ignoreCancelled = true,
             priority = EventPriority.LOWEST
         ) {
+            val databaseEntity = TerixPlayer[player].databaseEntity
+
             if (newOrigin === preOrigin) {
                 result = PlayerOriginChangeEvent.Result.CURRENT_ORIGIN
                 return@event cancel()
             }
 
-            if (!skipRequirement && !StorageService.transaction { TerixPlayer[player].grants.contains(newOrigin.name) } && newOrigin.requirements.isNotEmpty() && newOrigin.requirements.any { !it.second(player) }) {
+            if (!skipRequirement && !databaseEntity.grants.contains(newOrigin.name) && newOrigin.requirements.isNotEmpty() && newOrigin.requirements.any { !it.second(player) }) {
                 result = PlayerOriginChangeEvent.Result.NO_PERMISSION
                 return@event cancel()
             }
 
             val now = now()
-            if (!this.player.hasPermissionOrStar(TerixPermissions.selectionBypassCooldown.permission) && !bypassCooldown && player.originTime + terixConfig.intervalBeforeChange > now) {
+            if (!this.player.hasPermissionOrStar(TerixPermissions.selectionBypassCooldown.permission) && !bypassCooldown && databaseEntity.lastChosenTime + terixConfig.intervalBeforeChange > now) {
                 result = PlayerOriginChangeEvent.Result.ON_COOLDOWN
                 return@event cancel()
             }
 
-            if (!this.player.hasPermissionOrStar(TerixPermissions.selectionBypassCooldown.permission) && !bypassCooldown) player.originTime = now
+            StorageService.transaction {
+                if (!player.hasPermissionOrStar(TerixPermissions.selectionBypassCooldown.permission) && !bypassCooldown) databaseEntity.lastChosenTime = now
+                databaseEntity.origin = newOrigin
+            }
 
-            transaction(getKoin().getProperty("terix:database")) { TerixPlayer[player.uniqueId].origin = newOrigin }
             OriginHelper.changeTo(player, preOrigin, newOrigin) // TODO: This should cover the removeUnfulfilled method
-//            removeUnfulfilledOrInvalidAttributes(player, newOrigin)
 
             lang.origin.broadcast[
                 "player" to { player.displayName() },
@@ -266,8 +269,7 @@ public class ListenerService(override val plugin: Terix) : Extension<Terix>() {
             PlayerJoinEvent::class,
             PlayerPostRespawnEvent::class,
             PlayerOriginChangeEvent::class,
-            priority = EventPriority.MONITOR,
-            ignoreCancelled = true
+            priority = EventPriority.MONITOR
         ) { TerixPlayer.cachedOrigin(player).handleLoad(player) }
 
         this.stateHandlers()

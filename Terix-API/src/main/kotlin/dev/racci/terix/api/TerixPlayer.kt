@@ -1,38 +1,54 @@
 package dev.racci.terix.api
 
-import arrow.core.Option
 import arrow.core.getOrElse
 import arrow.core.toOption
 import arrow.fx.coroutines.Atomic
+import com.github.benmanes.caffeine.cache.Caffeine
+import dev.racci.minix.api.extensions.msg
 import dev.racci.minix.api.extensions.onlinePlayer
 import dev.racci.minix.api.services.DataService
-import dev.racci.minix.api.utils.getKoin
+import dev.racci.minix.core.services.DataServiceImpl.DataHolder.Companion.getKoin
+import dev.racci.minix.core.services.DataServiceImpl.DataHolder.Companion.memoizedTransform
 import dev.racci.terix.api.data.TerixConfig
 import dev.racci.terix.api.origins.origin.Origin
+import dev.racci.terix.api.services.StorageService
 import kotlinx.datetime.Instant
 import net.minecraft.server.level.ServerPlayer
 import org.bukkit.craftbukkit.v1_19_R1.entity.CraftPlayer
 import org.bukkit.entity.Player
 import org.jetbrains.exposed.dao.ColumnWithTransform
+import org.jetbrains.exposed.dao.DaoEntityID
 import org.jetbrains.exposed.dao.UUIDEntity
 import org.jetbrains.exposed.dao.UUIDEntityClass
 import org.jetbrains.exposed.dao.id.EntityID
 import org.jetbrains.exposed.dao.id.UUIDTable
 import org.jetbrains.exposed.sql.Column
 import org.jetbrains.exposed.sql.kotlin.datetime.timestamp
+import org.jetbrains.exposed.sql.transactions.TransactionManager
+import org.koin.core.component.get
 import java.util.UUID
 
 // TODO -> Maybe mark all as immutable and make a new class when origin changes?
 public class TerixPlayer private constructor(
-    id: EntityID<UUID>,
-    public val backingPlayer: CraftPlayer = onlinePlayer(id.value) as? CraftPlayer ?: error("Player with UUID $id is not online")
-) : UUIDEntity(id), Player by backingPlayer {
+    private val id: DaoEntityID<UUID>,
+    public val backingPlayer: CraftPlayer = onlinePlayer(id.value) as? CraftPlayer ?: error("Player with UUID $id is not online"),
     public val ticks: TickCache = TickCache()
+) : Player by backingPlayer {
+    public val databaseEntity: TerixPlayerEntity get() {
+        return if (TransactionManager.currentOrNull() != null) {
+            TerixPlayerEntity[id]
+        } else StorageService.transaction { TerixPlayerEntity[this@TerixPlayer.id] } // Maybe readonly for this?
+    }
 
-    public var lastChosenTime: Option<Instant> by User.lastChosenTime
-    public var freeChanges: Int by User.freeChanges
-    public val grants: MutableSet<String> by User.grants
-    public var origin: Origin by User.origin
+    public var origin: Origin = databaseEntity.origin
+        set(value) {
+            field = value
+            databaseEntity.origin = value
+        }
+
+    init {
+        msg("Welcome to Terix!")
+    }
 
     public val handle: ServerPlayer get() = backingPlayer.handle
 
@@ -57,11 +73,34 @@ public class TerixPlayer private constructor(
         }
     }
 
-    public companion object : UUIDEntityClass<TerixPlayer>(User, TerixPlayer::class.java, ::TerixPlayer) {
-        public operator fun get(player: Player): TerixPlayer = get(player.uniqueId)
+    public class TerixPlayerEntity(
+        id: EntityID<UUID>
+    ) : UUIDEntity(id) {
+        public var lastChosenTime: Instant by User.lastChosenTime
+        public var freeChanges: Int by User.freeChanges
+        public val grants: MutableSet<String> by User.grants
+        public var origin: Origin by User.origin
 
-        @Deprecated("Use class methods instead", ReplaceWith("TerixPlayer[player].ticks"))
-        public fun cachedTicks(player: Player): TerixPlayer.TickCache = get(player).ticks
+        public companion object : UUIDEntityClass<TerixPlayerEntity>(User, TerixPlayerEntity::class.java, ::TerixPlayerEntity)
+    }
+
+    public companion object {
+        private val playerCache = Caffeine.newBuilder().weakKeys()
+            .build<UUID, TerixPlayer>()
+
+        public operator fun get(player: Player): TerixPlayer {
+            if (player is TerixPlayer) return player
+
+            return playerCache.get(player.uniqueId) {
+                TerixPlayer(DaoEntityID(player.uniqueId, User))
+            }
+        }
+
+        public operator fun get(uuid: UUID): TerixPlayer {
+            return playerCache.get(uuid) {
+                TerixPlayer(DaoEntityID(uuid, User))
+            }
+        }
 
         @JvmName("cachedOriginNotNull")
         @Suppress("INAPPLICABLE_JVM_NAME")
@@ -87,13 +126,13 @@ public class TerixPlayer private constructor(
                     .getOrElse(OriginService::defaultOrigin)
             }
 
-        public val lastChosenTime: ColumnWithTransform<Instant?, Option<Instant>> = timestamp("last_chosen_time").nullable()
-            .default(null)
-            .transform({ option -> option.orNull() }) { rawInstant -> Option.fromNullable(rawInstant) }
+        public val lastChosenTime: Column<Instant> = timestamp("last_chosen_time").default(Instant.DISTANT_PAST)
 
-        public val freeChanges: Column<Int> = integer("free_changes").default(DataService.getService().get<TerixConfig>().freeChanges)
+        public val freeChanges: Column<Int> = integer("free_changes")
+            .clientDefault { DataService.get<TerixConfig>().freeChanges }
+            .check { it greaterEq 0 }
 
-        public val grants: ColumnWithTransform<String, MutableSet<String>> = text("explicit_grants", eagerLoading = true)
+        public val grants: ColumnWithTransform<String, MutableSet<String>> = text("explicit_grants")
             .default("")
             .memoizedTransform({ transformed -> transformed.joinToString(",") }) { rawText -> rawText.split(",").toMutableSet() }
     }
