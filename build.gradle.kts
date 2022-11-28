@@ -207,4 +207,8 @@ allprojects {
     tasks.compileKotlin {
         this.kotlinOptions.useK2 = false
     }
+
+    tasks.ktlintGenerateBaseline {
+        this.baselineFile.set(File("$rootDir/config/ktlint/${project.name}-baseline.xml"))
+    }
 }
