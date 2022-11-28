@@ -105,7 +105,7 @@ subprojects {
         compileOnly(rootProject.libs.arrow.core)
         compileOnly(rootProject.libs.arrow.fx.stm)
         compileOnly(rootProject.libs.arrow.fx.coroutines)
-        compileOnly("io.arrow-kt:arrow-optics-reflect:${rootProject.libs.versions.arrow.get()}")
+        compileOnly(rootProject.libs.arrow.optics.reflect)
 
         ksp(rootProject.libs.arrow.optics.ksp)
 
