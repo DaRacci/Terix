@@ -48,9 +48,9 @@ import kotlin.jvm.Throws
 import kotlin.reflect.KClass
 import kotlin.reflect.KProperty1
 import kotlin.reflect.full.findParameterByName
-import kotlin.reflect.full.isSupertypeOf
 import kotlin.reflect.full.primaryConstructor
 import kotlin.reflect.full.starProjectedType
+import kotlin.reflect.jvm.jvmErasure
 
 // TODO -> Return non mutable versions of all elements
 public sealed class OriginValues : WithPlugin<MinixPlugin> {
@@ -240,7 +240,11 @@ public sealed class OriginValues : WithPlugin<MinixPlugin> {
                     // TODO -> Better type checks
                     requireNotNull(parameter) { "No parameter with name $name" }
                     require((parameter.type.isMarkedNullable && value != null) || !parameter.type.isMarkedNullable) { "Value for parameter $name is null but parameter is not nullable" }
-                    if (value != null && parameter.type.classifier != null) require(parameter.type.classifier!!.starProjectedType.isSupertypeOf(value::class.starProjectedType)) { "Value for parameter $name is not of type ${parameter.type}" }
+                    if (value != null && parameter.type.classifier != null) {
+                        val requiredErasure = parameter.type.jvmErasure.java
+                        val actualErasure = value::class.starProjectedType.jvmErasure.java
+                        require(requiredErasure.isAssignableFrom(actualErasure)) { "Value for parameter $name is not of type ${parameter.type}, found ${value::class}" }
+                    }
 
                     put(parameter, value)
                 }
