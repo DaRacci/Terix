@@ -392,7 +392,7 @@ public sealed class State : WithPlugin<Terix> {
             filter = { false }
         ).filter { it.isFinal }.map { it.objectInstance!! }.toTypedArray()
 
-        public fun getPlayerStates(player: Player): PersistentSet<State> = activeStates[player].toPersistentSet()
+        public operator fun get(player: Player): PersistentSet<State> = this.activeStates[player].toPersistentSet()
 
         public fun valueOf(name: String): State {
             plugin.log.debug { values.joinToString(", ") { it.name } }

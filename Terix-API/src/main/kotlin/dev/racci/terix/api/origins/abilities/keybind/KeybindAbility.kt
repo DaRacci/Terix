@@ -1,6 +1,10 @@
 package dev.racci.terix.api.origins.abilities.keybind
 
 import dev.racci.minix.api.events.keybind.ComboEvent
+import dev.racci.minix.api.events.keybind.PlayerDoubleSecondaryEvent
+import dev.racci.minix.api.events.keybind.PlayerSecondaryEvent
+import dev.racci.minix.api.events.keybind.PlayerSneakDoubleSecondaryEvent
+import dev.racci.minix.api.events.keybind.PlayerSneakSecondaryEvent
 import dev.racci.minix.api.extensions.WithPlugin
 import dev.racci.minix.api.extensions.event
 import dev.racci.minix.api.flow.playerEventFlow
@@ -13,7 +17,6 @@ import dev.racci.terix.api.events.PlayerOriginChangeEvent
 import dev.racci.terix.api.origins.abilities.Ability
 import dev.racci.terix.api.origins.enums.KeyBinding
 import kotlinx.coroutines.flow.onEach
-import org.bukkit.Material
 import org.bukkit.NamespacedKey
 import org.bukkit.craftbukkit.v1_19_R1.persistence.CraftPersistentDataTypeRegistry
 import org.bukkit.craftbukkit.v1_19_R1.persistence.DirtyCraftPersistentDataContainer
@@ -48,7 +51,10 @@ public sealed class KeybindAbility : Ability() {
 
     protected fun shouldIgnoreKeybind(event: Event): Boolean {
         return when (event) {
-            is ComboEvent -> abilityPlayer.activeItem.type != Material.AIR || event.isBlockEvent && event.item?.type?.isBlock == true
+            is PlayerSecondaryEvent,
+            is PlayerSneakSecondaryEvent,
+            is PlayerDoubleSecondaryEvent,
+            is PlayerSneakDoubleSecondaryEvent -> abilityPlayer.activeItem.type.isEdible || (event as ComboEvent).isBlockEvent && event.item?.type?.isBlock == true
             else -> false
         }
     }

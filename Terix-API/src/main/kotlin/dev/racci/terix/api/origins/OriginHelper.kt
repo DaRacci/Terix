@@ -111,7 +111,7 @@ public object OriginHelper : KoinComponent, WithPlugin<Terix> {
             origin.handleDeactivate(player)
             player.setImmuneToFire(null)
             player.setCanBreathUnderwater(null)
-            State.activeStates[player].forEach { state -> state.deactivate(player, origin) }
+            State[player].forEach { state -> state.deactivate(player, origin) }
             origin.abilityData.close(player)
 
 //            sync { getBaseOriginPotions(player, null).forEach(player::removePotionEffect) }
@@ -133,7 +133,7 @@ public object OriginHelper : KoinComponent, WithPlugin<Terix> {
         player: Player,
         origin: Origin = TerixPlayer.cachedOrigin(player)
     ) {
-        State.activeStates[player].forEach { state ->
+        State[player].forEach { state ->
             state.deactivate(player, origin)
         }
 

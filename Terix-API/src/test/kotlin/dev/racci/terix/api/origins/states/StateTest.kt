@@ -31,17 +31,17 @@ class StateTest : FunSpec({
 
     test("incompatible states test") {
         State.TimeState.DAY.activate(Bootstrap.mockPlayer, Bootstrap.mockOrigin)
-        assertTrue("Player states should contain DAY.") { State.getPlayerStates(Bootstrap.mockPlayer).contains(State.TimeState.DAY) }
+        assertTrue("Player states should contain DAY.") { State[Bootstrap.mockPlayer].contains(State.TimeState.DAY) }
 
         State.TimeState.NIGHT.activate(Bootstrap.mockPlayer, Bootstrap.mockOrigin)
-        assertFalse("Player states should not contain DAY.") { State.getPlayerStates(Bootstrap.mockPlayer).contains(State.TimeState.DAY) }
+        assertFalse("Player states should not contain DAY.") { State[Bootstrap.mockPlayer].contains(State.TimeState.DAY) }
     }
 
     test("exchange states test") {
         State.WorldState.OVERWORLD.activate(Bootstrap.mockPlayer, Bootstrap.mockOrigin)
         State.WorldState.OVERWORLD.exchange(Bootstrap.mockPlayer, Bootstrap.mockOrigin, State.WorldState.NETHER)
-        assertFalse("Player states shouldn't contain OVERWORLD.") { State.getPlayerStates(Bootstrap.mockPlayer).contains(State.WorldState.OVERWORLD) }
-        assertTrue("Player states should contain NETHER.") { State.getPlayerStates(Bootstrap.mockPlayer).contains(State.WorldState.NETHER) }
+        assertFalse("Player states shouldn't contain OVERWORLD.") { State[Bootstrap.mockPlayer].contains(State.WorldState.OVERWORLD) }
+        assertTrue("Player states should contain NETHER.") { State[Bootstrap.mockPlayer].contains(State.WorldState.NETHER) }
     }
 
     fun playerAttributeSetup(): AttributeInstance {
@@ -70,13 +70,13 @@ class StateTest : FunSpec({
             every { isDayTime } returns true
             every { isNight } returns true
         }
-        assertNull(State.getTimeState(world))
+        assertNull(State.TimeState.getTimeState(world))
 
         every { world.environment } returns World.Environment.NORMAL
-        assertEquals(State.TimeState.DAY, State.getTimeState(world))
+        assertEquals(State.TimeState.DAY, State.TimeState.getTimeState(world))
 
         every { world.isDayTime } returns false
-        assertEquals(State.TimeState.NIGHT, State.getTimeState(world))
+        assertEquals(State.TimeState.NIGHT, State.TimeState.getTimeState(world))
     }
 
 //    test("getting weather state") {

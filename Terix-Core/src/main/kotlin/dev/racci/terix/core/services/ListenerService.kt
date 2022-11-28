@@ -19,6 +19,8 @@ import dev.racci.minix.api.services.DataService
 import dev.racci.minix.api.services.DataService.Companion.inject
 import dev.racci.minix.api.utils.now
 import dev.racci.minix.api.utils.ticks
+import dev.racci.minix.nms.aliases.NMSItemStack
+import dev.racci.minix.nms.aliases.NMSServerPlayer
 import dev.racci.terix.api.Terix
 import dev.racci.terix.api.data.Lang
 import dev.racci.terix.api.data.OriginNamespacedTag
@@ -28,8 +30,6 @@ import dev.racci.terix.api.events.PlayerOriginChangeEvent
 import dev.racci.terix.api.extensions.handle
 import dev.racci.terix.api.extensions.playSound
 import dev.racci.terix.api.origins.OriginHelper
-import dev.racci.terix.api.origins.OriginHelper.activateOrigin
-import dev.racci.terix.api.origins.OriginHelper.deactivateOrigin
 import dev.racci.terix.api.origins.origin.Origin
 import dev.racci.terix.api.origins.origin.PlayerLambda
 import dev.racci.terix.api.origins.sounds.SoundEffect
@@ -39,7 +39,6 @@ import dev.racci.terix.api.services.StorageService
 import dev.racci.terix.core.commands.TerixPermissions
 import dev.racci.terix.core.extensions.fromOrigin
 import dev.racci.terix.core.extensions.message
-import dev.racci.terix.core.extensions.sanitise
 import dev.racci.terix.core.origins.DragonOrigin
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.ExperimentalCoroutinesApi
@@ -55,7 +54,6 @@ import kotlinx.coroutines.flow.mapNotNull
 import kotlinx.coroutines.flow.onEach
 import kotlinx.coroutines.newCoroutineContext
 import net.minecraft.advancements.CriteriaTriggers
-import net.minecraft.server.level.ServerPlayer
 import net.minecraft.stats.Stats
 import net.minecraft.world.InteractionHand
 import net.minecraft.world.food.FoodProperties
@@ -76,6 +74,7 @@ import org.bukkit.event.entity.PlayerDeathEvent
 import org.bukkit.event.entity.ProjectileHitEvent
 import org.bukkit.event.player.PlayerGameModeChangeEvent
 import org.bukkit.event.player.PlayerJoinEvent
+import org.bukkit.event.player.PlayerKickEvent
 import org.bukkit.event.player.PlayerQuitEvent
 import org.bukkit.inventory.ItemStack
 import org.bukkit.persistence.PersistentDataType
@@ -113,12 +112,20 @@ public class ListenerService(override val plugin: Terix) : Extension<Terix>() {
             scheduler { bowTracker.remove(entity, bow) }.runAsyncTaskLater(plugin, 2.ticks)
         }
 
-        event<PlayerQuitEvent>(EventPriority.MONITOR, true) { player.sanitise() }
+        events(
+            PlayerQuitEvent::class,
+            PlayerKickEvent::class,
+            priority = EventPriority.HIGHEST,
+            ignoreCancelled = true,
+            block = { OriginHelper.deactivateOrigin(player) } // TODO WHY NO WORK
+        )
+
+//        event<PlayerQuitEvent>(EventPriority.MONITOR, true) { player.sanitise() }
 
         event<PlayerJoinEvent> {
             val origin = TerixPlayer.cachedOrigin(player)
-            removeUnfulfilledOrInvalidAttributes(player, origin) // Sometimes we can miss some attributes, so we need to remove them
-            activateOrigin(player, origin)
+//            removeUnfulfilledOrInvalidAttributes(player, origin) // Sometimes we can miss some attributes, so we need to remove them
+            OriginHelper.activateOrigin(player, origin)
         }
 
         event<PlayerPostRespawnEvent>(forceAsync = true) {
@@ -226,18 +233,11 @@ public class ListenerService(override val plugin: Terix) : Extension<Terix>() {
 
         event<PlayerGameModeChangeEvent> {
             if (this.newGameMode.ordinal in 1..2) {
-                return@event activateOrigin(player)
+                return@event OriginHelper.activateOrigin(player)
             }
 
-            deactivateOrigin(player)
+            OriginHelper.deactivateOrigin(player)
         }
-
-        events(
-            PlayerJoinEvent::class,
-            PlayerPostRespawnEvent::class,
-            PlayerOriginChangeEvent::class,
-            priority = EventPriority.MONITOR
-        ) { TerixPlayer.cachedOrigin(player).handleLoad(player) }
 
         this.soundHandlers()
         this.requirementHandlers()
@@ -288,7 +288,7 @@ public class ListenerService(override val plugin: Terix) : Extension<Terix>() {
     private suspend fun handle(event: PlayerSecondaryEvent) {
         if (alreadyEdible(event)) return
 
-        val origin = TerixPlayer.cachedOrigin(event.player)
+        val origin = TerixPlayer[event.player].origin
         val serverPlayer = event.player.handle
         val hand = serverPlayer.usedItemHand
         val itemStack = event.item!!
@@ -362,10 +362,10 @@ public class ListenerService(override val plugin: Terix) : Extension<Terix>() {
     private fun modifyFoodEvent(
         player: Player,
         item: ItemStack,
-        origin: Origin = TerixPlayer.cachedOrigin(player),
-        serverPlayer: ServerPlayer = player.handle,
+        origin: Origin = TerixPlayer[player].origin,
+        serverPlayer: NMSServerPlayer = player.handle,
         hand: InteractionHand = serverPlayer.usedItemHand,
-        itemStack: net.minecraft.world.item.ItemStack = serverPlayer.getItemInHand(hand),
+        itemStack: NMSItemStack = serverPlayer.getItemInHand(hand),
         foodProperties: FoodProperties? = origin.foodData.getProperties(item),
         lambda: PlayerLambda? = origin.foodData.getAction(item),
         foodLevelChangeEvent: FoodLevelChangeEvent? = null
@@ -428,7 +428,7 @@ public class ListenerService(override val plugin: Terix) : Extension<Terix>() {
     private fun removeUnfulfilledOrInvalidAttributes(
         player: Player,
         origin: Origin,
-        activeTriggers: Set<State> = State.getPlayerStates(player)
+        activeTriggers: Set<State> = State[player]
     ) {
         for (attribute in Attribute.values()) {
             val inst = player.getAttribute(attribute) ?: continue

@@ -54,6 +54,11 @@ public class TerixPlayer private constructor(
         get() = databaseEntity.origin
         set(value) = ensureTransaction { databaseEntity.origin = value }
 
+    override fun equals(other: Any?): Boolean {
+        if (other == null) return false
+        return other is Player && other.uniqueId == this.uniqueId
+    }
+
     private inline fun ensureTransaction(f: () -> Unit) {
         if (TransactionManager.currentOrNull() == null) error("Unable to perform set operation on snapshot entity.")
         f()

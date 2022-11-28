@@ -106,6 +106,7 @@ subprojects {
         compileOnly(rootProject.libs.arrow.fx.stm)
         compileOnly(rootProject.libs.arrow.fx.coroutines)
         compileOnly(rootProject.libs.arrow.optics.reflect)
+        compileOnly(rootProject.libs.aedile)
 
         ksp(rootProject.libs.arrow.optics.ksp)
 
