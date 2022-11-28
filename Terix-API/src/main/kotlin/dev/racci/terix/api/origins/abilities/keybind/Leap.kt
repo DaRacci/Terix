@@ -35,9 +35,11 @@ public class Leap(
                     abilityPlayer.playSound(Sound.sound(Key.key("minecraft:entity.slime.jump"), Sound.Source.PLAYER, 1f, charge.reverseByteOrder())) // TODO -> Pitch based on charge
                     abilityPlayer.velocity = abilityPlayer.location.direction.multiply(jumpHeight * charge)
                     ParticleBuilder(Particle.CLOUD)
-                        .count(5)
                         .offset(0.5, 0.5, 0.5)
+                        .source(abilityPlayer.backingPlayer)
                         .location(abilityPlayer.location)
+                        .count(5)
+                        .also { builder -> sync { builder.receivers(16) } }
                         .spawn()
                 }
             )
@@ -45,21 +47,21 @@ public class Leap(
 
     override suspend fun handleChargeIncrease(charge: Float) {
         ParticleBuilder(Particle.SLIME)
+            .offset(0.5, 0.5, 0.5)
+            .source(abilityPlayer.backingPlayer)
             .location(abilityPlayer.location)
             .count(10 * charge.toInt())
-            .offset(0.5, 0.5, 0.5)
-            .receivers(abilityPlayer)
-            .source(abilityPlayer)
+            .also { builder -> sync { builder.receivers(16) } }
             .spawn()
     }
 
     override suspend fun handleChargeDecrease(charge: Float) {
         ParticleBuilder(Particle.ASH)
+            .offset(0.5, 0.5, 0.5)
+            .source(abilityPlayer.backingPlayer)
             .location(abilityPlayer.location)
             .count(10 * charge.toInt())
-            .offset(0.5, 0.5, 0.5)
-            .receivers(abilityPlayer)
-            .source(abilityPlayer)
+            .also { builder -> sync { builder.receivers(16) } }
             .spawn()
     }
 }
