@@ -5,18 +5,12 @@ import com.destroystokyo.paper.event.player.PlayerPostRespawnEvent
 import dev.racci.minix.api.annotations.MappedExtension
 import dev.racci.minix.api.collections.PlayerMap
 import dev.racci.minix.api.events.keybind.PlayerSecondaryEvent
-import dev.racci.minix.api.events.player.PlayerLiquidEnterEvent
-import dev.racci.minix.api.events.player.PlayerLiquidExitEvent
-import dev.racci.minix.api.events.player.PlayerMoveFullXYZEvent
-import dev.racci.minix.api.events.world.WorldDayEvent
-import dev.racci.minix.api.events.world.WorldNightEvent
 import dev.racci.minix.api.extension.Extension
 import dev.racci.minix.api.extensions.cancel
 import dev.racci.minix.api.extensions.collections.computeAndRemove
 import dev.racci.minix.api.extensions.event
 import dev.racci.minix.api.extensions.events
 import dev.racci.minix.api.extensions.hasPermissionOrStar
-import dev.racci.minix.api.extensions.inOverworld
 import dev.racci.minix.api.extensions.onlinePlayers
 import dev.racci.minix.api.extensions.pdc
 import dev.racci.minix.api.extensions.scheduler
@@ -26,10 +20,10 @@ import dev.racci.minix.api.services.DataService.Companion.inject
 import dev.racci.minix.api.utils.now
 import dev.racci.minix.api.utils.ticks
 import dev.racci.terix.api.Terix
-import dev.racci.terix.api.TerixPlayer
 import dev.racci.terix.api.data.Lang
 import dev.racci.terix.api.data.OriginNamespacedTag
 import dev.racci.terix.api.data.TerixConfig
+import dev.racci.terix.api.data.player.TerixPlayer
 import dev.racci.terix.api.events.PlayerOriginChangeEvent
 import dev.racci.terix.api.extensions.handle
 import dev.racci.terix.api.extensions.playSound
@@ -41,7 +35,6 @@ import dev.racci.terix.api.origins.origin.PlayerLambda
 import dev.racci.terix.api.origins.sounds.SoundEffect
 import dev.racci.terix.api.origins.sounds.SoundEffects
 import dev.racci.terix.api.origins.states.State
-import dev.racci.terix.api.origins.states.State.Companion.convertLiquidToState
 import dev.racci.terix.api.services.StorageService
 import dev.racci.terix.core.commands.TerixPermissions
 import dev.racci.terix.core.extensions.fromOrigin
@@ -81,13 +74,11 @@ import org.bukkit.event.entity.EntityShootBowEvent
 import org.bukkit.event.entity.FoodLevelChangeEvent
 import org.bukkit.event.entity.PlayerDeathEvent
 import org.bukkit.event.entity.ProjectileHitEvent
-import org.bukkit.event.player.PlayerChangedWorldEvent
 import org.bukkit.event.player.PlayerGameModeChangeEvent
 import org.bukkit.event.player.PlayerJoinEvent
 import org.bukkit.event.player.PlayerQuitEvent
 import org.bukkit.inventory.ItemStack
 import org.bukkit.persistence.PersistentDataType
-import org.jetbrains.exposed.sql.transactions.transaction
 import org.koin.core.component.inject
 import java.util.UUID
 import kotlin.reflect.KProperty1
@@ -138,20 +129,6 @@ public class ListenerService(override val plugin: Terix) : Extension<Terix>() {
         }
 
         event<EntityPotionEffectEvent> { if (shouldCancel()) cancel() }
-
-        event<WorldNightEvent>(forceAsync = true) { switchTimeStates(State.TimeState.NIGHT) }
-        event<WorldDayEvent>(forceAsync = true) { switchTimeStates(State.TimeState.DAY) }
-
-        event<PlayerChangedWorldEvent>(forceAsync = true) {
-            val lastState = State.getEnvironmentState(from.environment)
-            val newState = State.getEnvironmentState(player.world.environment)
-            val origin = TerixPlayer.cachedOrigin(player)
-
-            if (lastState == newState) return@event
-
-            State.getTimeState(from)?.deactivate(player, origin)
-            lastState.exchange(player, origin, newState)
-        }
 
         event<EntityCombustEvent> {
             val player = entity as? Player ?: return@event
@@ -210,26 +187,27 @@ public class ListenerService(override val plugin: Terix) : Extension<Terix>() {
             ignoreCancelled = true,
             priority = EventPriority.LOWEST
         ) {
-            val databaseEntity = TerixPlayer[player].databaseEntity
-
-            if (newOrigin === preOrigin) {
-                result = PlayerOriginChangeEvent.Result.CURRENT_ORIGIN
-                return@event cancel()
-            }
-
-            if (!skipRequirement && !databaseEntity.grants.contains(newOrigin.name) && newOrigin.requirements.isNotEmpty() && newOrigin.requirements.any { !it.second(player) }) {
-                result = PlayerOriginChangeEvent.Result.NO_PERMISSION
-                return@event cancel()
-            }
-
-            val now = now()
-            if (!this.player.hasPermissionOrStar(TerixPermissions.selectionBypassCooldown.permission) && !bypassCooldown && databaseEntity.lastChosenTime + terixConfig.intervalBeforeChange > now) {
-                result = PlayerOriginChangeEvent.Result.ON_COOLDOWN
-                return@event cancel()
-            }
-
             StorageService.transaction {
+                val databaseEntity = TerixPlayer[player].databaseEntity
+
+                if (newOrigin === preOrigin) {
+                    result = PlayerOriginChangeEvent.Result.CURRENT_ORIGIN
+                    return@transaction cancel()
+                }
+
+                if (!skipRequirement && !databaseEntity.grants.contains(newOrigin.name) && newOrigin.requirements.isNotEmpty() && newOrigin.requirements.any { !it.second(player) }) {
+                    result = PlayerOriginChangeEvent.Result.NO_PERMISSION
+                    return@transaction cancel()
+                }
+
+                val now = now()
+                if (!player.hasPermissionOrStar(TerixPermissions.selectionBypassCooldown.permission) && !bypassCooldown && databaseEntity.lastChosenTime + terixConfig.intervalBeforeChange > now) {
+                    result = PlayerOriginChangeEvent.Result.ON_COOLDOWN
+                    return@transaction cancel()
+                }
+
                 if (!player.hasPermissionOrStar(TerixPermissions.selectionBypassCooldown.permission) && !bypassCooldown) databaseEntity.lastChosenTime = now
+
                 databaseEntity.origin = newOrigin
             }
 
@@ -246,17 +224,6 @@ public class ListenerService(override val plugin: Terix) : Extension<Terix>() {
 
         event(EventPriority.HIGHEST, ignoreCancelled = true, forceAsync = false, block = ::handle)
 
-        event<PlayerMoveFullXYZEvent> {
-            val lastState = State.getBiomeState(from)
-            val currentState = State.getBiomeState(to)
-            if (lastState == currentState) return@event
-
-            val origin = TerixPlayer.cachedOrigin(player)
-
-            lastState?.deactivate(player, origin)
-            currentState?.activate(player, origin)
-        }
-
         event<PlayerGameModeChangeEvent> {
             if (this.newGameMode.ordinal in 1..2) {
                 return@event activateOrigin(player)
@@ -272,14 +239,8 @@ public class ListenerService(override val plugin: Terix) : Extension<Terix>() {
             priority = EventPriority.MONITOR
         ) { TerixPlayer.cachedOrigin(player).handleLoad(player) }
 
-        this.stateHandlers()
         this.soundHandlers()
         this.requirementHandlers()
-    }
-
-    private fun stateHandlers() {
-        event<PlayerLiquidEnterEvent> { convertLiquidToState(previousType).exchange(player, TerixPlayer.cachedOrigin(player), convertLiquidToState(newType)) }
-        event<PlayerLiquidExitEvent> { convertLiquidToState(previousType).exchange(player, TerixPlayer.cachedOrigin(player), convertLiquidToState(newType)) }
     }
 
     private fun soundHandlers() {
@@ -491,15 +452,6 @@ public class ListenerService(override val plugin: Terix) : Extension<Terix>() {
                 } ?: inst.removeModifier(modifier)
             }
         }
-    }
-
-    private suspend fun switchTimeStates(state: State) {
-        onlinePlayers.filter(Player::inOverworld)
-            .onEach { player ->
-                val origin = TerixPlayer.cachedOrigin(player)
-                val oldState = if (state === State.TimeState.DAY) State.TimeState.NIGHT else State.TimeState.DAY
-                oldState.exchange(player, origin, state)
-            }
     }
 
     @OptIn(ExperimentalCoroutinesApi::class)

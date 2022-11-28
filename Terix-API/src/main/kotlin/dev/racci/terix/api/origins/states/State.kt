@@ -2,18 +2,30 @@ package dev.racci.terix.api.origins.states
 
 import dev.racci.minix.api.data.enums.LiquidType
 import dev.racci.minix.api.data.enums.LiquidType.Companion.liquidType
+import dev.racci.minix.api.events.player.PlayerLiquidEnterEvent
+import dev.racci.minix.api.events.player.PlayerLiquidExitEvent
+import dev.racci.minix.api.events.player.PlayerMoveFullXYZEvent
+import dev.racci.minix.api.events.world.WorldDayEvent
+import dev.racci.minix.api.events.world.WorldNightEvent
 import dev.racci.minix.api.extensions.WithPlugin
+import dev.racci.minix.api.extensions.event
+import dev.racci.minix.api.extensions.events
+import dev.racci.minix.api.extensions.inOverworld
 import dev.racci.minix.api.extensions.isNight
+import dev.racci.minix.api.extensions.onlinePlayers
 import dev.racci.minix.api.extensions.reflection.castOrThrow
 import dev.racci.minix.api.utils.RecursionUtils
-import dev.racci.minix.api.utils.getKoin
 import dev.racci.minix.nms.aliases.toNMS
 import dev.racci.terix.api.Terix
+import dev.racci.terix.api.data.player.TerixPlayer
+import dev.racci.terix.api.dsl.AttributeModifierBuilder
 import dev.racci.terix.api.dsl.PotionEffectBuilder
 import dev.racci.terix.api.extensions.concurrentMultimap
 import dev.racci.terix.api.extensions.handle
 import dev.racci.terix.api.origins.OriginHelper
 import dev.racci.terix.api.origins.origin.Origin
+import dev.racci.terix.api.origins.states.State.BiomeState.Companion.getBiomeState
+import dev.racci.terix.api.origins.states.State.LiquidState.Companion.convertLiquidToState
 import dev.racci.terix.api.sentryScoped
 import kotlinx.collections.immutable.PersistentSet
 import kotlinx.collections.immutable.toPersistentSet
@@ -27,6 +39,12 @@ import org.bukkit.World.Environment
 import org.bukkit.block.Block
 import org.bukkit.craftbukkit.v1_19_R1.block.CraftBlock
 import org.bukkit.entity.Player
+import org.bukkit.event.Event
+import org.bukkit.event.EventPriority
+import org.bukkit.event.player.PlayerChangedWorldEvent
+import org.bukkit.event.player.PlayerEvent
+import org.koin.core.component.KoinComponent
+import org.koin.core.component.get
 import org.koin.core.component.inject
 import kotlin.reflect.KClass
 
@@ -40,20 +58,26 @@ public sealed class State : WithPlugin<Terix> {
 
     public sealed class StatedSource<I : Any> : State(), StateSource<I>
 
+    public sealed class DualState<I : Any> : StatedSource<I>() {
+        public abstract val opposite: DualState<I>
+    }
+
     public object CONSTANT : StatedSource<Nothing>() {
         override fun get(player: Player): Boolean = true
         override fun get(input: Nothing): Boolean = true
     }
 
-    public sealed class TimeState : StatedSource<World>() {
+    public sealed class TimeState : DualState<World>() {
         override fun get(player: Player): Boolean = this[player.world]
 
         public object DAY : TimeState() {
+            override val opposite: DualState<World> = NIGHT
             override val incompatibleStates: Array<out State> = arrayOf(NIGHT)
             override fun get(input: World): Boolean = getTimeState(input) === this
         }
 
         public object NIGHT : TimeState() {
+            override val opposite: DualState<World> = DAY
             override val incompatibleStates: Array<out State> = arrayOf(DAY)
             override fun get(input: World): Boolean = getTimeState(input) === this
         }
@@ -97,19 +121,46 @@ public sealed class State : WithPlugin<Terix> {
             override val incompatibleStates: Array<out State> = arrayOf(WATER, LAVA)
             override fun get(input: Block): Boolean = getLiquidState(input) === this
         }
+
+        public companion object {
+            public fun convertLiquidToState(liquid: LiquidType): LiquidState = when (liquid) {
+                LiquidType.WATER -> WATER
+                LiquidType.LAVA -> LAVA
+                else -> LAND
+            }
+        }
     }
 
-    public sealed class LightState : StatedSource<Nothing>() {
+    public sealed class LightState : DualState<Nothing>() {
         override fun get(input: Nothing): Boolean = throw UnsupportedOperationException("LightState is only takes players supported")
 
         public object SUNLIGHT : LightState() {
+            override val opposite: LightState = DARKNESS
             override val incompatibleStates: Array<out State> = arrayOf(DARKNESS)
             override fun get(player: Player): Boolean = getLightState(player) === this
         }
 
         public object DARKNESS : LightState() {
+            override val opposite: LightState = SUNLIGHT
             override val incompatibleStates: Array<out State> = arrayOf(SUNLIGHT)
             override fun get(player: Player): Boolean = getLightState(player) === this
+        }
+
+        public companion object {
+            public fun getLightState(player: Player): LightState? {
+                val inventory = player.inventory
+                if (inventory.itemInMainHand.type != Material.TORCH && inventory.itemInOffHand.type != Material.TORCH && player.location.block.lightLevel < 5) {
+                    return DARKNESS
+                }
+
+                val nms = player.handle
+                val pos = BlockPos(nms.x, nms.eyeY, nms.z)
+                if (player.world.toNMS().canSeeSky(pos)) {
+                    return SUNLIGHT
+                }
+
+                return null
+            }
         }
     }
 
@@ -127,10 +178,34 @@ public sealed class State : WithPlugin<Terix> {
             override val providesSideEffects: Array<out SideEffect> = arrayOf(SideEffect.Temperature.COLD)
             override fun get(input: Location): Boolean = getWeatherState(input) === this
         }
+
+        public companion object {
+            public fun getWeatherState(location: Location): WeatherState? {
+                if (location.world == null || location.world.environment != Environment.NORMAL) {
+                    return null
+                }
+
+                val blockPos = location.block.castOrThrow<CraftBlock>().position
+                val level = location.world.toNMS()
+
+                if (!location.world.hasStorm() || !level.canSeeSky(blockPos) || level.getHeightmapPos(Heightmap.Types.MOTION_BLOCKING, blockPos).y > blockPos.y) return null
+
+                val biome = level.getBiome(blockPos).value()
+                return when {
+                    biome.precipitation == Biome.Precipitation.RAIN && biome.warmEnoughToRain(blockPos) -> RAIN
+                    biome.precipitation == Biome.Precipitation.SNOW && biome.coldEnoughToSnow(blockPos) -> SNOW
+                    else -> null
+                }
+            }
+        }
     }
 
     public sealed class BiomeState : StatedSource<Location>() {
         override fun get(player: Player): Boolean = this[player.location]
+
+        public object STD : BiomeState() {
+            override fun get(input: Location): Boolean = getBiomeState(input) === this
+        }
 
         public object WARM : BiomeState() {
             override val incompatibleStates: Array<out State> = arrayOf(COLD)
@@ -142,6 +217,27 @@ public sealed class State : WithPlugin<Terix> {
             override val incompatibleStates: Array<out State> = arrayOf(WARM)
             override val providesSideEffects: Array<out SideEffect> = arrayOf(SideEffect.Temperature.COLD)
             override fun get(input: Location): Boolean = getBiomeState(input) === this
+        }
+
+        public companion object {
+            public fun getBiomeState(location: Location): BiomeState {
+                requireNotNull(location.world) { "Location must have a world" }
+
+                when (location.world.environment) {
+                    Environment.NETHER -> return WARM
+                    Environment.THE_END -> return COLD
+                    else -> { /* do nothing */ }
+                }
+
+                val blockPos = location.block.castOrThrow<CraftBlock>().position
+                val level = location.world.toNMS()
+                val biome = level.getBiome(blockPos).value()
+                return when (biome.precipitation) {
+                    Biome.Precipitation.NONE -> WARM
+                    Biome.Precipitation.SNOW -> COLD
+                    else -> STD
+                }
+            }
         }
     }
 
@@ -200,18 +296,20 @@ public sealed class State : WithPlugin<Terix> {
     private suspend fun addAsync(
         player: Player,
         origin: Origin
-    ) = async {
-        with(origin.stateData[this@State]) {
-            title.tap { title -> title(player) }
-            action.tap { action -> action(player) }
-            modifiers.forEach { modifier -> modifier(player) }
-        }
+    ) = with(origin.stateData[this@State]) {
+        title.tap { title -> title(player) }
+        action.tap { action -> action(player) }
+        modifiers.forEach { modifier -> modifier(player) }
     }
 
     private fun removeAsync(
         player: Player,
         origin: Origin
-    ) = async { origin.stateData[this@State].modifiers.forEach { modifier -> modifier.remove(player) } }
+    ) = origin.stateData[this@State].modifiers
+        .groupBy(AttributeModifierBuilder::attribute)
+        .mapKeys { (attribute, _) -> player.getAttribute(attribute) }
+        .filterKeys { attribute -> attribute != null }
+        .forEach { (_, modifiers) -> modifiers.forEach { it.remove(player) } }
 
     private fun addSync(
         player: Player,
@@ -259,7 +357,7 @@ public sealed class State : WithPlugin<Terix> {
         return true
     }
 
-    public companion object {
+    public companion object : KoinComponent {
         private const val CATEGORY = "terix.origin.state"
         internal val activeStates = concurrentMultimap<Player, State>()
         private val plugin by getKoin().inject<Terix>()
@@ -296,65 +394,75 @@ public sealed class State : WithPlugin<Terix> {
             else -> LiquidState.LAND
         }
 
-        public fun getLightState(player: Player): LightState? {
-            val inventory = player.inventory
-            if (inventory.itemInMainHand.type != Material.TORCH && inventory.itemInOffHand.type != Material.TORCH && player.location.block.lightLevel < 5) {
-                return LightState.DARKNESS
-            }
+        init {
+            get<Terix>().events {
+                suspend fun TerixPlayer.maybeExchange(
+                    last: State,
+                    current: State
+                ) { if (last != current) last.exchange(this.backingPlayer, this.origin, current) }
 
-            val nms = player.handle
-            val pos = BlockPos(nms.x, nms.eyeY, nms.z)
-            if (player.world.toNMS().canSeeSky(pos)) {
-                return LightState.SUNLIGHT
-            }
+                fun <E : Event, I> generateLambda(
+                    playerGetter: E.() -> Player,
+                    lastInputGetter: E.() -> I,
+                    currentInputGetter: E.() -> I,
+                    inputToState: I.() -> State
+                ): suspend (E) -> Unit = { event ->
+                    TerixPlayer[playerGetter(event)].maybeExchange(
+                        event.lastInputGetter().inputToState(),
+                        event.currentInputGetter().inputToState()
+                    )
+                }
 
-            return null
-        }
+                fun <E : PlayerEvent, I> generateLambda(
+                    lastInputGetter: E.() -> I,
+                    currentInputGetter: E.() -> I,
+                    inputToState: I.() -> State
+                ) = generateLambda(
+                    { player },
+                    lastInputGetter,
+                    currentInputGetter,
+                    inputToState
+                )
 
-        public fun getWeatherState(location: Location): WeatherState? {
-            if (location.world == null || location.world.environment != Environment.NORMAL) {
-                return null
-            }
+                events(
+                    PlayerLiquidEnterEvent::class,
+                    PlayerLiquidExitEvent::class,
+                    priority = EventPriority.MONITOR,
+                    ignoreCancelled = true,
+                    block = generateLambda({ previousType }, { newType }, ::convertLiquidToState)
+                )
 
-            val blockPos = location.block.castOrThrow<CraftBlock>().position
-            val level = location.world.toNMS()
+                event<PlayerMoveFullXYZEvent>(
+                    EventPriority.MONITOR,
+                    true,
+                    block = generateLambda({ from }, { to }, ::getBiomeState)
+                )
 
-            if (!location.world.hasStorm() || !level.canSeeSky(blockPos) || level.getHeightmapPos(Heightmap.Types.MOTION_BLOCKING, blockPos).y > blockPos.y) return null
+                event<PlayerChangedWorldEvent>(
+                    EventPriority.MONITOR,
+                    true,
+                    forceAsync = true,
+                    generateLambda({ from.environment }, { player.world.environment }, ::getEnvironmentState)
+                )
 
-            val biome = level.getBiome(blockPos).value()
-            return when {
-                biome.precipitation == Biome.Precipitation.RAIN && biome.warmEnoughToRain(blockPos) -> WeatherState.RAIN
-                biome.precipitation == Biome.Precipitation.SNOW && biome.coldEnoughToSnow(blockPos) -> WeatherState.SNOW
-                else -> null
-            }
-        }
-
-        public fun getBiomeState(location: Location): BiomeState? {
-            if (location.world == null) {
-                return null
-            }
-
-            when (location.world.environment) {
-                Environment.NETHER -> return BiomeState.WARM
-                Environment.THE_END -> return BiomeState.COLD
-                else -> { /* do nothing */
+                events(
+                    WorldDayEvent::class,
+                    WorldNightEvent::class,
+                    priority = EventPriority.MONITOR,
+                    ignoreCancelled = true,
+                    forceAsync = true
+                ) {
+                    onlinePlayers.filter(Player::inOverworld)
+                        .map(TerixPlayer::get)
+                        .onEach { player ->
+                            val currentState = getTimeState(player.world)!!
+                            player.maybeExchange(
+                                currentState.opposite,
+                                currentState
+                            )
+                        }
                 }
             }
-
-            val blockPos = location.block.castOrThrow<CraftBlock>().position
-            val level = location.world.toNMS()
-            val biome = level.getBiome(blockPos).value()
-            return when (biome.precipitation) {
-                Biome.Precipitation.NONE -> BiomeState.WARM
-                Biome.Precipitation.SNOW -> BiomeState.COLD
-                else -> null
-            }
-        }
-
-        public fun convertLiquidToState(liquid: LiquidType): LiquidState = when (liquid) {
-            LiquidType.WATER -> LiquidState.WATER
-            LiquidType.LAVA -> LiquidState.LAVA
-            else -> LiquidState.LAND
         }
     }
 }
