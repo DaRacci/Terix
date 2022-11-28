@@ -25,7 +25,9 @@ import dev.racci.terix.api.extensions.handle
 import dev.racci.terix.api.origins.OriginHelper
 import dev.racci.terix.api.origins.origin.Origin
 import dev.racci.terix.api.origins.states.State.BiomeState.Companion.getBiomeState
-import dev.racci.terix.api.origins.states.State.LiquidState.Companion.convertLiquidToState
+import dev.racci.terix.api.origins.states.State.LiquidState.Companion.getLiquidState
+import dev.racci.terix.api.origins.states.State.TimeState.Companion.getTimeState
+import dev.racci.terix.api.origins.states.State.WorldState.Companion.getEnvironmentState
 import dev.racci.terix.api.sentryScoped
 import kotlinx.collections.immutable.PersistentSet
 import kotlinx.collections.immutable.toPersistentSet
@@ -39,7 +41,6 @@ import org.bukkit.World.Environment
 import org.bukkit.block.Block
 import org.bukkit.craftbukkit.v1_19_R1.block.CraftBlock
 import org.bukkit.entity.Player
-import org.bukkit.event.Event
 import org.bukkit.event.EventPriority
 import org.bukkit.event.player.PlayerChangedWorldEvent
 import org.bukkit.event.player.PlayerEvent
@@ -81,6 +82,15 @@ public sealed class State : WithPlugin<Terix> {
             override val incompatibleStates: Array<out State> = arrayOf(DAY)
             override fun get(input: World): Boolean = getTimeState(input) === this
         }
+
+        public companion object {
+            public fun getTimeState(world: World): TimeState? = when {
+                world.environment != Environment.NORMAL -> null
+                world.isDayTime -> DAY
+                world.isNight -> NIGHT
+                else -> null
+            }
+        }
     }
 
     public sealed class WorldState : StatedSource<Environment>() {
@@ -99,6 +109,15 @@ public sealed class State : WithPlugin<Terix> {
         public object END : WorldState() {
             override val incompatibleStates: Array<out State> = arrayOf(OVERWORLD, NETHER, TimeState.DAY, TimeState.NIGHT)
             override fun get(input: Environment): Boolean = input === Environment.THE_END
+        }
+
+        public companion object {
+            public fun getEnvironmentState(environment: Environment): WorldState = when (environment) {
+                Environment.NORMAL -> OVERWORLD
+                Environment.NETHER -> NETHER
+                Environment.THE_END -> END
+                else -> throw IllegalArgumentException("Environment $environment is not supported")
+            }
         }
     }
 
@@ -123,7 +142,13 @@ public sealed class State : WithPlugin<Terix> {
         }
 
         public companion object {
-            public fun convertLiquidToState(liquid: LiquidType): LiquidState = when (liquid) {
+            public fun getLiquidState(block: Block): LiquidState = when (block.liquidType) {
+                LiquidType.WATER -> WATER
+                LiquidType.LAVA -> LAVA
+                else -> LAND
+            }
+
+            public fun getLiquidState(liquid: LiquidType): LiquidState = when (liquid) {
                 LiquidType.WATER -> WATER
                 LiquidType.LAVA -> LAVA
                 else -> LAND
@@ -374,26 +399,6 @@ public sealed class State : WithPlugin<Terix> {
             return values.find { it.name == name } ?: throw IllegalArgumentException("No State with name $name")
         }
 
-        public fun getTimeState(world: World): TimeState? = when {
-            world.environment != Environment.NORMAL -> null
-            world.isDayTime -> TimeState.DAY
-            world.isNight -> TimeState.NIGHT
-            else -> null
-        }
-
-        public fun getEnvironmentState(environment: Environment): WorldState = when (environment) {
-            Environment.NORMAL -> WorldState.OVERWORLD
-            Environment.NETHER -> WorldState.NETHER
-            Environment.THE_END -> WorldState.END
-            else -> throw IllegalArgumentException("Environment $environment is not supported")
-        }
-
-        public fun getLiquidState(block: Block): LiquidState = when (block.liquidType) {
-            LiquidType.WATER -> LiquidState.WATER
-            LiquidType.LAVA -> LiquidState.LAVA
-            else -> LiquidState.LAND
-        }
-
         init {
             get<Terix>().events {
                 suspend fun TerixPlayer.maybeExchange(
@@ -401,35 +406,23 @@ public sealed class State : WithPlugin<Terix> {
                     current: State
                 ) { if (last != current) last.exchange(this.backingPlayer, this.origin, current) }
 
-                fun <E : Event, I> generateLambda(
-                    playerGetter: E.() -> Player,
-                    lastInputGetter: E.() -> I,
-                    currentInputGetter: E.() -> I,
-                    inputToState: I.() -> State
-                ): suspend (E) -> Unit = { event ->
-                    TerixPlayer[playerGetter(event)].maybeExchange(
-                        event.lastInputGetter().inputToState(),
-                        event.currentInputGetter().inputToState()
-                    )
-                }
-
                 fun <E : PlayerEvent, I> generateLambda(
                     lastInputGetter: E.() -> I,
                     currentInputGetter: E.() -> I,
                     inputToState: I.() -> State
-                ) = generateLambda(
-                    { player },
-                    lastInputGetter,
-                    currentInputGetter,
-                    inputToState
-                )
+                ): suspend (E) -> Unit = { event ->
+                    TerixPlayer[event.player].maybeExchange(
+                        event.lastInputGetter().inputToState(),
+                        event.currentInputGetter().inputToState()
+                    )
+                }
 
                 events(
                     PlayerLiquidEnterEvent::class,
                     PlayerLiquidExitEvent::class,
                     priority = EventPriority.MONITOR,
                     ignoreCancelled = true,
-                    block = generateLambda({ previousType }, { newType }, ::convertLiquidToState)
+                    block = generateLambda({ previousType }, { newType }, ::getLiquidState)
                 )
 
                 event<PlayerMoveFullXYZEvent>(
