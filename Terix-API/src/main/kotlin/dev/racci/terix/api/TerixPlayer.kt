@@ -4,7 +4,6 @@ import arrow.core.getOrElse
 import arrow.core.toOption
 import arrow.fx.coroutines.Atomic
 import com.github.benmanes.caffeine.cache.Caffeine
-import dev.racci.minix.api.extensions.msg
 import dev.racci.minix.api.extensions.onlinePlayer
 import dev.racci.minix.api.services.DataService
 import dev.racci.minix.core.services.DataServiceImpl.DataHolder.Companion.getKoin
@@ -13,6 +12,14 @@ import dev.racci.terix.api.data.TerixConfig
 import dev.racci.terix.api.origins.origin.Origin
 import dev.racci.terix.api.services.StorageService
 import kotlinx.datetime.Instant
+import net.kyori.adventure.audience.Audience
+import net.kyori.adventure.bossbar.BossBar
+import net.kyori.adventure.inventory.Book
+import net.kyori.adventure.sound.Sound
+import net.kyori.adventure.sound.SoundStop
+import net.kyori.adventure.text.Component
+import net.kyori.adventure.title.Title
+import net.kyori.adventure.title.TitlePart
 import net.minecraft.server.level.ServerPlayer
 import org.bukkit.craftbukkit.v1_19_R1.entity.CraftPlayer
 import org.bukkit.entity.Player
@@ -29,11 +36,12 @@ import org.koin.core.component.get
 import java.util.UUID
 
 // TODO -> Maybe mark all as immutable and make a new class when origin changes?
+// TODO -> Passing this player instance can cause issues as bukkit just casts to CraftPlayer.
 public class TerixPlayer private constructor(
     private val id: DaoEntityID<UUID>,
     public val backingPlayer: CraftPlayer = onlinePlayer(id.value) as? CraftPlayer ?: error("Player with UUID $id is not online"),
     public val ticks: TickCache = TickCache()
-) : Player by backingPlayer {
+) : Player by backingPlayer, OverrideFixer {
     public val databaseEntity: TerixPlayerEntity get() {
         return if (TransactionManager.currentOrNull() != null) {
             TerixPlayerEntity[id]
@@ -45,10 +53,6 @@ public class TerixPlayer private constructor(
             field = value
             databaseEntity.origin = value
         }
-
-    init {
-        msg("Welcome to Terix!")
-    }
 
     public val handle: ServerPlayer get() = backingPlayer.handle
 
@@ -136,4 +140,80 @@ public class TerixPlayer private constructor(
             .default("")
             .memoizedTransform({ transformed -> transformed.joinToString(",") }) { rawText -> rawText.split(",").toMutableSet() }
     }
+
+    override fun sendActionBar(message: Component) {
+        backingPlayer.sendActionBar(message)
+    }
+
+    override fun sendPlayerListHeader(header: Component) {
+        backingPlayer.sendPlayerListHeader(header)
+    }
+
+    override fun sendPlayerListFooter(footer: Component) {
+        backingPlayer.sendPlayerListFooter(footer)
+    }
+
+    override fun sendPlayerListHeaderAndFooter(header: Component, footer: Component) {
+        backingPlayer.sendPlayerListHeaderAndFooter(header, footer)
+    }
+
+    override fun showTitle(title: Title) {
+        backingPlayer.showTitle(title)
+    }
+
+    override fun <T : Any> sendTitlePart(part: TitlePart<T>, value: T) {
+        backingPlayer.sendTitlePart(part, value)
+    }
+
+    override fun clearTitle() {
+        backingPlayer.clearTitle()
+    }
+
+    override fun showBossBar(bar: BossBar) {
+        backingPlayer.showBossBar(bar)
+    }
+
+    override fun hideBossBar(bar: BossBar) {
+        backingPlayer.hideBossBar(bar)
+    }
+
+    override fun playSound(sound: Sound) {
+        backingPlayer.playSound(sound)
+    }
+
+    override fun playSound(sound: Sound, x: Double, y: Double, z: Double) {
+        backingPlayer.playSound(sound, x, y, z)
+    }
+
+    override fun playSound(sound: Sound, emitter: Sound.Emitter) {
+        backingPlayer.playSound(sound, emitter)
+    }
+
+    override fun stopSound(stop: SoundStop) {
+        backingPlayer.stopSound(stop)
+    }
+
+    override fun openBook(book: Book) {
+        backingPlayer.openBook(book)
+    }
+}
+
+/** A group of overrides, which are overridden within [CraftPlayer] but not [Player] and need manual overrides. */
+public interface OverrideFixer : Audience {
+
+    override fun sendActionBar(message: Component)
+    override fun sendPlayerListHeader(header: Component)
+    override fun sendPlayerListFooter(footer: Component)
+    override fun sendPlayerListHeaderAndFooter(header: Component, footer: Component)
+    override fun showTitle(title: Title)
+    override fun <T : Any> sendTitlePart(part: TitlePart<T>, value: T)
+    override fun clearTitle()
+    override fun resetTitle()
+    override fun showBossBar(bar: BossBar)
+    override fun hideBossBar(bar: BossBar)
+    override fun playSound(sound: Sound)
+    override fun playSound(sound: Sound, x: Double, y: Double, z: Double)
+    override fun playSound(sound: Sound, emitter: Sound.Emitter)
+    override fun stopSound(stop: SoundStop)
+    override fun openBook(book: Book)
 }
