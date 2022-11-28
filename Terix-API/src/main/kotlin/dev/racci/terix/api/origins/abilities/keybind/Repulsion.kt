@@ -1,7 +1,6 @@
 package dev.racci.terix.api.origins.abilities.keybind
 
 import com.google.common.base.Predicates
-import dev.racci.minix.nms.aliases.toNMS
 import dev.racci.terix.api.TerixPlayer
 import dev.racci.terix.api.extensions.emptyLambdaOne
 import dev.racci.terix.api.extensions.truePredicateOne
@@ -22,7 +21,7 @@ public class Repulsion(
     public var onRepulsion: (targetEntity: LivingEntity) -> Unit = Unit.emptyLambdaOne()
 
     override suspend fun handleTrigger() {
-        val nmsPlayer = abilityPlayer.toNMS()
+        val nmsPlayer = abilityPlayer.handle
         nmsPlayer.level.getEntities(
             nmsPlayer,
             nmsPlayer.boundingBox.inflate(radius),

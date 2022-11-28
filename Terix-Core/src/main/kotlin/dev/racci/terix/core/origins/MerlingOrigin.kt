@@ -3,13 +3,13 @@ package dev.racci.terix.core.origins
 import com.destroystokyo.paper.MaterialTags
 import dev.racci.minix.api.extensions.cancel
 import dev.racci.minix.api.utils.minecraft.MaterialTagsExtension
-import dev.racci.minix.nms.aliases.toNMS
 import dev.racci.tentacles.Tentacles
 import dev.racci.terix.api.Terix
 import dev.racci.terix.api.TerixPlayer
 import dev.racci.terix.api.annotations.OriginEventSelector
 import dev.racci.terix.api.dsl.FoodPropertyBuilder
 import dev.racci.terix.api.dsl.dslMutator
+import dev.racci.terix.api.extensions.handle
 import dev.racci.terix.api.origins.abilities.keybind.Repulsion
 import dev.racci.terix.api.origins.enums.EventSelector
 import dev.racci.terix.api.origins.enums.KeyBinding
@@ -109,7 +109,7 @@ public class MerlingOrigin(override val plugin: Terix) : Origin() {
         }
 
         Tentacles.addGlobalMiningModifier(NamespacedKey(plugin, "merling_mining")) { player, _ ->
-            if (!player.toNMS().isEyeInFluid(FluidTags.WATER) || TerixPlayer.cachedOrigin(player) !== this@MerlingOrigin) return@addGlobalMiningModifier null
+            if (!player.handle.isEyeInFluid(FluidTags.WATER) || TerixPlayer.cachedOrigin(player) !== this@MerlingOrigin) return@addGlobalMiningModifier null
 
             if (player.isOnGround) {
                 5F

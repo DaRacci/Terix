@@ -25,13 +25,13 @@ import dev.racci.minix.api.services.DataService
 import dev.racci.minix.api.services.DataService.Companion.inject
 import dev.racci.minix.api.utils.now
 import dev.racci.minix.api.utils.ticks
-import dev.racci.minix.nms.aliases.toNMS
 import dev.racci.terix.api.Terix
 import dev.racci.terix.api.TerixPlayer
 import dev.racci.terix.api.data.Lang
 import dev.racci.terix.api.data.OriginNamespacedTag
 import dev.racci.terix.api.data.TerixConfig
 import dev.racci.terix.api.events.PlayerOriginChangeEvent
+import dev.racci.terix.api.extensions.handle
 import dev.racci.terix.api.extensions.playSound
 import dev.racci.terix.api.origins.OriginHelper
 import dev.racci.terix.api.origins.OriginHelper.activateOrigin
@@ -194,7 +194,7 @@ public class ListenerService(override val plugin: Terix) : Extension<Terix>() {
 
             origin.foodData.getAction(this.item!!)?.invoke(player)
 
-            val nmsPlayer = player.toNMS()
+            val nmsPlayer = player.handle
             val potions = origin.foodData.getProperties(this.item!!)?.effects?.filter { pair -> nmsPlayer.level.random.nextFloat() >= pair.second }
 
             if (!potions.isNullOrEmpty()) {
@@ -326,7 +326,7 @@ public class ListenerService(override val plugin: Terix) : Extension<Terix>() {
         if (alreadyEdible(event)) return
 
         val origin = TerixPlayer.cachedOrigin(event.player)
-        val serverPlayer = event.player.toNMS()
+        val serverPlayer = event.player.handle
         val hand = serverPlayer.usedItemHand
         val itemStack = event.item!!
         val nmsItemStack = serverPlayer.getItemInHand(hand)
@@ -400,7 +400,7 @@ public class ListenerService(override val plugin: Terix) : Extension<Terix>() {
         player: Player,
         item: ItemStack,
         origin: Origin = TerixPlayer.cachedOrigin(player),
-        serverPlayer: ServerPlayer = player.toNMS(),
+        serverPlayer: ServerPlayer = player.handle,
         hand: InteractionHand = serverPlayer.usedItemHand,
         itemStack: net.minecraft.world.item.ItemStack = serverPlayer.getItemInHand(hand),
         foodProperties: FoodProperties? = origin.foodData.getProperties(item),

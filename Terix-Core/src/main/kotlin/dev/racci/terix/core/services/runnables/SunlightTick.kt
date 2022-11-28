@@ -1,10 +1,10 @@
 package dev.racci.terix.core.services.runnables
 
 import arrow.core.getOrElse
-import dev.racci.minix.nms.aliases.toNMS
 import dev.racci.terix.api.TerixPlayer
 import dev.racci.terix.api.TerixPlayer.TickCache
 import dev.racci.terix.api.events.OriginSunlightBurnEvent
+import dev.racci.terix.api.extensions.handle
 import dev.racci.terix.api.origins.OriginHelper
 import dev.racci.terix.api.origins.states.State
 import dev.racci.terix.api.services.TickService
@@ -33,7 +33,7 @@ public class SunlightTick(player: TerixPlayer) : ChildTicker(player, State.Light
         if (!event.callEvent()) return
 
         if (helmet != null) {
-            val nms = player.toNMS()
+            val nms = player.handle
             val amount = nms.random.nextInt(0, 2).takeIf { it != 0 } ?: return
             if (helmet.damage + amount > helmet.maxItemUseDuration) (helmet as CraftItemStack).handle.hurtAndBreak(amount, nms) {}
             (helmet as CraftItemStack).handle.hurt(amount, nms.level.random, nms)
@@ -77,7 +77,7 @@ public class SunlightTick(player: TerixPlayer) : ChildTicker(player, State.Light
 
         fun shouldTickSunlight(player: Player): Boolean {
             val brightness = player.location.toCenterLocation().block.lightLevel
-            return (player.toNMS().random.nextFloat() * 15.0f) < ((brightness - 0.4f) * 2.0f)
+            return (player.handle.random.nextFloat() * 15.0f) < ((brightness - 0.4f) * 2.0f)
         }
     }
 }

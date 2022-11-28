@@ -10,10 +10,10 @@ import dev.racci.minix.api.extensions.parse
 import dev.racci.minix.api.extensions.playSound
 import dev.racci.minix.api.extensions.toItemStack
 import dev.racci.minix.api.utils.minecraft.MaterialTagsExtension
-import dev.racci.minix.nms.aliases.toNMS
 import dev.racci.terix.api.Terix
 import dev.racci.terix.api.annotations.OriginEventSelector
 import dev.racci.terix.api.dsl.dslMutator
+import dev.racci.terix.api.extensions.handle
 import dev.racci.terix.api.origins.OriginHelper
 import dev.racci.terix.api.origins.abilities.keybind.Levitate
 import dev.racci.terix.api.origins.enums.EventSelector
@@ -116,7 +116,7 @@ public class AethenOrigin(override val plugin: Terix) : Origin() {
             ).apply {
                 this *= 0.15
                 this += { player: Player ->
-                    val item = if (player.toNMS().random.nextBoolean()) {
+                    val item = if (player.handle.random.nextBoolean()) {
                         Material.BROWN_DYE
                     } else Material.COCOA_BEANS
 

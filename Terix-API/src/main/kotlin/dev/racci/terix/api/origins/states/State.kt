@@ -11,6 +11,7 @@ import dev.racci.minix.nms.aliases.toNMS
 import dev.racci.terix.api.Terix
 import dev.racci.terix.api.dsl.PotionEffectBuilder
 import dev.racci.terix.api.extensions.concurrentMultimap
+import dev.racci.terix.api.extensions.handle
 import dev.racci.terix.api.origins.OriginHelper
 import dev.racci.terix.api.origins.origin.Origin
 import dev.racci.terix.api.sentryScoped
@@ -301,7 +302,7 @@ public sealed class State : WithPlugin<Terix> {
                 return LightState.DARKNESS
             }
 
-            val nms = player.toNMS()
+            val nms = player.handle
             val pos = BlockPos(nms.x, nms.eyeY, nms.z)
             if (player.world.toNMS().canSeeSky(pos)) {
                 return LightState.SUNLIGHT

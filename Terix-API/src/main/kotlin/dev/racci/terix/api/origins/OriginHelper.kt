@@ -101,7 +101,7 @@ public object OriginHelper : KoinComponent, WithPlugin<Terix> {
      */
     public suspend fun deactivateOrigin(
         player: Player,
-        origin: Origin = TerixPlayer.cachedOrigin(player)
+        origin: Origin = TerixPlayer[player].origin
     ) {
         sentryScoped(
             player,

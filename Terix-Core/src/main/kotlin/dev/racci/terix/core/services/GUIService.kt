@@ -18,16 +18,15 @@ import dev.racci.minix.api.services.DataService
 import dev.racci.minix.api.services.DataService.Companion.inject
 import dev.racci.minix.api.utils.adventure.PartialComponent.Companion.message
 import dev.racci.minix.api.utils.now
-import dev.racci.minix.nms.aliases.toNMS
 import dev.racci.terix.api.OriginService
 import dev.racci.terix.api.Terix
 import dev.racci.terix.api.TerixPlayer
 import dev.racci.terix.api.data.Lang
 import dev.racci.terix.api.data.TerixConfig
 import dev.racci.terix.api.events.PlayerOriginChangeEvent
+import dev.racci.terix.api.extensions.handle
 import dev.racci.terix.api.origins.origin.Origin
-import dev.racci.terix.core.extensions.freeChanges
-import dev.racci.terix.core.extensions.originTime
+import dev.racci.terix.api.services.StorageService
 import dev.racci.terix.core.extensions.toVec
 import dev.racci.terix.core.utils.RenderablePaginatedTransform
 import kotlinx.datetime.Instant
@@ -165,7 +164,7 @@ public class GUIService(override val plugin: Terix) : Extension<Terix>() {
                     if (!validPacket(event)) return
 
                     val cache = packetModifierCache[event.player]!!
-                    val nms = event.player.toNMS()
+                    val nms = event.player.handle
                     event.packet.integers.write(1, nms.containerMenu.incrementStateId())
                     event.packet.integers.write(0, nms.containerMenu.containerId)
 
@@ -206,7 +205,7 @@ public class GUIService(override val plugin: Terix) : Extension<Terix>() {
                     lang.gui.requirementLine["requirement" to { colour.append(lore) }]
                 }
 
-                if (StorageService.transaction { TerixPlayer[view.arguments.get(playerArgumentKey)].grants.contains(this@createItem.name) }) {
+                if (StorageService.transaction { TerixPlayer[view.arguments.get(playerArgumentKey)].databaseEntity.grants.contains(this@createItem.name) }) {
                     lore = lore + Component.empty() + lang.gui.hasGrant.get()
                 }
             }
@@ -279,14 +278,14 @@ public class GUIService(override val plugin: Terix) : Extension<Terix>() {
         val buttons = get<TerixConfig>().gui
 
         this[vecPos(buttons.remainingChanges)] = ItemBuilderDSL.from(Items.lookup(buttons.remainingChanges.display).item) {
-            val player = arguments.get(playerArgumentKey)
-            val free = player.freeChanges
+            val player = TerixPlayer[arguments.get(playerArgumentKey)]
+            val free = player.databaseEntity.freeChanges
             name = Component.empty()
             lore = listOf(
                 when {
                     free > 0 -> lang.gui.changeFree["amount" to { free }]
-                    player.originTime.remaining(terixConfig.intervalBeforeChange) == null -> lang.gui.changeTime.get()
-                    else -> lang.gui.changeTimeCooldown["cooldown" to { player.originTime.remaining(terixConfig.intervalBeforeChange)!!.format() }]
+                    player.databaseEntity.lastChosenTime.remaining(terixConfig.intervalBeforeChange) == null -> lang.gui.changeTime.get()
+                    else -> lang.gui.changeTimeCooldown["cooldown" to { player.databaseEntity.lastChosenTime.remaining(terixConfig.intervalBeforeChange)!!.format() }]
                 }
             )
         }.asElement()
@@ -298,21 +297,21 @@ public class GUIService(override val plugin: Terix) : Extension<Terix>() {
             selectedOrigin.invalidate(ctx.viewer().player())
         }
         this[vecPos(buttons.confirmSelection)] = getButton(buttons.confirmSelection) { ctx ->
-            val player = ctx.viewer().player()
+            val player = TerixPlayer[ctx.viewer().player()]
             val origin = selectedOrigin.getIfPresent(player) ?: return@getButton
             async {
-                val bypass = player.freeChanges > 0
+                val bypass = player.databaseEntity.freeChanges > 0
                 val event = PlayerOriginChangeEvent(player, TerixPlayer.cachedOrigin(player), origin, bypass)
 
                 if (event.callEvent()) {
-                    if (bypass) player.freeChanges--
+                    if (bypass) player.databaseEntity.freeChanges--
                     sync { player.closeInventory(InventoryCloseEvent.Reason.PLAYER) }
                     player.playSound(Sound.sound(Key.key("block.chest.unlock"), Sound.Source.PLAYER, 1.0f, 1.0f))
                 } else {
                     player.shieldSound()
 
                     when (event.result) {
-                        PlayerOriginChangeEvent.Result.ON_COOLDOWN -> lang.origin.onChangeCooldown["cooldown" to { player.originTime.remaining(terixConfig.intervalBeforeChange)!!.format() }] message player
+                        PlayerOriginChangeEvent.Result.ON_COOLDOWN -> lang.origin.onChangeCooldown["cooldown" to { player.databaseEntity.lastChosenTime.remaining(terixConfig.intervalBeforeChange)!!.format() }] message player
                         PlayerOriginChangeEvent.Result.NO_PERMISSION -> lang.origin.missingRequirement.message(player)
                         PlayerOriginChangeEvent.Result.CURRENT_ORIGIN -> {
                             lang.origin.setSameSelf["origin" to { origin.displayName }] message player

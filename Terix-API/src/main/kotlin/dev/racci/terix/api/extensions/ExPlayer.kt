@@ -5,6 +5,7 @@ import dev.racci.terix.api.TerixPlayer
 import dev.racci.terix.api.data.OriginNamespacedTag
 import net.minecraft.network.protocol.game.ClientboundCustomSoundPacket
 import net.minecraft.resources.ResourceLocation
+import net.minecraft.server.level.ServerPlayer
 import net.minecraft.sounds.SoundSource
 import net.minecraft.world.phys.Vec3
 import org.bukkit.attribute.Attribute
@@ -12,6 +13,8 @@ import org.bukkit.attribute.AttributeInstance
 import org.bukkit.attribute.AttributeModifier
 import org.bukkit.entity.Player
 import org.bukkit.potion.PotionEffect
+
+public val Player.handle: ServerPlayer get() = if (this is TerixPlayer) this.handle else this.toNMS()
 
 internal fun Player.originPotions(filterOrigin: Boolean = true): Sequence<Pair<PotionEffect, OriginNamespacedTag>> {
     val origin by lazy { TerixPlayer.cachedOrigin(this) }
@@ -66,7 +69,7 @@ public fun Player.playSound(
 
     nmsWorld.server.playerList
         .broadcast(
-            this.toNMS(),
+            this.handle,
             this.location.x,
             this.location.y,
             this.location.z,
@@ -76,5 +79,5 @@ public fun Player.playSound(
         )
 
     // Broadcasting with the player as the source skips sending the packet to themself.
-    this.toNMS().networkManager.send(packet)
+    this.handle.networkManager.send(packet)
 }

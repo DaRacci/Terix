@@ -29,22 +29,6 @@ class StateTest : FunSpec({
         assertEquals(State.CONSTANT.name, "CONSTANT")
     }
 
-    test("Ordinal") {
-        assertEquals(0, State.CONSTANT.ordinal)
-        assertEquals(1, State.TimeState.DAY.ordinal)
-        assertEquals(2, State.TimeState.NIGHT.ordinal)
-        assertEquals(3, State.WorldState.OVERWORLD.ordinal)
-        assertEquals(4, State.WorldState.NETHER.ordinal)
-        assertEquals(5, State.WorldState.END.ordinal)
-        assertEquals(6, State.LiquidState.WATER.ordinal)
-        assertEquals(7, State.LiquidState.LAVA.ordinal)
-        assertEquals(8, State.LiquidState.LAND.ordinal)
-        assertEquals(9, State.LightState.SUNLIGHT.ordinal)
-        assertEquals(10, State.LightState.DARKNESS.ordinal)
-        assertEquals(11, State.WeatherState.RAIN.ordinal)
-        assertEquals(12, State.WeatherState.SNOW.ordinal)
-    }
-
     test("incompatible states test") {
         State.TimeState.DAY.activate(Bootstrap.mockPlayer, Bootstrap.mockOrigin)
         assertTrue("Player states should contain DAY.") { State.getPlayerStates(Bootstrap.mockPlayer).contains(State.TimeState.DAY) }

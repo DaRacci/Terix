@@ -1,6 +1,5 @@
 package dev.racci.terix.api.origins.abilities.keybind
 
-import dev.racci.minix.nms.aliases.toNMS
 import dev.racci.terix.api.TerixPlayer
 import dev.racci.terix.api.origins.origin.Origin
 import net.minecraft.world.phys.Vec3
@@ -26,7 +25,7 @@ public class DragonBreath(
         var m = acos(l.toDouble() * (180f / PI.toFloat()).toDouble()).toFloat() // WHAT?? (Extracted from ender dragon code)
         m += 0.5f
 
-        val nms = abilityPlayer.toNMS()
+        val nms = abilityPlayer.handle
         val vec33: Vec3 = nms.getViewVector(1.0f)
         val o: Double = nms.eyePosition.x - vec33.x * 1.0
         val p: Double = nms.getY(0.5) + 0.5

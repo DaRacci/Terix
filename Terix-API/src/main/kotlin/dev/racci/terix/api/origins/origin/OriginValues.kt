@@ -89,7 +89,7 @@ public sealed class OriginValues : WithPlugin<MinixPlugin> {
     public var stateData: ImmutableStateMap<StateData> = ImmutableStateMap.building(StateData::empty); internal set
 
     public class ImmutableStateMap<V> private constructor(private val backingMap: PersistentMap<State, V>) : ImmutableMap<State, V> {
-        override val size: Int by State.values::size
+        override val size: Int by backingMap::size
         override val entries: ImmutableSet<Map.Entry<State, V>> by backingMap::entries
         override val keys: ImmutableSet<State> by backingMap::keys
         override val values: ImmutableCollection<V> by backingMap::values
@@ -245,7 +245,7 @@ public sealed class OriginValues : WithPlugin<MinixPlugin> {
                     put(parameter, value)
                 }
 
-                addRequiredParameter("abilityPlayer", player)
+                addRequiredParameter("abilityPlayer", TerixPlayer[player])
                 addRequiredParameter("linkedOrigin", TerixPlayer.cachedOrigin(player))
 
                 additionalConstructorParams.forEach { (property, value) -> addRequiredParameter(property.name, value) }

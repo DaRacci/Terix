@@ -30,16 +30,17 @@ import dev.racci.terix.api.TerixPlayer
 import dev.racci.terix.api.data.Lang
 import dev.racci.terix.api.events.PlayerOriginChangeEvent
 import dev.racci.terix.api.origins.origin.Origin
+import dev.racci.terix.api.services.StorageService
 import dev.racci.terix.core.commands.TerixPermissions
 import dev.racci.terix.core.commands.arguments.OriginArgument
 import dev.racci.terix.core.commands.arguments.OriginInfoArgument
-import dev.racci.terix.core.extensions.freeChanges
 import dev.racci.terix.core.origins.OriginInfo
 import net.kyori.adventure.text.minimessage.MiniMessage
 import org.bukkit.command.CommandSender
 import org.bukkit.entity.Player
 import org.koin.core.component.get
 import org.koin.core.component.inject
+import java.util.Optional
 import kotlin.properties.Delegates
 
 @MappedExtension(Terix::class, "Command Service", [OriginService::class, GUIService::class])
@@ -239,9 +240,9 @@ public class CommandService(override val plugin: Terix) : Extension<Terix>() {
     }
 
     @Throws(InvalidCommandSenderException::class)
-    private fun getTargetOrThrow(context: CommandContext<CommandSender>) = context.flags().getValue<Player>("player").orElseGet {
-        context.sender as? Player ?: throw InvalidCommandSenderException(context.sender, Player::class.java, emptyList())
-    }
+    private fun getTargetOrThrow(context: CommandContext<CommandSender>) = context.flags().getValue<Player>("player").or {
+        Optional.ofNullable(context.sender as? Player ?: throw InvalidCommandSenderException(context.sender, Player::class.java, emptyList()))
+    }.map(TerixPlayer::get).get()
 
     private fun dualMessageContext(
         startNode: PropertyFinder<PartialComponent>,
@@ -318,17 +319,17 @@ public class CommandService(override val plugin: Terix) : Extension<Terix>() {
 
     private fun getChoices(
         sender: CommandSender,
-        player: Player
+        player: TerixPlayer
     ) {
         lang.choices[getTargetedPath("get", sender, player)][
-            "choices" to { player.freeChanges },
+            "choices" to { player.databaseEntity.freeChanges },
             "player" to { player.displayName() }
         ] message sender
     }
 
     private fun addChoices(
         sender: CommandSender,
-        player: Player,
+        player: TerixPlayer,
         amount: Int
     ) {
         if (amount < 1) {
@@ -338,11 +339,10 @@ public class CommandService(override val plugin: Terix) : Extension<Terix>() {
         }
 
         StorageService.transaction {
-            val terixPlayer = TerixPlayer[player.uniqueId]
-            terixPlayer.freeChanges += amount
+            player.databaseEntity.freeChanges += amount
 
             lang.choices[getTargetedPath("mutate", sender, player)][
-                "choices" to { terixPlayer.freeChanges },
+                "choices" to { player.databaseEntity.freeChanges },
                 "player" to { player.displayName() }
             ] message sender
         }
@@ -350,7 +350,7 @@ public class CommandService(override val plugin: Terix) : Extension<Terix>() {
 
     private fun removeChoices(
         sender: CommandSender,
-        player: Player,
+        player: TerixPlayer,
         amount: Int
     ) {
         if (amount < 1) {
@@ -360,9 +360,8 @@ public class CommandService(override val plugin: Terix) : Extension<Terix>() {
         }
 
         StorageService.transaction {
-            val terixPlayer = TerixPlayer[player.uniqueId]
-            val freeChanges = (terixPlayer.freeChanges - amount).coerceAtLeast(0)
-            terixPlayer.freeChanges = freeChanges
+            val freeChanges = (player.databaseEntity.freeChanges - amount).coerceAtLeast(0)
+            player.databaseEntity.freeChanges = freeChanges
 
             lang.choices[getTargetedPath("mutate", sender, player)][
                 "choices" to { freeChanges },
@@ -373,12 +372,11 @@ public class CommandService(override val plugin: Terix) : Extension<Terix>() {
 
     private fun grantOrigin(
         sender: CommandSender,
-        player: Player,
+        player: TerixPlayer,
         origin: Origin
     ) {
         StorageService.transaction {
-            val terixPlayer = TerixPlayer[player.uniqueId]
-            if (!terixPlayer.grants.add(origin.name)) {
+            if (!player.databaseEntity.grants.add(origin.name)) {
                 return@transaction lang.origin[getTargetedPath("grant.already", sender, player)][
                     "origin" to { origin.displayName },
                     "player" to { player.displayName() }
@@ -398,12 +396,11 @@ public class CommandService(override val plugin: Terix) : Extension<Terix>() {
 
     private fun ungrantOrigin(
         sender: CommandSender,
-        player: Player,
+        player: TerixPlayer,
         origin: Origin
     ) {
         StorageService.transaction {
-            val terixPlayer = TerixPlayer[player.uniqueId]
-            if (!terixPlayer.grants.remove(origin.name)) {
+            if (!player.databaseEntity.grants.remove(origin.name)) {
                 return@transaction lang.origin[getTargetedPath("grant.missing", sender, player)][
                     "origin" to { origin.displayName },
                     "player" to { player.displayName() }

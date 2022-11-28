@@ -3,12 +3,12 @@ package dev.racci.terix.core.origins
 import dev.racci.minix.api.extensions.cancel
 import dev.racci.minix.api.extensions.isSword
 import dev.racci.minix.api.extensions.reflection.castOrThrow
-import dev.racci.minix.nms.aliases.toNMS
 import dev.racci.terix.api.Terix
 import dev.racci.terix.api.annotations.OriginEventSelector
 import dev.racci.terix.api.data.ItemMatcher
 import dev.racci.terix.api.dsl.FoodPropertyBuilder
 import dev.racci.terix.api.dsl.dslMutator
+import dev.racci.terix.api.extensions.handle
 import dev.racci.terix.api.origins.abilities.keybind.Leap
 import dev.racci.terix.api.origins.enums.EventSelector
 import dev.racci.terix.api.origins.enums.KeyBinding
@@ -55,7 +55,7 @@ public class SlimeOrigin(override val plugin: Terix) : Origin() {
         }
         damage {
             EntityDamageEvent.DamageCause.FALL += { cause ->
-                if (cause.entity.castOrThrow<Player>().toNMS().random.nextBoolean()) {
+                if (cause.entity.castOrThrow<Player>().handle.random.nextBoolean()) {
                     cause.cancel()
                 }
             }
