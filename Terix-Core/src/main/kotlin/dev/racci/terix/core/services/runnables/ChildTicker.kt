@@ -15,7 +15,7 @@ import kotlin.reflect.KProperty1
 
 // TODO -> May need mutex locks due to having 4 threads running at once
 public sealed class ChildTicker private constructor(
-    protected val player: TerixPlayer,
+    public val player: TerixPlayer,
     private val state: Option<State>,
     twoState: Option<KProperty1<TickCache, TwoStateCache>>
 ) : WithPlugin<Terix> by getKoin().get<TickService>() {
