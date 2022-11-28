@@ -40,7 +40,7 @@ public sealed class KeybindAbility : Ability() {
 
     protected fun taggedPotion(potionEffectBuilder: PotionEffectBuilder): PotionEffect = potionEffectBuilder.applyTag(abilityCustomOf(linkedOrigin, this)).get()
 
-    protected fun PotionEffectBuilder.tagged(): PotionEffect = this.applyTag(abilityCustomOf(linkedOrigin, this@KeybindAbility)).get()
+    protected fun PotionEffectBuilder.applyTag(): PotionEffectBuilder = this.applyTag(abilityCustomOf(linkedOrigin, this@KeybindAbility))
 
     protected fun isTagged(potionEffect: PotionEffect): Boolean = potionEffect.key == namespacedKey
 

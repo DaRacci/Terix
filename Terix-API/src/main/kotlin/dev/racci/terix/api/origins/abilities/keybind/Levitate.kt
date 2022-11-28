@@ -23,6 +23,7 @@ public class Levitate(
     override val linkedOrigin: Origin,
     override val cooldownDuration: Duration = Duration.ZERO
 ) : TogglingKeybindAbility() {
+    private val levitatePotion = LEVITATION.asNew().applyTag()
     private var glidingActive: Boolean = false
     private lateinit var lastVector: Vector
 
@@ -67,7 +68,7 @@ public class Levitate(
 
     override suspend fun handleActivation() {
         abilityPlayer.playSound(SOUND.first, SOUND.second, SOUND.third)
-        sync { abilityPlayer.addPotionEffect(taggedPotion(LEVITATION)) }
+        sync { levitatePotion(abilityPlayer) }
     }
 
     override suspend fun handleDeactivation() {
@@ -88,6 +89,6 @@ public class Levitate(
             type = PotionEffectType.LEVITATION
             duration = Duration.INFINITE
             ambient = true
-        }.asNew()
+        }
     }
 }
