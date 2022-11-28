@@ -11,7 +11,7 @@ import dev.racci.minix.api.utils.getKoin
 import dev.racci.minix.api.utils.now
 import dev.racci.minix.api.utils.ticks
 import dev.racci.terix.api.Terix
-import dev.racci.terix.api.TerixPlayer
+import dev.racci.terix.api.data.player.TerixPlayer
 import dev.racci.terix.api.origins.abilities.Ability
 import dev.racci.terix.api.origins.origin.Origin
 import kotlinx.coroutines.flow.filter

@@ -20,7 +20,7 @@ import dev.racci.minix.api.utils.ticks
 import dev.racci.minix.nms.aliases.NMSWorld
 import dev.racci.terix.api.OriginService
 import dev.racci.terix.api.Terix
-import dev.racci.terix.api.TerixPlayer
+import dev.racci.terix.api.data.player.TerixPlayer
 import dev.racci.terix.api.events.PlayerOriginChangeEvent
 import dev.racci.terix.api.origins.origin.Origin
 import dev.racci.terix.api.origins.states.State
@@ -36,6 +36,7 @@ import dev.racci.terix.core.services.runnables.WaterTick
 import kotlinx.collections.immutable.persistentHashMapOf
 import kotlinx.collections.immutable.toPersistentHashSet
 import kotlinx.coroutines.CoroutineDispatcher
+import kotlinx.coroutines.CoroutineExceptionHandler
 import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.Flow
@@ -158,7 +159,11 @@ public class TickServiceImpl(override val plugin: Terix) : Extension<Terix>(), T
             delay(TICK_RATE.ticks)
             if (removeQueue.remove(player.uniqueId)) return@onEach
             arrayQueueMutex.withLock { playerQueue.addLast(player) }
-        }.launchIn(plugin.scope + dispatcher.get())
+        }.launchIn(
+            plugin.scope + dispatcher.get() + CoroutineExceptionHandler { _, throwable ->
+                logger.error(throwable) { "Error in ticker coroutine." }
+            }
+        )
 
     private fun startInternalTickListeners() = playerFlow
         .conflate()

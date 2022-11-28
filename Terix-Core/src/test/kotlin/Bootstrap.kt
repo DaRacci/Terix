@@ -3,7 +3,7 @@ import dev.racci.minix.api.scheduler.CoroutineRunnable
 import dev.racci.minix.api.scheduler.CoroutineScheduler
 import dev.racci.minix.api.scheduler.CoroutineTask
 import dev.racci.terix.api.Terix
-import dev.racci.terix.api.TerixPlayer
+import dev.racci.terix.api.data.player.TerixPlayer
 import dev.racci.terix.api.origins.origin.Origin
 import io.mockk.MockKAnnotations
 import io.mockk.Runs

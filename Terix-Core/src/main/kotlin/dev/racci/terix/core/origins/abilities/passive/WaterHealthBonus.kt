@@ -7,10 +7,10 @@ import dev.racci.minix.api.extensions.dropItem
 import dev.racci.minix.api.extensions.taskAsync
 import dev.racci.minix.api.scheduler.CoroutineTask
 import dev.racci.minix.api.utils.now
-import dev.racci.terix.api.TerixPlayer
 import dev.racci.terix.api.annotations.OriginEventSelector
 import dev.racci.terix.api.data.OriginNamespacedTag
 import dev.racci.terix.api.data.OriginNamespacedTag.Companion.applyTag
+import dev.racci.terix.api.data.player.TerixPlayer
 import dev.racci.terix.api.dsl.AttributeModifierBuilder
 import dev.racci.terix.api.dsl.dslMutator
 import dev.racci.terix.api.origins.OriginHelper

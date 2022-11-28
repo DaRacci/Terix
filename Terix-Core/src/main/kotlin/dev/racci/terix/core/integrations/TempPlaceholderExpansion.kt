@@ -3,7 +3,7 @@ package dev.racci.terix.core.integrations
 import dev.racci.minix.api.extensions.WithPlugin
 import dev.racci.minix.api.extensions.collections.get
 import dev.racci.terix.api.Terix
-import dev.racci.terix.api.TerixPlayer
+import dev.racci.terix.api.data.player.TerixPlayer
 import kotlinx.collections.immutable.persistentMapOf
 import me.clip.placeholderapi.expansion.PlaceholderExpansion
 import net.kyori.adventure.text.Component

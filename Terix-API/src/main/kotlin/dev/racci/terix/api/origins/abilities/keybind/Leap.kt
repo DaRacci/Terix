@@ -1,7 +1,7 @@
 package dev.racci.terix.api.origins.abilities.keybind
 
 import com.destroystokyo.paper.ParticleBuilder
-import dev.racci.terix.api.TerixPlayer
+import dev.racci.terix.api.data.player.TerixPlayer
 import dev.racci.terix.api.origins.abilities.RayCastingSupplier
 import dev.racci.terix.api.origins.origin.Origin
 import io.ktor.utils.io.bits.reverseByteOrder

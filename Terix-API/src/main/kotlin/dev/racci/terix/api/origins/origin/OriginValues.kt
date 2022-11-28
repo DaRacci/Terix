@@ -12,8 +12,8 @@ import dev.racci.minix.api.annotations.MinixInternal
 import dev.racci.minix.api.extensions.KListener
 import dev.racci.minix.api.extensions.WithPlugin
 import dev.racci.minix.api.plugin.MinixPlugin
-import dev.racci.terix.api.TerixPlayer
 import dev.racci.terix.api.data.ItemMatcher
+import dev.racci.terix.api.data.player.TerixPlayer
 import dev.racci.terix.api.dsl.AttributeModifierBuilder
 import dev.racci.terix.api.dsl.PotionEffectBuilder
 import dev.racci.terix.api.dsl.TitleBuilder

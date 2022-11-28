@@ -2,12 +2,13 @@ package dev.racci.terix.core.services.runnables
 
 import dev.racci.minix.api.utils.now
 import dev.racci.minix.api.utils.ticks
-import dev.racci.terix.api.TerixPlayer
+import dev.racci.terix.api.data.player.TerixPlayer
+import dev.racci.terix.api.data.player.TickCache
 import dev.racci.terix.api.origins.OriginHelper
 import dev.racci.terix.api.origins.states.State
 import kotlinx.datetime.Instant
 
-public class RainTick(terixPlayer: TerixPlayer) : ChildTicker(terixPlayer, State.WeatherState.RAIN, TerixPlayer.TickCache::rain) {
+public class RainTick(terixPlayer: TerixPlayer) : ChildTicker(terixPlayer, State.WeatherState.RAIN, TickCache::rain) {
 
     private var lastTick = Instant.DISTANT_PAST
 

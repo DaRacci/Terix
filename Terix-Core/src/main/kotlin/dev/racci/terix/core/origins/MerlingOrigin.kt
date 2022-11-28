@@ -5,8 +5,8 @@ import dev.racci.minix.api.extensions.cancel
 import dev.racci.minix.api.utils.minecraft.MaterialTagsExtension
 import dev.racci.tentacles.Tentacles
 import dev.racci.terix.api.Terix
-import dev.racci.terix.api.TerixPlayer
 import dev.racci.terix.api.annotations.OriginEventSelector
+import dev.racci.terix.api.data.player.TerixPlayer
 import dev.racci.terix.api.dsl.FoodPropertyBuilder
 import dev.racci.terix.api.dsl.dslMutator
 import dev.racci.terix.api.extensions.handle

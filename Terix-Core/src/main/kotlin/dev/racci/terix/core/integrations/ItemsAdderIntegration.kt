@@ -12,7 +12,7 @@ import dev.racci.minix.api.coroutine.scope
 import dev.racci.minix.api.extensions.event
 import dev.racci.minix.api.plugin.MinixPlugin
 import dev.racci.terix.api.Terix
-import dev.racci.terix.api.TerixPlayer
+import dev.racci.terix.api.data.player.TerixPlayer
 import dev.racci.terix.api.events.PlayerOriginChangeEvent
 import dev.racci.terix.api.events.abilities.KeybindAbilityActivateEvent
 import dev.racci.terix.api.origins.abilities.keybind.KeybindAbility

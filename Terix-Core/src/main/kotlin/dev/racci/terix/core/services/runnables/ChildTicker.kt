@@ -6,9 +6,8 @@ import arrow.core.Some
 import dev.racci.minix.api.extensions.WithPlugin
 import dev.racci.minix.api.utils.getKoin
 import dev.racci.terix.api.Terix
-import dev.racci.terix.api.TerixPlayer
-import dev.racci.terix.api.TerixPlayer.TickCache
-import dev.racci.terix.api.TerixPlayer.TickCache.TwoStateCache
+import dev.racci.terix.api.data.player.TerixPlayer
+import dev.racci.terix.api.data.player.TickCache
 import dev.racci.terix.api.origins.states.State
 import dev.racci.terix.api.services.TickService
 import kotlin.reflect.KProperty1
@@ -17,13 +16,13 @@ import kotlin.reflect.KProperty1
 public sealed class ChildTicker private constructor(
     public val player: TerixPlayer,
     private val state: Option<State>,
-    twoState: Option<KProperty1<TickCache, TwoStateCache>>
+    twoState: Option<KProperty1<TickCache, TickCache.TwoStateCache>>
 ) : WithPlugin<Terix> by getKoin().get<TickService>() {
     protected constructor(terixPlayer: TerixPlayer) : this(terixPlayer, None, None)
 
     protected constructor(terixPlayer: TerixPlayer, state: State) : this(terixPlayer, Some(state), None)
 
-    protected constructor(terixPlayer: TerixPlayer, state: State, twoState: KProperty1<TickCache, TwoStateCache>) : this(terixPlayer, Some(state), Some(twoState))
+    protected constructor(terixPlayer: TerixPlayer, state: State, twoState: KProperty1<TickCache, TickCache.TwoStateCache>) : this(terixPlayer, Some(state), Some(twoState))
 
     private val twoState = twoState.map { it.get(player.ticks) }
 

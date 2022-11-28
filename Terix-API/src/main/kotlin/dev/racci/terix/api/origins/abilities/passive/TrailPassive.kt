@@ -5,9 +5,9 @@ import arrow.optics.copy
 import dev.racci.minix.api.events.player.PlayerMoveFullXYZEvent
 import dev.racci.minix.api.extensions.collections.clear
 import dev.racci.minix.api.utils.now
-import dev.racci.terix.api.TerixPlayer
 import dev.racci.terix.api.annotations.OriginEventSelector
 import dev.racci.terix.api.data.TemporaryPlacement
+import dev.racci.terix.api.data.player.TerixPlayer
 import dev.racci.terix.api.data.replacedState
 import dev.racci.terix.api.origins.abilities.RayCastingSupplier
 import dev.racci.terix.api.origins.enums.EventSelector

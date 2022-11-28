@@ -7,6 +7,7 @@ import dev.racci.minix.api.scheduler.CoroutineTask
 import dev.racci.minix.api.utils.getKoin
 import dev.racci.minix.api.utils.now
 import dev.racci.terix.api.data.Lang
+import dev.racci.terix.api.data.player.TerixPlayer
 import io.sentry.Breadcrumb
 import io.sentry.Sentry
 import io.sentry.SentryLevel

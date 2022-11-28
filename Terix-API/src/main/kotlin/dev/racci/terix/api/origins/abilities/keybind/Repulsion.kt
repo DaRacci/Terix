@@ -1,7 +1,7 @@
 package dev.racci.terix.api.origins.abilities.keybind
 
 import com.google.common.base.Predicates
-import dev.racci.terix.api.TerixPlayer
+import dev.racci.terix.api.data.player.TerixPlayer
 import dev.racci.terix.api.extensions.emptyLambdaOne
 import dev.racci.terix.api.extensions.truePredicateOne
 import dev.racci.terix.api.origins.origin.Origin

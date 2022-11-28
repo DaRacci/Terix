@@ -20,9 +20,9 @@ import dev.racci.minix.api.utils.adventure.PartialComponent.Companion.message
 import dev.racci.minix.api.utils.now
 import dev.racci.terix.api.OriginService
 import dev.racci.terix.api.Terix
-import dev.racci.terix.api.TerixPlayer
 import dev.racci.terix.api.data.Lang
 import dev.racci.terix.api.data.TerixConfig
+import dev.racci.terix.api.data.player.TerixPlayer
 import dev.racci.terix.api.events.PlayerOriginChangeEvent
 import dev.racci.terix.api.extensions.handle
 import dev.racci.terix.api.origins.origin.Origin

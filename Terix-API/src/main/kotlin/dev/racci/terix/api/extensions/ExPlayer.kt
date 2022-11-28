@@ -1,8 +1,8 @@
 package dev.racci.terix.api.extensions
 
 import dev.racci.minix.nms.aliases.toNMS
-import dev.racci.terix.api.TerixPlayer
 import dev.racci.terix.api.data.OriginNamespacedTag
+import dev.racci.terix.api.data.player.TerixPlayer
 import net.minecraft.network.protocol.game.ClientboundCustomSoundPacket
 import net.minecraft.resources.ResourceLocation
 import net.minecraft.server.level.ServerPlayer

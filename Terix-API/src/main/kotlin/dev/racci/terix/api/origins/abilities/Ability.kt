@@ -12,9 +12,9 @@ import dev.racci.minix.api.extensions.event
 import dev.racci.minix.api.extensions.reflection.castOrThrow
 import dev.racci.minix.api.extensions.unregisterListener
 import dev.racci.terix.api.Terix
-import dev.racci.terix.api.TerixPlayer
 import dev.racci.terix.api.annotations.DispatcherContext
 import dev.racci.terix.api.annotations.OriginEventSelector
+import dev.racci.terix.api.data.player.TerixPlayer
 import dev.racci.terix.api.origins.enums.EventSelector
 import dev.racci.terix.api.origins.enums.EventSelector.TargetSelector.Companion.isCompatible
 import dev.racci.terix.api.origins.origin.Origin

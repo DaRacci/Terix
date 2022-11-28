@@ -5,7 +5,7 @@ import dev.racci.minix.api.integrations.placeholders.PlaceholderIntegration
 import dev.racci.minix.api.integrations.placeholders.PlaceholderManager
 import dev.racci.minix.api.plugin.MinixPlugin
 import dev.racci.terix.api.Terix
-import dev.racci.terix.api.TerixPlayer
+import dev.racci.terix.api.data.player.TerixPlayer
 
 @MappedIntegration(
     "PlaceholderAPI",

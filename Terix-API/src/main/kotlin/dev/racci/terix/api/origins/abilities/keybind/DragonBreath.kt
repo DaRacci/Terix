@@ -1,6 +1,6 @@
 package dev.racci.terix.api.origins.abilities.keybind
 
-import dev.racci.terix.api.TerixPlayer
+import dev.racci.terix.api.data.player.TerixPlayer
 import dev.racci.terix.api.origins.origin.Origin
 import net.minecraft.world.phys.Vec3
 import kotlin.math.PI

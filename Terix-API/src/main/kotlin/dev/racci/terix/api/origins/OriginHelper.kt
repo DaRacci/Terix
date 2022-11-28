@@ -4,8 +4,8 @@ import arrow.core.toOption
 import dev.racci.minix.api.coroutine.asyncDispatcher
 import dev.racci.minix.api.extensions.WithPlugin
 import dev.racci.terix.api.Terix
-import dev.racci.terix.api.TerixPlayer
 import dev.racci.terix.api.data.OriginNamespacedTag
+import dev.racci.terix.api.data.player.TerixPlayer
 import dev.racci.terix.api.extensions.originPotions
 import dev.racci.terix.api.origins.origin.Origin
 import dev.racci.terix.api.origins.states.State

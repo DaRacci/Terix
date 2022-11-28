@@ -1,7 +1,7 @@
 package dev.racci.terix.core.origins.abilities.keybind
 
 import com.destroystokyo.paper.ParticleBuilder
-import dev.racci.terix.api.TerixPlayer
+import dev.racci.terix.api.data.player.TerixPlayer
 import dev.racci.terix.api.dsl.PotionEffectBuilder
 import dev.racci.terix.api.dsl.dslMutator
 import dev.racci.terix.api.origins.abilities.keybind.TriggeringKeybindAbility
@@ -22,19 +22,12 @@ public class AOEFreeze(
     public val freezeDuration: Duration,
     public val radius: Double
 ) : TriggeringKeybindAbility() {
+    private val slowPotion = SLOW.on(PotionEffectBuilder(duration = freezeDuration)).applyTag()
+
     override suspend fun handleTrigger() {
         val entities = deferredSync { abilityPlayer.world.getNearbyLivingEntities(abilityPlayer.location, radius) }.await()
             .filterNot { it === abilityPlayer }
             .ifEmpty { return failActivation() }
-
-        val potion = dslMutator<PotionEffectBuilder> {
-            type = PotionEffectType.SLOW
-            duration = freezeDuration
-            amplifier = 10
-            ambient = false
-            particles = false
-            icon = false
-        }.asNew().tagged()
 
         val offset = 0.5
         val points = 360
@@ -55,7 +48,7 @@ public class AOEFreeze(
 
         sync {
             entities.forEach { entity ->
-                entity.addPotionEffect(potion)
+                slowPotion(entity)
                 entity.lockFreezeTicks(true)
                 entity.freezeTicks = entity.maxFreezeTicks
             }
@@ -65,5 +58,15 @@ public class AOEFreeze(
 
         entities.filterIsInstance<LivingEntity>()
             .forEach { it.lockFreezeTicks(false) }
+    }
+
+    private companion object {
+        val SLOW = dslMutator<PotionEffectBuilder> {
+            type = PotionEffectType.SLOW
+            amplifier = 10
+            ambient = false
+            particles = false
+            icon = false
+        }
     }
 }

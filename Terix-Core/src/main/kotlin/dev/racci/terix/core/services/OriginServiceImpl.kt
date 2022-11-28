@@ -15,9 +15,9 @@ import dev.racci.minix.api.services.DataService
 import dev.racci.minix.api.utils.collections.multiMapOf
 import dev.racci.terix.api.OriginService
 import dev.racci.terix.api.Terix
-import dev.racci.terix.api.TerixPlayer
 import dev.racci.terix.api.annotations.OriginEventSelector
 import dev.racci.terix.api.data.TerixConfig
+import dev.racci.terix.api.data.player.TerixPlayer
 import dev.racci.terix.api.origins.enums.EventSelector
 import dev.racci.terix.api.origins.enums.EventSelector.TargetSelector.Companion.isCompatible
 import dev.racci.terix.api.origins.origin.Origin

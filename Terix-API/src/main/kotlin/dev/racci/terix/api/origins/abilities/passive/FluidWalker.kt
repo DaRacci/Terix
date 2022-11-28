@@ -5,9 +5,9 @@ import dev.racci.minix.api.events.player.PlayerMoveFullXYZEvent
 import dev.racci.minix.api.utils.minecraft.rangeTo
 import dev.racci.minix.api.utils.ticks
 import dev.racci.minix.nms.aliases.toNMS
-import dev.racci.terix.api.TerixPlayer
 import dev.racci.terix.api.annotations.OriginEventSelector
 import dev.racci.terix.api.data.TemporaryPlacement
+import dev.racci.terix.api.data.player.TerixPlayer
 import dev.racci.terix.api.extensions.above
 import dev.racci.terix.api.origins.abilities.RayCastingSupplier
 import dev.racci.terix.api.origins.enums.EventSelector

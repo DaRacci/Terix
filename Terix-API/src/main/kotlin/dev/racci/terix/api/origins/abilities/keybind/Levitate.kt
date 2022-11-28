@@ -3,8 +3,8 @@ package dev.racci.terix.api.origins.abilities.keybind
 import dev.racci.minix.api.events.player.PlayerMoveXYZEvent
 import dev.racci.minix.api.extensions.cancel
 import dev.racci.minix.api.utils.kotlin.invokeIfNull
-import dev.racci.terix.api.TerixPlayer
 import dev.racci.terix.api.annotations.OriginEventSelector
+import dev.racci.terix.api.data.player.TerixPlayer
 import dev.racci.terix.api.dsl.PotionEffectBuilder
 import dev.racci.terix.api.dsl.dslMutator
 import dev.racci.terix.api.extensions.playSound

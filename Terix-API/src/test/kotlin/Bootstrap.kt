@@ -6,7 +6,8 @@ import dev.racci.minix.api.utils.KoinUtils
 import dev.racci.minix.core.services.PluginServiceImpl
 import dev.racci.terix.api.OriginService
 import dev.racci.terix.api.Terix
-import dev.racci.terix.api.TerixPlayer
+import dev.racci.terix.api.data.player.TerixPlayer
+import dev.racci.terix.api.data.player.TerixUser
 import dev.racci.terix.api.origins.origin.Origin
 import dev.racci.terix.api.sentryScoped
 import io.mockk.MockKAnnotations
@@ -110,11 +111,11 @@ object Bootstrap {
         }
 
         mockkObject(TerixPlayer.Companion)
-        mockkObject(TerixPlayer.User)
+        mockkObject(TerixUser)
 
-        every { TerixPlayer.User.origin } returns mockk()
-        every { TerixPlayer.User.lastChosenTime } returns mockk()
-        every { TerixPlayer.User.freeChanges } returns mockk()
+        every { TerixUser.origin } returns mockk()
+        every { TerixUser.lastChosenTime } returns mockk()
+        every { TerixUser.freeChanges } returns mockk()
 
         every { TerixPlayer.cachedOrigin(mockPlayer) } returns mockOrigin
         every { TerixPlayer.Companion.cachedOrigin(allAny()) } returns mockOrigin

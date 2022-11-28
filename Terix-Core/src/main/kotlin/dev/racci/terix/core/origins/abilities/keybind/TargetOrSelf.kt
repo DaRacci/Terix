@@ -3,7 +3,7 @@ package dev.racci.terix.core.origins.abilities.keybind
 import arrow.core.filterIsInstance
 import arrow.core.orElse
 import arrow.core.toOption
-import dev.racci.terix.api.TerixPlayer
+import dev.racci.terix.api.data.player.TerixPlayer
 import dev.racci.terix.api.origins.abilities.keybind.TriggeringKeybindAbility
 import dev.racci.terix.api.origins.origin.Origin
 import org.bukkit.entity.LivingEntity

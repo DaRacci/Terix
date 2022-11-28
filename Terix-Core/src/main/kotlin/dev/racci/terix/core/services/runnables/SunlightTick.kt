@@ -1,8 +1,8 @@
 package dev.racci.terix.core.services.runnables
 
 import arrow.core.getOrElse
-import dev.racci.terix.api.TerixPlayer
-import dev.racci.terix.api.TerixPlayer.TickCache
+import dev.racci.terix.api.data.player.TerixPlayer
+import dev.racci.terix.api.data.player.TickCache
 import dev.racci.terix.api.events.OriginSunlightBurnEvent
 import dev.racci.terix.api.extensions.handle
 import dev.racci.terix.api.origins.OriginHelper

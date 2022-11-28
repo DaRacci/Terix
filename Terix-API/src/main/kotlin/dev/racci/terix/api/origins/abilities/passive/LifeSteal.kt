@@ -1,7 +1,7 @@
 package dev.racci.terix.api.origins.abilities.passive
 
-import dev.racci.terix.api.TerixPlayer
 import dev.racci.terix.api.annotations.OriginEventSelector
+import dev.racci.terix.api.data.player.TerixPlayer
 import dev.racci.terix.api.events.abilities.LifeStealEvent
 import dev.racci.terix.api.extensions.emptyLambdaThree
 import dev.racci.terix.api.extensions.onSuccess

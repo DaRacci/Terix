@@ -2,8 +2,8 @@ package dev.racci.terix.core.origins.abilities.keybind
 
 import com.destroystokyo.paper.block.TargetBlockInfo
 import dev.racci.minix.api.utils.minecraft.rangeTo
-import dev.racci.terix.api.TerixPlayer
 import dev.racci.terix.api.data.TemporaryPlacement
+import dev.racci.terix.api.data.player.TerixPlayer
 import dev.racci.terix.api.extensions.above
 import dev.racci.terix.api.origins.abilities.keybind.TriggeringKeybindAbility
 import dev.racci.terix.api.origins.origin.Origin
