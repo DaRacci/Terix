@@ -1,5 +1,4 @@
 import com.google.devtools.ksp.gradle.KspGradleSubplugin
-import kotlinx.validation.KotlinApiBuildTask
 import net.minecrell.pluginyml.bukkit.BukkitPluginDescription.Permission.Default
 import net.minecrell.pluginyml.bukkit.BukkitPluginDescription.PluginLoadOrder
 import org.jetbrains.dokka.gradle.DokkaPlugin
@@ -213,10 +212,13 @@ allprojects {
             this.baseline.set(file("$rootDir/config/ktlint/baseline-${project.name.toLowerCase()}.xml"))
         }
 
-        tasks.withType<KotlinApiBuildTask> {
+        tasks {
             // For some reason this task likes to delete the entire folder contents,
             // So we need all projects to have their own sub folder.
-            this.outputApiDir = file("$rootDir/config/api/${project.name.toLowerCase()}")
+            val apiDir = file("$rootDir/config/api/${project.name.toLowerCase()}")
+            apiDump { destinationDir = apiDir }
+            apiBuild { outputApiDir = apiDir }
+            apiCheck { projectApiDir = apiDir }
         }
     } else {
         tasks {
