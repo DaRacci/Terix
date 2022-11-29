@@ -9,7 +9,6 @@ import dev.racci.minix.api.extension.Extension
 import dev.racci.minix.api.extensions.cancel
 import dev.racci.minix.api.extensions.collections.computeAndRemove
 import dev.racci.minix.api.extensions.event
-import dev.racci.minix.api.extensions.events
 import dev.racci.minix.api.extensions.hasPermissionOrStar
 import dev.racci.minix.api.extensions.onlinePlayers
 import dev.racci.minix.api.extensions.pdc
@@ -23,7 +22,6 @@ import dev.racci.minix.nms.aliases.NMSItemStack
 import dev.racci.minix.nms.aliases.NMSServerPlayer
 import dev.racci.terix.api.Terix
 import dev.racci.terix.api.data.Lang
-import dev.racci.terix.api.data.OriginNamespacedTag
 import dev.racci.terix.api.data.TerixConfig
 import dev.racci.terix.api.data.player.TerixPlayer
 import dev.racci.terix.api.events.PlayerOriginChangeEvent
@@ -34,7 +32,6 @@ import dev.racci.terix.api.origins.origin.Origin
 import dev.racci.terix.api.origins.origin.PlayerLambda
 import dev.racci.terix.api.origins.sounds.SoundEffect
 import dev.racci.terix.api.origins.sounds.SoundEffects
-import dev.racci.terix.api.origins.states.State
 import dev.racci.terix.api.services.StorageService
 import dev.racci.terix.core.commands.TerixPermissions
 import dev.racci.terix.core.extensions.fromOrigin
@@ -112,26 +109,12 @@ public class ListenerService(override val plugin: Terix) : Extension<Terix>() {
             scheduler { bowTracker.remove(entity, bow) }.runAsyncTaskLater(plugin, 2.ticks)
         }
 
-        events(
-            PlayerQuitEvent::class,
-            PlayerKickEvent::class,
-            priority = EventPriority.HIGHEST,
-            ignoreCancelled = true,
-            block = { OriginHelper.deactivateOrigin(player) } // TODO WHY NO WORK
-        )
-
-//        event<PlayerQuitEvent>(EventPriority.MONITOR, true) { player.sanitise() }
-
-        event<PlayerJoinEvent> {
-            val origin = TerixPlayer.cachedOrigin(player)
-//            removeUnfulfilledOrInvalidAttributes(player, origin) // Sometimes we can miss some attributes, so we need to remove them
-            OriginHelper.activateOrigin(player, origin)
-        }
+        event<PlayerJoinEvent>(EventPriority.LOWEST) { OriginHelper.activateOrigin(player, TerixPlayer[player].origin) }
+        event<PlayerQuitEvent>(EventPriority.LOWEST) { OriginHelper.deactivateOrigin(player, TerixPlayer[player].origin) }
+        event<PlayerKickEvent>(EventPriority.MONITOR, true) { OriginHelper.deactivateOrigin(player, TerixPlayer[player].origin) }
 
         event<PlayerPostRespawnEvent>(forceAsync = true) {
-            val origin = TerixPlayer.cachedOrigin(player)
-            OriginHelper.recalculateStates(player, origin)
-
+            OriginHelper.recalculateStates(player, TerixPlayer[player].origin)
             player.health = player.getAttribute(Attribute.GENERIC_MAX_HEALTH)!!.value
         }
 
@@ -424,40 +407,8 @@ public class ListenerService(override val plugin: Terix) : Extension<Terix>() {
         oldEffect != null && oldEffect!!.hasKey() &&
         oldEffect!!.fromOrigin()
 
-    // TODO -> Remove this.
-    private fun removeUnfulfilledOrInvalidAttributes(
-        player: Player,
-        origin: Origin,
-        activeTriggers: Set<State> = State[player]
-    ) {
-        for (attribute in Attribute.values()) {
-            val inst = player.getAttribute(attribute) ?: continue
-
-            for (modifier in inst.modifiers) {
-                val tag = OriginNamespacedTag.fromString(modifier.name) ?: continue
-                val state = tag.getState() ?: continue
-
-                if (state !in activeTriggers || !tag.fromOrigin(origin)) {
-                    logger.debug { "Removing unfulfilled or invalid attribute: $modifier" }
-                    inst.removeModifier(modifier)
-                    continue
-                }
-
-                // Make sure the attribute is unchanged
-                origin.stateData[state].modifiers.firstOrNull {
-                    it.attribute == attribute &&
-                        it.name == modifier.name &&
-                        it.amount == modifier.amount &&
-                        it.operation == modifier.operation
-                } ?: inst.removeModifier(modifier)
-            }
-        }
-    }
-
     @OptIn(ExperimentalCoroutinesApi::class)
     private fun <T> Flow<T>.subscribe(action: suspend (T) -> Unit) {
         this.onEach(action).launchIn(CoroutineScope(supervisor.newCoroutineContext(dispatcher.get())))
     }
-
-    public companion object : ExtensionCompanion<ListenerService>()
 }

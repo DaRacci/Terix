@@ -113,19 +113,6 @@ public object OriginHelper : KoinComponent, WithPlugin<Terix> {
             player.setCanBreathUnderwater(null)
             State[player].forEach { state -> state.deactivate(player, origin) }
             origin.abilityData.close(player)
-
-//            sync { getBaseOriginPotions(player, null).forEach(player::removePotionEffect) }
-
-//            for (attribute in Attribute.values()) {
-//                val instance = player.getAttribute(attribute) ?: continue
-//                if (instance.modifiers.isEmpty()) continue
-//
-//                instance.modifiers.associateWith { OriginNamespacedTag.REGEX.matchEntire(it.name) }
-//                    .forEach { (modifier, match) ->
-//                        if (match == null) return@forEach
-//                        instance.removeModifier(modifier)
-//                    }
-//            }
         }
     }
 

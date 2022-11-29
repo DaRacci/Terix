@@ -1,10 +1,17 @@
 package dev.racci.terix.api.dsl
 
+import dev.racci.minix.api.extensions.reflection.castOrThrow
 import dev.racci.terix.api.data.OriginNamespacedTag
 import org.bukkit.attribute.Attribute
+import org.bukkit.attribute.AttributeInstance
 import org.bukkit.attribute.AttributeModifier
+import org.bukkit.craftbukkit.v1_19_R1.attribute.CraftAttributeInstance
 import org.bukkit.entity.Player
 import java.util.UUID
+import kotlin.reflect.KProperty1
+import kotlin.reflect.full.declaredMemberProperties
+import kotlin.reflect.jvm.isAccessible
+import net.minecraft.world.entity.ai.attributes.AttributeInstance as NMSAttributeInstance
 
 // TODO -> Maybe just convert to immutable data classes?
 public class AttributeModifierBuilder(
@@ -28,8 +35,15 @@ public class AttributeModifierBuilder(
         operation
     )
 
+    // TODO: PR
+    private val craftHandle: KProperty1<in AttributeInstance, NMSAttributeInstance> = CraftAttributeInstance::class.declaredMemberProperties
+        .first { it.name == "handle" }
+        .apply { isAccessible = true }
+        .castOrThrow()
+
     public operator fun invoke(player: Player) {
-        player.getAttribute(attribute)?.addModifier(get())
+        val attributeInstance = player.getAttribute(attribute) ?: error("Player doesn't have attribute $attribute")
+        craftHandle.get(attributeInstance).addTransientModifier(CraftAttributeInstance.convert(get()))
     }
 
     public fun remove(player: Player) {
