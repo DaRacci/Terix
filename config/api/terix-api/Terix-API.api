@@ -1,0 +1,2713 @@
+public abstract interface class dev/racci/terix/api/CancellableEvent {
+	public abstract fun invoke (Lorg/bukkit/event/Cancellable;)V
+	public abstract fun shouldCancel (Lorg/bukkit/event/Cancellable;)Z
+}
+
+public final class dev/racci/terix/api/CancellableEvent$DefaultImpls {
+	public static fun invoke (Ldev/racci/terix/api/CancellableEvent;Lorg/bukkit/event/Cancellable;)V
+}
+
+public abstract interface class dev/racci/terix/api/OriginService {
+	public static final field Companion Ldev/racci/terix/api/OriginService$Companion;
+	public abstract fun getDefaultOrigin ()Ldev/racci/terix/api/origins/origin/Origin;
+	public abstract fun getOrigin (Ljava/lang/String;)Ldev/racci/terix/api/origins/origin/Origin;
+	public abstract fun getOrigin (Lkotlin/reflect/KClass;)Ldev/racci/terix/api/origins/origin/Origin;
+	public abstract fun getOriginOrNull (Ljava/lang/String;)Ldev/racci/terix/api/origins/origin/Origin;
+	public abstract fun getOrigins ()Lkotlinx/collections/immutable/PersistentMap;
+}
+
+public final class dev/racci/terix/api/OriginService$Companion : dev/racci/terix/api/OriginService {
+	public fun getDefaultOrigin ()Ldev/racci/terix/api/origins/origin/Origin;
+	public fun getOrigin (Ljava/lang/String;)Ldev/racci/terix/api/origins/origin/Origin;
+	public fun getOrigin (Lkotlin/reflect/KClass;)Ldev/racci/terix/api/origins/origin/Origin;
+	public fun getOriginOrNull (Ljava/lang/String;)Ldev/racci/terix/api/origins/origin/Origin;
+	public fun getOrigins ()Lkotlinx/collections/immutable/PersistentMap;
+}
+
+public abstract class dev/racci/terix/api/Terix : dev/racci/minix/api/plugin/MinixPlugin {
+	public fun <init> ()V
+}
+
+public final class dev/racci/terix/api/UtilsKt {
+	public static final fun sentryBreadcrumb (Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;Lio/sentry/SentryLevel;)Ldev/racci/minix/api/scheduler/CoroutineTask;
+	public static synthetic fun sentryBreadcrumb$default (Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;Lio/sentry/SentryLevel;ILjava/lang/Object;)Ldev/racci/minix/api/scheduler/CoroutineTask;
+	public static final fun sentryScoped (Lorg/bukkit/entity/Player;Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;Lio/sentry/SentryLevel;Lkotlin/coroutines/CoroutineContext;Lkotlin/jvm/functions/Function1;Lkotlin/coroutines/Continuation;)Ljava/lang/Object;
+	public static synthetic fun sentryScoped$default (Lorg/bukkit/entity/Player;Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;Lio/sentry/SentryLevel;Lkotlin/coroutines/CoroutineContext;Lkotlin/jvm/functions/Function1;Lkotlin/coroutines/Continuation;ILjava/lang/Object;)Ljava/lang/Object;
+	public static final fun sentryUser (Lorg/bukkit/entity/Player;)Lio/sentry/protocol/User;
+}
+
+public abstract interface annotation class dev/racci/terix/api/annotations/DispatcherContext : java/lang/annotation/Annotation {
+	public abstract fun context ()Ldev/racci/terix/api/annotations/DispatcherContext$Context;
+}
+
+public final class dev/racci/terix/api/annotations/DispatcherContext$Context : java/lang/Enum {
+	public static final field ASYNC Ldev/racci/terix/api/annotations/DispatcherContext$Context;
+	public static final field MAIN Ldev/racci/terix/api/annotations/DispatcherContext$Context;
+	public static fun valueOf (Ljava/lang/String;)Ldev/racci/terix/api/annotations/DispatcherContext$Context;
+	public static fun values ()[Ldev/racci/terix/api/annotations/DispatcherContext$Context;
+}
+
+public abstract interface annotation class dev/racci/terix/api/annotations/OriginBuilderDSL : java/lang/annotation/Annotation {
+}
+
+public abstract interface annotation class dev/racci/terix/api/annotations/OriginEventSelector : java/lang/annotation/Annotation {
+	public abstract fun ignoreCancelled ()Z
+	public abstract fun priority ()Lorg/bukkit/event/EventPriority;
+	public abstract fun selector ()Ldev/racci/terix/api/origins/enums/EventSelector;
+}
+
+public final class dev/racci/terix/api/data/Cooldown {
+	public static final field Companion Ldev/racci/terix/api/data/Cooldown$Companion;
+	public synthetic fun <init> (Lkotlinx/datetime/Instant;JLkotlin/jvm/internal/DefaultConstructorMarker;)V
+	public final fun component1 ()Lkotlinx/datetime/Instant;
+	public final fun component2-UwyO8pc ()J
+	public final fun copy-HG0u8IE (Lkotlinx/datetime/Instant;J)Ldev/racci/terix/api/data/Cooldown;
+	public static synthetic fun copy-HG0u8IE$default (Ldev/racci/terix/api/data/Cooldown;Lkotlinx/datetime/Instant;JILjava/lang/Object;)Ldev/racci/terix/api/data/Cooldown;
+	public fun equals (Ljava/lang/Object;)Z
+	public final fun expired ()Z
+	public final fun getDuration-UwyO8pc ()J
+	public final fun getStart ()Lkotlinx/datetime/Instant;
+	public fun hashCode ()I
+	public final fun notExpired ()Z
+	public final fun remaining-UwyO8pc ()J
+	public fun toString ()Ljava/lang/String;
+}
+
+public final class dev/racci/terix/api/data/Cooldown$Companion {
+	public final fun getNONE ()Ldev/racci/terix/api/data/Cooldown;
+	public final fun of-LRDsOJo (J)Ldev/racci/terix/api/data/Cooldown;
+}
+
+public abstract interface class dev/racci/terix/api/data/ItemMatcher {
+	public static final field Companion Ldev/racci/terix/api/data/ItemMatcher$Companion;
+	public abstract fun actualMatcher (Lorg/bukkit/inventory/ItemStack;)Z
+	public abstract fun matches (Lorg/bukkit/inventory/ItemStack;)Z
+}
+
+public final class dev/racci/terix/api/data/ItemMatcher$Companion {
+	public final fun of (Lorg/bukkit/Material;)Ldev/racci/terix/api/data/ItemMatcher;
+}
+
+public final class dev/racci/terix/api/data/ItemMatcher$DefaultImpls {
+	public static fun matches (Ldev/racci/terix/api/data/ItemMatcher;Lorg/bukkit/inventory/ItemStack;)Z
+}
+
+public final class dev/racci/terix/api/data/Lang : dev/racci/minix/api/data/LangConfig {
+	public fun <init> ()V
+	public final fun getChoices ()Ldev/racci/terix/api/data/Lang$Choices;
+	public final fun getGeneric ()Ldev/racci/terix/api/data/Lang$Generic;
+	public final fun getGui ()Ldev/racci/terix/api/data/Lang$GUI;
+	public final fun getOrigin ()Ldev/racci/terix/api/data/Lang$Origin;
+	public fun getPrefixes ()Ljava/util/Map;
+	public final fun setChoices (Ldev/racci/terix/api/data/Lang$Choices;)V
+	public final fun setGeneric (Ldev/racci/terix/api/data/Lang$Generic;)V
+	public final fun setGui (Ldev/racci/terix/api/data/Lang$GUI;)V
+	public final fun setOrigin (Ldev/racci/terix/api/data/Lang$Origin;)V
+}
+
+public final class dev/racci/terix/api/data/Lang$Choices : dev/racci/minix/api/data/LangConfig$InnerLang {
+	public fun <init> ()V
+	public final fun getGetOther ()Ldev/racci/minix/api/utils/adventure/PartialComponent;
+	public final fun getGetSelf ()Ldev/racci/minix/api/utils/adventure/PartialComponent;
+	public final fun getMutateOther ()Ldev/racci/minix/api/utils/adventure/PartialComponent;
+	public final fun getMutateSelf ()Ldev/racci/minix/api/utils/adventure/PartialComponent;
+	public final fun setGetOther (Ldev/racci/minix/api/utils/adventure/PartialComponent;)V
+	public final fun setGetSelf (Ldev/racci/minix/api/utils/adventure/PartialComponent;)V
+	public final fun setMutateOther (Ldev/racci/minix/api/utils/adventure/PartialComponent;)V
+	public final fun setMutateSelf (Ldev/racci/minix/api/utils/adventure/PartialComponent;)V
+}
+
+public final class dev/racci/terix/api/data/Lang$GUI : dev/racci/minix/api/data/LangConfig$InnerLang {
+	public fun <init> ()V
+	public fun <init> (Ldev/racci/minix/api/utils/adventure/PartialComponent;Ldev/racci/minix/api/utils/adventure/PartialComponent;Ljava/util/List;Ldev/racci/minix/api/utils/adventure/PartialComponent;Ldev/racci/minix/api/utils/adventure/PartialComponent;Ldev/racci/minix/api/utils/adventure/PartialComponent;Ldev/racci/minix/api/utils/adventure/PartialComponent;)V
+	public synthetic fun <init> (Ldev/racci/minix/api/utils/adventure/PartialComponent;Ldev/racci/minix/api/utils/adventure/PartialComponent;Ljava/util/List;Ldev/racci/minix/api/utils/adventure/PartialComponent;Ldev/racci/minix/api/utils/adventure/PartialComponent;Ldev/racci/minix/api/utils/adventure/PartialComponent;Ldev/racci/minix/api/utils/adventure/PartialComponent;ILkotlin/jvm/internal/DefaultConstructorMarker;)V
+	public final fun component1 ()Ldev/racci/minix/api/utils/adventure/PartialComponent;
+	public final fun component2 ()Ldev/racci/minix/api/utils/adventure/PartialComponent;
+	public final fun component3 ()Ljava/util/List;
+	public final fun component4 ()Ldev/racci/minix/api/utils/adventure/PartialComponent;
+	public final fun component5 ()Ldev/racci/minix/api/utils/adventure/PartialComponent;
+	public final fun component6 ()Ldev/racci/minix/api/utils/adventure/PartialComponent;
+	public final fun component7 ()Ldev/racci/minix/api/utils/adventure/PartialComponent;
+	public final fun copy (Ldev/racci/minix/api/utils/adventure/PartialComponent;Ldev/racci/minix/api/utils/adventure/PartialComponent;Ljava/util/List;Ldev/racci/minix/api/utils/adventure/PartialComponent;Ldev/racci/minix/api/utils/adventure/PartialComponent;Ldev/racci/minix/api/utils/adventure/PartialComponent;Ldev/racci/minix/api/utils/adventure/PartialComponent;)Ldev/racci/terix/api/data/Lang$GUI;
+	public static synthetic fun copy$default (Ldev/racci/terix/api/data/Lang$GUI;Ldev/racci/minix/api/utils/adventure/PartialComponent;Ldev/racci/minix/api/utils/adventure/PartialComponent;Ljava/util/List;Ldev/racci/minix/api/utils/adventure/PartialComponent;Ldev/racci/minix/api/utils/adventure/PartialComponent;Ldev/racci/minix/api/utils/adventure/PartialComponent;Ldev/racci/minix/api/utils/adventure/PartialComponent;ILjava/lang/Object;)Ldev/racci/terix/api/data/Lang$GUI;
+	public fun equals (Ljava/lang/Object;)Z
+	public final fun getChangeFree ()Ldev/racci/minix/api/utils/adventure/PartialComponent;
+	public final fun getChangeTime ()Ldev/racci/minix/api/utils/adventure/PartialComponent;
+	public final fun getChangeTimeCooldown ()Ldev/racci/minix/api/utils/adventure/PartialComponent;
+	public final fun getHasGrant ()Ldev/racci/minix/api/utils/adventure/PartialComponent;
+	public final fun getRequirementLine ()Ldev/racci/minix/api/utils/adventure/PartialComponent;
+	public final fun getRequirementLore ()Ljava/util/List;
+	public final fun getTitle ()Ldev/racci/minix/api/utils/adventure/PartialComponent;
+	public fun hashCode ()I
+	public fun toString ()Ljava/lang/String;
+}
+
+public final class dev/racci/terix/api/data/Lang$Generic : dev/racci/minix/api/data/LangConfig$InnerLang {
+	public fun <init> ()V
+	public final fun getError ()Ldev/racci/minix/api/utils/adventure/PartialComponent;
+	public final fun getReloadLang ()Ldev/racci/minix/api/utils/adventure/PartialComponent;
+	public final fun setError (Ldev/racci/minix/api/utils/adventure/PartialComponent;)V
+	public final fun setReloadLang (Ldev/racci/minix/api/utils/adventure/PartialComponent;)V
+}
+
+public final class dev/racci/terix/api/data/Lang$Origin : dev/racci/minix/api/data/LangConfig$InnerLang {
+	public fun <init> ()V
+	public final fun getBee ()Ldev/racci/terix/api/data/Lang$Origin$Bee;
+	public final fun getBroadcast ()Ldev/racci/minix/api/utils/adventure/PartialComponent;
+	public final fun getCancelledCommand ()Ldev/racci/minix/api/utils/adventure/PartialComponent;
+	public final fun getDescriptor ()Ldev/racci/terix/api/data/Lang$Origin$Descriptor;
+	public final fun getGetOther ()Ldev/racci/minix/api/utils/adventure/PartialComponent;
+	public final fun getGetSelf ()Ldev/racci/minix/api/utils/adventure/PartialComponent;
+	public final fun getGrantAlreadyOther ()Ldev/racci/minix/api/utils/adventure/PartialComponent;
+	public final fun getGrantAlreadySelf ()Ldev/racci/minix/api/utils/adventure/PartialComponent;
+	public final fun getGrantMissingOther ()Ldev/racci/minix/api/utils/adventure/PartialComponent;
+	public final fun getGrantMissingSelf ()Ldev/racci/minix/api/utils/adventure/PartialComponent;
+	public final fun getGrantOther ()Ldev/racci/minix/api/utils/adventure/PartialComponent;
+	public final fun getGrantRemovedOther ()Ldev/racci/minix/api/utils/adventure/PartialComponent;
+	public final fun getGrantRemovedSelf ()Ldev/racci/minix/api/utils/adventure/PartialComponent;
+	public final fun getGrantSelf ()Ldev/racci/minix/api/utils/adventure/PartialComponent;
+	public final fun getMissingRequirement ()Ldev/racci/minix/api/utils/adventure/PartialComponent;
+	public final fun getNightVision ()Ldev/racci/minix/api/utils/adventure/PartialComponent;
+	public final fun getOnChangeCooldown ()Ldev/racci/minix/api/utils/adventure/PartialComponent;
+	public final fun getRemainingChanges ()Ldev/racci/minix/api/utils/adventure/PartialComponent;
+	public final fun getSetOther ()Ldev/racci/minix/api/utils/adventure/PartialComponent;
+	public final fun getSetSameOther ()Ldev/racci/minix/api/utils/adventure/PartialComponent;
+	public final fun getSetSameSelf ()Ldev/racci/minix/api/utils/adventure/PartialComponent;
+	public final fun getSetSelf ()Ldev/racci/minix/api/utils/adventure/PartialComponent;
+	public final fun setBee (Ldev/racci/terix/api/data/Lang$Origin$Bee;)V
+	public final fun setBroadcast (Ldev/racci/minix/api/utils/adventure/PartialComponent;)V
+	public final fun setCancelledCommand (Ldev/racci/minix/api/utils/adventure/PartialComponent;)V
+	public final fun setDescriptor (Ldev/racci/terix/api/data/Lang$Origin$Descriptor;)V
+	public final fun setGetOther (Ldev/racci/minix/api/utils/adventure/PartialComponent;)V
+	public final fun setGetSelf (Ldev/racci/minix/api/utils/adventure/PartialComponent;)V
+	public final fun setMissingRequirement (Ldev/racci/minix/api/utils/adventure/PartialComponent;)V
+	public final fun setNightVision (Ldev/racci/minix/api/utils/adventure/PartialComponent;)V
+	public final fun setOnChangeCooldown (Ldev/racci/minix/api/utils/adventure/PartialComponent;)V
+	public final fun setSetOther (Ldev/racci/minix/api/utils/adventure/PartialComponent;)V
+	public final fun setSetSameOther (Ldev/racci/minix/api/utils/adventure/PartialComponent;)V
+	public final fun setSetSameSelf (Ldev/racci/minix/api/utils/adventure/PartialComponent;)V
+	public final fun setSetSelf (Ldev/racci/minix/api/utils/adventure/PartialComponent;)V
+}
+
+public final class dev/racci/terix/api/data/Lang$Origin$Bee : dev/racci/minix/api/data/LangConfig$InnerLang {
+	public fun <init> ()V
+	public final fun getPotion ()Ldev/racci/minix/api/utils/adventure/PartialComponent;
+	public final fun setPotion (Ldev/racci/minix/api/utils/adventure/PartialComponent;)V
+}
+
+public final class dev/racci/terix/api/data/Lang$Origin$Descriptor : dev/racci/minix/api/data/LangConfig$InnerLang {
+	public fun <init> ()V
+	public fun <init> (Ldev/racci/minix/api/utils/adventure/PartialComponent;Ldev/racci/minix/api/utils/adventure/PartialComponent;Ldev/racci/minix/api/utils/adventure/PartialComponent;Ldev/racci/minix/api/utils/adventure/PartialComponent;)V
+	public synthetic fun <init> (Ldev/racci/minix/api/utils/adventure/PartialComponent;Ldev/racci/minix/api/utils/adventure/PartialComponent;Ldev/racci/minix/api/utils/adventure/PartialComponent;Ldev/racci/minix/api/utils/adventure/PartialComponent;ILkotlin/jvm/internal/DefaultConstructorMarker;)V
+	public final fun component1 ()Ldev/racci/minix/api/utils/adventure/PartialComponent;
+	public final fun component2 ()Ldev/racci/minix/api/utils/adventure/PartialComponent;
+	public final fun component3 ()Ldev/racci/minix/api/utils/adventure/PartialComponent;
+	public final fun component4 ()Ldev/racci/minix/api/utils/adventure/PartialComponent;
+	public final fun copy (Ldev/racci/minix/api/utils/adventure/PartialComponent;Ldev/racci/minix/api/utils/adventure/PartialComponent;Ldev/racci/minix/api/utils/adventure/PartialComponent;Ldev/racci/minix/api/utils/adventure/PartialComponent;)Ldev/racci/terix/api/data/Lang$Origin$Descriptor;
+	public static synthetic fun copy$default (Ldev/racci/terix/api/data/Lang$Origin$Descriptor;Ldev/racci/minix/api/utils/adventure/PartialComponent;Ldev/racci/minix/api/utils/adventure/PartialComponent;Ldev/racci/minix/api/utils/adventure/PartialComponent;Ldev/racci/minix/api/utils/adventure/PartialComponent;ILjava/lang/Object;)Ldev/racci/terix/api/data/Lang$Origin$Descriptor;
+	public fun equals (Ljava/lang/Object;)Z
+	public final fun getBodyLine ()Ldev/racci/minix/api/utils/adventure/PartialComponent;
+	public final fun getFooter ()Ldev/racci/minix/api/utils/adventure/PartialComponent;
+	public final fun getHead ()Ldev/racci/minix/api/utils/adventure/PartialComponent;
+	public final fun getKeyedBodyLine ()Ldev/racci/minix/api/utils/adventure/PartialComponent;
+	public fun hashCode ()I
+	public fun toString ()Ljava/lang/String;
+}
+
+public final class dev/racci/terix/api/data/OriginLocalCache {
+	public fun <init> ()V
+}
+
+public final class dev/racci/terix/api/data/OriginNamespacedTag : com/destroystokyo/paper/Namespaced {
+	public static final field Companion Ldev/racci/terix/api/data/OriginNamespacedTag$Companion;
+	public synthetic fun <init> (Ljava/lang/String;Ldev/racci/terix/api/data/OriginNamespacedTag$Source;Ldev/racci/terix/api/data/OriginNamespacedTag$CauseType;Ljava/lang/String;Lkotlin/jvm/internal/DefaultConstructorMarker;)V
+	public final fun component1 ()Ljava/lang/String;
+	public final fun component2 ()Ldev/racci/terix/api/data/OriginNamespacedTag$Source;
+	public final fun component3 ()Ldev/racci/terix/api/data/OriginNamespacedTag$CauseType;
+	public final fun component4 ()Ljava/lang/String;
+	public final fun copy (Ljava/lang/String;Ldev/racci/terix/api/data/OriginNamespacedTag$Source;Ldev/racci/terix/api/data/OriginNamespacedTag$CauseType;Ljava/lang/String;)Ldev/racci/terix/api/data/OriginNamespacedTag;
+	public static synthetic fun copy$default (Ldev/racci/terix/api/data/OriginNamespacedTag;Ljava/lang/String;Ldev/racci/terix/api/data/OriginNamespacedTag$Source;Ldev/racci/terix/api/data/OriginNamespacedTag$CauseType;Ljava/lang/String;ILjava/lang/Object;)Ldev/racci/terix/api/data/OriginNamespacedTag;
+	public fun equals (Ljava/lang/Object;)Z
+	public final fun fromCustom (Ljava/lang/String;)Z
+	public final fun fromMaterial (Lorg/bukkit/Material;)Z
+	public final fun fromOrigin (Ldev/racci/terix/api/origins/origin/Origin;)Z
+	public final fun fromState (Ldev/racci/terix/api/origins/states/State;)Z
+	public final fun getAsString ()Ljava/lang/String;
+	public final fun getBukkitKey ()Lorg/bukkit/NamespacedKey;
+	public final fun getCause ()Ljava/lang/String;
+	public final fun getCauseType ()Ldev/racci/terix/api/data/OriginNamespacedTag$CauseType;
+	public fun getKey ()Ljava/lang/String;
+	public fun getNamespace ()Ljava/lang/String;
+	public final fun getOrigin ()Ldev/racci/terix/api/origins/origin/Origin;
+	public final fun getOrigin ()Ljava/lang/String;
+	public final fun getSource ()Ldev/racci/terix/api/data/OriginNamespacedTag$Source;
+	public final fun getState ()Ldev/racci/terix/api/origins/states/State;
+	public fun hashCode ()I
+	public final fun isCauseTypeCustom ()Z
+	public final fun isCauseTypeMaterial ()Z
+	public final fun isCauseTypeState ()Z
+	public final fun isSourceAbility ()Z
+	public final fun isSourceBase ()Z
+	public final fun isSourceFood ()Z
+	public fun toString ()Ljava/lang/String;
+}
+
+public final class dev/racci/terix/api/data/OriginNamespacedTag$CauseType : java/lang/Enum {
+	public static final field CUSTOM Ldev/racci/terix/api/data/OriginNamespacedTag$CauseType;
+	public static final field MATERIAL Ldev/racci/terix/api/data/OriginNamespacedTag$CauseType;
+	public static final field SIDE_EFFECT Ldev/racci/terix/api/data/OriginNamespacedTag$CauseType;
+	public static final field STATE Ldev/racci/terix/api/data/OriginNamespacedTag$CauseType;
+	public static fun valueOf (Ljava/lang/String;)Ldev/racci/terix/api/data/OriginNamespacedTag$CauseType;
+	public static fun values ()[Ldev/racci/terix/api/data/OriginNamespacedTag$CauseType;
+}
+
+public final class dev/racci/terix/api/data/OriginNamespacedTag$Companion {
+	public final fun abilityCustomOf (Ldev/racci/terix/api/origins/origin/OriginValues;Ldev/racci/terix/api/origins/abilities/Ability;)Ldev/racci/terix/api/data/OriginNamespacedTag;
+	public final fun abilityCustomOf (Ldev/racci/terix/api/origins/origin/OriginValues;Ljava/lang/String;)Ldev/racci/terix/api/data/OriginNamespacedTag;
+	public final fun applyTag (Ldev/racci/terix/api/dsl/AttributeModifierBuilder;Ldev/racci/terix/api/data/OriginNamespacedTag;)Ldev/racci/terix/api/dsl/AttributeModifierBuilder;
+	public final fun applyTag (Ldev/racci/terix/api/dsl/PotionEffectBuilder;Ldev/racci/terix/api/data/OriginNamespacedTag;)Ldev/racci/terix/api/dsl/PotionEffectBuilder;
+	public final fun fromBukkitKey (Lorg/bukkit/NamespacedKey;)Ldev/racci/terix/api/data/OriginNamespacedTag;
+	public final fun fromString (Ljava/lang/String;)Ldev/racci/terix/api/data/OriginNamespacedTag;
+}
+
+public final class dev/racci/terix/api/data/OriginNamespacedTag$Source : java/lang/Enum {
+	public static final field ABILITY Ldev/racci/terix/api/data/OriginNamespacedTag$Source;
+	public static final field BASE Ldev/racci/terix/api/data/OriginNamespacedTag$Source;
+	public static final field FOOD Ldev/racci/terix/api/data/OriginNamespacedTag$Source;
+	public static fun valueOf (Ljava/lang/String;)Ldev/racci/terix/api/data/OriginNamespacedTag$Source;
+	public static fun values ()[Ldev/racci/terix/api/data/OriginNamespacedTag$Source;
+}
+
+public final class dev/racci/terix/api/data/TemporaryPlacement : java/util/concurrent/Delayed {
+	public static final field Companion Ldev/racci/terix/api/data/TemporaryPlacement$Companion;
+	public synthetic fun <init> (Ldev/racci/terix/api/origins/abilities/Ability;Lorg/bukkit/block/BlockState;Lorg/bukkit/block/data/BlockData;ZJZLorg/bukkit/metadata/FixedMetadataValue;ILkotlin/jvm/internal/DefaultConstructorMarker;)V
+	public synthetic fun <init> (Ldev/racci/terix/api/origins/abilities/Ability;Lorg/bukkit/block/BlockState;Lorg/bukkit/block/data/BlockData;ZJZLorg/bukkit/metadata/FixedMetadataValue;Lkotlin/jvm/internal/DefaultConstructorMarker;)V
+	public final fun beenMutated ()Z
+	public final fun commit ()Ldev/racci/terix/api/data/TemporaryPlacement;
+	public synthetic fun compareTo (Ljava/lang/Object;)I
+	public fun compareTo (Ljava/util/concurrent/Delayed;)I
+	public final fun component1 ()Ldev/racci/terix/api/origins/abilities/Ability;
+	public final fun component2 ()Lorg/bukkit/block/BlockState;
+	public final fun component3 ()Lorg/bukkit/block/data/BlockData;
+	public final fun component4 ()Z
+	public final fun component5-UwyO8pc ()J
+	public final fun component6 ()Z
+	public final fun component7 ()Lorg/bukkit/metadata/FixedMetadataValue;
+	public final fun copy-TUY-ock (Ldev/racci/terix/api/origins/abilities/Ability;Lorg/bukkit/block/BlockState;Lorg/bukkit/block/data/BlockData;ZJZLorg/bukkit/metadata/FixedMetadataValue;)Ldev/racci/terix/api/data/TemporaryPlacement;
+	public static synthetic fun copy-TUY-ock$default (Ldev/racci/terix/api/data/TemporaryPlacement;Ldev/racci/terix/api/origins/abilities/Ability;Lorg/bukkit/block/BlockState;Lorg/bukkit/block/data/BlockData;ZJZLorg/bukkit/metadata/FixedMetadataValue;ILjava/lang/Object;)Ldev/racci/terix/api/data/TemporaryPlacement;
+	public final fun copyFor (Lorg/bukkit/Location;)Ldev/racci/terix/api/data/TemporaryPlacement;
+	public final fun copyFor (Lorg/bukkit/block/Block;)Ldev/racci/terix/api/data/TemporaryPlacement;
+	public fun equals (Ljava/lang/Object;)Z
+	public final fun getAbilityRef ()Ldev/racci/terix/api/origins/abilities/Ability;
+	public final fun getCommittedAt ()Lkotlinx/datetime/Instant;
+	public fun getDelay (Ljava/util/concurrent/TimeUnit;)J
+	public final fun getImmutable ()Z
+	public final fun getInitTemplate ()Z
+	public final fun getMetaValue ()Lorg/bukkit/metadata/FixedMetadataValue;
+	public final fun getRemoveAfter-UwyO8pc ()J
+	public final fun getReplacedState ()Lorg/bukkit/block/BlockState;
+	public final fun getReplacementData ()Lorg/bukkit/block/data/BlockData;
+	public fun hashCode ()I
+	public fun toString ()Ljava/lang/String;
+	public final fun undoCommit ()V
+}
+
+public abstract interface class dev/racci/terix/api/data/TemporaryPlacement$BlockDataProvider {
+	public abstract fun getPlacementData ()Lorg/bukkit/block/data/BlockData;
+}
+
+public final class dev/racci/terix/api/data/TemporaryPlacement$Companion {
+	public final fun getValue (Ldev/racci/terix/api/origins/abilities/Ability;Ljava/lang/Object;)Ldev/racci/terix/api/data/TemporaryPlacement;
+}
+
+public abstract interface class dev/racci/terix/api/data/TemporaryPlacement$DurationLimited {
+	public abstract fun getPlacementDuration-UwyO8pc ()J
+}
+
+public abstract interface class dev/racci/terix/api/data/TemporaryPlacement$Immutable {
+}
+
+public abstract interface class dev/racci/terix/api/data/TemporaryPlacement$RadiusLimited {
+	public abstract fun getPlacementRadius ()D
+}
+
+public final class dev/racci/terix/api/data/TemporaryPlacementKt {
+	public static final fun getAbilityRef (Larrow/optics/Fold;)Larrow/optics/Fold;
+	public static final fun getAbilityRef (Larrow/optics/Getter;)Larrow/optics/Getter;
+	public static final fun getAbilityRef (Larrow/optics/PEvery;)Larrow/optics/PEvery;
+	public static final fun getAbilityRef (Larrow/optics/PIso;)Larrow/optics/PLens;
+	public static final fun getAbilityRef (Larrow/optics/PLens;)Larrow/optics/PLens;
+	public static final fun getAbilityRef (Larrow/optics/POptional;)Larrow/optics/POptional;
+	public static final fun getAbilityRef (Larrow/optics/PPrism;)Larrow/optics/POptional;
+	public static final fun getAbilityRef (Larrow/optics/PSetter;)Larrow/optics/PSetter;
+	public static final fun getAbilityRef (Larrow/optics/PTraversal;)Larrow/optics/PTraversal;
+	public static final fun getAbilityRef (Ldev/racci/terix/api/data/TemporaryPlacement$Companion;)Larrow/optics/PLens;
+	public static final fun getImmutable (Larrow/optics/Fold;)Larrow/optics/Fold;
+	public static final fun getImmutable (Larrow/optics/Getter;)Larrow/optics/Getter;
+	public static final fun getImmutable (Larrow/optics/PEvery;)Larrow/optics/PEvery;
+	public static final fun getImmutable (Larrow/optics/PIso;)Larrow/optics/PLens;
+	public static final fun getImmutable (Larrow/optics/PLens;)Larrow/optics/PLens;
+	public static final fun getImmutable (Larrow/optics/POptional;)Larrow/optics/POptional;
+	public static final fun getImmutable (Larrow/optics/PPrism;)Larrow/optics/POptional;
+	public static final fun getImmutable (Larrow/optics/PSetter;)Larrow/optics/PSetter;
+	public static final fun getImmutable (Larrow/optics/PTraversal;)Larrow/optics/PTraversal;
+	public static final fun getImmutable (Ldev/racci/terix/api/data/TemporaryPlacement$Companion;)Larrow/optics/PLens;
+	public static final fun getInitTemplate (Larrow/optics/Fold;)Larrow/optics/Fold;
+	public static final fun getInitTemplate (Larrow/optics/Getter;)Larrow/optics/Getter;
+	public static final fun getInitTemplate (Larrow/optics/PEvery;)Larrow/optics/PEvery;
+	public static final fun getInitTemplate (Larrow/optics/PIso;)Larrow/optics/PLens;
+	public static final fun getInitTemplate (Larrow/optics/PLens;)Larrow/optics/PLens;
+	public static final fun getInitTemplate (Larrow/optics/POptional;)Larrow/optics/POptional;
+	public static final fun getInitTemplate (Larrow/optics/PPrism;)Larrow/optics/POptional;
+	public static final fun getInitTemplate (Larrow/optics/PSetter;)Larrow/optics/PSetter;
+	public static final fun getInitTemplate (Larrow/optics/PTraversal;)Larrow/optics/PTraversal;
+	public static final fun getInitTemplate (Ldev/racci/terix/api/data/TemporaryPlacement$Companion;)Larrow/optics/PLens;
+	public static final fun getIso (Ldev/racci/terix/api/data/TemporaryPlacement$Companion;)Larrow/optics/PIso;
+	public static final fun getMetaValue (Larrow/optics/Fold;)Larrow/optics/Fold;
+	public static final fun getMetaValue (Larrow/optics/Getter;)Larrow/optics/Getter;
+	public static final fun getMetaValue (Larrow/optics/PEvery;)Larrow/optics/PEvery;
+	public static final fun getMetaValue (Larrow/optics/PIso;)Larrow/optics/PLens;
+	public static final fun getMetaValue (Larrow/optics/PLens;)Larrow/optics/PLens;
+	public static final fun getMetaValue (Larrow/optics/POptional;)Larrow/optics/POptional;
+	public static final fun getMetaValue (Larrow/optics/PPrism;)Larrow/optics/POptional;
+	public static final fun getMetaValue (Larrow/optics/PSetter;)Larrow/optics/PSetter;
+	public static final fun getMetaValue (Larrow/optics/PTraversal;)Larrow/optics/PTraversal;
+	public static final fun getMetaValue (Ldev/racci/terix/api/data/TemporaryPlacement$Companion;)Larrow/optics/PLens;
+	public static final fun getRemoveAfter (Larrow/optics/Fold;)Larrow/optics/Fold;
+	public static final fun getRemoveAfter (Larrow/optics/Getter;)Larrow/optics/Getter;
+	public static final fun getRemoveAfter (Larrow/optics/PEvery;)Larrow/optics/PEvery;
+	public static final fun getRemoveAfter (Larrow/optics/PIso;)Larrow/optics/PLens;
+	public static final fun getRemoveAfter (Larrow/optics/PLens;)Larrow/optics/PLens;
+	public static final fun getRemoveAfter (Larrow/optics/POptional;)Larrow/optics/POptional;
+	public static final fun getRemoveAfter (Larrow/optics/PPrism;)Larrow/optics/POptional;
+	public static final fun getRemoveAfter (Larrow/optics/PSetter;)Larrow/optics/PSetter;
+	public static final fun getRemoveAfter (Larrow/optics/PTraversal;)Larrow/optics/PTraversal;
+	public static final fun getRemoveAfter (Ldev/racci/terix/api/data/TemporaryPlacement$Companion;)Larrow/optics/PLens;
+	public static final fun getReplacedState (Larrow/optics/Fold;)Larrow/optics/Fold;
+	public static final fun getReplacedState (Larrow/optics/Getter;)Larrow/optics/Getter;
+	public static final fun getReplacedState (Larrow/optics/PEvery;)Larrow/optics/PEvery;
+	public static final fun getReplacedState (Larrow/optics/PIso;)Larrow/optics/PLens;
+	public static final fun getReplacedState (Larrow/optics/PLens;)Larrow/optics/PLens;
+	public static final fun getReplacedState (Larrow/optics/POptional;)Larrow/optics/POptional;
+	public static final fun getReplacedState (Larrow/optics/PPrism;)Larrow/optics/POptional;
+	public static final fun getReplacedState (Larrow/optics/PSetter;)Larrow/optics/PSetter;
+	public static final fun getReplacedState (Larrow/optics/PTraversal;)Larrow/optics/PTraversal;
+	public static final fun getReplacedState (Ldev/racci/terix/api/data/TemporaryPlacement$Companion;)Larrow/optics/PLens;
+	public static final fun getReplacementData (Larrow/optics/Fold;)Larrow/optics/Fold;
+	public static final fun getReplacementData (Larrow/optics/Getter;)Larrow/optics/Getter;
+	public static final fun getReplacementData (Larrow/optics/PEvery;)Larrow/optics/PEvery;
+	public static final fun getReplacementData (Larrow/optics/PIso;)Larrow/optics/PLens;
+	public static final fun getReplacementData (Larrow/optics/PLens;)Larrow/optics/PLens;
+	public static final fun getReplacementData (Larrow/optics/POptional;)Larrow/optics/POptional;
+	public static final fun getReplacementData (Larrow/optics/PPrism;)Larrow/optics/POptional;
+	public static final fun getReplacementData (Larrow/optics/PSetter;)Larrow/optics/PSetter;
+	public static final fun getReplacementData (Larrow/optics/PTraversal;)Larrow/optics/PTraversal;
+	public static final fun getReplacementData (Ldev/racci/terix/api/data/TemporaryPlacement$Companion;)Larrow/optics/PLens;
+}
+
+public final class dev/racci/terix/api/data/TerixConfig : dev/racci/minix/api/data/MinixConfig {
+	public fun <init> ()V
+	public final fun getDefaultOrigin ()Ljava/lang/String;
+	public final fun getFreeChanges ()I
+	public final fun getGui ()Ldev/racci/terix/api/data/TerixConfig$GUI;
+	public final fun getIntervalBeforeChange-UwyO8pc ()J
+	public final fun getShowTitleOnChange ()Z
+}
+
+public final class dev/racci/terix/api/data/TerixConfig$GUI : dev/racci/minix/api/data/MinixConfig$InnerConfig {
+	public fun <init> ()V
+	public fun <init> (Ldev/racci/terix/api/data/TerixConfig$GUI$GUIItemSlot;Ldev/racci/terix/api/data/TerixConfig$GUI$GUIItemSlot;Ldev/racci/terix/api/data/TerixConfig$GUI$GUIItemSlot;Ldev/racci/terix/api/data/TerixConfig$GUI$GUIItemSlot;Ldev/racci/terix/api/data/TerixConfig$GUI$GUIItemSlot;Ldev/racci/terix/api/data/TerixConfig$GUI$GUIItemSlot;)V
+	public synthetic fun <init> (Ldev/racci/terix/api/data/TerixConfig$GUI$GUIItemSlot;Ldev/racci/terix/api/data/TerixConfig$GUI$GUIItemSlot;Ldev/racci/terix/api/data/TerixConfig$GUI$GUIItemSlot;Ldev/racci/terix/api/data/TerixConfig$GUI$GUIItemSlot;Ldev/racci/terix/api/data/TerixConfig$GUI$GUIItemSlot;Ldev/racci/terix/api/data/TerixConfig$GUI$GUIItemSlot;ILkotlin/jvm/internal/DefaultConstructorMarker;)V
+	public final fun component1 ()Ldev/racci/terix/api/data/TerixConfig$GUI$GUIItemSlot;
+	public final fun component2 ()Ldev/racci/terix/api/data/TerixConfig$GUI$GUIItemSlot;
+	public final fun component3 ()Ldev/racci/terix/api/data/TerixConfig$GUI$GUIItemSlot;
+	public final fun component4 ()Ldev/racci/terix/api/data/TerixConfig$GUI$GUIItemSlot;
+	public final fun component5 ()Ldev/racci/terix/api/data/TerixConfig$GUI$GUIItemSlot;
+	public final fun component6 ()Ldev/racci/terix/api/data/TerixConfig$GUI$GUIItemSlot;
+	public final fun copy (Ldev/racci/terix/api/data/TerixConfig$GUI$GUIItemSlot;Ldev/racci/terix/api/data/TerixConfig$GUI$GUIItemSlot;Ldev/racci/terix/api/data/TerixConfig$GUI$GUIItemSlot;Ldev/racci/terix/api/data/TerixConfig$GUI$GUIItemSlot;Ldev/racci/terix/api/data/TerixConfig$GUI$GUIItemSlot;Ldev/racci/terix/api/data/TerixConfig$GUI$GUIItemSlot;)Ldev/racci/terix/api/data/TerixConfig$GUI;
+	public static synthetic fun copy$default (Ldev/racci/terix/api/data/TerixConfig$GUI;Ldev/racci/terix/api/data/TerixConfig$GUI$GUIItemSlot;Ldev/racci/terix/api/data/TerixConfig$GUI$GUIItemSlot;Ldev/racci/terix/api/data/TerixConfig$GUI$GUIItemSlot;Ldev/racci/terix/api/data/TerixConfig$GUI$GUIItemSlot;Ldev/racci/terix/api/data/TerixConfig$GUI$GUIItemSlot;Ldev/racci/terix/api/data/TerixConfig$GUI$GUIItemSlot;ILjava/lang/Object;)Ldev/racci/terix/api/data/TerixConfig$GUI;
+	public fun equals (Ljava/lang/Object;)Z
+	public final fun getCancelSelection ()Ldev/racci/terix/api/data/TerixConfig$GUI$GUIItemSlot;
+	public final fun getConfirmSelection ()Ldev/racci/terix/api/data/TerixConfig$GUI$GUIItemSlot;
+	public final fun getInfo ()Ldev/racci/terix/api/data/TerixConfig$GUI$GUIItemSlot;
+	public fun getInitialized ()Z
+	public final fun getNextPage ()Ldev/racci/terix/api/data/TerixConfig$GUI$GUIItemSlot;
+	public fun getPlugin ()Ldev/racci/minix/api/plugin/MinixPlugin;
+	public final fun getPreviousPage ()Ldev/racci/terix/api/data/TerixConfig$GUI$GUIItemSlot;
+	public final fun getRemainingChanges ()Ldev/racci/terix/api/data/TerixConfig$GUI$GUIItemSlot;
+	public fun hashCode ()I
+	public fun setInitialized (Z)V
+	public fun setPlugin (Ldev/racci/minix/api/plugin/MinixPlugin;)V
+	public fun toString ()Ljava/lang/String;
+}
+
+public final class dev/racci/terix/api/data/TerixConfig$GUI$GUIItemSlot {
+	public fun <init> (Ljava/lang/String;Ljava/lang/String;Ljava/util/List;Ljava/util/List;)V
+	public synthetic fun <init> (Ljava/lang/String;Ljava/lang/String;Ljava/util/List;Ljava/util/List;ILkotlin/jvm/internal/DefaultConstructorMarker;)V
+	public final fun component1 ()Ljava/lang/String;
+	public final fun component2 ()Ljava/lang/String;
+	public final fun component3 ()Ljava/util/List;
+	public final fun component4 ()Ljava/util/List;
+	public final fun copy (Ljava/lang/String;Ljava/lang/String;Ljava/util/List;Ljava/util/List;)Ldev/racci/terix/api/data/TerixConfig$GUI$GUIItemSlot;
+	public static synthetic fun copy$default (Ldev/racci/terix/api/data/TerixConfig$GUI$GUIItemSlot;Ljava/lang/String;Ljava/lang/String;Ljava/util/List;Ljava/util/List;ILjava/lang/Object;)Ldev/racci/terix/api/data/TerixConfig$GUI$GUIItemSlot;
+	public fun equals (Ljava/lang/Object;)Z
+	public final fun getCommands ()Ljava/util/List;
+	public final fun getDisplay ()Ljava/lang/String;
+	public final fun getLore ()Ljava/util/List;
+	public final fun getPosition ()Ljava/lang/String;
+	public fun hashCode ()I
+	public fun toString ()Ljava/lang/String;
+}
+
+public abstract interface class dev/racci/terix/api/data/player/OverrideFixer : net/kyori/adventure/audience/Audience {
+	public abstract fun clearTitle ()V
+	public abstract fun hideBossBar (Lnet/kyori/adventure/bossbar/BossBar;)V
+	public abstract fun openBook (Lnet/kyori/adventure/inventory/Book;)V
+	public abstract fun playSound (Lnet/kyori/adventure/sound/Sound;)V
+	public abstract fun playSound (Lnet/kyori/adventure/sound/Sound;DDD)V
+	public abstract fun playSound (Lnet/kyori/adventure/sound/Sound;Lnet/kyori/adventure/sound/Sound$Emitter;)V
+	public abstract fun resetTitle ()V
+	public abstract fun sendActionBar (Lnet/kyori/adventure/text/Component;)V
+	public abstract fun sendPlayerListFooter (Lnet/kyori/adventure/text/Component;)V
+	public abstract fun sendPlayerListHeader (Lnet/kyori/adventure/text/Component;)V
+	public abstract fun sendPlayerListHeaderAndFooter (Lnet/kyori/adventure/text/Component;Lnet/kyori/adventure/text/Component;)V
+	public abstract fun sendTitlePart (Lnet/kyori/adventure/title/TitlePart;Ljava/lang/Object;)V
+	public abstract fun showBossBar (Lnet/kyori/adventure/bossbar/BossBar;)V
+	public abstract fun showTitle (Lnet/kyori/adventure/title/Title;)V
+	public abstract fun stopSound (Lnet/kyori/adventure/sound/SoundStop;)V
+}
+
+public final class dev/racci/terix/api/data/player/TerixPlayer : dev/racci/terix/api/data/player/OverrideFixer, dev/racci/terix/api/data/player/TerixPlayerEntity, org/bukkit/entity/Player {
+	public static final field Companion Ldev/racci/terix/api/data/player/TerixPlayer$Companion;
+	public synthetic fun <init> (Lorg/jetbrains/exposed/dao/DaoEntityID;Lorg/bukkit/craftbukkit/v1_19_R1/entity/CraftPlayer;Ldev/racci/terix/api/data/player/TerixPlayerEntity;Lkotlin/jvm/internal/DefaultConstructorMarker;)V
+	public fun abandonConversation (Lorg/bukkit/conversations/Conversation;)V
+	public fun abandonConversation (Lorg/bukkit/conversations/Conversation;Lorg/bukkit/conversations/ConversationAbandonedEvent;)V
+	public fun acceptConversationInput (Ljava/lang/String;)V
+	public fun addAdditionalChatCompletions (Ljava/util/Collection;)V
+	public fun addAttachment (Lorg/bukkit/plugin/Plugin;)Lorg/bukkit/permissions/PermissionAttachment;
+	public fun addAttachment (Lorg/bukkit/plugin/Plugin;I)Lorg/bukkit/permissions/PermissionAttachment;
+	public fun addAttachment (Lorg/bukkit/plugin/Plugin;Ljava/lang/String;Z)Lorg/bukkit/permissions/PermissionAttachment;
+	public fun addAttachment (Lorg/bukkit/plugin/Plugin;Ljava/lang/String;ZI)Lorg/bukkit/permissions/PermissionAttachment;
+	public fun addCanStandOnFluid (Lorg/bukkit/Fluid;)V
+	public fun addPassenger (Lorg/bukkit/entity/Entity;)Z
+	public fun addPotionEffect (Lorg/bukkit/potion/PotionEffect;)Z
+	public fun addPotionEffect (Lorg/bukkit/potion/PotionEffect;Z)Z
+	public fun addPotionEffects (Ljava/util/Collection;)Z
+	public fun addScoreboardTag (Ljava/lang/String;)Z
+	public fun applyMending (I)I
+	public fun attack (Lorg/bukkit/entity/Entity;)V
+	public fun beginConversation (Lorg/bukkit/conversations/Conversation;)Z
+	public fun boostElytra (Lorg/bukkit/inventory/ItemStack;)Lorg/bukkit/entity/Firework;
+	public fun breakBlock (Lorg/bukkit/block/Block;)Z
+	public fun broadcastItemBreak (Lorg/bukkit/inventory/EquipmentSlot;)V
+	public fun canBreathUnderwater ()Z
+	public fun canBreatheUnderwater ()Z
+	public fun canSee (Lorg/bukkit/entity/Entity;)Z
+	public fun canSee (Lorg/bukkit/entity/Player;)Z
+	public fun canStandOnFluid (Lorg/bukkit/Fluid;)Z
+	public fun chat (Ljava/lang/String;)V
+	public fun clearActiveItem ()V
+	public fun clearBlockHighlights ()V
+	public fun clearTitle ()V
+	public fun closeInventory ()V
+	public fun closeInventory (Lorg/bukkit/event/inventory/InventoryCloseEvent$Reason;)V
+	public fun collidesAt (Lorg/bukkit/Location;)Z
+	public fun customName ()Lnet/kyori/adventure/text/Component;
+	public fun customName (Lnet/kyori/adventure/text/Component;)V
+	public fun damage (D)V
+	public fun damage (DLorg/bukkit/entity/Entity;)V
+	public fun decrementStatistic (Lorg/bukkit/Statistic;)V
+	public fun decrementStatistic (Lorg/bukkit/Statistic;I)V
+	public fun decrementStatistic (Lorg/bukkit/Statistic;Lorg/bukkit/Material;)V
+	public fun decrementStatistic (Lorg/bukkit/Statistic;Lorg/bukkit/Material;I)V
+	public fun decrementStatistic (Lorg/bukkit/Statistic;Lorg/bukkit/entity/EntityType;)V
+	public fun decrementStatistic (Lorg/bukkit/Statistic;Lorg/bukkit/entity/EntityType;I)V
+	public fun discoverRecipe (Lorg/bukkit/NamespacedKey;)Z
+	public fun discoverRecipes (Ljava/util/Collection;)I
+	public fun displayName ()Lnet/kyori/adventure/text/Component;
+	public fun displayName (Lnet/kyori/adventure/text/Component;)V
+	public fun dropItem (Z)Z
+	public fun eject ()Z
+	public fun equals (Ljava/lang/Object;)Z
+	public fun fireworkBoost (Lorg/bukkit/inventory/ItemStack;)Lorg/bukkit/entity/Firework;
+	public fun fromMobSpawner ()Z
+	public fun getAbsorptionAmount ()D
+	public fun getActiveItem ()Lorg/bukkit/inventory/ItemStack;
+	public fun getActivePotionEffects ()Ljava/util/Collection;
+	public fun getAddress ()Ljava/net/InetSocketAddress;
+	public fun getAdvancementProgress (Lorg/bukkit/advancement/Advancement;)Lorg/bukkit/advancement/AdvancementProgress;
+	public fun getAffectsSpawning ()Z
+	public fun getAllowFlight ()Z
+	public fun getArrowCooldown ()I
+	public fun getArrowsInBody ()I
+	public fun getArrowsStuck ()I
+	public fun getAttackCooldown ()F
+	public fun getAttribute (Lorg/bukkit/attribute/Attribute;)Lorg/bukkit/attribute/AttributeInstance;
+	public final fun getBackingPlayer ()Lorg/bukkit/craftbukkit/v1_19_R1/entity/CraftPlayer;
+	public fun getBedLocation ()Lorg/bukkit/Location;
+	public fun getBedSpawnLocation ()Lorg/bukkit/Location;
+	public fun getBeeStingerCooldown ()I
+	public fun getBeeStingersInBody ()I
+	public fun getBoundingBox ()Lorg/bukkit/util/BoundingBox;
+	public fun getCanPickupItems ()Z
+	public fun getCategory ()Lorg/bukkit/entity/EntityCategory;
+	public fun getClientBrandName ()Ljava/lang/String;
+	public fun getClientOption (Lcom/destroystokyo/paper/ClientOption;)Ljava/lang/Object;
+	public fun getClientViewDistance ()I
+	public fun getCollidableExemptions ()Ljava/util/Set;
+	public fun getCompassTarget ()Lorg/bukkit/Location;
+	public fun getCooldown (Lorg/bukkit/Material;)I
+	public fun getCooldownPeriod ()F
+	public fun getCooledAttackStrength (F)F
+	public fun getCustomName ()Ljava/lang/String;
+	public final fun getDatabaseEntity ()Ldev/racci/terix/api/data/player/TerixPlayerEntity;
+	public fun getDeathSound ()Lorg/bukkit/Sound;
+	public fun getDiscoveredRecipes ()Ljava/util/Set;
+	public fun getDisplayName ()Ljava/lang/String;
+	public fun getDrinkingSound (Lorg/bukkit/inventory/ItemStack;)Lorg/bukkit/Sound;
+	public fun getEatingSound (Lorg/bukkit/inventory/ItemStack;)Lorg/bukkit/Sound;
+	public fun getEffectivePermissions ()Ljava/util/Set;
+	public fun getEnderChest ()Lorg/bukkit/inventory/Inventory;
+	public fun getEntityId ()I
+	public fun getEntitySpawnReason ()Lorg/bukkit/event/entity/CreatureSpawnEvent$SpawnReason;
+	public fun getEquipment ()Lorg/bukkit/inventory/EntityEquipment;
+	public fun getExhaustion ()F
+	public fun getExp ()F
+	public fun getExpToLevel ()I
+	public fun getEyeHeight ()D
+	public fun getEyeHeight (Z)D
+	public fun getEyeLocation ()Lorg/bukkit/Location;
+	public fun getFacing ()Lorg/bukkit/block/BlockFace;
+	public fun getFallDamageSound (I)Lorg/bukkit/Sound;
+	public fun getFallDamageSoundBig ()Lorg/bukkit/Sound;
+	public fun getFallDamageSoundSmall ()Lorg/bukkit/Sound;
+	public fun getFallDistance ()F
+	public fun getFireTicks ()I
+	public fun getFirstPlayed ()J
+	public fun getFishHook ()Lorg/bukkit/entity/FishHook;
+	public fun getFlySpeed ()F
+	public fun getFoodLevel ()I
+	public fun getFreeChanges ()I
+	public fun getFreezeTicks ()I
+	public fun getGameMode ()Lorg/bukkit/GameMode;
+	public fun getGrants ()Ljava/util/Set;
+	public fun getHandRaised ()Lorg/bukkit/inventory/EquipmentSlot;
+	public fun getHandRaisedTime ()I
+	public final fun getHandle ()Lnet/minecraft/server/level/ServerPlayer;
+	public fun getHealth ()D
+	public fun getHealthScale ()D
+	public fun getHeight ()D
+	public fun getHurtDirection ()F
+	public fun getHurtSound ()Lorg/bukkit/Sound;
+	public synthetic fun getInventory ()Lorg/bukkit/inventory/Inventory;
+	public fun getInventory ()Lorg/bukkit/inventory/PlayerInventory;
+	public fun getItemInHand ()Lorg/bukkit/inventory/ItemStack;
+	public fun getItemInUse ()Lorg/bukkit/inventory/ItemStack;
+	public fun getItemOnCursor ()Lorg/bukkit/inventory/ItemStack;
+	public fun getItemUseRemainingTime ()I
+	public fun getKiller ()Lorg/bukkit/entity/Player;
+	public fun getLastChosenTime ()Lkotlinx/datetime/Instant;
+	public fun getLastDamage ()D
+	public fun getLastDamageCause ()Lorg/bukkit/event/entity/EntityDamageEvent;
+	public fun getLastDeathLocation ()Lorg/bukkit/Location;
+	public fun getLastLogin ()J
+	public fun getLastPlayed ()J
+	public fun getLastSeen ()J
+	public fun getLastTwoTargetBlocks (Ljava/util/Set;I)Ljava/util/List;
+	public fun getLeashHolder ()Lorg/bukkit/entity/Entity;
+	public fun getLevel ()I
+	public fun getLineOfSight (Ljava/util/Set;I)Ljava/util/List;
+	public fun getListeningPluginChannels ()Ljava/util/Set;
+	public fun getLocale ()Ljava/lang/String;
+	public fun getLocation ()Lorg/bukkit/Location;
+	public fun getLocation (Lorg/bukkit/Location;)Lorg/bukkit/Location;
+	public fun getMainHand ()Lorg/bukkit/inventory/MainHand;
+	public fun getMaxFireTicks ()I
+	public fun getMaxFreezeTicks ()I
+	public fun getMaxHealth ()D
+	public fun getMaximumAir ()I
+	public fun getMaximumNoDamageTicks ()I
+	public fun getMemory (Lorg/bukkit/entity/memory/MemoryKey;)Ljava/lang/Object;
+	public fun getMetadata (Ljava/lang/String;)Ljava/util/List;
+	public fun getName ()Ljava/lang/String;
+	public fun getNearbyEntities (DDD)Ljava/util/List;
+	public fun getNoDamageTicks ()I
+	public fun getNoTickViewDistance ()I
+	public fun getOpenInventory ()Lorg/bukkit/inventory/InventoryView;
+	public fun getOrigin ()Ldev/racci/terix/api/origins/origin/Origin;
+	public fun getOrigin ()Lorg/bukkit/Location;
+	public fun getPassenger ()Lorg/bukkit/entity/Entity;
+	public fun getPassengers ()Ljava/util/List;
+	public fun getPersistentDataContainer ()Lorg/bukkit/persistence/PersistentDataContainer;
+	public fun getPing ()I
+	public fun getPistonMoveReaction ()Lorg/bukkit/block/PistonMoveReaction;
+	public fun getPlayer ()Lorg/bukkit/entity/Player;
+	public fun getPlayerListFooter ()Ljava/lang/String;
+	public fun getPlayerListHeader ()Ljava/lang/String;
+	public fun getPlayerListName ()Ljava/lang/String;
+	public fun getPlayerProfile ()Lcom/destroystokyo/paper/profile/PlayerProfile;
+	public synthetic fun getPlayerProfile ()Lorg/bukkit/profile/PlayerProfile;
+	public fun getPlayerTime ()J
+	public fun getPlayerTimeOffset ()J
+	public fun getPlayerWeather ()Lorg/bukkit/WeatherType;
+	public fun getPortalCooldown ()I
+	public fun getPose ()Lorg/bukkit/entity/Pose;
+	public fun getPotentialBedLocation ()Lorg/bukkit/Location;
+	public fun getPotionEffect (Lorg/bukkit/potion/PotionEffectType;)Lorg/bukkit/potion/PotionEffect;
+	public fun getPreviousGameMode ()Lorg/bukkit/GameMode;
+	public fun getProtocolVersion ()I
+	public fun getRemainingAir ()I
+	public fun getRemoveWhenFarAway ()Z
+	public fun getResourcePackHash ()Ljava/lang/String;
+	public fun getResourcePackStatus ()Lorg/bukkit/event/player/PlayerResourcePackStatusEvent$Status;
+	public fun getRider ()Lorg/bukkit/entity/Player;
+	public fun getSafeFallDistance ()F
+	public fun getSaturatedRegenRate ()I
+	public fun getSaturation ()F
+	public fun getScoreboard ()Lorg/bukkit/scoreboard/Scoreboard;
+	public fun getScoreboardTags ()Ljava/util/Set;
+	public fun getSendViewDistance ()I
+	public fun getServer ()Lorg/bukkit/Server;
+	public fun getShieldBlockingDelay ()I
+	public fun getShoulderEntityLeft ()Lorg/bukkit/entity/Entity;
+	public fun getShoulderEntityRight ()Lorg/bukkit/entity/Entity;
+	public fun getSimulationDistance ()I
+	public fun getSleepTicks ()I
+	public fun getSpawnCategory ()Lorg/bukkit/entity/SpawnCategory;
+	public fun getSpawnInvulnerableTicks ()I
+	public fun getSpectatorTarget ()Lorg/bukkit/entity/Entity;
+	public fun getStarvationRate ()I
+	public fun getStatistic (Lorg/bukkit/Statistic;)I
+	public fun getStatistic (Lorg/bukkit/Statistic;Lorg/bukkit/Material;)I
+	public fun getStatistic (Lorg/bukkit/Statistic;Lorg/bukkit/entity/EntityType;)I
+	public fun getSwimHighSpeedSplashSound ()Lorg/bukkit/Sound;
+	public fun getSwimSound ()Lorg/bukkit/Sound;
+	public fun getSwimSplashSound ()Lorg/bukkit/Sound;
+	public fun getTargetBlock (ILcom/destroystokyo/paper/block/TargetBlockInfo$FluidMode;)Lorg/bukkit/block/Block;
+	public fun getTargetBlock (Ljava/util/Set;I)Lorg/bukkit/block/Block;
+	public fun getTargetBlockExact (I)Lorg/bukkit/block/Block;
+	public fun getTargetBlockExact (ILorg/bukkit/FluidCollisionMode;)Lorg/bukkit/block/Block;
+	public fun getTargetBlockFace (ILcom/destroystokyo/paper/block/TargetBlockInfo$FluidMode;)Lorg/bukkit/block/BlockFace;
+	public fun getTargetBlockInfo (ILcom/destroystokyo/paper/block/TargetBlockInfo$FluidMode;)Lcom/destroystokyo/paper/block/TargetBlockInfo;
+	public fun getTargetEntity (IZ)Lorg/bukkit/entity/Entity;
+	public fun getTargetEntityInfo (IZ)Lcom/destroystokyo/paper/entity/TargetEntityInfo;
+	public final fun getTicks ()Ldev/racci/terix/api/data/player/TickCache;
+	public fun getTicksLived ()I
+	public fun getTotalExperience ()I
+	public fun getTrackedPlayers ()Ljava/util/Set;
+	public fun getType ()Lorg/bukkit/entity/EntityType;
+	public fun getUniqueId ()Ljava/util/UUID;
+	public fun getUnsaturatedRegenRate ()I
+	public fun getVehicle ()Lorg/bukkit/entity/Entity;
+	public fun getVelocity ()Lorg/bukkit/util/Vector;
+	public fun getViewDistance ()I
+	public fun getVirtualHost ()Ljava/net/InetSocketAddress;
+	public fun getWalkSpeed ()F
+	public fun getWidth ()D
+	public fun getWorld ()Lorg/bukkit/World;
+	public fun getWorldBorder ()Lorg/bukkit/WorldBorder;
+	public fun giveExp (IZ)V
+	public fun giveExpLevels (I)V
+	public fun hasAI ()Z
+	public fun hasCooldown (Lorg/bukkit/Material;)Z
+	public fun hasDiscoveredRecipe (Lorg/bukkit/NamespacedKey;)Z
+	public fun hasFlyingFallDamage ()Z
+	public fun hasGravity ()Z
+	public fun hasLineOfSight (Lorg/bukkit/Location;)Z
+	public fun hasLineOfSight (Lorg/bukkit/entity/Entity;)Z
+	public fun hasMetadata (Ljava/lang/String;)Z
+	public fun hasPermission (Ljava/lang/String;)Z
+	public fun hasPermission (Lorg/bukkit/permissions/Permission;)Z
+	public fun hasPlayedBefore ()Z
+	public fun hasPotionEffect (Lorg/bukkit/potion/PotionEffectType;)Z
+	public fun hasResourcePack ()Z
+	public fun hasRider ()Z
+	public fun hashCode ()I
+	public fun hideBossBar (Lnet/kyori/adventure/bossbar/BossBar;)V
+	public fun hideEntity (Lorg/bukkit/plugin/Plugin;Lorg/bukkit/entity/Entity;)V
+	public fun hidePlayer (Lorg/bukkit/entity/Player;)V
+	public fun hidePlayer (Lorg/bukkit/plugin/Plugin;Lorg/bukkit/entity/Player;)V
+	public fun hideTitle ()V
+	public fun incrementStatistic (Lorg/bukkit/Statistic;)V
+	public fun incrementStatistic (Lorg/bukkit/Statistic;I)V
+	public fun incrementStatistic (Lorg/bukkit/Statistic;Lorg/bukkit/Material;)V
+	public fun incrementStatistic (Lorg/bukkit/Statistic;Lorg/bukkit/Material;I)V
+	public fun incrementStatistic (Lorg/bukkit/Statistic;Lorg/bukkit/entity/EntityType;)V
+	public fun incrementStatistic (Lorg/bukkit/Statistic;Lorg/bukkit/entity/EntityType;I)V
+	public fun isAfk ()Z
+	public fun isAllowingServerListings ()Z
+	public fun isBanned ()Z
+	public fun isBlocking ()Z
+	public fun isClimbing ()Z
+	public fun isCollidable ()Z
+	public fun isConversing ()Z
+	public fun isCustomNameVisible ()Z
+	public fun isDead ()Z
+	public fun isDeeplySleeping ()Z
+	public fun isEmpty ()Z
+	public fun isFlying ()Z
+	public fun isFreezeTickingLocked ()Z
+	public fun isFrozen ()Z
+	public fun isGliding ()Z
+	public fun isGlowing ()Z
+	public fun isHandRaised ()Z
+	public fun isHealthScaled ()Z
+	public fun isImmuneToFire ()Z
+	public fun isInBubbleColumn ()Z
+	public fun isInDaylight ()Z
+	public fun isInLava ()Z
+	public fun isInPowderedSnow ()Z
+	public fun isInRain ()Z
+	public fun isInWater ()Z
+	public fun isInWaterOrBubbleColumn ()Z
+	public fun isInWaterOrRain ()Z
+	public fun isInWaterOrRainOrBubbleColumn ()Z
+	public fun isInsideVehicle ()Z
+	public fun isInvisible ()Z
+	public fun isInvulnerable ()Z
+	public fun isJumping ()Z
+	public fun isLeashed ()Z
+	public fun isOnGround ()Z
+	public fun isOnline ()Z
+	public fun isOp ()Z
+	public fun isPermissionSet (Ljava/lang/String;)Z
+	public fun isPermissionSet (Lorg/bukkit/permissions/Permission;)Z
+	public fun isPersistent ()Z
+	public fun isPlayerTimeRelative ()Z
+	public fun isReverseOxygen ()Z
+	public fun isRidable ()Z
+	public fun isRidableInWater ()Z
+	public fun isRiptiding ()Z
+	public fun isSilent ()Z
+	public fun isSleeping ()Z
+	public fun isSleepingIgnored ()Z
+	public fun isSneaking ()Z
+	public fun isSpawnInvulnerable ()Z
+	public fun isSprinting ()Z
+	public fun isSwimming ()Z
+	public fun isTicking ()Z
+	public fun isUnderWater ()Z
+	public fun isValid ()Z
+	public fun isVisualFire ()Z
+	public fun isWhitelisted ()Z
+	public fun kick ()V
+	public fun kick (Lnet/kyori/adventure/text/Component;)V
+	public fun kick (Lnet/kyori/adventure/text/Component;Lorg/bukkit/event/player/PlayerKickEvent$Cause;)V
+	public fun kickPlayer (Ljava/lang/String;)V
+	public fun knockback (DDD)V
+	public fun launchProjectile (Ljava/lang/Class;)Lorg/bukkit/entity/Projectile;
+	public fun launchProjectile (Ljava/lang/Class;Lorg/bukkit/util/Vector;)Lorg/bukkit/entity/Projectile;
+	public fun launchProjectile (Ljava/lang/Class;Lorg/bukkit/util/Vector;Lorg/bukkit/util/Consumer;)Lorg/bukkit/entity/Projectile;
+	public fun leaveVehicle ()Z
+	public fun loadData ()V
+	public fun locale ()Ljava/util/Locale;
+	public fun lockFreezeTicks (Z)V
+	public fun lookAt (DDDLio/papermc/paper/entity/LookAnchor;)V
+	public fun lookAt (Lorg/bukkit/entity/Entity;Lio/papermc/paper/entity/LookAnchor;Lio/papermc/paper/entity/LookAnchor;)V
+	public fun name ()Lnet/kyori/adventure/text/Component;
+	public fun openAnvil (Lorg/bukkit/Location;Z)Lorg/bukkit/inventory/InventoryView;
+	public fun openBook (Lnet/kyori/adventure/inventory/Book;)V
+	public fun openBook (Lorg/bukkit/inventory/ItemStack;)V
+	public fun openCartographyTable (Lorg/bukkit/Location;Z)Lorg/bukkit/inventory/InventoryView;
+	public fun openEnchanting (Lorg/bukkit/Location;Z)Lorg/bukkit/inventory/InventoryView;
+	public fun openGrindstone (Lorg/bukkit/Location;Z)Lorg/bukkit/inventory/InventoryView;
+	public fun openInventory (Lorg/bukkit/inventory/Inventory;)Lorg/bukkit/inventory/InventoryView;
+	public fun openInventory (Lorg/bukkit/inventory/InventoryView;)V
+	public fun openLoom (Lorg/bukkit/Location;Z)Lorg/bukkit/inventory/InventoryView;
+	public fun openMerchant (Lorg/bukkit/entity/Villager;Z)Lorg/bukkit/inventory/InventoryView;
+	public fun openMerchant (Lorg/bukkit/inventory/Merchant;Z)Lorg/bukkit/inventory/InventoryView;
+	public fun openSign (Lorg/bukkit/block/Sign;)V
+	public fun openSmithingTable (Lorg/bukkit/Location;Z)Lorg/bukkit/inventory/InventoryView;
+	public fun openStonecutter (Lorg/bukkit/Location;Z)Lorg/bukkit/inventory/InventoryView;
+	public fun openWorkbench (Lorg/bukkit/Location;Z)Lorg/bukkit/inventory/InventoryView;
+	public fun performCommand (Ljava/lang/String;)Z
+	public fun playEffect (Lorg/bukkit/EntityEffect;)V
+	public fun playEffect (Lorg/bukkit/Location;Lorg/bukkit/Effect;I)V
+	public fun playEffect (Lorg/bukkit/Location;Lorg/bukkit/Effect;Ljava/lang/Object;)V
+	public fun playNote (Lorg/bukkit/Location;BB)V
+	public fun playNote (Lorg/bukkit/Location;Lorg/bukkit/Instrument;Lorg/bukkit/Note;)V
+	public fun playPickupItemAnimation (Lorg/bukkit/entity/Item;I)V
+	public fun playSound (Lnet/kyori/adventure/sound/Sound;)V
+	public fun playSound (Lnet/kyori/adventure/sound/Sound;DDD)V
+	public fun playSound (Lnet/kyori/adventure/sound/Sound;Lnet/kyori/adventure/sound/Sound$Emitter;)V
+	public fun playSound (Lorg/bukkit/Location;Ljava/lang/String;FF)V
+	public fun playSound (Lorg/bukkit/Location;Ljava/lang/String;Lorg/bukkit/SoundCategory;FF)V
+	public fun playSound (Lorg/bukkit/Location;Lorg/bukkit/Sound;FF)V
+	public fun playSound (Lorg/bukkit/Location;Lorg/bukkit/Sound;Lorg/bukkit/SoundCategory;FF)V
+	public fun playSound (Lorg/bukkit/entity/Entity;Lorg/bukkit/Sound;FF)V
+	public fun playSound (Lorg/bukkit/entity/Entity;Lorg/bukkit/Sound;Lorg/bukkit/SoundCategory;FF)V
+	public fun playerListFooter ()Lnet/kyori/adventure/text/Component;
+	public fun playerListHeader ()Lnet/kyori/adventure/text/Component;
+	public fun playerListName ()Lnet/kyori/adventure/text/Component;
+	public fun playerListName (Lnet/kyori/adventure/text/Component;)V
+	public fun rayTraceBlocks (D)Lorg/bukkit/util/RayTraceResult;
+	public fun rayTraceBlocks (DLorg/bukkit/FluidCollisionMode;)Lorg/bukkit/util/RayTraceResult;
+	public fun recalculatePermissions ()V
+	public fun registerAttribute (Lorg/bukkit/attribute/Attribute;)V
+	public fun releaseLeftShoulderEntity ()Lorg/bukkit/entity/Entity;
+	public fun releaseRightShoulderEntity ()Lorg/bukkit/entity/Entity;
+	public fun remove ()V
+	public fun removeAdditionalChatCompletions (Ljava/util/Collection;)V
+	public fun removeAttachment (Lorg/bukkit/permissions/PermissionAttachment;)V
+	public fun removeCanStandOnFluid (Lorg/bukkit/Fluid;)V
+	public fun removeMetadata (Ljava/lang/String;Lorg/bukkit/plugin/Plugin;)V
+	public fun removePassenger (Lorg/bukkit/entity/Entity;)Z
+	public fun removePotionEffect (Lorg/bukkit/potion/PotionEffectType;)V
+	public fun removeScoreboardTag (Ljava/lang/String;)Z
+	public fun resetCooldown ()V
+	public fun resetIdleTimer ()V
+	public fun resetMaxHealth ()V
+	public fun resetPlayerTime ()V
+	public fun resetPlayerWeather ()V
+	public fun resetTitle ()V
+	public fun saveData ()V
+	public fun sendActionBar (CLjava/lang/String;)V
+	public fun sendActionBar (Ljava/lang/String;)V
+	public fun sendActionBar (Lnet/kyori/adventure/text/Component;)V
+	public fun sendActionBar ([Lnet/md_5/bungee/api/chat/BaseComponent;)V
+	public fun sendBlockChange (Lorg/bukkit/Location;Lorg/bukkit/Material;B)V
+	public fun sendBlockChange (Lorg/bukkit/Location;Lorg/bukkit/block/data/BlockData;)V
+	public fun sendBlockChanges (Ljava/util/Collection;Z)V
+	public fun sendBlockDamage (Lorg/bukkit/Location;F)V
+	public fun sendBlockDamage (Lorg/bukkit/Location;FI)V
+	public fun sendBlockHighlight (Lorg/bukkit/Location;I)V
+	public fun sendBlockHighlight (Lorg/bukkit/Location;II)V
+	public fun sendBlockHighlight (Lorg/bukkit/Location;ILjava/lang/String;)V
+	public fun sendBlockHighlight (Lorg/bukkit/Location;ILjava/lang/String;I)V
+	public fun sendBlockHighlight (Lorg/bukkit/Location;ILjava/lang/String;Lorg/bukkit/Color;I)V
+	public fun sendBlockHighlight (Lorg/bukkit/Location;ILorg/bukkit/Color;I)V
+	public fun sendDeathScreen (Lnet/kyori/adventure/text/Component;)V
+	public fun sendDeathScreen (Lnet/kyori/adventure/text/Component;Lorg/bukkit/entity/Entity;)V
+	public fun sendEquipmentChange (Lorg/bukkit/entity/LivingEntity;Lorg/bukkit/inventory/EquipmentSlot;Lorg/bukkit/inventory/ItemStack;)V
+	public fun sendExperienceChange (F)V
+	public fun sendExperienceChange (FI)V
+	public fun sendHealthUpdate ()V
+	public fun sendHealthUpdate (DIF)V
+	public fun sendMap (Lorg/bukkit/map/MapView;)V
+	public fun sendMessage (Ljava/lang/String;)V
+	public fun sendMessage (Ljava/util/UUID;Ljava/lang/String;)V
+	public fun sendMessage (Ljava/util/UUID;[Ljava/lang/String;)V
+	public fun sendMessage ([Ljava/lang/String;)V
+	public fun sendMultiBlockChange (Ljava/util/Map;Z)V
+	public fun sendOpLevel (B)V
+	public fun sendPlayerListFooter (Lnet/kyori/adventure/text/Component;)V
+	public fun sendPlayerListHeader (Lnet/kyori/adventure/text/Component;)V
+	public fun sendPlayerListHeaderAndFooter (Lnet/kyori/adventure/text/Component;Lnet/kyori/adventure/text/Component;)V
+	public fun sendPluginMessage (Lorg/bukkit/plugin/Plugin;Ljava/lang/String;[B)V
+	public fun sendRawMessage (Ljava/lang/String;)V
+	public fun sendRawMessage (Ljava/util/UUID;Ljava/lang/String;)V
+	public fun sendSignChange (Lorg/bukkit/Location;Ljava/util/List;Lorg/bukkit/DyeColor;Z)V
+	public fun sendSignChange (Lorg/bukkit/Location;[Ljava/lang/String;)V
+	public fun sendSignChange (Lorg/bukkit/Location;[Ljava/lang/String;Lorg/bukkit/DyeColor;)V
+	public fun sendSignChange (Lorg/bukkit/Location;[Ljava/lang/String;Lorg/bukkit/DyeColor;Z)V
+	public fun sendTitle (Lcom/destroystokyo/paper/Title;)V
+	public fun sendTitle (Ljava/lang/String;Ljava/lang/String;)V
+	public fun sendTitle (Ljava/lang/String;Ljava/lang/String;III)V
+	public fun sendTitlePart (Lnet/kyori/adventure/title/TitlePart;Ljava/lang/Object;)V
+	public fun serialize ()Ljava/util/Map;
+	public fun setAI (Z)V
+	public fun setAbsorptionAmount (D)V
+	public fun setAffectsSpawning (Z)V
+	public fun setAfk (Z)V
+	public fun setAllowFlight (Z)V
+	public fun setArrowCooldown (I)V
+	public fun setArrowsInBody (I)V
+	public fun setArrowsStuck (I)V
+	public fun setBedSpawnLocation (Lorg/bukkit/Location;)V
+	public fun setBedSpawnLocation (Lorg/bukkit/Location;Z)V
+	public fun setBeeStingerCooldown (I)V
+	public fun setBeeStingersInBody (I)V
+	public fun setCanBreathUnderwater (Ljava/lang/Boolean;)V
+	public fun setCanPickupItems (Z)V
+	public fun setCollidable (Z)V
+	public fun setCompassTarget (Lorg/bukkit/Location;)V
+	public fun setCooldown (Lorg/bukkit/Material;I)V
+	public fun setCustomName (Ljava/lang/String;)V
+	public fun setCustomNameVisible (Z)V
+	public fun setDisplayName (Ljava/lang/String;)V
+	public fun setExhaustion (F)V
+	public fun setExp (F)V
+	public fun setFallDistance (F)V
+	public fun setFireTicks (I)V
+	public fun setFlySpeed (F)V
+	public fun setFlying (Z)V
+	public fun setFlyingFallDamage (Z)V
+	public fun setFoodLevel (I)V
+	public fun setFreeChanges (I)V
+	public fun setFreezeTicks (I)V
+	public fun setGameMode (Lorg/bukkit/GameMode;)V
+	public fun setGliding (Z)V
+	public fun setGlowing (Z)V
+	public fun setGravity (Z)V
+	public fun setHealth (D)V
+	public fun setHealthScale (D)V
+	public fun setHealthScaled (Z)V
+	public fun setHurtDirection (F)V
+	public fun setImmuneToFire (Ljava/lang/Boolean;)V
+	public fun setInvisible (Z)V
+	public fun setInvulnerable (Z)V
+	public fun setItemInHand (Lorg/bukkit/inventory/ItemStack;)V
+	public fun setItemOnCursor (Lorg/bukkit/inventory/ItemStack;)V
+	public fun setJumping (Z)V
+	public fun setKiller (Lorg/bukkit/entity/Player;)V
+	public fun setLastChosenTime (Lkotlinx/datetime/Instant;)V
+	public fun setLastDamage (D)V
+	public fun setLastDamageCause (Lorg/bukkit/event/entity/EntityDamageEvent;)V
+	public fun setLastDeathLocation (Lorg/bukkit/Location;)V
+	public fun setLeashHolder (Lorg/bukkit/entity/Entity;)Z
+	public fun setLevel (I)V
+	public fun setMaxHealth (D)V
+	public fun setMaximumAir (I)V
+	public fun setMaximumNoDamageTicks (I)V
+	public fun setMemory (Lorg/bukkit/entity/memory/MemoryKey;Ljava/lang/Object;)V
+	public fun setMetadata (Ljava/lang/String;Lorg/bukkit/metadata/MetadataValue;)V
+	public fun setNoDamageTicks (I)V
+	public fun setNoTickViewDistance (I)V
+	public fun setOp (Z)V
+	public fun setOrigin (Ldev/racci/terix/api/origins/origin/Origin;)V
+	public fun setPassenger (Lorg/bukkit/entity/Entity;)Z
+	public fun setPersistent (Z)V
+	public fun setPlayerListFooter (Ljava/lang/String;)V
+	public fun setPlayerListHeader (Ljava/lang/String;)V
+	public fun setPlayerListHeaderFooter (Ljava/lang/String;Ljava/lang/String;)V
+	public fun setPlayerListHeaderFooter (Lnet/md_5/bungee/api/chat/BaseComponent;Lnet/md_5/bungee/api/chat/BaseComponent;)V
+	public fun setPlayerListHeaderFooter ([Lnet/md_5/bungee/api/chat/BaseComponent;[Lnet/md_5/bungee/api/chat/BaseComponent;)V
+	public fun setPlayerListName (Ljava/lang/String;)V
+	public fun setPlayerProfile (Lcom/destroystokyo/paper/profile/PlayerProfile;)V
+	public fun setPlayerTime (JZ)V
+	public fun setPlayerWeather (Lorg/bukkit/WeatherType;)V
+	public fun setPortalCooldown (I)V
+	public fun setRemainingAir (I)V
+	public fun setRemoveWhenFarAway (Z)V
+	public fun setResourcePack (Ljava/lang/String;)V
+	public fun setResourcePack (Ljava/lang/String;Ljava/lang/String;)V
+	public fun setResourcePack (Ljava/lang/String;Ljava/lang/String;Z)V
+	public fun setResourcePack (Ljava/lang/String;Ljava/lang/String;ZLnet/kyori/adventure/text/Component;)V
+	public fun setResourcePack (Ljava/lang/String;[B)V
+	public fun setResourcePack (Ljava/lang/String;[BLjava/lang/String;)V
+	public fun setResourcePack (Ljava/lang/String;[BLjava/lang/String;Z)V
+	public fun setResourcePack (Ljava/lang/String;[BLnet/kyori/adventure/text/Component;Z)V
+	public fun setResourcePack (Ljava/lang/String;[BZ)V
+	public fun setReverseOxygen (Z)V
+	public fun setRotation (FF)V
+	public fun setSafeFallDistance (F)V
+	public fun setSaturatedRegenRate (I)V
+	public fun setSaturation (F)V
+	public fun setScoreboard (Lorg/bukkit/scoreboard/Scoreboard;)V
+	public fun setSendViewDistance (I)V
+	public fun setShieldBlockingDelay (I)V
+	public fun setShouldBurnInDay (Z)V
+	public fun setShoulderEntityLeft (Lorg/bukkit/entity/Entity;)V
+	public fun setShoulderEntityRight (Lorg/bukkit/entity/Entity;)V
+	public fun setSilent (Z)V
+	public fun setSimulationDistance (I)V
+	public fun setSleepingIgnored (Z)V
+	public fun setSneaking (Z)V
+	public fun setSpawnInvulnerableTicks (I)V
+	public fun setSpectatorTarget (Lorg/bukkit/entity/Entity;)V
+	public fun setSprinting (Z)V
+	public fun setStarvationRate (I)V
+	public fun setStatistic (Lorg/bukkit/Statistic;I)V
+	public fun setStatistic (Lorg/bukkit/Statistic;Lorg/bukkit/Material;I)V
+	public fun setStatistic (Lorg/bukkit/Statistic;Lorg/bukkit/entity/EntityType;I)V
+	public fun setSubtitle (Lnet/md_5/bungee/api/chat/BaseComponent;)V
+	public fun setSubtitle ([Lnet/md_5/bungee/api/chat/BaseComponent;)V
+	public fun setSwimming (Z)V
+	public fun setTexturePack (Ljava/lang/String;)V
+	public fun setTicksLived (I)V
+	public fun setTitleTimes (III)V
+	public fun setTotalExperience (I)V
+	public fun setUnsaturatedRegenRate (I)V
+	public fun setVelocity (Lorg/bukkit/util/Vector;)V
+	public fun setViewDistance (I)V
+	public fun setVisualFire (Z)V
+	public fun setWalkSpeed (F)V
+	public fun setWhitelisted (Z)V
+	public fun setWindowProperty (Lorg/bukkit/inventory/InventoryView$Property;I)Z
+	public fun setWorldBorder (Lorg/bukkit/WorldBorder;)V
+	public fun shouldBurnInDay ()Z
+	public fun showBossBar (Lnet/kyori/adventure/bossbar/BossBar;)V
+	public fun showCreditScreen ()V
+	public fun showDemoScreen ()V
+	public fun showElderGuardian (Z)V
+	public fun showEntity (Lorg/bukkit/plugin/Plugin;Lorg/bukkit/entity/Entity;)V
+	public fun showPlayer (Lorg/bukkit/entity/Player;)V
+	public fun showPlayer (Lorg/bukkit/plugin/Plugin;Lorg/bukkit/entity/Player;)V
+	public fun showTitle (Lnet/kyori/adventure/title/Title;)V
+	public fun showTitle (Lnet/md_5/bungee/api/chat/BaseComponent;)V
+	public fun showTitle (Lnet/md_5/bungee/api/chat/BaseComponent;Lnet/md_5/bungee/api/chat/BaseComponent;III)V
+	public fun showTitle ([Lnet/md_5/bungee/api/chat/BaseComponent;)V
+	public fun showTitle ([Lnet/md_5/bungee/api/chat/BaseComponent;[Lnet/md_5/bungee/api/chat/BaseComponent;III)V
+	public fun sleep (Lorg/bukkit/Location;Z)Z
+	public fun spawnAt (Lorg/bukkit/Location;Lorg/bukkit/event/entity/CreatureSpawnEvent$SpawnReason;)Z
+	public fun spawnParticle (Lorg/bukkit/Particle;DDDI)V
+	public fun spawnParticle (Lorg/bukkit/Particle;DDDIDDD)V
+	public fun spawnParticle (Lorg/bukkit/Particle;DDDIDDDD)V
+	public fun spawnParticle (Lorg/bukkit/Particle;DDDIDDDDLjava/lang/Object;)V
+	public fun spawnParticle (Lorg/bukkit/Particle;DDDIDDDLjava/lang/Object;)V
+	public fun spawnParticle (Lorg/bukkit/Particle;DDDILjava/lang/Object;)V
+	public fun spawnParticle (Lorg/bukkit/Particle;Lorg/bukkit/Location;I)V
+	public fun spawnParticle (Lorg/bukkit/Particle;Lorg/bukkit/Location;IDDD)V
+	public fun spawnParticle (Lorg/bukkit/Particle;Lorg/bukkit/Location;IDDDD)V
+	public fun spawnParticle (Lorg/bukkit/Particle;Lorg/bukkit/Location;IDDDDLjava/lang/Object;)V
+	public fun spawnParticle (Lorg/bukkit/Particle;Lorg/bukkit/Location;IDDDLjava/lang/Object;)V
+	public fun spawnParticle (Lorg/bukkit/Particle;Lorg/bukkit/Location;ILjava/lang/Object;)V
+	public synthetic fun spigot ()Lorg/bukkit/command/CommandSender$Spigot;
+	public synthetic fun spigot ()Lorg/bukkit/entity/Entity$Spigot;
+	public fun spigot ()Lorg/bukkit/entity/Player$Spigot;
+	public fun stopAllSounds ()V
+	public fun stopSound (Ljava/lang/String;)V
+	public fun stopSound (Ljava/lang/String;Lorg/bukkit/SoundCategory;)V
+	public fun stopSound (Lnet/kyori/adventure/sound/SoundStop;)V
+	public fun stopSound (Lorg/bukkit/Sound;)V
+	public fun stopSound (Lorg/bukkit/Sound;Lorg/bukkit/SoundCategory;)V
+	public fun stopSound (Lorg/bukkit/SoundCategory;)V
+	public fun swingMainHand ()V
+	public fun swingOffHand ()V
+	public fun teamDisplayName ()Lnet/kyori/adventure/text/Component;
+	public fun teleport (Lorg/bukkit/Location;)Z
+	public fun teleport (Lorg/bukkit/Location;Lorg/bukkit/event/player/PlayerTeleportEvent$TeleportCause;)Z
+	public fun teleport (Lorg/bukkit/Location;Lorg/bukkit/event/player/PlayerTeleportEvent$TeleportCause;ZZ)Z
+	public fun teleport (Lorg/bukkit/Location;Lorg/bukkit/event/player/PlayerTeleportEvent$TeleportCause;ZZ[Lio/papermc/paper/entity/RelativeTeleportFlag;)Z
+	public fun teleport (Lorg/bukkit/entity/Entity;)Z
+	public fun teleport (Lorg/bukkit/entity/Entity;Lorg/bukkit/event/player/PlayerTeleportEvent$TeleportCause;)Z
+	public fun teleportOffline (Lorg/bukkit/Location;)Z
+	public fun teleportOffline (Lorg/bukkit/Location;Lorg/bukkit/event/player/PlayerTeleportEvent$TeleportCause;)Z
+	public fun teleportOfflineAsync (Lorg/bukkit/Location;)Ljava/util/concurrent/CompletableFuture;
+	public fun teleportOfflineAsync (Lorg/bukkit/Location;Lorg/bukkit/event/player/PlayerTeleportEvent$TeleportCause;)Ljava/util/concurrent/CompletableFuture;
+	public fun toString ()Ljava/lang/String;
+	public fun undiscoverRecipe (Lorg/bukkit/NamespacedKey;)Z
+	public fun undiscoverRecipes (Ljava/util/Collection;)I
+	public fun updateCommands ()V
+	public fun updateInventory ()V
+	public fun updateTitle (Lcom/destroystokyo/paper/Title;)V
+	public fun usesPurpurClient ()Z
+	public fun wakeup (Z)V
+	public fun wouldCollideUsing (Lorg/bukkit/util/BoundingBox;)Z
+}
+
+public final class dev/racci/terix/api/data/player/TerixPlayer$Companion {
+	public final fun cachedOriginNotNull (Lorg/bukkit/entity/Player;)Ldev/racci/terix/api/origins/origin/Origin;
+	public final fun cachedOriginNullable (Lorg/bukkit/entity/Player;)Ldev/racci/terix/api/origins/origin/Origin;
+	public final fun get (Ljava/util/UUID;)Ldev/racci/terix/api/data/player/TerixPlayer;
+	public final fun get (Lorg/bukkit/entity/Player;)Ldev/racci/terix/api/data/player/TerixPlayer;
+}
+
+public abstract interface class dev/racci/terix/api/data/player/TerixPlayerEntity {
+	public abstract fun getFreeChanges ()I
+	public abstract fun getGrants ()Ljava/util/Set;
+	public abstract fun getLastChosenTime ()Lkotlinx/datetime/Instant;
+	public abstract fun getOrigin ()Ldev/racci/terix/api/origins/origin/Origin;
+	public abstract fun setFreeChanges (I)V
+	public abstract fun setLastChosenTime (Lkotlinx/datetime/Instant;)V
+	public abstract fun setOrigin (Ldev/racci/terix/api/origins/origin/Origin;)V
+}
+
+public final class dev/racci/terix/api/data/player/TerixPlayerEntityHolder : org/jetbrains/exposed/dao/UUIDEntity, dev/racci/terix/api/data/player/TerixPlayerEntity {
+	public static final field Companion Ldev/racci/terix/api/data/player/TerixPlayerEntityHolder$Companion;
+	public fun <init> (Lorg/jetbrains/exposed/dao/id/EntityID;)V
+	public fun getFreeChanges ()I
+	public fun getGrants ()Ljava/util/Set;
+	public fun getLastChosenTime ()Lkotlinx/datetime/Instant;
+	public fun getOrigin ()Ldev/racci/terix/api/origins/origin/Origin;
+	public fun setFreeChanges (I)V
+	public fun setLastChosenTime (Lkotlinx/datetime/Instant;)V
+	public fun setOrigin (Ldev/racci/terix/api/origins/origin/Origin;)V
+	public fun toString ()Ljava/lang/String;
+}
+
+public final class dev/racci/terix/api/data/player/TerixPlayerEntityHolder$Companion : org/jetbrains/exposed/dao/UUIDEntityClass {
+}
+
+public final class dev/racci/terix/api/data/player/TerixUser : org/jetbrains/exposed/dao/id/UUIDTable {
+	public static final field INSTANCE Ldev/racci/terix/api/data/player/TerixUser;
+	public final fun getFreeChanges ()Lorg/jetbrains/exposed/sql/Column;
+	public final fun getGrants ()Lorg/jetbrains/exposed/dao/ColumnWithTransform;
+	public final fun getLastChosenTime ()Lorg/jetbrains/exposed/sql/Column;
+	public final fun getOrigin ()Lorg/jetbrains/exposed/dao/ColumnWithTransform;
+}
+
+public final class dev/racci/terix/api/data/player/TickCache {
+	public fun <init> ()V
+	public final fun component1 ()Ldev/racci/terix/api/data/player/TickCache$TwoStateCache;
+	public final fun component2 ()Ldev/racci/terix/api/data/player/TickCache$TwoStateCache;
+	public final fun component3 ()Ldev/racci/terix/api/data/player/TickCache$TwoStateCache;
+	public final fun component4 ()Ldev/racci/terix/api/data/player/TickCache$TwoStateCache;
+	public final fun copy (Ldev/racci/terix/api/data/player/TickCache$TwoStateCache;Ldev/racci/terix/api/data/player/TickCache$TwoStateCache;Ldev/racci/terix/api/data/player/TickCache$TwoStateCache;Ldev/racci/terix/api/data/player/TickCache$TwoStateCache;)Ldev/racci/terix/api/data/player/TickCache;
+	public static synthetic fun copy$default (Ldev/racci/terix/api/data/player/TickCache;Ldev/racci/terix/api/data/player/TickCache$TwoStateCache;Ldev/racci/terix/api/data/player/TickCache$TwoStateCache;Ldev/racci/terix/api/data/player/TickCache$TwoStateCache;Ldev/racci/terix/api/data/player/TickCache$TwoStateCache;ILjava/lang/Object;)Ldev/racci/terix/api/data/player/TickCache;
+	public fun equals (Ljava/lang/Object;)Z
+	public final fun getDarkness ()Ldev/racci/terix/api/data/player/TickCache$TwoStateCache;
+	public final fun getRain ()Ldev/racci/terix/api/data/player/TickCache$TwoStateCache;
+	public final fun getSunlight ()Ldev/racci/terix/api/data/player/TickCache$TwoStateCache;
+	public final fun getWater ()Ldev/racci/terix/api/data/player/TickCache$TwoStateCache;
+	public fun hashCode ()I
+	public fun toString ()Ljava/lang/String;
+}
+
+public class dev/racci/terix/api/data/player/TickCache$TwoStateCache {
+	public final fun current (Lkotlin/coroutines/Continuation;)Ljava/lang/Object;
+	protected fun getCurrent ()Larrow/fx/coroutines/Atomic;
+	protected fun getLast ()Larrow/fx/coroutines/Atomic;
+	public final fun last (Lkotlin/coroutines/Continuation;)Ljava/lang/Object;
+	public final fun update (Lkotlin/jvm/functions/Function1;Lkotlin/coroutines/Continuation;)Ljava/lang/Object;
+}
+
+public final class dev/racci/terix/api/dsl/AttributeModifierBuilder : dev/racci/terix/api/dsl/CachingBuilder {
+	public fun <init> ()V
+	public fun <init> (Ljava/util/UUID;Lorg/bukkit/attribute/Attribute;Ljava/lang/String;Ljava/lang/Number;Lorg/bukkit/attribute/AttributeModifier$Operation;)V
+	public synthetic fun <init> (Ljava/util/UUID;Lorg/bukkit/attribute/Attribute;Ljava/lang/String;Ljava/lang/Number;Lorg/bukkit/attribute/AttributeModifier$Operation;ILkotlin/jvm/internal/DefaultConstructorMarker;)V
+	public synthetic fun create ()Ljava/lang/Object;
+	public final fun getAmount ()D
+	public final fun getAttribute ()Lorg/bukkit/attribute/Attribute;
+	public final fun getName ()Ljava/lang/String;
+	public final fun getOperation ()Lorg/bukkit/attribute/AttributeModifier$Operation;
+	public final fun getUuid ()Ljava/util/UUID;
+	public final fun invoke (Lorg/bukkit/entity/Player;)V
+	public final fun remove (Lorg/bukkit/entity/Player;)V
+	public final fun setAmount (D)V
+	public final fun setAttribute (Lorg/bukkit/attribute/Attribute;)V
+	public final fun setName (Ljava/lang/String;)V
+	public final fun setOperation (Lorg/bukkit/attribute/AttributeModifier$Operation;)V
+	public final fun setUuid (Ljava/util/UUID;)V
+}
+
+public abstract class dev/racci/terix/api/dsl/CachingBuilder {
+	public fun <init> ()V
+	protected abstract fun create ()Ljava/lang/Object;
+	protected final fun createLockingWatcher (Ljava/lang/Object;)Lkotlin/properties/PropertyDelegateProvider;
+	protected final fun createWatcher (Ljava/lang/Object;)Lkotlin/properties/PropertyDelegateProvider;
+	public final fun equals (Ljava/lang/Object;)Z
+	public final fun get ()Ljava/lang/Object;
+	public final fun getCached ()Ljava/lang/ref/WeakReference;
+	public final fun getDirty ()Z
+	protected final fun getWatcherSet ()Ljava/util/Set;
+	protected final fun getWatcherValues ()Ljava/util/List;
+	public final fun hashCode ()I
+	public final fun setCached (Ljava/lang/ref/WeakReference;)V
+	public final fun setDirty (Z)V
+	public final fun toString ()Ljava/lang/String;
+	protected final fun watcherOrNull (Lkotlin/reflect/KProperty0;)Ljava/lang/Object;
+}
+
+protected class dev/racci/terix/api/dsl/CachingBuilder$ChangeWatcher : kotlin/properties/ReadWriteProperty {
+	public fun <init> (Ldev/racci/terix/api/dsl/CachingBuilder;Lkotlin/reflect/KProperty;Ljava/lang/Object;)V
+	public final fun getProperty ()Lkotlin/reflect/KProperty;
+	protected final fun getThisRef ()Ldev/racci/terix/api/dsl/CachingBuilder;
+	public fun getValue (Ljava/lang/Object;Lkotlin/reflect/KProperty;)Ljava/lang/Object;
+	public fun setValue (Ljava/lang/Object;Lkotlin/reflect/KProperty;Ljava/lang/Object;)V
+}
+
+protected final class dev/racci/terix/api/dsl/CachingBuilder$LockingChangeWatcher : dev/racci/terix/api/dsl/CachingBuilder$ChangeWatcher {
+	public fun <init> (Ldev/racci/terix/api/dsl/CachingBuilder;Lkotlin/reflect/KProperty;Ljava/lang/Object;)V
+	public fun setValue (Ljava/lang/Object;Lkotlin/reflect/KProperty;Ljava/lang/Object;)V
+}
+
+public abstract class dev/racci/terix/api/dsl/DSLMutator {
+	public fun <init> (Lkotlin/reflect/KClass;)V
+	public final fun asNew ()Ldev/racci/terix/api/dsl/CachingBuilder;
+	public abstract fun mutate (Ldev/racci/terix/api/dsl/CachingBuilder;)V
+	public final fun mutateOrNew (Ldev/racci/terix/api/dsl/CachingBuilder;)Ldev/racci/terix/api/dsl/CachingBuilder;
+	public final fun on (Ldev/racci/terix/api/dsl/CachingBuilder;)Ldev/racci/terix/api/dsl/CachingBuilder;
+}
+
+public final class dev/racci/terix/api/dsl/FoodPropertyBuilder : dev/racci/terix/api/dsl/CachingBuilder {
+	public fun <init> (Ljava/lang/Integer;Ljava/lang/Float;Ljava/lang/Boolean;Ljava/lang/Boolean;Ljava/lang/Boolean;Ljava/util/ArrayList;)V
+	public fun <init> (Lnet/minecraft/world/food/FoodProperties;)V
+	public final fun addEffect (Lorg/bukkit/potion/PotionEffect;)V
+	public synthetic fun create ()Ljava/lang/Object;
+	public final fun getCanAlwaysEat ()Z
+	public final fun getEffects ()Ljava/util/ArrayList;
+	public final fun getFastFood ()Z
+	public final fun getNutrition ()I
+	public final fun getSaturationModifier ()F
+	public final fun isMeat ()Z
+	public final fun setCanAlwaysEat (Z)V
+	public final fun setEffects (Ljava/util/ArrayList;)V
+	public final fun setFastFood (Z)V
+	public final fun setMeat (Z)V
+	public final fun setNutrition (I)V
+	public final fun setSaturationModifier (F)V
+}
+
+public final class dev/racci/terix/api/dsl/PotionEffectBuilder : dev/racci/terix/api/dsl/CachingBuilder {
+	public synthetic fun <init> (Ljava/lang/Integer;Lkotlin/time/Duration;Lorg/bukkit/potion/PotionEffectType;Ljava/lang/Boolean;Ljava/lang/Boolean;Ljava/lang/Boolean;Ldev/racci/terix/api/data/OriginNamespacedTag;ILkotlin/jvm/internal/DefaultConstructorMarker;)V
+	public synthetic fun <init> (Ljava/lang/Integer;Lkotlin/time/Duration;Lorg/bukkit/potion/PotionEffectType;Ljava/lang/Boolean;Ljava/lang/Boolean;Ljava/lang/Boolean;Ldev/racci/terix/api/data/OriginNamespacedTag;Lkotlin/jvm/internal/DefaultConstructorMarker;)V
+	public synthetic fun create ()Ljava/lang/Object;
+	public final fun getAmbient ()Z
+	public final fun getAmplifier ()I
+	public final fun getDuration-UwyO8pc ()J
+	public final fun getIcon ()Z
+	public final fun getParticles ()Z
+	public final fun getTag ()Ldev/racci/terix/api/data/OriginNamespacedTag;
+	public final fun getType ()Lorg/bukkit/potion/PotionEffectType;
+	public final fun invoke (Lorg/bukkit/entity/LivingEntity;)V
+	public final fun setAmbient (Z)V
+	public final fun setAmplifier (I)V
+	public final fun setDuration-LRDsOJo (J)V
+	public final fun setIcon (Z)V
+	public final fun setParticles (Z)V
+	public final fun setTag (Ldev/racci/terix/api/data/OriginNamespacedTag;)V
+	public final fun setType (Lorg/bukkit/potion/PotionEffectType;)V
+}
+
+public final class dev/racci/terix/api/dsl/TimedAttributeBuilder : dev/racci/terix/api/dsl/CachingBuilder {
+	public synthetic fun <init> (Ljava/util/UUID;Lorg/bukkit/attribute/Attribute;Ljava/lang/String;Ljava/lang/Double;Lkotlin/time/Duration;Lorg/bukkit/attribute/AttributeModifier$Operation;ILkotlin/jvm/internal/DefaultConstructorMarker;)V
+	public synthetic fun <init> (Ljava/util/UUID;Lorg/bukkit/attribute/Attribute;Ljava/lang/String;Ljava/lang/Double;Lkotlin/time/Duration;Lorg/bukkit/attribute/AttributeModifier$Operation;Lkotlin/jvm/internal/DefaultConstructorMarker;)V
+	public synthetic fun create ()Ljava/lang/Object;
+	public final fun getAmount ()D
+	public final fun getAttribute ()Lorg/bukkit/attribute/Attribute;
+	public final fun getDuration-UwyO8pc ()J
+	public final fun getName ()Ljava/lang/String;
+	public final fun getOperation ()Lorg/bukkit/attribute/AttributeModifier$Operation;
+	public final fun getUuid ()Ljava/util/UUID;
+	public final fun invoke (Lorg/bukkit/entity/Player;)V
+	public final fun materialName (Lorg/bukkit/Material;Ldev/racci/terix/api/origins/origin/OriginValues;)Ldev/racci/terix/api/dsl/TimedAttributeBuilder;
+	public final fun setAmount (D)V
+	public final fun setAttribute (Lorg/bukkit/attribute/Attribute;)V
+	public final fun setDuration-LRDsOJo (J)V
+	public final fun setName (Ljava/lang/String;)V
+	public final fun setOperation (Lorg/bukkit/attribute/AttributeModifier$Operation;)V
+	public final fun setUuid (Ljava/util/UUID;)V
+}
+
+public final class dev/racci/terix/api/dsl/TitleBuilder : dev/racci/terix/api/dsl/CachingBuilder {
+	public fun <init> ()V
+	public fun <init> (Lnet/kyori/adventure/text/Component;Lnet/kyori/adventure/text/Component;Lnet/kyori/adventure/title/Title$Times;Lnet/kyori/adventure/key/Key;)V
+	public synthetic fun <init> (Lnet/kyori/adventure/text/Component;Lnet/kyori/adventure/text/Component;Lnet/kyori/adventure/title/Title$Times;Lnet/kyori/adventure/key/Key;ILkotlin/jvm/internal/DefaultConstructorMarker;)V
+	public synthetic fun create ()Ljava/lang/Object;
+	public final fun getSound ()Lnet/kyori/adventure/key/Key;
+	public final fun getSubtitle ()Lnet/kyori/adventure/text/Component;
+	public final fun getTimes ()Lnet/kyori/adventure/title/Title$Times;
+	public final fun getTitle ()Lnet/kyori/adventure/text/Component;
+	public final fun invoke (Lorg/bukkit/entity/Player;)V
+	public final fun setSound (Lnet/kyori/adventure/key/Key;)V
+	public final fun setSubtitle (Lnet/kyori/adventure/text/Component;)V
+	public final fun setTimes (Lnet/kyori/adventure/title/Title$Times;)V
+	public final fun setTitle (Lnet/kyori/adventure/text/Component;)V
+}
+
+public abstract class dev/racci/terix/api/events/OriginEvent : dev/racci/minix/api/events/player/KPlayerEvent {
+	public synthetic fun <init> (Lorg/bukkit/entity/Player;Ldev/racci/terix/api/origins/origin/Origin;Lkotlin/jvm/internal/DefaultConstructorMarker;)V
+	public final fun getOrigin ()Ldev/racci/terix/api/origins/origin/Origin;
+}
+
+public final class dev/racci/terix/api/events/OriginSunlightBurnEvent : dev/racci/terix/api/events/OriginEvent {
+	public static final field Companion Ldev/racci/terix/api/events/OriginSunlightBurnEvent$Companion;
+	public fun <init> (Lorg/bukkit/entity/Player;Ldev/racci/terix/api/origins/origin/Origin;I)V
+	public static fun getHandlerList ()Lorg/bukkit/event/HandlerList;
+	public final fun getTicks ()I
+	public final fun setTicks (I)V
+}
+
+public final class dev/racci/terix/api/events/OriginSunlightBurnEvent$Companion : dev/racci/minix/api/events/CompanionEventHandler {
+	public fun getHandlerList ()Lorg/bukkit/event/HandlerList;
+}
+
+public final class dev/racci/terix/api/events/OriginWaterBurnEvent : dev/racci/terix/api/events/OriginEvent {
+	public static final field Companion Ldev/racci/terix/api/events/OriginWaterBurnEvent$Companion;
+	public fun <init> (Lorg/bukkit/entity/Player;Ldev/racci/terix/api/origins/origin/Origin;D)V
+	public final fun getDamage ()D
+	public static fun getHandlerList ()Lorg/bukkit/event/HandlerList;
+	public final fun setDamage (D)V
+}
+
+public final class dev/racci/terix/api/events/OriginWaterBurnEvent$Companion : dev/racci/minix/api/events/CompanionEventHandler {
+	public fun getHandlerList ()Lorg/bukkit/event/HandlerList;
+}
+
+public final class dev/racci/terix/api/events/PlayerOriginChangeEvent : dev/racci/minix/api/events/player/KPlayerEvent {
+	public static final field Companion Ldev/racci/terix/api/events/PlayerOriginChangeEvent$Companion;
+	public fun <init> (Lorg/bukkit/entity/Player;Ldev/racci/terix/api/origins/origin/Origin;Ldev/racci/terix/api/origins/origin/Origin;ZZ)V
+	public synthetic fun <init> (Lorg/bukkit/entity/Player;Ldev/racci/terix/api/origins/origin/Origin;Ldev/racci/terix/api/origins/origin/Origin;ZZILkotlin/jvm/internal/DefaultConstructorMarker;)V
+	public final fun getBypassCooldown ()Z
+	public static fun getHandlerList ()Lorg/bukkit/event/HandlerList;
+	public final fun getNewOrigin ()Ldev/racci/terix/api/origins/origin/Origin;
+	public final fun getPreOrigin ()Ldev/racci/terix/api/origins/origin/Origin;
+	public final fun getResult ()Ldev/racci/terix/api/events/PlayerOriginChangeEvent$Result;
+	public final fun getSkipRequirement ()Z
+	public final fun setResult (Ldev/racci/terix/api/events/PlayerOriginChangeEvent$Result;)V
+}
+
+public final class dev/racci/terix/api/events/PlayerOriginChangeEvent$Companion : dev/racci/minix/api/events/CompanionEventHandler {
+	public fun getHandlerList ()Lorg/bukkit/event/HandlerList;
+}
+
+public final class dev/racci/terix/api/events/PlayerOriginChangeEvent$Result : java/lang/Enum {
+	public static final field CURRENT_ORIGIN Ldev/racci/terix/api/events/PlayerOriginChangeEvent$Result;
+	public static final field NO_PERMISSION Ldev/racci/terix/api/events/PlayerOriginChangeEvent$Result;
+	public static final field ON_COOLDOWN Ldev/racci/terix/api/events/PlayerOriginChangeEvent$Result;
+	public static final field SUCCESS Ldev/racci/terix/api/events/PlayerOriginChangeEvent$Result;
+	public final fun isSuccessful ()Z
+	public static fun valueOf (Ljava/lang/String;)Ldev/racci/terix/api/events/PlayerOriginChangeEvent$Result;
+	public static fun values ()[Ldev/racci/terix/api/events/PlayerOriginChangeEvent$Result;
+}
+
+public abstract class dev/racci/terix/api/events/abilities/AbilityEvent : dev/racci/minix/api/events/player/KPlayerEvent {
+	public synthetic fun <init> (Ldev/racci/terix/api/origins/abilities/Ability;ZILkotlin/jvm/internal/DefaultConstructorMarker;)V
+	public synthetic fun <init> (Ldev/racci/terix/api/origins/abilities/Ability;ZLkotlin/jvm/internal/DefaultConstructorMarker;)V
+	public final fun getAbility ()Ldev/racci/terix/api/origins/abilities/Ability;
+}
+
+public final class dev/racci/terix/api/events/abilities/KeybindAbilityActivateEvent : dev/racci/terix/api/events/abilities/AbilityEvent {
+	public static final field Companion Ldev/racci/terix/api/events/abilities/KeybindAbilityActivateEvent$Companion;
+	public static fun getHandlerList ()Lorg/bukkit/event/HandlerList;
+}
+
+public final class dev/racci/terix/api/events/abilities/KeybindAbilityActivateEvent$Companion : dev/racci/minix/api/events/CompanionEventHandler {
+	public fun getHandlerList ()Lorg/bukkit/event/HandlerList;
+}
+
+public final class dev/racci/terix/api/events/abilities/KeybindAbilityDeactivateEvent : dev/racci/terix/api/events/abilities/AbilityEvent {
+	public static final field Companion Ldev/racci/terix/api/events/abilities/KeybindAbilityDeactivateEvent$Companion;
+	public final fun getCancellable ()Z
+	public static fun getHandlerList ()Lorg/bukkit/event/HandlerList;
+	public fun isCancelled ()Z
+}
+
+public final class dev/racci/terix/api/events/abilities/KeybindAbilityDeactivateEvent$Companion : dev/racci/minix/api/events/CompanionEventHandler {
+	public fun getHandlerList ()Lorg/bukkit/event/HandlerList;
+}
+
+public final class dev/racci/terix/api/events/abilities/LifeStealEvent : dev/racci/terix/api/events/abilities/AbilityEvent {
+	public final fun getActualStolenAmount ()D
+	public final fun getRawStolenAmount ()D
+	public final fun getRootCause ()Lorg/bukkit/event/entity/EntityDamageByEntityEvent;
+	public fun isCancelled ()Z
+	public final fun setRawStolenAmount (D)V
+}
+
+public final class dev/racci/terix/api/exceptions/OriginCreationException : java/lang/Exception {
+	public fun <init> (Ljava/lang/String;Ljava/lang/Throwable;)V
+	public synthetic fun <init> (Ljava/lang/String;Ljava/lang/Throwable;ILkotlin/jvm/internal/DefaultConstructorMarker;)V
+}
+
+public final class dev/racci/terix/api/extensions/ExEventKt {
+	public static final fun onSuccess (Lorg/bukkit/event/Event;Lkotlin/jvm/functions/Function1;)Z
+}
+
+public final class dev/racci/terix/api/extensions/ExLambdaKt {
+	public static final fun maybeAppend (Lkotlin/jvm/functions/Function0;Lkotlin/jvm/functions/Function0;)Lkotlin/jvm/functions/Function0;
+	public static final fun maybeAppendOne (Lkotlin/jvm/functions/Function1;Lkotlin/jvm/functions/Function1;)Lkotlin/jvm/functions/Function1;
+	public static final fun maybeAppendSuspend (Lkotlin/jvm/functions/Function1;Lkotlin/jvm/functions/Function1;)Lkotlin/jvm/functions/Function1;
+	public static final fun maybeAppendSuspendOne (Lkotlin/jvm/functions/Function2;Lkotlin/jvm/functions/Function2;)Lkotlin/jvm/functions/Function2;
+	public static final fun maybeAppendSuspendThree (Lkotlin/jvm/functions/Function4;Lkotlin/jvm/functions/Function4;)Lkotlin/jvm/functions/Function4;
+	public static final fun maybeAppendSuspendTwo (Lkotlin/jvm/functions/Function3;Lkotlin/jvm/functions/Function3;)Lkotlin/jvm/functions/Function3;
+	public static final fun maybeAppendThree (Lkotlin/jvm/functions/Function3;Lkotlin/jvm/functions/Function3;)Lkotlin/jvm/functions/Function3;
+	public static final fun maybeAppendTwo (Lkotlin/jvm/functions/Function2;Lkotlin/jvm/functions/Function2;)Lkotlin/jvm/functions/Function2;
+	public static final fun maybePrepend (Lkotlin/jvm/functions/Function0;Lkotlin/jvm/functions/Function0;)Lkotlin/jvm/functions/Function0;
+	public static final fun maybePrependOne (Lkotlin/jvm/functions/Function1;Lkotlin/jvm/functions/Function1;)Lkotlin/jvm/functions/Function1;
+	public static final fun maybePrependSuspend (Lkotlin/jvm/functions/Function1;Lkotlin/jvm/functions/Function1;)Lkotlin/jvm/functions/Function1;
+	public static final fun maybePrependSuspendOne (Lkotlin/jvm/functions/Function2;Lkotlin/jvm/functions/Function2;)Lkotlin/jvm/functions/Function2;
+	public static final fun maybePrependSuspendThree (Lkotlin/jvm/functions/Function4;Lkotlin/jvm/functions/Function4;)Lkotlin/jvm/functions/Function4;
+	public static final fun maybePrependSuspendTwo (Lkotlin/jvm/functions/Function3;Lkotlin/jvm/functions/Function3;)Lkotlin/jvm/functions/Function3;
+	public static final fun maybePrependThree (Lkotlin/jvm/functions/Function3;Lkotlin/jvm/functions/Function3;)Lkotlin/jvm/functions/Function3;
+	public static final fun maybePrependTwo (Lkotlin/jvm/functions/Function2;Lkotlin/jvm/functions/Function2;)Lkotlin/jvm/functions/Function2;
+}
+
+public final class dev/racci/terix/api/extensions/ExLocationKt {
+	public static final fun above (Lorg/bukkit/Location;D)Lorg/bukkit/Location;
+	public static final fun above (Lorg/bukkit/block/Block;I)Lorg/bukkit/block/Block;
+	public static synthetic fun above$default (Lorg/bukkit/Location;DILjava/lang/Object;)Lorg/bukkit/Location;
+	public static synthetic fun above$default (Lorg/bukkit/block/Block;IILjava/lang/Object;)Lorg/bukkit/block/Block;
+	public static final fun below (Lorg/bukkit/Location;D)Lorg/bukkit/Location;
+	public static final fun below (Lorg/bukkit/block/Block;I)Lorg/bukkit/block/Block;
+	public static synthetic fun below$default (Lorg/bukkit/Location;DILjava/lang/Object;)Lorg/bukkit/Location;
+	public static synthetic fun below$default (Lorg/bukkit/block/Block;IILjava/lang/Object;)Lorg/bukkit/block/Block;
+}
+
+public final class dev/racci/terix/api/extensions/ExPlayerKt {
+	public static final fun getAllOriginPotions (Lorg/bukkit/entity/Player;)Lkotlin/sequences/Sequence;
+	public static final fun getHandle (Lorg/bukkit/entity/Player;)Lnet/minecraft/server/level/ServerPlayer;
+	public static final fun getOriginAbilityPotions (Lorg/bukkit/entity/Player;)Lkotlin/sequences/Sequence;
+	public static final fun getOriginFoodPotions (Lorg/bukkit/entity/Player;)Lkotlin/sequences/Sequence;
+	public static final fun getOriginPassiveModifiers (Lorg/bukkit/entity/Player;)Ljava/util/Map;
+	public static final fun getOriginPassivePotions (Lorg/bukkit/entity/Player;)Lkotlin/sequences/Sequence;
+	public static final fun playSound (Lorg/bukkit/entity/Player;Ljava/lang/String;FFD)V
+	public static synthetic fun playSound$default (Lorg/bukkit/entity/Player;Ljava/lang/String;FFDILjava/lang/Object;)V
+}
+
+public final class dev/racci/terix/api/extensions/ExUnitKt {
+	public static final fun emptyLambdaNone (Lkotlin/Unit;)Lkotlin/jvm/functions/Function0;
+	public static final fun emptyLambdaOne (Lkotlin/Unit;)Lkotlin/jvm/functions/Function1;
+	public static final fun emptyLambdaThree (Lkotlin/Unit;)Lkotlin/jvm/functions/Function3;
+	public static final fun emptyLambdaTwo (Lkotlin/Unit;)Lkotlin/jvm/functions/Function2;
+	public static final fun falsePredicateNone (Lkotlin/Unit;)Lkotlin/jvm/functions/Function0;
+	public static final fun falsePredicateOne (Lkotlin/Unit;)Lkotlin/jvm/functions/Function1;
+	public static final fun falsePredicateThree (Lkotlin/Unit;)Lkotlin/jvm/functions/Function3;
+	public static final fun falsePredicateTwo (Lkotlin/Unit;)Lkotlin/jvm/functions/Function2;
+	public static final fun truePredicateNone (Lkotlin/Unit;)Lkotlin/jvm/functions/Function0;
+	public static final fun truePredicateOne (Lkotlin/Unit;)Lkotlin/jvm/functions/Function1;
+	public static final fun truePredicateThree (Lkotlin/Unit;)Lkotlin/jvm/functions/Function3;
+	public static final fun truePredicateTwo (Lkotlin/Unit;)Lkotlin/jvm/functions/Function2;
+}
+
+public final class dev/racci/terix/api/extensions/ExVectorKt {
+	public static final fun downVector ()Lorg/bukkit/util/Vector;
+	public static final fun leftVector ()Lorg/bukkit/util/Vector;
+	public static final fun rightVector ()Lorg/bukkit/util/Vector;
+	public static final fun upVector ()Lorg/bukkit/util/Vector;
+}
+
+public final class dev/racci/terix/api/origins/OriginHelper : dev/racci/minix/api/extensions/WithPlugin, org/koin/core/component/KoinComponent {
+	public static final field INSTANCE Ldev/racci/terix/api/origins/OriginHelper;
+	public final fun activateOrigin (Lorg/bukkit/entity/Player;Ldev/racci/terix/api/origins/origin/Origin;Lkotlin/coroutines/Continuation;)Ljava/lang/Object;
+	public static synthetic fun activateOrigin$default (Ldev/racci/terix/api/origins/OriginHelper;Lorg/bukkit/entity/Player;Ldev/racci/terix/api/origins/origin/Origin;Lkotlin/coroutines/Continuation;ILjava/lang/Object;)Ljava/lang/Object;
+	public fun async (Lkotlin/jvm/functions/Function2;)Lkotlinx/coroutines/Job;
+	public final fun changeTo (Lorg/bukkit/entity/Player;Ldev/racci/terix/api/origins/origin/Origin;Ldev/racci/terix/api/origins/origin/Origin;Lkotlin/coroutines/Continuation;)Ljava/lang/Object;
+	public fun completableAsync (Lkotlin/jvm/functions/Function1;)Ljava/util/concurrent/CompletableFuture;
+	public fun completableSync (Lkotlin/jvm/functions/Function1;)Ljava/util/concurrent/CompletableFuture;
+	public final fun deactivateOrigin (Lorg/bukkit/entity/Player;Ldev/racci/terix/api/origins/origin/Origin;Lkotlin/coroutines/Continuation;)Ljava/lang/Object;
+	public static synthetic fun deactivateOrigin$default (Ldev/racci/terix/api/origins/OriginHelper;Lorg/bukkit/entity/Player;Ldev/racci/terix/api/origins/origin/Origin;Lkotlin/coroutines/Continuation;ILjava/lang/Object;)Ljava/lang/Object;
+	public fun deferredAsync (Lkotlin/jvm/functions/Function1;)Lkotlinx/coroutines/Deferred;
+	public fun deferredSync (Lkotlin/jvm/functions/Function1;)Lkotlinx/coroutines/Deferred;
+	public fun deleteProperty (Ljava/lang/String;)V
+	public final fun getBaseOriginPotions (Lorg/bukkit/entity/Player;Ldev/racci/terix/api/origins/states/State;)Lkotlin/sequences/Sequence;
+	public fun getKoin ()Lorg/koin/core/Koin;
+	public fun getLogger ()Ldev/racci/minix/api/plugin/logger/MinixLogger;
+	public synthetic fun getPlugin ()Ldev/racci/minix/api/plugin/MinixPlugin;
+	public fun getPlugin ()Ldev/racci/terix/api/Terix;
+	public fun getProperty (Ljava/lang/String;)Ljava/lang/Object;
+	public fun getProperty (Ljava/lang/String;Ljava/lang/Object;)Ljava/lang/Object;
+	public final fun increaseHealth (Lorg/bukkit/entity/Player;D)V
+	public fun launch (Lkotlin/coroutines/CoroutineContext;Lkotlin/jvm/functions/Function2;)Lkotlinx/coroutines/Job;
+	public final fun potionOrigin (Lorg/bukkit/potion/PotionEffect;)Ldev/racci/terix/api/origins/origin/Origin;
+	public final fun potionState (Lorg/bukkit/potion/PotionEffect;)Ldev/racci/terix/api/origins/states/State;
+	public final fun recalculateStates (Lorg/bukkit/entity/Player;Ldev/racci/terix/api/origins/origin/Origin;Lkotlin/coroutines/Continuation;)Ljava/lang/Object;
+	public static synthetic fun recalculateStates$default (Ldev/racci/terix/api/origins/OriginHelper;Lorg/bukkit/entity/Player;Ldev/racci/terix/api/origins/origin/Origin;Lkotlin/coroutines/Continuation;ILjava/lang/Object;)Ljava/lang/Object;
+	public fun registerEvents ([Lorg/bukkit/event/Listener;)V
+	public final fun setHealth (Lorg/bukkit/entity/Player;D)V
+	public fun setProperty (Ljava/lang/String;Ljava/lang/Object;)Ljava/lang/Object;
+	public final fun shouldIgnorePlayer (Lorg/bukkit/entity/Player;)Z
+	public fun sync (Lkotlin/jvm/functions/Function2;)Lkotlinx/coroutines/Job;
+}
+
+public final class dev/racci/terix/api/origins/OriginHelper$IgnoreReason : java/lang/Enum {
+	public static final field GAMEMODE Ldev/racci/terix/api/origins/OriginHelper$IgnoreReason;
+	public final fun getDescription ()Ljava/lang/String;
+	public static fun valueOf (Ljava/lang/String;)Ldev/racci/terix/api/origins/OriginHelper$IgnoreReason;
+	public static fun values ()[Ldev/racci/terix/api/origins/OriginHelper$IgnoreReason;
+}
+
+public final class dev/racci/terix/api/origins/OriginItem {
+	public fun <init> ()V
+	public final fun getLore ()Ljava/lang/String;
+	public final fun getLoreComponents ()Ljava/util/List;
+	public final fun getMaterial ()Lorg/bukkit/Material;
+	public final fun getName ()Lnet/kyori/adventure/text/Component;
+	public final fun setLore (Ljava/lang/String;)V
+	public final fun setLoreComponents (Ljava/util/List;)V
+	public final fun setMaterial (Lorg/bukkit/Material;)V
+	public final fun setName (Lnet/kyori/adventure/text/Component;)V
+	public fun toString ()Ljava/lang/String;
+}
+
+public abstract class dev/racci/terix/api/origins/abilities/Ability : dev/racci/minix/api/extensions/WithPlugin {
+	public static final field Companion Ldev/racci/terix/api/origins/abilities/Ability$Companion;
+	public fun <init> ()V
+	protected final fun abilityBreadcrumb (Ljava/lang/String;)V
+	protected final fun abilitySubscription (Lkotlinx/coroutines/flow/Flow;)V
+	public fun async (Lkotlin/jvm/functions/Function2;)Lkotlinx/coroutines/Job;
+	public fun completableAsync (Lkotlin/jvm/functions/Function1;)Ljava/util/concurrent/CompletableFuture;
+	public fun completableSync (Lkotlin/jvm/functions/Function1;)Ljava/util/concurrent/CompletableFuture;
+	public fun deferredAsync (Lkotlin/jvm/functions/Function1;)Lkotlinx/coroutines/Deferred;
+	public fun deferredSync (Lkotlin/jvm/functions/Function1;)Lkotlinx/coroutines/Deferred;
+	public fun deleteProperty (Ljava/lang/String;)V
+	public abstract fun getAbilityPlayer ()Ldev/racci/terix/api/data/player/TerixPlayer;
+	public fun getKoin ()Lorg/koin/core/Koin;
+	public abstract fun getLinkedOrigin ()Ldev/racci/terix/api/origins/origin/Origin;
+	public final fun getListener ()Ldev/racci/minix/api/extensions/SimpleKListener;
+	public fun getLogger ()Ldev/racci/minix/api/plugin/logger/MinixLogger;
+	public fun getName ()Ljava/lang/String;
+	public synthetic fun getPlugin ()Ldev/racci/minix/api/plugin/MinixPlugin;
+	public final fun getPlugin ()Ldev/racci/terix/api/Terix;
+	public fun getProperty (Ljava/lang/String;)Ljava/lang/Object;
+	public fun getProperty (Ljava/lang/String;Ljava/lang/Object;)Ljava/lang/Object;
+	protected fun handleAbilityGained (Lkotlin/coroutines/Continuation;)Ljava/lang/Object;
+	protected fun handleAbilityLost (Lkotlin/coroutines/Continuation;)Ljava/lang/Object;
+	public fun launch (Lkotlin/coroutines/CoroutineContext;Lkotlin/jvm/functions/Function2;)Lkotlinx/coroutines/Job;
+	public fun registerEvents ([Lorg/bukkit/event/Listener;)V
+	public fun setProperty (Ljava/lang/String;Ljava/lang/Object;)Ljava/lang/Object;
+	public fun sync (Lkotlin/jvm/functions/Function2;)Lkotlinx/coroutines/Job;
+}
+
+public final class dev/racci/terix/api/origins/abilities/Ability$Companion {
+}
+
+public final class dev/racci/terix/api/origins/abilities/RayCastingSupplier {
+	public static final field INSTANCE Ldev/racci/terix/api/origins/abilities/RayCastingSupplier;
+	public final fun of (Lorg/bukkit/entity/Player;)Larrow/core/Option;
+}
+
+public abstract class dev/racci/terix/api/origins/abilities/keybind/ChargeKeybindAbility : dev/racci/terix/api/origins/abilities/keybind/KeybindAbility {
+	public abstract fun getCharge ()F
+	public abstract fun getChargeTime-UwyO8pc ()J
+	protected fun handleChargeDecrease (FLkotlin/coroutines/Continuation;)Ljava/lang/Object;
+	protected fun handleChargeIncrease (FLkotlin/coroutines/Continuation;)Ljava/lang/Object;
+	protected fun handleChargeRelease (FLkotlin/coroutines/Continuation;)Ljava/lang/Object;
+	protected fun handleChargeStart (Lkotlin/coroutines/Continuation;)Ljava/lang/Object;
+	protected final fun handleKeybind (Lorg/bukkit/event/Event;Lkotlin/coroutines/Continuation;)Ljava/lang/Object;
+	public final fun observable (Lkotlin/jvm/functions/Function1;Lkotlin/jvm/functions/Function4;)Lkotlin/properties/ReadWriteProperty;
+	public static synthetic fun observable$default (Ldev/racci/terix/api/origins/abilities/keybind/ChargeKeybindAbility;Lkotlin/jvm/functions/Function1;Lkotlin/jvm/functions/Function4;ILjava/lang/Object;)Lkotlin/properties/ReadWriteProperty;
+	public abstract fun setCharge (F)V
+}
+
+public final class dev/racci/terix/api/origins/abilities/keybind/DragonBreath : dev/racci/terix/api/origins/abilities/keybind/TriggeringKeybindAbility {
+	public synthetic fun <init> (Ldev/racci/terix/api/data/player/TerixPlayer;Ldev/racci/terix/api/origins/origin/Origin;JILkotlin/jvm/internal/DefaultConstructorMarker;)V
+	public synthetic fun <init> (Ldev/racci/terix/api/data/player/TerixPlayer;Ldev/racci/terix/api/origins/origin/Origin;JLkotlin/jvm/internal/DefaultConstructorMarker;)V
+	public fun getAbilityPlayer ()Ldev/racci/terix/api/data/player/TerixPlayer;
+	public fun getCooldownDuration-UwyO8pc ()J
+	public fun getLinkedOrigin ()Ldev/racci/terix/api/origins/origin/Origin;
+	public fun handleTrigger (Lkotlin/coroutines/Continuation;)Ljava/lang/Object;
+}
+
+public abstract class dev/racci/terix/api/origins/abilities/keybind/HoldingChargeKeybindAbility : dev/racci/terix/api/origins/abilities/keybind/ChargeKeybindAbility {
+	public fun <init> ()V
+	public final fun getCharge ()F
+	protected abstract fun handleChargeFull (Lkotlin/coroutines/Continuation;)Ljava/lang/Object;
+	public final fun setCharge (F)V
+}
+
+public abstract class dev/racci/terix/api/origins/abilities/keybind/KeybindAbility : dev/racci/terix/api/origins/abilities/Ability {
+	public static final field Companion Ldev/racci/terix/api/origins/abilities/keybind/KeybindAbility$Companion;
+	protected final fun applyTag (Ldev/racci/terix/api/dsl/PotionEffectBuilder;)Ldev/racci/terix/api/dsl/PotionEffectBuilder;
+	protected final fun failActivation ()V
+	public final fun getCooldown ()Ldev/racci/terix/api/data/Cooldown;
+	public abstract fun getCooldownDuration-UwyO8pc ()J
+	protected abstract fun handleKeybind (Lorg/bukkit/event/Event;Lkotlin/coroutines/Continuation;)Ljava/lang/Object;
+	protected final fun isTagged (Lorg/bukkit/potion/PotionEffect;)Z
+	protected final fun setCooldown (Ldev/racci/terix/api/data/Cooldown;)V
+	protected final fun shouldIgnoreKeybind (Lorg/bukkit/event/Event;)Z
+	protected final fun taggedPotion (Ldev/racci/terix/api/dsl/PotionEffectBuilder;)Lorg/bukkit/potion/PotionEffect;
+}
+
+public final class dev/racci/terix/api/origins/abilities/keybind/KeybindAbility$Companion : dev/racci/minix/api/extensions/WithPlugin {
+	public fun async (Lkotlin/jvm/functions/Function2;)Lkotlinx/coroutines/Job;
+	public fun completableAsync (Lkotlin/jvm/functions/Function1;)Ljava/util/concurrent/CompletableFuture;
+	public fun completableSync (Lkotlin/jvm/functions/Function1;)Ljava/util/concurrent/CompletableFuture;
+	public fun deferredAsync (Lkotlin/jvm/functions/Function1;)Lkotlinx/coroutines/Deferred;
+	public fun deferredSync (Lkotlin/jvm/functions/Function1;)Lkotlinx/coroutines/Deferred;
+	public fun deleteProperty (Ljava/lang/String;)V
+	public fun getKoin ()Lorg/koin/core/Koin;
+	public fun getLogger ()Ldev/racci/minix/api/plugin/logger/MinixLogger;
+	public synthetic fun getPlugin ()Ldev/racci/minix/api/plugin/MinixPlugin;
+	public fun getPlugin ()Ldev/racci/terix/api/Terix;
+	public fun getProperty (Ljava/lang/String;)Ljava/lang/Object;
+	public fun getProperty (Ljava/lang/String;Ljava/lang/Object;)Ljava/lang/Object;
+	public fun launch (Lkotlin/coroutines/CoroutineContext;Lkotlin/jvm/functions/Function2;)Lkotlinx/coroutines/Job;
+	public fun registerEvents ([Lorg/bukkit/event/Listener;)V
+	public fun setProperty (Ljava/lang/String;Ljava/lang/Object;)Ljava/lang/Object;
+	public fun sync (Lkotlin/jvm/functions/Function2;)Lkotlinx/coroutines/Job;
+}
+
+public final class dev/racci/terix/api/origins/abilities/keybind/Leap : dev/racci/terix/api/origins/abilities/keybind/HoldingChargeKeybindAbility {
+	public synthetic fun <init> (Ldev/racci/terix/api/data/player/TerixPlayer;Ldev/racci/terix/api/origins/origin/Origin;JJDILkotlin/jvm/internal/DefaultConstructorMarker;)V
+	public synthetic fun <init> (Ldev/racci/terix/api/data/player/TerixPlayer;Ldev/racci/terix/api/origins/origin/Origin;JJDLkotlin/jvm/internal/DefaultConstructorMarker;)V
+	public fun getAbilityPlayer ()Ldev/racci/terix/api/data/player/TerixPlayer;
+	public fun getChargeTime-UwyO8pc ()J
+	public fun getCooldownDuration-UwyO8pc ()J
+	public final fun getJumpHeight ()D
+	public fun getLinkedOrigin ()Ldev/racci/terix/api/origins/origin/Origin;
+}
+
+public final class dev/racci/terix/api/origins/abilities/keybind/Levitate : dev/racci/terix/api/origins/abilities/keybind/TogglingKeybindAbility {
+	public static final field DIFFERENCE_THRESHOLD D
+	public synthetic fun <init> (Ldev/racci/terix/api/data/player/TerixPlayer;Ldev/racci/terix/api/origins/origin/Origin;JILkotlin/jvm/internal/DefaultConstructorMarker;)V
+	public synthetic fun <init> (Ldev/racci/terix/api/data/player/TerixPlayer;Ldev/racci/terix/api/origins/origin/Origin;JLkotlin/jvm/internal/DefaultConstructorMarker;)V
+	public final fun cancelReversion (Lorg/bukkit/event/entity/EntityToggleGlideEvent;)V
+	public final fun ensureGliding (Ldev/racci/minix/api/events/player/PlayerMoveXYZEvent;)V
+	public fun getAbilityPlayer ()Ldev/racci/terix/api/data/player/TerixPlayer;
+	public fun getCooldownDuration-UwyO8pc ()J
+	public fun getLinkedOrigin ()Ldev/racci/terix/api/origins/origin/Origin;
+	public fun handleActivation (Lkotlin/coroutines/Continuation;)Ljava/lang/Object;
+	public fun handleDeactivation (Lkotlin/coroutines/Continuation;)Ljava/lang/Object;
+}
+
+public final class dev/racci/terix/api/origins/abilities/keybind/Repulsion : dev/racci/terix/api/origins/abilities/keybind/TriggeringKeybindAbility {
+	public synthetic fun <init> (Ldev/racci/terix/api/data/player/TerixPlayer;Ldev/racci/terix/api/origins/origin/Origin;JILkotlin/jvm/internal/DefaultConstructorMarker;)V
+	public synthetic fun <init> (Ldev/racci/terix/api/data/player/TerixPlayer;Ldev/racci/terix/api/origins/origin/Origin;JLkotlin/jvm/internal/DefaultConstructorMarker;)V
+	public fun getAbilityPlayer ()Ldev/racci/terix/api/data/player/TerixPlayer;
+	public fun getCooldownDuration-UwyO8pc ()J
+	public fun getLinkedOrigin ()Ldev/racci/terix/api/origins/origin/Origin;
+	public final fun getOnRepulsion ()Lkotlin/jvm/functions/Function1;
+	public final fun getRadius ()D
+	public final fun getRepulsePredicate ()Lkotlin/jvm/functions/Function1;
+	public final fun getStrengthMultiplier ()D
+	public fun handleTrigger (Lkotlin/coroutines/Continuation;)Ljava/lang/Object;
+	public final fun setOnRepulsion (Lkotlin/jvm/functions/Function1;)V
+	public final fun setRadius (D)V
+	public final fun setRepulsePredicate (Lkotlin/jvm/functions/Function1;)V
+	public final fun setStrengthMultiplier (D)V
+}
+
+public final class dev/racci/terix/api/origins/abilities/keybind/Teleport : dev/racci/terix/api/origins/abilities/keybind/TriggeringKeybindAbility {
+	public synthetic fun <init> (Ldev/racci/terix/api/data/player/TerixPlayer;Ldev/racci/terix/api/origins/origin/Origin;JILkotlin/jvm/internal/DefaultConstructorMarker;)V
+	public synthetic fun <init> (Ldev/racci/terix/api/data/player/TerixPlayer;Ldev/racci/terix/api/origins/origin/Origin;JLkotlin/jvm/internal/DefaultConstructorMarker;)V
+	public fun getAbilityPlayer ()Ldev/racci/terix/api/data/player/TerixPlayer;
+	public fun getCooldownDuration-UwyO8pc ()J
+	public fun getLinkedOrigin ()Ldev/racci/terix/api/origins/origin/Origin;
+	public fun handleTrigger (Lkotlin/coroutines/Continuation;)Ljava/lang/Object;
+}
+
+public abstract class dev/racci/terix/api/origins/abilities/keybind/TogglingKeybindAbility : dev/racci/terix/api/origins/abilities/keybind/KeybindAbility {
+	public static final field SCOPE Ljava/lang/String;
+	public fun <init> ()V
+	public abstract fun handleActivation (Lkotlin/coroutines/Continuation;)Ljava/lang/Object;
+	public abstract fun handleDeactivation (Lkotlin/coroutines/Continuation;)Ljava/lang/Object;
+	protected final fun handleKeybind (Lorg/bukkit/event/Event;Lkotlin/coroutines/Continuation;)Ljava/lang/Object;
+	public final fun isActivated ()Z
+}
+
+public final class dev/racci/terix/api/origins/abilities/keybind/Transform : dev/racci/terix/api/origins/abilities/keybind/TogglingKeybindAbility {
+	public synthetic fun <init> (Ldev/racci/terix/api/data/player/TerixPlayer;Ldev/racci/terix/api/origins/origin/Origin;JLme/libraryaddict/disguise/disguisetypes/Disguise;Lkotlin/jvm/internal/DefaultConstructorMarker;)V
+	public fun getAbilityPlayer ()Ldev/racci/terix/api/data/player/TerixPlayer;
+	public fun getCooldownDuration-UwyO8pc ()J
+	public final fun getDisguise ()Lme/libraryaddict/disguise/disguisetypes/Disguise;
+	public fun getLinkedOrigin ()Ldev/racci/terix/api/origins/origin/Origin;
+	public fun handleActivation (Lkotlin/coroutines/Continuation;)Ljava/lang/Object;
+	public fun handleDeactivation (Lkotlin/coroutines/Continuation;)Ljava/lang/Object;
+}
+
+public abstract class dev/racci/terix/api/origins/abilities/keybind/TriggeringChargeKeybindAbility : dev/racci/terix/api/origins/abilities/keybind/ChargeKeybindAbility {
+	public synthetic fun <init> (JLkotlin/jvm/internal/DefaultConstructorMarker;)V
+	public final fun getCharge ()F
+	public fun getChargeTime-UwyO8pc ()J
+	public abstract fun handleActivation (Lkotlin/coroutines/Continuation;)Ljava/lang/Object;
+	public final fun setCharge (F)V
+}
+
+public abstract class dev/racci/terix/api/origins/abilities/keybind/TriggeringKeybindAbility : dev/racci/terix/api/origins/abilities/keybind/KeybindAbility {
+	public static final field SCOPE Ljava/lang/String;
+	public fun <init> ()V
+	protected fun handleKeybind (Lorg/bukkit/event/Event;Lkotlin/coroutines/Continuation;)Ljava/lang/Object;
+	public abstract fun handleTrigger (Lkotlin/coroutines/Continuation;)Ljava/lang/Object;
+}
+
+public final class dev/racci/terix/api/origins/abilities/passive/FluidWalker : dev/racci/terix/api/origins/abilities/passive/PassiveAbility, dev/racci/terix/api/data/TemporaryPlacement$BlockDataProvider, dev/racci/terix/api/data/TemporaryPlacement$DurationLimited, dev/racci/terix/api/data/TemporaryPlacement$RadiusLimited {
+	public synthetic fun <init> (Ldev/racci/terix/api/data/player/TerixPlayer;Ldev/racci/terix/api/origins/origin/Origin;Lorg/bukkit/block/data/BlockData;DJLjava/util/Set;ILkotlin/jvm/internal/DefaultConstructorMarker;)V
+	public synthetic fun <init> (Ldev/racci/terix/api/data/player/TerixPlayer;Ldev/racci/terix/api/origins/origin/Origin;Lorg/bukkit/block/data/BlockData;DJLjava/util/Set;Lkotlin/jvm/internal/DefaultConstructorMarker;)V
+	public fun getAbilityPlayer ()Ldev/racci/terix/api/data/player/TerixPlayer;
+	public fun getLinkedOrigin ()Ldev/racci/terix/api/origins/origin/Origin;
+	public fun getPlacementData ()Lorg/bukkit/block/data/BlockData;
+	public fun getPlacementDuration-UwyO8pc ()J
+	public fun getPlacementRadius ()D
+	public final fun getReplaceableMaterials ()Ljava/util/Set;
+	public final fun handle (Ldev/racci/minix/api/events/player/PlayerMoveFullXYZEvent;)V
+}
+
+public final class dev/racci/terix/api/origins/abilities/passive/LifeSteal : dev/racci/terix/api/origins/abilities/passive/PassiveAbility {
+	public fun <init> (Ldev/racci/terix/api/data/player/TerixPlayer;Ldev/racci/terix/api/origins/origin/Origin;DFLkotlin/jvm/functions/Function3;)V
+	public synthetic fun <init> (Ldev/racci/terix/api/data/player/TerixPlayer;Ldev/racci/terix/api/origins/origin/Origin;DFLkotlin/jvm/functions/Function3;ILkotlin/jvm/internal/DefaultConstructorMarker;)V
+	public fun getAbilityPlayer ()Ldev/racci/terix/api/data/player/TerixPlayer;
+	public fun getLinkedOrigin ()Ldev/racci/terix/api/origins/origin/Origin;
+	public final fun getMaximumStolenHealth ()D
+	public final fun getOnLifeSteal ()Lkotlin/jvm/functions/Function3;
+	public final fun getStolenPercentage ()F
+	public final fun handle (Lorg/bukkit/event/entity/EntityDamageByEntityEvent;)V
+}
+
+public abstract class dev/racci/terix/api/origins/abilities/passive/PassiveAbility : dev/racci/terix/api/origins/abilities/Ability, dev/racci/minix/api/extensions/WithPlugin {
+	public fun <init> ()V
+}
+
+public final class dev/racci/terix/api/origins/abilities/passive/TrailPassive : dev/racci/terix/api/origins/abilities/passive/PassiveAbility, dev/racci/terix/api/data/TemporaryPlacement$BlockDataProvider, dev/racci/terix/api/data/TemporaryPlacement$Immutable {
+	public synthetic fun <init> (Ldev/racci/terix/api/data/player/TerixPlayer;Ldev/racci/terix/api/origins/origin/Origin;Lorg/bukkit/block/data/BlockData;IJILkotlin/jvm/internal/DefaultConstructorMarker;)V
+	public synthetic fun <init> (Ldev/racci/terix/api/data/player/TerixPlayer;Ldev/racci/terix/api/origins/origin/Origin;Lorg/bukkit/block/data/BlockData;IJLkotlin/jvm/internal/DefaultConstructorMarker;)V
+	public fun getAbilityPlayer ()Ldev/racci/terix/api/data/player/TerixPlayer;
+	public fun getLinkedOrigin ()Ldev/racci/terix/api/origins/origin/Origin;
+	public fun getPlacementData ()Lorg/bukkit/block/data/BlockData;
+	public final fun getTrailDuration-UwyO8pc ()J
+	public final fun getTrailLength ()I
+	public final fun handle (Ldev/racci/minix/api/events/player/PlayerMoveFullXYZEvent;)V
+	public final fun handle (Lorg/bukkit/event/player/PlayerChangedWorldEvent;Lkotlin/coroutines/Continuation;)Ljava/lang/Object;
+	public final fun setTrailDuration-LRDsOJo (J)V
+	public final fun setTrailLength (I)V
+}
+
+public final class dev/racci/terix/api/origins/enums/EventSelector : java/lang/Enum {
+	public static final field ENTITY Ldev/racci/terix/api/origins/enums/EventSelector;
+	public static final field KILLER Ldev/racci/terix/api/origins/enums/EventSelector;
+	public static final field OFFENDER Ldev/racci/terix/api/origins/enums/EventSelector;
+	public static final field PLAYER Ldev/racci/terix/api/origins/enums/EventSelector;
+	public static final field SHOOTER Ldev/racci/terix/api/origins/enums/EventSelector;
+	public static final field TARGET Ldev/racci/terix/api/origins/enums/EventSelector;
+	public final fun getSelector ()Ldev/racci/terix/api/origins/enums/EventSelector$TargetSelector;
+	public final fun invoke (Lorg/bukkit/event/Event;)Larrow/core/Either;
+	public static fun valueOf (Ljava/lang/String;)Ldev/racci/terix/api/origins/enums/EventSelector;
+	public static fun values ()[Ldev/racci/terix/api/origins/enums/EventSelector;
+}
+
+public final class dev/racci/terix/api/origins/enums/EventSelector$OriginSelector : dev/racci/terix/api/origins/enums/EventSelector$TargetSelector {
+	public fun <init> (Lkotlin/reflect/KClass;Lkotlin/jvm/functions/Function1;)V
+	public fun getEventType ()Lkotlin/reflect/KClass;
+	public final fun getSelector ()Lkotlin/jvm/functions/Function1;
+	public fun invoke (Lorg/bukkit/event/Event;)Larrow/core/Either;
+	public fun isApplicable (Lkotlin/reflect/KClass;)Z
+}
+
+public final class dev/racci/terix/api/origins/enums/EventSelector$PlayerSelector : dev/racci/terix/api/origins/enums/EventSelector$TargetSelector {
+	public fun <init> (Lkotlin/reflect/KClass;Lkotlin/jvm/functions/Function1;)V
+	public fun getEventType ()Lkotlin/reflect/KClass;
+	public final fun getSelector ()Lkotlin/jvm/functions/Function1;
+	public fun invoke (Lorg/bukkit/event/Event;)Larrow/core/Either;
+	public fun isApplicable (Lkotlin/reflect/KClass;)Z
+}
+
+public abstract interface class dev/racci/terix/api/origins/enums/EventSelector$TargetSelector {
+	public static final field Companion Ldev/racci/terix/api/origins/enums/EventSelector$TargetSelector$Companion;
+	public abstract fun getEventType ()Lkotlin/reflect/KClass;
+	public abstract fun invoke (Lorg/bukkit/event/Event;)Larrow/core/Either;
+	public abstract fun isApplicable (Lkotlin/reflect/KClass;)Z
+}
+
+public final class dev/racci/terix/api/origins/enums/EventSelector$TargetSelector$Companion {
+	public final fun isCompatible (Ldev/racci/terix/api/origins/enums/EventSelector$TargetSelector;Lkotlin/reflect/KFunction;)Z
+}
+
+public final class dev/racci/terix/api/origins/enums/EventSelector$TargetSelector$DefaultImpls {
+	public static fun isApplicable (Ldev/racci/terix/api/origins/enums/EventSelector$TargetSelector;Lkotlin/reflect/KClass;)Z
+}
+
+public final class dev/racci/terix/api/origins/enums/KeyBinding : java/lang/Enum {
+	public static final field Companion Ldev/racci/terix/api/origins/enums/KeyBinding$Companion;
+	public static final field DOUBLE_LEFT_CLICK Ldev/racci/terix/api/origins/enums/KeyBinding;
+	public static final field DOUBLE_OFFHAND Ldev/racci/terix/api/origins/enums/KeyBinding;
+	public static final field DOUBLE_RIGHT_CLICK Ldev/racci/terix/api/origins/enums/KeyBinding;
+	public static final field SINGLE_LEFT_CLICK Ldev/racci/terix/api/origins/enums/KeyBinding;
+	public static final field SINGLE_OFFHAND Ldev/racci/terix/api/origins/enums/KeyBinding;
+	public static final field SINGLE_RIGHT_CLICK Ldev/racci/terix/api/origins/enums/KeyBinding;
+	public static final field SINGLE_SNEAK Ldev/racci/terix/api/origins/enums/KeyBinding;
+	public static final field SNEAK_DOUBLE_LEFT_CLICK Ldev/racci/terix/api/origins/enums/KeyBinding;
+	public static final field SNEAK_DOUBLE_OFFHAND Ldev/racci/terix/api/origins/enums/KeyBinding;
+	public static final field SNEAK_DOUBLE_RIGHT_CLICK Ldev/racci/terix/api/origins/enums/KeyBinding;
+	public static final field SNEAK_LEFT_CLICK Ldev/racci/terix/api/origins/enums/KeyBinding;
+	public static final field SNEAK_OFFHAND Ldev/racci/terix/api/origins/enums/KeyBinding;
+	public static final field SNEAK_RIGHT_CLICK Ldev/racci/terix/api/origins/enums/KeyBinding;
+	public final fun getEvent ()Lkotlin/reflect/KClass;
+	public static fun valueOf (Ljava/lang/String;)Ldev/racci/terix/api/origins/enums/KeyBinding;
+	public static fun values ()[Ldev/racci/terix/api/origins/enums/KeyBinding;
+}
+
+public final class dev/racci/terix/api/origins/enums/KeyBinding$Companion {
+	public final fun fromEvent (Lkotlin/reflect/KClass;)Ldev/racci/terix/api/origins/enums/KeyBinding;
+}
+
+public final class dev/racci/terix/api/origins/origin/AbilityBuilder {
+	public static final field Companion Ldev/racci/terix/api/origins/origin/AbilityBuilder$Companion;
+	public fun <init> (Ldev/racci/terix/api/origins/origin/OriginValues$AbilityGenerator;)V
+	public final fun configure (Lkotlin/jvm/functions/Function1;)Ldev/racci/terix/api/origins/origin/AbilityBuilder;
+	public final fun copy (Ldev/racci/terix/api/origins/origin/OriginValues$AbilityGenerator;)Ldev/racci/terix/api/origins/origin/AbilityBuilder;
+	public static synthetic fun copy$default (Ldev/racci/terix/api/origins/origin/AbilityBuilder;Ldev/racci/terix/api/origins/origin/OriginValues$AbilityGenerator;ILjava/lang/Object;)Ldev/racci/terix/api/origins/origin/AbilityBuilder;
+	public fun equals (Ljava/lang/Object;)Z
+	public final fun getGenerator ()Ldev/racci/terix/api/origins/origin/OriginValues$AbilityGenerator;
+	public fun hashCode ()I
+	public final fun parameter (Lkotlin/reflect/KProperty1;Ljava/lang/Object;)Ldev/racci/terix/api/origins/origin/AbilityBuilder;
+	public final fun setGenerator (Ldev/racci/terix/api/origins/origin/OriginValues$AbilityGenerator;)V
+	public fun toString ()Ljava/lang/String;
+}
+
+public final class dev/racci/terix/api/origins/origin/AbilityBuilder$Companion {
+	public final fun of (Lkotlin/reflect/KClass;)Ldev/racci/terix/api/origins/origin/AbilityBuilder;
+}
+
+public final class dev/racci/terix/api/origins/origin/AbilityBuilderKt {
+	public static final fun keybinding (Ldev/racci/terix/api/origins/origin/AbilityBuilder;Ldev/racci/terix/api/origins/enums/KeyBinding;)Ldev/racci/terix/api/origins/origin/AbilityBuilder;
+}
+
+public abstract class dev/racci/terix/api/origins/origin/Origin : dev/racci/terix/api/origins/origin/OriginBuilder {
+	public fun <init> ()V
+	public fun handleBecomeOrigin (Lorg/bukkit/entity/Player;Lkotlin/coroutines/Continuation;)Ljava/lang/Object;
+	public fun handleChangeOrigin (Lorg/bukkit/entity/Player;Lkotlin/coroutines/Continuation;)Ljava/lang/Object;
+	public fun handleDeactivate (Lorg/bukkit/entity/Player;Lkotlin/coroutines/Continuation;)Ljava/lang/Object;
+	public fun handleLoad (Lorg/bukkit/entity/Player;Lkotlin/coroutines/Continuation;)Ljava/lang/Object;
+	public fun handleRegister (Lkotlin/coroutines/Continuation;)Ljava/lang/Object;
+	public fun handleUnload (Lkotlin/coroutines/Continuation;)Ljava/lang/Object;
+	public fun onTick (Lorg/bukkit/entity/Player;Lkotlin/coroutines/Continuation;)Ljava/lang/Object;
+	public final fun toString ()Ljava/lang/String;
+}
+
+public abstract class dev/racci/terix/api/origins/origin/OriginBuilder : dev/racci/terix/api/origins/origin/OriginValues {
+	protected final fun abilities (Lkotlin/jvm/functions/Function2;Lkotlin/coroutines/Continuation;)Ljava/lang/Object;
+	protected final fun attributes (Lkotlin/jvm/functions/Function2;Lkotlin/coroutines/Continuation;)Ljava/lang/Object;
+	protected final fun damage (Lkotlin/jvm/functions/Function2;Lkotlin/coroutines/Continuation;)Ljava/lang/Object;
+	public final fun fireImmunity (Z)Ldev/racci/terix/api/origins/origin/OriginBuilder;
+	public static synthetic fun fireImmunity$default (Ldev/racci/terix/api/origins/origin/OriginBuilder;ZILjava/lang/Object;)Ldev/racci/terix/api/origins/origin/OriginBuilder;
+	protected final fun food (Lkotlin/jvm/functions/Function2;Lkotlin/coroutines/Continuation;)Ljava/lang/Object;
+	public final fun getBuilderCache ()Lcom/github/benmanes/caffeine/cache/LoadingCache;
+	protected final fun item (Lkotlin/jvm/functions/Function2;Lkotlin/coroutines/Continuation;)Ljava/lang/Object;
+	protected final fun potions (Lkotlin/jvm/functions/Function2;Lkotlin/coroutines/Continuation;)Ljava/lang/Object;
+	protected final fun title (Lkotlin/jvm/functions/Function2;Lkotlin/coroutines/Continuation;)Ljava/lang/Object;
+	public final fun waterBreathing (Z)Ldev/racci/terix/api/origins/origin/OriginBuilder;
+	public static synthetic fun waterBreathing$default (Ldev/racci/terix/api/origins/origin/OriginBuilder;ZILjava/lang/Object;)Ldev/racci/terix/api/origins/origin/OriginBuilder;
+}
+
+public final class dev/racci/terix/api/origins/origin/OriginDataHolder {
+	public final fun component1 ()Ldev/racci/terix/api/origins/origin/OriginDataHolder$Information;
+	public final fun component2 ()Lnet/minecraft/world/entity/player/Abilities;
+	public final fun component3 ()Ldev/racci/terix/api/origins/origin/OriginDataHolder$Sounds;
+	public final fun copy (Ldev/racci/terix/api/origins/origin/OriginDataHolder$Information;Lnet/minecraft/world/entity/player/Abilities;Ldev/racci/terix/api/origins/origin/OriginDataHolder$Sounds;)Ldev/racci/terix/api/origins/origin/OriginDataHolder;
+	public static synthetic fun copy$default (Ldev/racci/terix/api/origins/origin/OriginDataHolder;Ldev/racci/terix/api/origins/origin/OriginDataHolder$Information;Lnet/minecraft/world/entity/player/Abilities;Ldev/racci/terix/api/origins/origin/OriginDataHolder$Sounds;ILjava/lang/Object;)Ldev/racci/terix/api/origins/origin/OriginDataHolder;
+	public fun equals (Ljava/lang/Object;)Z
+	public final fun getAbilities ()Lnet/minecraft/world/entity/player/Abilities;
+	public final fun getInformation ()Ldev/racci/terix/api/origins/origin/OriginDataHolder$Information;
+	public final fun getSounds ()Ldev/racci/terix/api/origins/origin/OriginDataHolder$Sounds;
+	public fun hashCode ()I
+	public fun toString ()Ljava/lang/String;
+}
+
+public final class dev/racci/terix/api/origins/origin/OriginDataHolder$AbilityGenerators {
+	public static final field Companion Ldev/racci/terix/api/origins/origin/OriginDataHolder$AbilityGenerators$Companion;
+	public static final synthetic fun box-impl (Lkotlinx/collections/immutable/PersistentSet;)Ldev/racci/terix/api/origins/origin/OriginDataHolder$AbilityGenerators;
+	public fun equals (Ljava/lang/Object;)Z
+	public static fun equals-impl (Lkotlinx/collections/immutable/PersistentSet;Ljava/lang/Object;)Z
+	public static final fun equals-impl0 (Lkotlinx/collections/immutable/PersistentSet;Lkotlinx/collections/immutable/PersistentSet;)Z
+	public final fun getAbilityGenerators ()Lkotlinx/collections/immutable/PersistentSet;
+	public fun hashCode ()I
+	public static fun hashCode-impl (Lkotlinx/collections/immutable/PersistentSet;)I
+	public fun toString ()Ljava/lang/String;
+	public static fun toString-impl (Lkotlinx/collections/immutable/PersistentSet;)Ljava/lang/String;
+	public final synthetic fun unbox-impl ()Lkotlinx/collections/immutable/PersistentSet;
+}
+
+public final class dev/racci/terix/api/origins/origin/OriginDataHolder$AbilityGenerators$Companion {
+}
+
+public final class dev/racci/terix/api/origins/origin/OriginDataHolder$Information {
+	public static final field Companion Ldev/racci/terix/api/origins/origin/OriginDataHolder$Information$Companion;
+	public final fun component1 ()Ljava/lang/String;
+	public final fun component2 ()Lnet/kyori/adventure/text/format/TextColor;
+	public final fun component3 ()Lorg/bukkit/inventory/ItemStack;
+	public final fun copy (Ljava/lang/String;Lnet/kyori/adventure/text/format/TextColor;Lorg/bukkit/inventory/ItemStack;)Ldev/racci/terix/api/origins/origin/OriginDataHolder$Information;
+	public static synthetic fun copy$default (Ldev/racci/terix/api/origins/origin/OriginDataHolder$Information;Ljava/lang/String;Lnet/kyori/adventure/text/format/TextColor;Lorg/bukkit/inventory/ItemStack;ILjava/lang/Object;)Ldev/racci/terix/api/origins/origin/OriginDataHolder$Information;
+	public fun equals (Ljava/lang/Object;)Z
+	public final fun getColour ()Lnet/kyori/adventure/text/format/TextColor;
+	public final fun getItem ()Lorg/bukkit/inventory/ItemStack;
+	public final fun getName ()Ljava/lang/String;
+	public fun hashCode ()I
+	public fun toString ()Ljava/lang/String;
+}
+
+public final class dev/racci/terix/api/origins/origin/OriginDataHolder$Information$Companion {
+}
+
+public final class dev/racci/terix/api/origins/origin/OriginDataHolder$Sounds {
+	public static final field Companion Ldev/racci/terix/api/origins/origin/OriginDataHolder$Sounds$Companion;
+	public fun <init> ()V
+	public final fun component1 ()Ldev/racci/terix/api/origins/sounds/SoundEffect;
+	public final fun component2 ()Ldev/racci/terix/api/origins/sounds/SoundEffect;
+	public final fun component3 ()Ldev/racci/terix/api/origins/sounds/SoundEffect;
+	public final fun copy (Ldev/racci/terix/api/origins/sounds/SoundEffect;Ldev/racci/terix/api/origins/sounds/SoundEffect;Ldev/racci/terix/api/origins/sounds/SoundEffect;)Ldev/racci/terix/api/origins/origin/OriginDataHolder$Sounds;
+	public static synthetic fun copy$default (Ldev/racci/terix/api/origins/origin/OriginDataHolder$Sounds;Ldev/racci/terix/api/origins/sounds/SoundEffect;Ldev/racci/terix/api/origins/sounds/SoundEffect;Ldev/racci/terix/api/origins/sounds/SoundEffect;ILjava/lang/Object;)Ldev/racci/terix/api/origins/origin/OriginDataHolder$Sounds;
+	public fun equals (Ljava/lang/Object;)Z
+	public final fun getAmbientSound ()Ldev/racci/terix/api/origins/sounds/SoundEffect;
+	public final fun getDeathSound ()Ldev/racci/terix/api/origins/sounds/SoundEffect;
+	public final fun getHurtSound ()Ldev/racci/terix/api/origins/sounds/SoundEffect;
+	public fun hashCode ()I
+	public fun toString ()Ljava/lang/String;
+}
+
+public final class dev/racci/terix/api/origins/origin/OriginDataHolder$Sounds$Companion {
+}
+
+public abstract class dev/racci/terix/api/origins/origin/OriginValues : dev/racci/minix/api/extensions/WithPlugin {
+	public fun async (Lkotlin/jvm/functions/Function2;)Lkotlinx/coroutines/Job;
+	public fun completableAsync (Lkotlin/jvm/functions/Function1;)Ljava/util/concurrent/CompletableFuture;
+	public fun completableSync (Lkotlin/jvm/functions/Function1;)Ljava/util/concurrent/CompletableFuture;
+	public fun deferredAsync (Lkotlin/jvm/functions/Function1;)Lkotlinx/coroutines/Deferred;
+	public fun deferredSync (Lkotlin/jvm/functions/Function1;)Lkotlinx/coroutines/Deferred;
+	public fun deleteProperty (Ljava/lang/String;)V
+	public final fun getAbilityData ()Ldev/racci/terix/api/origins/origin/OriginValues$AbilityData;
+	public fun getBecomeOriginTitle ()Ldev/racci/terix/api/dsl/TitleBuilder;
+	public fun getColour ()Lnet/kyori/adventure/text/format/TextColor;
+	public final fun getDamageActions ()Lkotlinx/collections/immutable/PersistentMap;
+	public final fun getDisplayName ()Lnet/kyori/adventure/text/Component;
+	public final fun getEventListener ()Ldev/racci/minix/api/extensions/KListener;
+	public fun getFireImmunity ()Z
+	public final fun getFoodData ()Ldev/racci/terix/api/origins/origin/OriginValues$FoodData;
+	public final fun getItem ()Ldev/racci/terix/api/origins/OriginItem;
+	public fun getKoin ()Lorg/koin/core/Koin;
+	public fun getLogger ()Ldev/racci/minix/api/plugin/logger/MinixLogger;
+	public fun getName ()Ljava/lang/String;
+	public fun getProperty (Ljava/lang/String;)Ljava/lang/Object;
+	public fun getProperty (Ljava/lang/String;Ljava/lang/Object;)Ljava/lang/Object;
+	public fun getRequirements ()Lkotlinx/collections/immutable/PersistentList;
+	public final fun getSounds ()Ldev/racci/terix/api/origins/sounds/SoundEffects;
+	public final fun getStateData ()Ldev/racci/terix/api/origins/origin/OriginValues$ImmutableStateMap;
+	public fun getWaterBreathing ()Z
+	public fun launch (Lkotlin/coroutines/CoroutineContext;Lkotlin/jvm/functions/Function2;)Lkotlinx/coroutines/Job;
+	public fun registerEvents ([Lorg/bukkit/event/Listener;)V
+	public final fun setAbilityData (Ldev/racci/terix/api/origins/origin/OriginValues$AbilityData;)V
+	public fun setFireImmunity (Z)V
+	public fun setProperty (Ljava/lang/String;Ljava/lang/Object;)Ljava/lang/Object;
+	public fun setWaterBreathing (Z)V
+	public fun sync (Lkotlin/jvm/functions/Function2;)Lkotlinx/coroutines/Job;
+}
+
+public final class dev/racci/terix/api/origins/origin/OriginValues$AbilityData {
+	public final fun close (Lorg/bukkit/entity/Player;Lkotlin/coroutines/Continuation;)Ljava/lang/Object;
+	public final fun component1 ()Lkotlinx/collections/immutable/PersistentSet;
+	public final fun copy (Lkotlinx/collections/immutable/PersistentSet;Lcom/github/benmanes/caffeine/cache/Cache;)Ldev/racci/terix/api/origins/origin/OriginValues$AbilityData;
+	public static synthetic fun copy$default (Ldev/racci/terix/api/origins/origin/OriginValues$AbilityData;Lkotlinx/collections/immutable/PersistentSet;Lcom/github/benmanes/caffeine/cache/Cache;ILjava/lang/Object;)Ldev/racci/terix/api/origins/origin/OriginValues$AbilityData;
+	public fun equals (Ljava/lang/Object;)Z
+	public final fun get-Jd74VIc (Lorg/bukkit/entity/Player;)Lkotlinx/collections/immutable/PersistentSet;
+	public final fun getGenerators ()Lkotlinx/collections/immutable/PersistentSet;
+	public fun hashCode ()I
+	public fun toString ()Ljava/lang/String;
+}
+
+public final class dev/racci/terix/api/origins/origin/OriginValues$AbilityData$PlayerAbilityHolder : kotlinx/collections/immutable/ImmutableSet {
+	public static final field Companion Ldev/racci/terix/api/origins/origin/OriginValues$AbilityData$PlayerAbilityHolder$Companion;
+	public fun add (Ldev/racci/terix/api/origins/abilities/Ability;)Z
+	public synthetic fun add (Ljava/lang/Object;)Z
+	public fun addAll (Ljava/util/Collection;)Z
+	public static final synthetic fun box-impl (Lkotlinx/collections/immutable/PersistentSet;)Ldev/racci/terix/api/origins/origin/OriginValues$AbilityData$PlayerAbilityHolder;
+	public fun clear ()V
+	public static final fun close-impl (Lkotlinx/collections/immutable/PersistentSet;Lkotlin/coroutines/Continuation;)Ljava/lang/Object;
+	public fun contains (Ldev/racci/terix/api/origins/abilities/Ability;)Z
+	public final fun contains (Ljava/lang/Object;)Z
+	public static fun contains-impl (Lkotlinx/collections/immutable/PersistentSet;Ldev/racci/terix/api/origins/abilities/Ability;)Z
+	public fun containsAll (Ljava/util/Collection;)Z
+	public static fun containsAll-impl (Lkotlinx/collections/immutable/PersistentSet;Ljava/util/Collection;)Z
+	public fun equals (Ljava/lang/Object;)Z
+	public static fun equals-impl (Lkotlinx/collections/immutable/PersistentSet;Ljava/lang/Object;)Z
+	public static final fun equals-impl0 (Lkotlinx/collections/immutable/PersistentSet;Lkotlinx/collections/immutable/PersistentSet;)Z
+	public final fun getAbilities ()Lkotlinx/collections/immutable/PersistentSet;
+	public fun getSize ()I
+	public static fun getSize-impl (Lkotlinx/collections/immutable/PersistentSet;)I
+	public fun hashCode ()I
+	public static fun hashCode-impl (Lkotlinx/collections/immutable/PersistentSet;)I
+	public fun isEmpty ()Z
+	public static fun isEmpty-impl (Lkotlinx/collections/immutable/PersistentSet;)Z
+	public fun iterator ()Ljava/util/Iterator;
+	public static fun iterator-impl (Lkotlinx/collections/immutable/PersistentSet;)Ljava/util/Iterator;
+	public fun remove (Ljava/lang/Object;)Z
+	public fun removeAll (Ljava/util/Collection;)Z
+	public fun retainAll (Ljava/util/Collection;)Z
+	public synthetic fun size ()I
+	public fun toArray ()[Ljava/lang/Object;
+	public fun toArray ([Ljava/lang/Object;)[Ljava/lang/Object;
+	public fun toString ()Ljava/lang/String;
+	public static fun toString-impl (Lkotlinx/collections/immutable/PersistentSet;)Ljava/lang/String;
+	public final synthetic fun unbox-impl ()Lkotlinx/collections/immutable/PersistentSet;
+}
+
+public final class dev/racci/terix/api/origins/origin/OriginValues$AbilityData$PlayerAbilityHolder$Companion {
+	public final fun getEmpty-P6_-WpU ()Lkotlinx/collections/immutable/PersistentSet;
+}
+
+public final class dev/racci/terix/api/origins/origin/OriginValues$AbilityGenerator {
+	public fun <init> (Larrow/core/Option;Lkotlin/reflect/KClass;Lkotlin/jvm/functions/Function1;[Lkotlin/Pair;)V
+	public synthetic fun <init> (Larrow/core/Option;Lkotlin/reflect/KClass;Lkotlin/jvm/functions/Function1;[Lkotlin/Pair;ILkotlin/jvm/internal/DefaultConstructorMarker;)V
+	public final fun component1 ()Larrow/core/Option;
+	public final fun component2 ()Lkotlin/reflect/KClass;
+	public final fun component3 ()Lkotlin/jvm/functions/Function1;
+	public final fun component4 ()[Lkotlin/Pair;
+	public final fun copy (Larrow/core/Option;Lkotlin/reflect/KClass;Lkotlin/jvm/functions/Function1;[Lkotlin/Pair;)Ldev/racci/terix/api/origins/origin/OriginValues$AbilityGenerator;
+	public static synthetic fun copy$default (Ldev/racci/terix/api/origins/origin/OriginValues$AbilityGenerator;Larrow/core/Option;Lkotlin/reflect/KClass;Lkotlin/jvm/functions/Function1;[Lkotlin/Pair;ILjava/lang/Object;)Ldev/racci/terix/api/origins/origin/OriginValues$AbilityGenerator;
+	public fun equals (Ljava/lang/Object;)Z
+	public final fun getAbilityBuilder ()Lkotlin/jvm/functions/Function1;
+	public final fun getAbilityKClass ()Lkotlin/reflect/KClass;
+	public final fun getAdditionalConstructorParams ()[Lkotlin/Pair;
+	public final fun getKeybinding ()Larrow/core/Option;
+	public final fun getName ()Ljava/lang/String;
+	public fun hashCode ()I
+	public final fun invoke (Lorg/bukkit/entity/Player;)Ldev/racci/terix/api/origins/abilities/Ability;
+	public fun toString ()Ljava/lang/String;
+}
+
+public final class dev/racci/terix/api/origins/origin/OriginValues$FoodData {
+	public final fun component1 ()Lkotlinx/collections/immutable/PersistentMap;
+	public final fun component2 ()Lkotlinx/collections/immutable/PersistentMap;
+	public final fun component3 ()Lkotlinx/collections/immutable/PersistentMap;
+	public final fun copy (Lkotlinx/collections/immutable/PersistentMap;Lkotlinx/collections/immutable/PersistentMap;Lkotlinx/collections/immutable/PersistentMap;)Ldev/racci/terix/api/origins/origin/OriginValues$FoodData;
+	public static synthetic fun copy$default (Ldev/racci/terix/api/origins/origin/OriginValues$FoodData;Lkotlinx/collections/immutable/PersistentMap;Lkotlinx/collections/immutable/PersistentMap;Lkotlinx/collections/immutable/PersistentMap;ILjava/lang/Object;)Ldev/racci/terix/api/origins/origin/OriginValues$FoodData;
+	public fun equals (Ljava/lang/Object;)Z
+	public final fun getAction (Lorg/bukkit/inventory/ItemStack;)Lkotlin/jvm/functions/Function2;
+	public final fun getMatcherProperties ()Lkotlinx/collections/immutable/PersistentMap;
+	public final fun getMaterialActions ()Lkotlinx/collections/immutable/PersistentMap;
+	public final fun getMaterialProperties ()Lkotlinx/collections/immutable/PersistentMap;
+	public final fun getProperties (Lorg/bukkit/inventory/ItemStack;)Lnet/minecraft/world/food/FoodProperties;
+	public fun hashCode ()I
+	public fun toString ()Ljava/lang/String;
+}
+
+public final class dev/racci/terix/api/origins/origin/OriginValues$ImmutableStateMap : kotlinx/collections/immutable/ImmutableMap {
+	public synthetic fun <init> (Lkotlinx/collections/immutable/PersistentMap;Lkotlin/jvm/internal/DefaultConstructorMarker;)V
+	public fun clear ()V
+	public fun compute (Ldev/racci/terix/api/origins/states/State;Ljava/util/function/BiFunction;)Ljava/lang/Object;
+	public synthetic fun compute (Ljava/lang/Object;Ljava/util/function/BiFunction;)Ljava/lang/Object;
+	public fun computeIfAbsent (Ldev/racci/terix/api/origins/states/State;Ljava/util/function/Function;)Ljava/lang/Object;
+	public synthetic fun computeIfAbsent (Ljava/lang/Object;Ljava/util/function/Function;)Ljava/lang/Object;
+	public fun computeIfPresent (Ldev/racci/terix/api/origins/states/State;Ljava/util/function/BiFunction;)Ljava/lang/Object;
+	public synthetic fun computeIfPresent (Ljava/lang/Object;Ljava/util/function/BiFunction;)Ljava/lang/Object;
+	public fun containsKey (Ldev/racci/terix/api/origins/states/State;)Z
+	public final fun containsKey (Ljava/lang/Object;)Z
+	public fun containsValue (Ljava/lang/Object;)Z
+	public synthetic fun entrySet ()Ljava/util/Set;
+	public final fun entrySet ()Lkotlinx/collections/immutable/ImmutableSet;
+	public fun get (Ldev/racci/terix/api/origins/states/State;)Ljava/lang/Object;
+	public final fun get (Ljava/lang/Object;)Ljava/lang/Object;
+	public fun getEntries ()Lkotlinx/collections/immutable/ImmutableSet;
+	public fun getKeys ()Lkotlinx/collections/immutable/ImmutableSet;
+	public fun getSize ()I
+	public fun getValues ()Lkotlinx/collections/immutable/ImmutableCollection;
+	public fun isEmpty ()Z
+	public synthetic fun keySet ()Ljava/util/Set;
+	public final fun keySet ()Lkotlinx/collections/immutable/ImmutableSet;
+	public fun merge (Ldev/racci/terix/api/origins/states/State;Ljava/lang/Object;Ljava/util/function/BiFunction;)Ljava/lang/Object;
+	public synthetic fun merge (Ljava/lang/Object;Ljava/lang/Object;Ljava/util/function/BiFunction;)Ljava/lang/Object;
+	public final fun modify (Ldev/racci/terix/api/origins/states/State;Lkotlin/reflect/KProperty1;Lkotlin/jvm/functions/Function1;)Ldev/racci/terix/api/origins/origin/OriginValues$ImmutableStateMap;
+	public fun put (Ldev/racci/terix/api/origins/states/State;Ljava/lang/Object;)Ljava/lang/Object;
+	public synthetic fun put (Ljava/lang/Object;Ljava/lang/Object;)Ljava/lang/Object;
+	public fun putAll (Ljava/util/Map;)V
+	public fun putIfAbsent (Ldev/racci/terix/api/origins/states/State;Ljava/lang/Object;)Ljava/lang/Object;
+	public synthetic fun putIfAbsent (Ljava/lang/Object;Ljava/lang/Object;)Ljava/lang/Object;
+	public fun remove (Ljava/lang/Object;)Ljava/lang/Object;
+	public fun remove (Ljava/lang/Object;Ljava/lang/Object;)Z
+	public fun replace (Ldev/racci/terix/api/origins/states/State;Ljava/lang/Object;)Ljava/lang/Object;
+	public fun replace (Ldev/racci/terix/api/origins/states/State;Ljava/lang/Object;Ljava/lang/Object;)Z
+	public synthetic fun replace (Ljava/lang/Object;Ljava/lang/Object;)Ljava/lang/Object;
+	public synthetic fun replace (Ljava/lang/Object;Ljava/lang/Object;Ljava/lang/Object;)Z
+	public fun replaceAll (Ljava/util/function/BiFunction;)V
+	public final fun size ()I
+	public synthetic fun values ()Ljava/util/Collection;
+	public final fun values ()Lkotlinx/collections/immutable/ImmutableCollection;
+}
+
+public final class dev/racci/terix/api/origins/origin/OriginValues$StateData {
+	public final fun component1 ()Larrow/core/Option;
+	public final fun component2 ()Larrow/core/Option;
+	public final fun component3 ()Larrow/core/Option;
+	public final fun component4 ()Lkotlinx/collections/immutable/PersistentSet;
+	public final fun component5 ()Lkotlinx/collections/immutable/PersistentSet;
+	public final fun copy (Larrow/core/Option;Larrow/core/Option;Larrow/core/Option;Lkotlinx/collections/immutable/PersistentSet;Lkotlinx/collections/immutable/PersistentSet;)Ldev/racci/terix/api/origins/origin/OriginValues$StateData;
+	public static synthetic fun copy$default (Ldev/racci/terix/api/origins/origin/OriginValues$StateData;Larrow/core/Option;Larrow/core/Option;Larrow/core/Option;Lkotlinx/collections/immutable/PersistentSet;Lkotlinx/collections/immutable/PersistentSet;ILjava/lang/Object;)Ldev/racci/terix/api/origins/origin/OriginValues$StateData;
+	public fun equals (Ljava/lang/Object;)Z
+	public final fun getAction ()Larrow/core/Option;
+	public final fun getDamage ()Larrow/core/Option;
+	public final fun getModifiers ()Lkotlinx/collections/immutable/PersistentSet;
+	public final fun getPotions ()Lkotlinx/collections/immutable/PersistentSet;
+	public final fun getTitle ()Larrow/core/Option;
+	public fun hashCode ()I
+	public final fun isEmpty ()Z
+	public fun toString ()Ljava/lang/String;
+}
+
+public final class dev/racci/terix/api/origins/origin/builder/AbilityBuilderPart : dev/racci/terix/api/origins/origin/builder/BuilderPart {
+	public final fun build (Ldev/racci/terix/api/origins/origin/AbilityBuilder;)V
+	public fun insertInto (Ldev/racci/terix/api/origins/origin/OriginValues;Lkotlin/coroutines/Continuation;)Ljava/lang/Object;
+}
+
+public final class dev/racci/terix/api/origins/origin/builder/AttributeBuilderPart : dev/racci/terix/api/origins/origin/builder/BuilderPart {
+	public final fun divAssign (Lkotlin/Pair;D)V
+	public final fun divAssign (Lorg/bukkit/attribute/Attribute;D)V
+	public fun insertInto (Ldev/racci/terix/api/origins/origin/OriginValues;Lkotlin/coroutines/Continuation;)Ljava/lang/Object;
+	public final fun minusAssign (Lkotlin/Pair;Ljava/lang/Number;)V
+	public final fun minusAssign (Lorg/bukkit/attribute/Attribute;D)V
+	public final fun plusAssign (Lkotlin/Pair;Ljava/lang/Number;)V
+	public final fun plusAssign (Lorg/bukkit/attribute/Attribute;D)V
+	public final fun timesAssign (Lkotlin/Pair;D)V
+	public final fun timesAssign (Lorg/bukkit/attribute/Attribute;D)V
+}
+
+public final class dev/racci/terix/api/origins/origin/builder/AttributeBuilderPart$AttributeElement {
+	public final fun component1 ()Ldev/racci/terix/api/origins/states/State;
+	public final fun component2 ()D
+	public final fun component3 ()Lorg/bukkit/attribute/Attribute;
+	public final fun component4 ()Lorg/bukkit/attribute/AttributeModifier$Operation;
+	public final fun copy (Ldev/racci/terix/api/origins/states/State;DLorg/bukkit/attribute/Attribute;Lorg/bukkit/attribute/AttributeModifier$Operation;)Ldev/racci/terix/api/origins/origin/builder/AttributeBuilderPart$AttributeElement;
+	public static synthetic fun copy$default (Ldev/racci/terix/api/origins/origin/builder/AttributeBuilderPart$AttributeElement;Ldev/racci/terix/api/origins/states/State;DLorg/bukkit/attribute/Attribute;Lorg/bukkit/attribute/AttributeModifier$Operation;ILjava/lang/Object;)Ldev/racci/terix/api/origins/origin/builder/AttributeBuilderPart$AttributeElement;
+	public fun equals (Ljava/lang/Object;)Z
+	public final fun getAmount ()D
+	public final fun getAttribute ()Lorg/bukkit/attribute/Attribute;
+	public final fun getOperation ()Lorg/bukkit/attribute/AttributeModifier$Operation;
+	public final fun getState ()Ldev/racci/terix/api/origins/states/State;
+	public fun hashCode ()I
+	public final fun toBuilder (Ldev/racci/terix/api/origins/origin/OriginValues;)Ldev/racci/terix/api/dsl/AttributeModifierBuilder;
+	public fun toString ()Ljava/lang/String;
+}
+
+public final class dev/racci/terix/api/origins/origin/builder/BiomeBuilder : dev/racci/terix/api/origins/origin/builder/BuilderPart {
+	public fun insertInto (Ldev/racci/terix/api/origins/origin/OriginValues;Lkotlin/coroutines/Continuation;)Ljava/lang/Object;
+}
+
+public abstract class dev/racci/terix/api/origins/origin/builder/BuilderPart {
+	public final fun addElement (Ljava/lang/Object;)V
+	protected final fun getElements ()Ljava/util/List;
+	public abstract fun insertInto (Ldev/racci/terix/api/origins/origin/OriginValues;Lkotlin/coroutines/Continuation;)Ljava/lang/Object;
+}
+
+public final class dev/racci/terix/api/origins/origin/builder/DamageBuilderPart : dev/racci/terix/api/origins/origin/builder/BuilderPart {
+	public final fun divAssign (Ljava/util/Collection;D)V
+	public final fun divAssign (Lorg/bukkit/event/entity/EntityDamageEvent$DamageCause;D)V
+	public fun insertInto (Ldev/racci/terix/api/origins/origin/OriginValues;Lkotlin/coroutines/Continuation;)Ljava/lang/Object;
+	public final fun minusAssign (Ljava/util/Collection;D)V
+	public final fun minusAssign (Lorg/bukkit/event/entity/EntityDamageEvent$DamageCause;D)V
+	public final fun plusAssign (Ldev/racci/terix/api/origins/states/State;D)V
+	public final fun plusAssign (Ljava/util/Collection;D)V
+	public final fun plusAssign (Lorg/bukkit/event/entity/EntityDamageEvent$DamageCause;D)V
+	public final fun plusAssign (Lorg/bukkit/event/entity/EntityDamageEvent$DamageCause;Lkotlin/jvm/functions/Function2;)V
+	public final fun plusAssignEntityDamageEventDamageCause (Ljava/util/Collection;D)V
+	public final fun timesAssign (Ljava/util/Collection;D)V
+	public final fun timesAssign (Lorg/bukkit/event/entity/EntityDamageEvent$DamageCause;D)V
+}
+
+public final class dev/racci/terix/api/origins/origin/builder/DamageBuilderPart$DamageActionElement {
+	public final fun component1 ()Lorg/bukkit/event/entity/EntityDamageEvent$DamageCause;
+	public final fun component2 ()Lkotlin/jvm/functions/Function2;
+	public final fun copy (Lorg/bukkit/event/entity/EntityDamageEvent$DamageCause;Lkotlin/jvm/functions/Function2;)Ldev/racci/terix/api/origins/origin/builder/DamageBuilderPart$DamageActionElement;
+	public static synthetic fun copy$default (Ldev/racci/terix/api/origins/origin/builder/DamageBuilderPart$DamageActionElement;Lorg/bukkit/event/entity/EntityDamageEvent$DamageCause;Lkotlin/jvm/functions/Function2;ILjava/lang/Object;)Ldev/racci/terix/api/origins/origin/builder/DamageBuilderPart$DamageActionElement;
+	public fun equals (Ljava/lang/Object;)Z
+	public final fun getBlock ()Lkotlin/jvm/functions/Function2;
+	public final fun getCause ()Lorg/bukkit/event/entity/EntityDamageEvent$DamageCause;
+	public fun hashCode ()I
+	public fun toString ()Ljava/lang/String;
+}
+
+public final class dev/racci/terix/api/origins/origin/builder/DamageBuilderPart$DamageTickElement {
+	public final fun component1 ()Ldev/racci/terix/api/origins/states/State;
+	public final fun component2 ()D
+	public final fun copy (Ldev/racci/terix/api/origins/states/State;D)Ldev/racci/terix/api/origins/origin/builder/DamageBuilderPart$DamageTickElement;
+	public static synthetic fun copy$default (Ldev/racci/terix/api/origins/origin/builder/DamageBuilderPart$DamageTickElement;Ldev/racci/terix/api/origins/states/State;DILjava/lang/Object;)Ldev/racci/terix/api/origins/origin/builder/DamageBuilderPart$DamageTickElement;
+	public fun equals (Ljava/lang/Object;)Z
+	public final fun getDamage ()D
+	public final fun getState ()Ldev/racci/terix/api/origins/states/State;
+	public fun hashCode ()I
+	public fun toString ()Ljava/lang/String;
+}
+
+public final class dev/racci/terix/api/origins/origin/builder/FoodBuilderPart : dev/racci/terix/api/origins/origin/builder/BuilderPart {
+	public final fun actionModifierIterable (Ljava/lang/Iterable;Lkotlin/jvm/functions/Function2;)V
+	public final fun actionModifierMaterial (Lorg/bukkit/Material;Lkotlin/jvm/functions/Function2;)V
+	public final fun actionModifierMaterialIterable (Ljava/lang/Iterable;Lkotlin/jvm/functions/Function2;)V
+	public final fun actionModifierMaterialSetTag (Lcom/destroystokyo/paper/MaterialSetTag;Lkotlin/jvm/functions/Function2;)V
+	public final fun actionModifierMaterialSetTagIterable (Ljava/lang/Iterable;Lkotlin/jvm/functions/Function2;)V
+	public final fun actionModifierSingle (Lorg/bukkit/Material;Lkotlin/jvm/functions/Function2;)V
+	public final fun attributeModifierIterable (Ljava/lang/Iterable;Ldev/racci/terix/api/dsl/DSLMutator;)V
+	public final fun attributeModifierMaterial (Lorg/bukkit/Material;Ldev/racci/terix/api/dsl/DSLMutator;)V
+	public final fun attributeModifierMaterialIterable (Ljava/lang/Iterable;Ldev/racci/terix/api/dsl/DSLMutator;)V
+	public final fun attributeModifierMaterialSetTag (Lcom/destroystokyo/paper/MaterialSetTag;Ldev/racci/terix/api/dsl/DSLMutator;)V
+	public final fun attributeModifierMaterialSetTagIterable (Ljava/lang/Iterable;Ldev/racci/terix/api/dsl/DSLMutator;)V
+	public final fun attributeModifierSingle (Lorg/bukkit/Material;Ldev/racci/terix/api/dsl/DSLMutator;)V
+	public final fun divAssignMaterial (Lorg/bukkit/Material;Ljava/lang/Number;)V
+	public final fun divAssignMaterialIterable (Ljava/lang/Iterable;Ljava/lang/Number;)V
+	public final fun divAssignMaterialSetTag (Lcom/destroystokyo/paper/MaterialSetTag;Ljava/lang/Number;)V
+	public final fun divAssignMaterialSetTagIterable (Ljava/lang/Iterable;Ljava/lang/Number;)V
+	public final fun divModifierIterable (Ljava/lang/Iterable;Ljava/lang/Number;)V
+	public final fun divModifierSingle (Lorg/bukkit/Material;Ljava/lang/Number;)V
+	public final fun exchangeFoodProperties (Lorg/bukkit/Material;Lorg/bukkit/Material;)V
+	public final fun foodProperty (Ldev/racci/terix/api/data/ItemMatcher;Lkotlin/jvm/functions/Function1;)V
+	public fun insertInto (Ldev/racci/terix/api/origins/origin/OriginValues;Lkotlin/coroutines/Continuation;)Ljava/lang/Object;
+	public final fun modifyFoodIterable (Ljava/lang/Iterable;Ldev/racci/terix/api/dsl/DSLMutator;)V
+	public final fun modifyFoodSingle (Ldev/racci/terix/api/dsl/DSLMutator;Ldev/racci/terix/api/data/ItemMatcher;)V
+	public final fun modifyFoodSingle (Lorg/bukkit/Material;Ldev/racci/terix/api/dsl/DSLMutator;)V
+	public final fun plusAssignMaterial (Lorg/bukkit/Material;Ldev/racci/terix/api/dsl/DSLMutator;)V
+	public final fun plusAssignMaterialIterable (Ljava/lang/Iterable;Ldev/racci/terix/api/dsl/DSLMutator;)V
+	public final fun plusAssignMaterialSetTag (Lcom/destroystokyo/paper/MaterialSetTag;Ldev/racci/terix/api/dsl/DSLMutator;)V
+	public final fun plusAssignMaterialSetTagIterable (Ljava/lang/Iterable;Ldev/racci/terix/api/dsl/DSLMutator;)V
+	public final fun plusFoodIterable (Ljava/lang/Iterable;Ljava/lang/Number;)V
+	public final fun plusFoodSingle (Lorg/bukkit/Material;Ljava/lang/Number;)V
+	public final fun plusMaterialIterable (Ljava/lang/Iterable;Ljava/lang/Number;)V
+	public final fun plusMaterialSingle (Lorg/bukkit/Material;Ljava/lang/Number;)V
+	public final fun potionEffectIterable (Ljava/lang/Iterable;Ldev/racci/terix/api/dsl/DSLMutator;)V
+	public final fun potionEffectMaterial (Lorg/bukkit/Material;Ldev/racci/terix/api/dsl/DSLMutator;)V
+	public final fun potionEffectMaterialIterable (Ljava/lang/Iterable;Ldev/racci/terix/api/dsl/DSLMutator;)V
+	public final fun potionEffectMaterialSetTag (Lcom/destroystokyo/paper/MaterialSetTag;Ldev/racci/terix/api/dsl/DSLMutator;)V
+	public final fun potionEffectMaterialSetTagIterable (Ljava/lang/Iterable;Ldev/racci/terix/api/dsl/DSLMutator;)V
+	public final fun potionEffectSingle (Lorg/bukkit/Material;Ldev/racci/terix/api/dsl/DSLMutator;)V
+	public final fun timeModifierIterable (Ljava/lang/Iterable;Ljava/lang/Number;)V
+	public final fun timesAssignMaterial (Lorg/bukkit/Material;Ljava/lang/Number;)V
+	public final fun timesAssignMaterialIterable (Ljava/lang/Iterable;Ljava/lang/Number;)V
+	public final fun timesAssignMaterialSetTag (Lcom/destroystokyo/paper/MaterialSetTag;Ljava/lang/Number;)V
+	public final fun timesAssignMaterialSetTagIterable (Ljava/lang/Iterable;Ljava/lang/Number;)V
+	public final fun timesModifierSingle (Lorg/bukkit/Material;Ljava/lang/Number;)V
+}
+
+public final class dev/racci/terix/api/origins/origin/builder/FoodBuilderPart$FoodActionElement {
+	public final fun component1 ()Lorg/bukkit/Material;
+	public final fun component2 ()Larrow/core/Either;
+	public final fun copy (Lorg/bukkit/Material;Larrow/core/Either;)Ldev/racci/terix/api/origins/origin/builder/FoodBuilderPart$FoodActionElement;
+	public static synthetic fun copy$default (Ldev/racci/terix/api/origins/origin/builder/FoodBuilderPart$FoodActionElement;Lorg/bukkit/Material;Larrow/core/Either;ILjava/lang/Object;)Ldev/racci/terix/api/origins/origin/builder/FoodBuilderPart$FoodActionElement;
+	public fun equals (Ljava/lang/Object;)Z
+	public final fun getAction ()Larrow/core/Either;
+	public final fun getMaterial ()Lorg/bukkit/Material;
+	public fun hashCode ()I
+	public fun toString ()Ljava/lang/String;
+}
+
+public final class dev/racci/terix/api/origins/origin/builder/FoodBuilderPart$FoodPropertyElement {
+	public final fun component1 ()Larrow/core/Either;
+	public final fun component2 ()Ldev/racci/terix/api/dsl/DSLMutator;
+	public final fun copy (Larrow/core/Either;Ldev/racci/terix/api/dsl/DSLMutator;)Ldev/racci/terix/api/origins/origin/builder/FoodBuilderPart$FoodPropertyElement;
+	public static synthetic fun copy$default (Ldev/racci/terix/api/origins/origin/builder/FoodBuilderPart$FoodPropertyElement;Larrow/core/Either;Ldev/racci/terix/api/dsl/DSLMutator;ILjava/lang/Object;)Ldev/racci/terix/api/origins/origin/builder/FoodBuilderPart$FoodPropertyElement;
+	public fun equals (Ljava/lang/Object;)Z
+	public final fun getKey ()Larrow/core/Either;
+	public final fun getMutator ()Ldev/racci/terix/api/dsl/DSLMutator;
+	public fun hashCode ()I
+	public fun toString ()Ljava/lang/String;
+}
+
+public final class dev/racci/terix/api/origins/origin/builder/PotionBuilderPart : dev/racci/terix/api/origins/origin/builder/BuilderPart {
+	public fun insertInto (Ldev/racci/terix/api/origins/origin/OriginValues;Lkotlin/coroutines/Continuation;)Ljava/lang/Object;
+	public final fun plusAssign (Ldev/racci/terix/api/origins/states/State;Ldev/racci/terix/api/dsl/DSLMutator;)V
+	public final fun plusAssign (Ljava/util/Collection;Ldev/racci/terix/api/dsl/DSLMutator;)V
+}
+
+public final class dev/racci/terix/api/origins/origin/builder/PotionBuilderPart$PotionElement {
+	public final fun component1 ()Ldev/racci/terix/api/origins/states/State;
+	public final fun component2 ()Ldev/racci/terix/api/dsl/PotionEffectBuilder;
+	public final fun copy (Ldev/racci/terix/api/origins/states/State;Ldev/racci/terix/api/dsl/PotionEffectBuilder;)Ldev/racci/terix/api/origins/origin/builder/PotionBuilderPart$PotionElement;
+	public static synthetic fun copy$default (Ldev/racci/terix/api/origins/origin/builder/PotionBuilderPart$PotionElement;Ldev/racci/terix/api/origins/states/State;Ldev/racci/terix/api/dsl/PotionEffectBuilder;ILjava/lang/Object;)Ldev/racci/terix/api/origins/origin/builder/PotionBuilderPart$PotionElement;
+	public fun equals (Ljava/lang/Object;)Z
+	public final fun getBuilder ()Ldev/racci/terix/api/dsl/PotionEffectBuilder;
+	public final fun getState ()Ldev/racci/terix/api/origins/states/State;
+	public fun hashCode ()I
+	public fun toString ()Ljava/lang/String;
+}
+
+public final class dev/racci/terix/api/origins/origin/builder/TimeTitleBuilderPart : dev/racci/terix/api/origins/origin/builder/BuilderPart {
+	public fun insertInto (Ldev/racci/terix/api/origins/origin/OriginValues;Lkotlin/coroutines/Continuation;)Ljava/lang/Object;
+	public final fun plusAssign (Ldev/racci/terix/api/origins/states/State;Lkotlin/jvm/functions/Function1;)V
+}
+
+public final class dev/racci/terix/api/origins/origin/builder/TimeTitleBuilderPart$TimeTitleElement {
+	public final fun component1 ()Ldev/racci/terix/api/origins/states/State;
+	public final fun component2 ()Ldev/racci/terix/api/dsl/DSLMutator;
+	public final fun copy (Ldev/racci/terix/api/origins/states/State;Ldev/racci/terix/api/dsl/DSLMutator;)Ldev/racci/terix/api/origins/origin/builder/TimeTitleBuilderPart$TimeTitleElement;
+	public static synthetic fun copy$default (Ldev/racci/terix/api/origins/origin/builder/TimeTitleBuilderPart$TimeTitleElement;Ldev/racci/terix/api/origins/states/State;Ldev/racci/terix/api/dsl/DSLMutator;ILjava/lang/Object;)Ldev/racci/terix/api/origins/origin/builder/TimeTitleBuilderPart$TimeTitleElement;
+	public fun equals (Ljava/lang/Object;)Z
+	public final fun getBuilder ()Ldev/racci/terix/api/dsl/DSLMutator;
+	public final fun getState ()Ldev/racci/terix/api/origins/states/State;
+	public fun hashCode ()I
+	public fun toString ()Ljava/lang/String;
+}
+
+public final class dev/racci/terix/api/origins/sounds/SoundEffect {
+	public fun <init> (Ljava/lang/String;FFD)V
+	public synthetic fun <init> (Ljava/lang/String;FFDILkotlin/jvm/internal/DefaultConstructorMarker;)V
+	public fun <init> (Lnet/kyori/adventure/key/Key;FFD)V
+	public synthetic fun <init> (Lnet/kyori/adventure/key/Key;FFDILkotlin/jvm/internal/DefaultConstructorMarker;)V
+	public final fun component1 ()Lnet/kyori/adventure/key/Key;
+	public final fun component2 ()F
+	public final fun component3 ()F
+	public final fun component4 ()D
+	public final fun copy (Lnet/kyori/adventure/key/Key;FFD)Ldev/racci/terix/api/origins/sounds/SoundEffect;
+	public static synthetic fun copy$default (Ldev/racci/terix/api/origins/sounds/SoundEffect;Lnet/kyori/adventure/key/Key;FFDILjava/lang/Object;)Ldev/racci/terix/api/origins/sounds/SoundEffect;
+	public fun equals (Ljava/lang/Object;)Z
+	public final fun getDistance ()D
+	public final fun getPitch ()F
+	public final fun getResourceKey ()Lnet/kyori/adventure/key/Key;
+	public final fun getVolume ()F
+	public fun hashCode ()I
+	public fun toString ()Ljava/lang/String;
+}
+
+public final class dev/racci/terix/api/origins/sounds/SoundEffects {
+	public static final field Companion Ldev/racci/terix/api/origins/sounds/SoundEffects$Companion;
+	public fun <init> ()V
+	public fun <init> (Ldev/racci/terix/api/origins/sounds/SoundEffect;Ldev/racci/terix/api/origins/sounds/SoundEffect;Ldev/racci/terix/api/origins/sounds/SoundEffect;)V
+	public synthetic fun <init> (Ldev/racci/terix/api/origins/sounds/SoundEffect;Ldev/racci/terix/api/origins/sounds/SoundEffect;Ldev/racci/terix/api/origins/sounds/SoundEffect;ILkotlin/jvm/internal/DefaultConstructorMarker;)V
+	public final fun component1 ()Ldev/racci/terix/api/origins/sounds/SoundEffect;
+	public final fun component2 ()Ldev/racci/terix/api/origins/sounds/SoundEffect;
+	public final fun component3 ()Ldev/racci/terix/api/origins/sounds/SoundEffect;
+	public final fun copy (Ldev/racci/terix/api/origins/sounds/SoundEffect;Ldev/racci/terix/api/origins/sounds/SoundEffect;Ldev/racci/terix/api/origins/sounds/SoundEffect;)Ldev/racci/terix/api/origins/sounds/SoundEffects;
+	public static synthetic fun copy$default (Ldev/racci/terix/api/origins/sounds/SoundEffects;Ldev/racci/terix/api/origins/sounds/SoundEffect;Ldev/racci/terix/api/origins/sounds/SoundEffect;Ldev/racci/terix/api/origins/sounds/SoundEffect;ILjava/lang/Object;)Ldev/racci/terix/api/origins/sounds/SoundEffects;
+	public fun equals (Ljava/lang/Object;)Z
+	public final fun getAmbientSound ()Ldev/racci/terix/api/origins/sounds/SoundEffect;
+	public final fun getDeathSound ()Ldev/racci/terix/api/origins/sounds/SoundEffect;
+	public final fun getHurtSound ()Ldev/racci/terix/api/origins/sounds/SoundEffect;
+	public fun hashCode ()I
+	public final fun setAmbientSound (Ldev/racci/terix/api/origins/sounds/SoundEffect;)V
+	public final fun setDeathSound (Ldev/racci/terix/api/origins/sounds/SoundEffect;)V
+	public final fun setHurtSound (Ldev/racci/terix/api/origins/sounds/SoundEffect;)V
+	public fun toString ()Ljava/lang/String;
+}
+
+public final class dev/racci/terix/api/origins/sounds/SoundEffects$Companion {
+}
+
+public final class dev/racci/terix/api/origins/sounds/SoundEffectsKt {
+	public static final fun getAmbientSound (Larrow/optics/Fold;)Larrow/optics/Fold;
+	public static final fun getAmbientSound (Larrow/optics/PEvery;)Larrow/optics/PEvery;
+	public static final fun getAmbientSound (Larrow/optics/PIso;)Larrow/optics/POptional;
+	public static final fun getAmbientSound (Larrow/optics/PLens;)Larrow/optics/POptional;
+	public static final fun getAmbientSound (Larrow/optics/POptional;)Larrow/optics/POptional;
+	public static final fun getAmbientSound (Larrow/optics/PPrism;)Larrow/optics/POptional;
+	public static final fun getAmbientSound (Larrow/optics/PSetter;)Larrow/optics/PSetter;
+	public static final fun getAmbientSound (Larrow/optics/PTraversal;)Larrow/optics/PTraversal;
+	public static final fun getAmbientSound (Ldev/racci/terix/api/origins/sounds/SoundEffects$Companion;)Larrow/optics/POptional;
+	public static final fun getDeathSound (Larrow/optics/Fold;)Larrow/optics/Fold;
+	public static final fun getDeathSound (Larrow/optics/Getter;)Larrow/optics/Getter;
+	public static final fun getDeathSound (Larrow/optics/PEvery;)Larrow/optics/PEvery;
+	public static final fun getDeathSound (Larrow/optics/PIso;)Larrow/optics/PLens;
+	public static final fun getDeathSound (Larrow/optics/PLens;)Larrow/optics/PLens;
+	public static final fun getDeathSound (Larrow/optics/POptional;)Larrow/optics/POptional;
+	public static final fun getDeathSound (Larrow/optics/PPrism;)Larrow/optics/POptional;
+	public static final fun getDeathSound (Larrow/optics/PSetter;)Larrow/optics/PSetter;
+	public static final fun getDeathSound (Larrow/optics/PTraversal;)Larrow/optics/PTraversal;
+	public static final fun getDeathSound (Ldev/racci/terix/api/origins/sounds/SoundEffects$Companion;)Larrow/optics/PLens;
+	public static final fun getHurtSound (Larrow/optics/Fold;)Larrow/optics/Fold;
+	public static final fun getHurtSound (Larrow/optics/Getter;)Larrow/optics/Getter;
+	public static final fun getHurtSound (Larrow/optics/PEvery;)Larrow/optics/PEvery;
+	public static final fun getHurtSound (Larrow/optics/PIso;)Larrow/optics/PLens;
+	public static final fun getHurtSound (Larrow/optics/PLens;)Larrow/optics/PLens;
+	public static final fun getHurtSound (Larrow/optics/POptional;)Larrow/optics/POptional;
+	public static final fun getHurtSound (Larrow/optics/PPrism;)Larrow/optics/POptional;
+	public static final fun getHurtSound (Larrow/optics/PSetter;)Larrow/optics/PSetter;
+	public static final fun getHurtSound (Larrow/optics/PTraversal;)Larrow/optics/PTraversal;
+	public static final fun getHurtSound (Ldev/racci/terix/api/origins/sounds/SoundEffects$Companion;)Larrow/optics/PLens;
+	public static final fun getIso (Ldev/racci/terix/api/origins/sounds/SoundEffects$Companion;)Larrow/optics/PIso;
+	public static final fun getNullableAmbientSound (Larrow/optics/Fold;)Larrow/optics/Fold;
+	public static final fun getNullableAmbientSound (Larrow/optics/Getter;)Larrow/optics/Getter;
+	public static final fun getNullableAmbientSound (Larrow/optics/PEvery;)Larrow/optics/PEvery;
+	public static final fun getNullableAmbientSound (Larrow/optics/PIso;)Larrow/optics/PLens;
+	public static final fun getNullableAmbientSound (Larrow/optics/PLens;)Larrow/optics/PLens;
+	public static final fun getNullableAmbientSound (Larrow/optics/POptional;)Larrow/optics/POptional;
+	public static final fun getNullableAmbientSound (Larrow/optics/PPrism;)Larrow/optics/POptional;
+	public static final fun getNullableAmbientSound (Larrow/optics/PSetter;)Larrow/optics/PSetter;
+	public static final fun getNullableAmbientSound (Larrow/optics/PTraversal;)Larrow/optics/PTraversal;
+	public static final fun getNullableAmbientSound (Ldev/racci/terix/api/origins/sounds/SoundEffects$Companion;)Larrow/optics/PLens;
+}
+
+public abstract class dev/racci/terix/api/origins/states/SideEffect {
+	public fun getName ()Ljava/lang/String;
+}
+
+public final class dev/racci/terix/api/origins/states/SideEffect$DRY : dev/racci/terix/api/origins/states/SideEffect {
+	public static final field INSTANCE Ldev/racci/terix/api/origins/states/SideEffect$DRY;
+}
+
+public abstract class dev/racci/terix/api/origins/states/SideEffect$Temperature : dev/racci/terix/api/origins/states/SideEffect {
+}
+
+public final class dev/racci/terix/api/origins/states/SideEffect$Temperature$BURNING : dev/racci/terix/api/origins/states/SideEffect {
+	public static final field INSTANCE Ldev/racci/terix/api/origins/states/SideEffect$Temperature$BURNING;
+}
+
+public final class dev/racci/terix/api/origins/states/SideEffect$Temperature$COLD : dev/racci/terix/api/origins/states/SideEffect$Temperature {
+	public static final field INSTANCE Ldev/racci/terix/api/origins/states/SideEffect$Temperature$COLD;
+}
+
+public final class dev/racci/terix/api/origins/states/SideEffect$Temperature$FREEZING : dev/racci/terix/api/origins/states/SideEffect$Temperature {
+	public static final field INSTANCE Ldev/racci/terix/api/origins/states/SideEffect$Temperature$FREEZING;
+}
+
+public final class dev/racci/terix/api/origins/states/SideEffect$Temperature$HOT : dev/racci/terix/api/origins/states/SideEffect$Temperature {
+	public static final field INSTANCE Ldev/racci/terix/api/origins/states/SideEffect$Temperature$HOT;
+}
+
+public final class dev/racci/terix/api/origins/states/SideEffect$WET : dev/racci/terix/api/origins/states/SideEffect {
+	public static final field INSTANCE Ldev/racci/terix/api/origins/states/SideEffect$WET;
+}
+
+public abstract class dev/racci/terix/api/origins/states/State : dev/racci/minix/api/extensions/WithPlugin {
+	public static final field Companion Ldev/racci/terix/api/origins/states/State$Companion;
+	public fun activate (Lorg/bukkit/entity/Player;Ldev/racci/terix/api/origins/origin/Origin;Lkotlin/coroutines/Continuation;)Ljava/lang/Object;
+	public fun async (Lkotlin/jvm/functions/Function2;)Lkotlinx/coroutines/Job;
+	public fun completableAsync (Lkotlin/jvm/functions/Function1;)Ljava/util/concurrent/CompletableFuture;
+	public fun completableSync (Lkotlin/jvm/functions/Function1;)Ljava/util/concurrent/CompletableFuture;
+	public fun deactivate (Lorg/bukkit/entity/Player;Ldev/racci/terix/api/origins/origin/Origin;Lkotlin/coroutines/Continuation;)Ljava/lang/Object;
+	public fun deferredAsync (Lkotlin/jvm/functions/Function1;)Lkotlinx/coroutines/Deferred;
+	public fun deferredSync (Lkotlin/jvm/functions/Function1;)Lkotlinx/coroutines/Deferred;
+	public fun deleteProperty (Ljava/lang/String;)V
+	public final fun equals (Ljava/lang/Object;)Z
+	public fun exchange (Lorg/bukkit/entity/Player;Ldev/racci/terix/api/origins/origin/Origin;Ldev/racci/terix/api/origins/states/State;Lkotlin/coroutines/Continuation;)Ljava/lang/Object;
+	public fun getIncompatibleStates ()[Ldev/racci/terix/api/origins/states/State;
+	public fun getKoin ()Lorg/koin/core/Koin;
+	public fun getLogger ()Ldev/racci/minix/api/plugin/logger/MinixLogger;
+	public final fun getName ()Ljava/lang/String;
+	public synthetic fun getPlugin ()Ldev/racci/minix/api/plugin/MinixPlugin;
+	public final fun getPlugin ()Ldev/racci/terix/api/Terix;
+	public fun getProperty (Ljava/lang/String;)Ljava/lang/Object;
+	public fun getProperty (Ljava/lang/String;Ljava/lang/Object;)Ljava/lang/Object;
+	public fun getProvidesSideEffects ()[Ldev/racci/terix/api/origins/states/SideEffect;
+	public final fun hashCode ()I
+	public fun launch (Lkotlin/coroutines/CoroutineContext;Lkotlin/jvm/functions/Function2;)Lkotlinx/coroutines/Job;
+	public fun registerEvents ([Lorg/bukkit/event/Listener;)V
+	public fun setProperty (Ljava/lang/String;Ljava/lang/Object;)Ljava/lang/Object;
+	public fun sync (Lkotlin/jvm/functions/Function2;)Lkotlinx/coroutines/Job;
+	public final fun toString ()Ljava/lang/String;
+}
+
+public abstract class dev/racci/terix/api/origins/states/State$BiomeState : dev/racci/terix/api/origins/states/State$StatedSource {
+	public static final field Companion Ldev/racci/terix/api/origins/states/State$BiomeState$Companion;
+	public fun get (Lorg/bukkit/entity/Player;)Z
+}
+
+public final class dev/racci/terix/api/origins/states/State$BiomeState$COLD : dev/racci/terix/api/origins/states/State$BiomeState {
+	public static final field INSTANCE Ldev/racci/terix/api/origins/states/State$BiomeState$COLD;
+	public synthetic fun get (Ljava/lang/Object;)Z
+	public fun get (Lorg/bukkit/Location;)Z
+	public fun getIncompatibleStates ()[Ldev/racci/terix/api/origins/states/State;
+	public fun getProvidesSideEffects ()[Ldev/racci/terix/api/origins/states/SideEffect;
+}
+
+public final class dev/racci/terix/api/origins/states/State$BiomeState$Companion {
+	public final fun getBiomeState (Lorg/bukkit/Location;)Ldev/racci/terix/api/origins/states/State$BiomeState;
+}
+
+public final class dev/racci/terix/api/origins/states/State$BiomeState$STD : dev/racci/terix/api/origins/states/State$BiomeState {
+	public static final field INSTANCE Ldev/racci/terix/api/origins/states/State$BiomeState$STD;
+	public synthetic fun get (Ljava/lang/Object;)Z
+	public fun get (Lorg/bukkit/Location;)Z
+}
+
+public final class dev/racci/terix/api/origins/states/State$BiomeState$WARM : dev/racci/terix/api/origins/states/State$BiomeState {
+	public static final field INSTANCE Ldev/racci/terix/api/origins/states/State$BiomeState$WARM;
+	public synthetic fun get (Ljava/lang/Object;)Z
+	public fun get (Lorg/bukkit/Location;)Z
+	public fun getIncompatibleStates ()[Ldev/racci/terix/api/origins/states/State;
+	public fun getProvidesSideEffects ()[Ldev/racci/terix/api/origins/states/SideEffect;
+}
+
+public final class dev/racci/terix/api/origins/states/State$CONSTANT : dev/racci/terix/api/origins/states/State$StatedSource {
+	public static final field INSTANCE Ldev/racci/terix/api/origins/states/State$CONSTANT;
+	public synthetic fun get (Ljava/lang/Object;)Z
+	public fun get (Ljava/lang/Void;)Z
+	public fun get (Lorg/bukkit/entity/Player;)Z
+}
+
+public final class dev/racci/terix/api/origins/states/State$Companion : org/koin/core/component/KoinComponent {
+	public final fun get (Lorg/bukkit/entity/Player;)Lkotlinx/collections/immutable/PersistentSet;
+	public fun getKoin ()Lorg/koin/core/Koin;
+	public final fun getValues ()[Ldev/racci/terix/api/origins/states/State;
+	public final fun valueOf (Ljava/lang/String;)Ldev/racci/terix/api/origins/states/State;
+}
+
+public abstract class dev/racci/terix/api/origins/states/State$DualState : dev/racci/terix/api/origins/states/State$StatedSource {
+	public abstract fun getOpposite ()Ldev/racci/terix/api/origins/states/State$DualState;
+}
+
+public abstract class dev/racci/terix/api/origins/states/State$LightState : dev/racci/terix/api/origins/states/State$DualState {
+	public static final field Companion Ldev/racci/terix/api/origins/states/State$LightState$Companion;
+	public synthetic fun get (Ljava/lang/Object;)Z
+	public fun get (Ljava/lang/Void;)Z
+}
+
+public final class dev/racci/terix/api/origins/states/State$LightState$Companion {
+	public final fun getLightState (Lorg/bukkit/entity/Player;)Ldev/racci/terix/api/origins/states/State$LightState;
+}
+
+public final class dev/racci/terix/api/origins/states/State$LightState$DARKNESS : dev/racci/terix/api/origins/states/State$LightState {
+	public static final field INSTANCE Ldev/racci/terix/api/origins/states/State$LightState$DARKNESS;
+	public fun get (Lorg/bukkit/entity/Player;)Z
+	public fun getIncompatibleStates ()[Ldev/racci/terix/api/origins/states/State;
+	public synthetic fun getOpposite ()Ldev/racci/terix/api/origins/states/State$DualState;
+	public fun getOpposite ()Ldev/racci/terix/api/origins/states/State$LightState;
+}
+
+public final class dev/racci/terix/api/origins/states/State$LightState$SUNLIGHT : dev/racci/terix/api/origins/states/State$LightState {
+	public static final field INSTANCE Ldev/racci/terix/api/origins/states/State$LightState$SUNLIGHT;
+	public fun get (Lorg/bukkit/entity/Player;)Z
+	public fun getIncompatibleStates ()[Ldev/racci/terix/api/origins/states/State;
+	public synthetic fun getOpposite ()Ldev/racci/terix/api/origins/states/State$DualState;
+	public fun getOpposite ()Ldev/racci/terix/api/origins/states/State$LightState;
+}
+
+public abstract class dev/racci/terix/api/origins/states/State$LiquidState : dev/racci/terix/api/origins/states/State$StatedSource {
+	public static final field Companion Ldev/racci/terix/api/origins/states/State$LiquidState$Companion;
+	public fun get (Lorg/bukkit/entity/Player;)Z
+}
+
+public final class dev/racci/terix/api/origins/states/State$LiquidState$Companion {
+	public final fun getLiquidState (Ldev/racci/minix/api/data/enums/LiquidType;)Ldev/racci/terix/api/origins/states/State$LiquidState;
+	public final fun getLiquidState (Lorg/bukkit/block/Block;)Ldev/racci/terix/api/origins/states/State$LiquidState;
+}
+
+public final class dev/racci/terix/api/origins/states/State$LiquidState$LAND : dev/racci/terix/api/origins/states/State$LiquidState {
+	public static final field INSTANCE Ldev/racci/terix/api/origins/states/State$LiquidState$LAND;
+	public synthetic fun get (Ljava/lang/Object;)Z
+	public fun get (Lorg/bukkit/block/Block;)Z
+	public fun getIncompatibleStates ()[Ldev/racci/terix/api/origins/states/State;
+}
+
+public final class dev/racci/terix/api/origins/states/State$LiquidState$LAVA : dev/racci/terix/api/origins/states/State$LiquidState {
+	public static final field INSTANCE Ldev/racci/terix/api/origins/states/State$LiquidState$LAVA;
+	public synthetic fun get (Ljava/lang/Object;)Z
+	public fun get (Lorg/bukkit/block/Block;)Z
+	public fun getIncompatibleStates ()[Ldev/racci/terix/api/origins/states/State;
+	public fun getProvidesSideEffects ()[Ldev/racci/terix/api/origins/states/SideEffect;
+}
+
+public final class dev/racci/terix/api/origins/states/State$LiquidState$WATER : dev/racci/terix/api/origins/states/State$LiquidState {
+	public static final field INSTANCE Ldev/racci/terix/api/origins/states/State$LiquidState$WATER;
+	public synthetic fun get (Ljava/lang/Object;)Z
+	public fun get (Lorg/bukkit/block/Block;)Z
+	public fun getIncompatibleStates ()[Ldev/racci/terix/api/origins/states/State;
+	public fun getProvidesSideEffects ()[Ldev/racci/terix/api/origins/states/SideEffect;
+}
+
+public abstract class dev/racci/terix/api/origins/states/State$StatedSource : dev/racci/terix/api/origins/states/State, dev/racci/terix/api/origins/states/StateSource {
+	public fun get (Lorg/bukkit/entity/Player;)Z
+}
+
+public abstract class dev/racci/terix/api/origins/states/State$TimeState : dev/racci/terix/api/origins/states/State$DualState {
+	public static final field Companion Ldev/racci/terix/api/origins/states/State$TimeState$Companion;
+	public fun get (Lorg/bukkit/entity/Player;)Z
+}
+
+public final class dev/racci/terix/api/origins/states/State$TimeState$Companion {
+	public final fun getTimeState (Lorg/bukkit/World;)Ldev/racci/terix/api/origins/states/State$TimeState;
+}
+
+public final class dev/racci/terix/api/origins/states/State$TimeState$DAY : dev/racci/terix/api/origins/states/State$TimeState {
+	public static final field INSTANCE Ldev/racci/terix/api/origins/states/State$TimeState$DAY;
+	public synthetic fun get (Ljava/lang/Object;)Z
+	public fun get (Lorg/bukkit/World;)Z
+	public fun getIncompatibleStates ()[Ldev/racci/terix/api/origins/states/State;
+	public fun getOpposite ()Ldev/racci/terix/api/origins/states/State$DualState;
+}
+
+public final class dev/racci/terix/api/origins/states/State$TimeState$NIGHT : dev/racci/terix/api/origins/states/State$TimeState {
+	public static final field INSTANCE Ldev/racci/terix/api/origins/states/State$TimeState$NIGHT;
+	public synthetic fun get (Ljava/lang/Object;)Z
+	public fun get (Lorg/bukkit/World;)Z
+	public fun getIncompatibleStates ()[Ldev/racci/terix/api/origins/states/State;
+	public fun getOpposite ()Ldev/racci/terix/api/origins/states/State$DualState;
+}
+
+public abstract class dev/racci/terix/api/origins/states/State$WeatherState : dev/racci/terix/api/origins/states/State$StatedSource {
+	public static final field Companion Ldev/racci/terix/api/origins/states/State$WeatherState$Companion;
+	public fun get (Lorg/bukkit/entity/Player;)Z
+}
+
+public final class dev/racci/terix/api/origins/states/State$WeatherState$Companion {
+	public final fun getWeatherState (Lorg/bukkit/Location;)Ldev/racci/terix/api/origins/states/State$WeatherState;
+}
+
+public final class dev/racci/terix/api/origins/states/State$WeatherState$RAIN : dev/racci/terix/api/origins/states/State$WeatherState {
+	public static final field INSTANCE Ldev/racci/terix/api/origins/states/State$WeatherState$RAIN;
+	public synthetic fun get (Ljava/lang/Object;)Z
+	public fun get (Lorg/bukkit/Location;)Z
+	public fun getIncompatibleStates ()[Ldev/racci/terix/api/origins/states/State;
+	public fun getProvidesSideEffects ()[Ldev/racci/terix/api/origins/states/SideEffect;
+}
+
+public final class dev/racci/terix/api/origins/states/State$WeatherState$SNOW : dev/racci/terix/api/origins/states/State$WeatherState {
+	public static final field INSTANCE Ldev/racci/terix/api/origins/states/State$WeatherState$SNOW;
+	public synthetic fun get (Ljava/lang/Object;)Z
+	public fun get (Lorg/bukkit/Location;)Z
+	public fun getIncompatibleStates ()[Ldev/racci/terix/api/origins/states/State;
+	public fun getProvidesSideEffects ()[Ldev/racci/terix/api/origins/states/SideEffect;
+}
+
+public abstract class dev/racci/terix/api/origins/states/State$WorldState : dev/racci/terix/api/origins/states/State$StatedSource {
+	public static final field Companion Ldev/racci/terix/api/origins/states/State$WorldState$Companion;
+	public fun get (Lorg/bukkit/entity/Player;)Z
+}
+
+public final class dev/racci/terix/api/origins/states/State$WorldState$Companion {
+	public final fun getEnvironmentState (Lorg/bukkit/World$Environment;)Ldev/racci/terix/api/origins/states/State$WorldState;
+}
+
+public final class dev/racci/terix/api/origins/states/State$WorldState$END : dev/racci/terix/api/origins/states/State$WorldState {
+	public static final field INSTANCE Ldev/racci/terix/api/origins/states/State$WorldState$END;
+	public synthetic fun get (Ljava/lang/Object;)Z
+	public fun get (Lorg/bukkit/World$Environment;)Z
+	public fun getIncompatibleStates ()[Ldev/racci/terix/api/origins/states/State;
+}
+
+public final class dev/racci/terix/api/origins/states/State$WorldState$NETHER : dev/racci/terix/api/origins/states/State$WorldState {
+	public static final field INSTANCE Ldev/racci/terix/api/origins/states/State$WorldState$NETHER;
+	public synthetic fun get (Ljava/lang/Object;)Z
+	public fun get (Lorg/bukkit/World$Environment;)Z
+	public fun getIncompatibleStates ()[Ldev/racci/terix/api/origins/states/State;
+}
+
+public final class dev/racci/terix/api/origins/states/State$WorldState$OVERWORLD : dev/racci/terix/api/origins/states/State$WorldState {
+	public static final field INSTANCE Ldev/racci/terix/api/origins/states/State$WorldState$OVERWORLD;
+	public synthetic fun get (Ljava/lang/Object;)Z
+	public fun get (Lorg/bukkit/World$Environment;)Z
+	public fun getIncompatibleStates ()[Ldev/racci/terix/api/origins/states/State;
+}
+
+public abstract interface class dev/racci/terix/api/origins/states/StateSource {
+	public abstract fun get (Ljava/lang/Object;)Z
+	public abstract fun get (Lorg/bukkit/entity/Player;)Z
+}
+
+public final class dev/racci/terix/api/origins/states/StateSource$DefaultImpls {
+	public static fun get (Ldev/racci/terix/api/origins/states/StateSource;Lorg/bukkit/entity/Player;)Z
+}
+
+public abstract interface class dev/racci/terix/api/services/StorageService : dev/racci/minix/api/services/StorageService {
+	public static final field Companion Ldev/racci/terix/api/services/StorageService$Companion;
+}
+
+public final class dev/racci/terix/api/services/StorageService$Companion {
+	public final fun transaction (Lkotlin/jvm/functions/Function1;)Ljava/lang/Object;
+}
+
+public final class dev/racci/terix/api/services/StorageService$DefaultImpls {
+	public static fun async (Ldev/racci/terix/api/services/StorageService;Lkotlin/jvm/functions/Function2;)Lkotlinx/coroutines/Job;
+	public static fun completableAsync (Ldev/racci/terix/api/services/StorageService;Lkotlin/jvm/functions/Function1;)Ljava/util/concurrent/CompletableFuture;
+	public static fun completableSync (Ldev/racci/terix/api/services/StorageService;Lkotlin/jvm/functions/Function1;)Ljava/util/concurrent/CompletableFuture;
+	public static fun deferredAsync (Ldev/racci/terix/api/services/StorageService;Lkotlin/jvm/functions/Function1;)Lkotlinx/coroutines/Deferred;
+	public static fun deferredSync (Ldev/racci/terix/api/services/StorageService;Lkotlin/jvm/functions/Function1;)Lkotlinx/coroutines/Deferred;
+	public static fun deleteProperty (Ldev/racci/terix/api/services/StorageService;Ljava/lang/String;)V
+	public static fun getDataSourceProperties (Ldev/racci/terix/api/services/StorageService;)Ljava/util/Map;
+	public static fun getDatabase (Ldev/racci/terix/api/services/StorageService;Lkotlin/coroutines/Continuation;)Ljava/lang/Object;
+	public static fun getKoin (Ldev/racci/terix/api/services/StorageService;)Lorg/koin/core/Koin;
+	public static fun getLogger (Ldev/racci/terix/api/services/StorageService;)Ldev/racci/minix/api/plugin/logger/MinixLogger;
+	public static fun getProperty (Ldev/racci/terix/api/services/StorageService;Ljava/lang/String;)Ljava/lang/Object;
+	public static fun getProperty (Ldev/racci/terix/api/services/StorageService;Ljava/lang/String;Ljava/lang/Object;)Ljava/lang/Object;
+	public static fun getStorageDirectory (Ldev/racci/terix/api/services/StorageService;)Ljava/nio/file/Path;
+	public static fun handleDisable (Ldev/racci/terix/api/services/StorageService;Lkotlin/coroutines/Continuation;)Ljava/lang/Object;
+	public static fun handleEnable (Ldev/racci/terix/api/services/StorageService;Lkotlin/coroutines/Continuation;)Ljava/lang/Object;
+	public static fun handleLoad (Ldev/racci/terix/api/services/StorageService;Lkotlin/coroutines/Continuation;)Ljava/lang/Object;
+	public static fun handleUnload (Ldev/racci/terix/api/services/StorageService;Lkotlin/coroutines/Continuation;)Ljava/lang/Object;
+	public static fun launch (Ldev/racci/terix/api/services/StorageService;Lkotlin/coroutines/CoroutineContext;Lkotlin/jvm/functions/Function2;)Lkotlinx/coroutines/Job;
+	public static fun registerEvents (Ldev/racci/terix/api/services/StorageService;[Lorg/bukkit/event/Listener;)V
+	public static fun setProperty (Ldev/racci/terix/api/services/StorageService;Ljava/lang/String;Ljava/lang/Object;)Ljava/lang/Object;
+	public static fun sync (Ldev/racci/terix/api/services/StorageService;Lkotlin/jvm/functions/Function2;)Lkotlinx/coroutines/Job;
+	public static fun withDatabase (Ldev/racci/terix/api/services/StorageService;Lkotlin/jvm/functions/Function2;Lkotlin/coroutines/Continuation;)Ljava/lang/Object;
+	public static fun withDatabaseAsync (Ldev/racci/terix/api/services/StorageService;Lkotlin/jvm/functions/Function2;Lkotlin/coroutines/Continuation;)Ljava/lang/Object;
+}
+
+public abstract interface class dev/racci/terix/api/services/TickService : dev/racci/minix/api/extensions/WithPlugin {
+	public static final field Companion Ldev/racci/terix/api/services/TickService$Companion;
+	public static final field TICK_RATE I
+	public abstract fun filteredPlayer (Lorg/bukkit/entity/Player;)Lkotlinx/coroutines/flow/Flow;
+	public abstract fun getPlayerFlow ()Lkotlinx/coroutines/flow/Flow;
+	public abstract fun getThreadContext ()Lkotlinx/coroutines/CoroutineDispatcher;
+}
+
+public final class dev/racci/terix/api/services/TickService$Companion : dev/racci/terix/api/services/TickService {
+	public static final field TICK_RATE I
+	public fun async (Lkotlin/jvm/functions/Function2;)Lkotlinx/coroutines/Job;
+	public fun completableAsync (Lkotlin/jvm/functions/Function1;)Ljava/util/concurrent/CompletableFuture;
+	public fun completableSync (Lkotlin/jvm/functions/Function1;)Ljava/util/concurrent/CompletableFuture;
+	public fun deferredAsync (Lkotlin/jvm/functions/Function1;)Lkotlinx/coroutines/Deferred;
+	public fun deferredSync (Lkotlin/jvm/functions/Function1;)Lkotlinx/coroutines/Deferred;
+	public fun deleteProperty (Ljava/lang/String;)V
+	public fun filteredPlayer (Lorg/bukkit/entity/Player;)Lkotlinx/coroutines/flow/Flow;
+	public fun getKoin ()Lorg/koin/core/Koin;
+	public fun getLogger ()Ldev/racci/minix/api/plugin/logger/MinixLogger;
+	public fun getPlayerFlow ()Lkotlinx/coroutines/flow/Flow;
+	public synthetic fun getPlugin ()Ldev/racci/minix/api/plugin/MinixPlugin;
+	public fun getPlugin ()Ldev/racci/terix/api/Terix;
+	public fun getProperty (Ljava/lang/String;)Ljava/lang/Object;
+	public fun getProperty (Ljava/lang/String;Ljava/lang/Object;)Ljava/lang/Object;
+	public fun getThreadContext ()Lkotlinx/coroutines/CoroutineDispatcher;
+	public fun launch (Lkotlin/coroutines/CoroutineContext;Lkotlin/jvm/functions/Function2;)Lkotlinx/coroutines/Job;
+	public fun registerEvents ([Lorg/bukkit/event/Listener;)V
+	public fun setProperty (Ljava/lang/String;Ljava/lang/Object;)Ljava/lang/Object;
+	public fun sync (Lkotlin/jvm/functions/Function2;)Lkotlinx/coroutines/Job;
+}
+
+public final class dev/racci/terix/api/services/TickService$DefaultImpls {
+	public static fun async (Ldev/racci/terix/api/services/TickService;Lkotlin/jvm/functions/Function2;)Lkotlinx/coroutines/Job;
+	public static fun completableAsync (Ldev/racci/terix/api/services/TickService;Lkotlin/jvm/functions/Function1;)Ljava/util/concurrent/CompletableFuture;
+	public static fun completableSync (Ldev/racci/terix/api/services/TickService;Lkotlin/jvm/functions/Function1;)Ljava/util/concurrent/CompletableFuture;
+	public static fun deferredAsync (Ldev/racci/terix/api/services/TickService;Lkotlin/jvm/functions/Function1;)Lkotlinx/coroutines/Deferred;
+	public static fun deferredSync (Ldev/racci/terix/api/services/TickService;Lkotlin/jvm/functions/Function1;)Lkotlinx/coroutines/Deferred;
+	public static fun deleteProperty (Ldev/racci/terix/api/services/TickService;Ljava/lang/String;)V
+	public static fun getKoin (Ldev/racci/terix/api/services/TickService;)Lorg/koin/core/Koin;
+	public static fun getLogger (Ldev/racci/terix/api/services/TickService;)Ldev/racci/minix/api/plugin/logger/MinixLogger;
+	public static fun getProperty (Ldev/racci/terix/api/services/TickService;Ljava/lang/String;)Ljava/lang/Object;
+	public static fun getProperty (Ldev/racci/terix/api/services/TickService;Ljava/lang/String;Ljava/lang/Object;)Ljava/lang/Object;
+	public static fun launch (Ldev/racci/terix/api/services/TickService;Lkotlin/coroutines/CoroutineContext;Lkotlin/jvm/functions/Function2;)Lkotlinx/coroutines/Job;
+	public static fun registerEvents (Ldev/racci/terix/api/services/TickService;[Lorg/bukkit/event/Listener;)V
+	public static fun setProperty (Ldev/racci/terix/api/services/TickService;Ljava/lang/String;Ljava/lang/Object;)Ljava/lang/Object;
+	public static fun sync (Ldev/racci/terix/api/services/TickService;Lkotlin/jvm/functions/Function2;)Lkotlinx/coroutines/Job;
+}
+

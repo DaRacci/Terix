@@ -1,7 +1,10 @@
 import com.google.devtools.ksp.gradle.KspGradleSubplugin
+import kotlinx.validation.KotlinApiBuildTask
 import net.minecrell.pluginyml.bukkit.BukkitPluginDescription.Permission.Default
 import net.minecrell.pluginyml.bukkit.BukkitPluginDescription.PluginLoadOrder
 import org.jetbrains.dokka.gradle.DokkaPlugin
+import org.jlleitschuh.gradle.ktlint.KtlintExtension
+import org.jlleitschuh.gradle.ktlint.KtlintPlugin
 import java.net.URL
 
 // Workaround for (https://youtrack.jetbrains.com/issue/KTIJ-19369)
@@ -15,9 +18,14 @@ plugins {
     alias(libs.plugins.minecraft.pluginYML)
     alias(libs.plugins.dokka)
 
-    alias(libs.plugins.kotlin.atomicfu) apply false
+    alias(libs.plugins.kotlin.binaryValidator)
     alias(libs.plugins.slimjar)
-    id("com.google.devtools.ksp") version "1.7.21-1.0.8"
+    alias(libs.plugins.ksp)
+}
+
+apiValidation {
+    ignoredPackages += "Terix-Core"
+    ignoredPackages.add("dev.racci.terix.core")
 }
 
 bukkit {
@@ -195,20 +203,33 @@ tasks {
     }
 }
 
+fun Project.emptySources() = project.sourceSets.none { set -> set.allSource.any { file -> file.extension == "kt" } }
+
 allprojects {
+    if (!project.emptySources()) {
+        apply<KtlintPlugin>()
+
+        configure<KtlintExtension> {
+            this.baseline.set(file("$rootDir/config/ktlint/baseline-${project.name.toLowerCase()}.xml"))
+        }
+
+        tasks.withType<KotlinApiBuildTask> {
+            // For some reason this task likes to delete the entire folder contents,
+            // So we need all projects to have their own sub folder.
+            this.outputApiDir = file("$rootDir/config/api/${project.name.toLowerCase()}")
+        }
+    } else {
+        tasks {
+            apiDump.get().enabled = false
+            apiCheck.get().enabled = false
+        }
+    }
+
     repositories {
         maven("https://nexus.frengor.com/repository/public/")
     }
 
     dependencies {
         compileOnly(rootProject.libs.arrow.optics)
-    }
-
-    tasks.compileKotlin {
-        this.kotlinOptions.useK2 = false
-    }
-
-    tasks.ktlintGenerateBaseline {
-        this.baselineFile.set(File("$rootDir/config/ktlint/${project.name}-baseline.xml"))
     }
 }

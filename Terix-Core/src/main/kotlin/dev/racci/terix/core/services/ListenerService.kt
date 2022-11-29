@@ -411,4 +411,6 @@ public class ListenerService(override val plugin: Terix) : Extension<Terix>() {
     private fun <T> Flow<T>.subscribe(action: suspend (T) -> Unit) {
         this.onEach(action).launchIn(CoroutineScope(supervisor.newCoroutineContext(dispatcher.get())))
     }
+
+    public companion object : ExtensionCompanion<ListenerService>()
 }
