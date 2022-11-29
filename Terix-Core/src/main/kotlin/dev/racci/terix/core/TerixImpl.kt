@@ -4,7 +4,7 @@ import dev.racci.minix.api.annotations.MappedPlugin
 import dev.racci.minix.api.extensions.onlinePlayers
 import dev.racci.terix.api.Terix
 import dev.racci.terix.api.data.player.TerixPlayer
-import dev.racci.terix.api.origins.states.State
+import dev.racci.terix.api.origins.OriginHelper
 import dev.racci.terix.core.integrations.TempPlaceholderExpansion
 import org.incendo.interfaces.paper.PaperInterfaceListeners
 import xyz.xenondevs.particle.utils.ReflectionUtils
@@ -21,8 +21,6 @@ public class TerixImpl : Terix() {
     }
 
     override suspend fun handleDisable() {
-        onlinePlayers.map(TerixPlayer::get)
-            .associateWith(State::get)
-            .forEach { (player, state) -> state.forEach { it.deactivate(player.backingPlayer, player.origin) } }
+        onlinePlayers.map(TerixPlayer::get).forEach { player -> OriginHelper.deactivateOrigin(player) }
     }
 }

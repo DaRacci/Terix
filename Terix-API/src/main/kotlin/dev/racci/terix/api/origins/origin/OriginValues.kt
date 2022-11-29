@@ -128,7 +128,7 @@ public sealed class OriginValues : WithPlugin<MinixPlugin> {
             cache.put(player, holder)
         }
 
-        internal suspend fun close(player: Player) {
+        public suspend fun close(player: Player) {
             cache.getIfPresent(player)?.close()
         }
 
