@@ -217,7 +217,6 @@ allprojects {
             // So we need all projects to have their own sub folder.
             val apiDir = file("$rootDir/config/api/${project.name.toLowerCase()}")
             apiDump { destinationDir = apiDir }
-            apiBuild { outputApiDir = apiDir }
             apiCheck { projectApiDir = apiDir }
         }
     } else {
