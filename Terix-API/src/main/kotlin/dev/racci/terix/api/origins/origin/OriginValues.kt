@@ -129,7 +129,7 @@ public sealed class OriginValues : WithPlugin<MinixPlugin> {
         }
 
         public suspend fun close(player: Player) {
-            cache.getIfPresent(player)?.close()
+            cache.invalidate(player)
         }
 
         private suspend operator fun invoke(player: Player): PlayerAbilityHolder {
