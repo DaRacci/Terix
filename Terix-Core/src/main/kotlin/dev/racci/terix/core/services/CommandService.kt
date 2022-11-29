@@ -279,7 +279,7 @@ public class CommandService(override val plugin: Terix) : Extension<Terix>() {
         sender: CommandSender,
         target: Player? = sender as? Player
     ) {
-        val origin = (target)?.let { TerixPlayer.cachedOrigin(it) } ?: run {
+        val origin = (target)?.let { TerixPlayer[it].origin } ?: run {
             return lang.generic.error[
                 "message" to { "This command must have a target or be sent by a Player." }
             ] message sender
@@ -296,7 +296,7 @@ public class CommandService(override val plugin: Terix) : Extension<Terix>() {
         target: Player,
         origin: Origin
     ) {
-        val currentOrigin = TerixPlayer.cachedOrigin(target)
+        val currentOrigin = TerixPlayer[target].origin
 
         if (origin == currentOrigin) {
             return lang.origin[getTargetedPath("set.same", sender, target)][
@@ -310,7 +310,7 @@ public class CommandService(override val plugin: Terix) : Extension<Terix>() {
             "player" to { target.displayName() }
         ] message sender
 
-        val event = PlayerOriginChangeEvent(target, currentOrigin, origin, true, skipRequirement = true)
+        val event = PlayerOriginChangeEvent(TerixPlayer[target], currentOrigin, origin, true, skipRequirement = true)
         event.callEvent()
         if (event.result != PlayerOriginChangeEvent.Result.SUCCESS) {
             lang.origin.cancelledCommand["reason" to { event.result.name }] message sender

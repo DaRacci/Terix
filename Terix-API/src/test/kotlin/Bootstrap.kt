@@ -117,8 +117,8 @@ object Bootstrap {
         every { TerixUser.lastChosenTime } returns mockk()
         every { TerixUser.freeChanges } returns mockk()
 
-        every { TerixPlayer.cachedOrigin(mockPlayer) } returns mockOrigin
-        every { TerixPlayer.Companion.cachedOrigin(allAny()) } returns mockOrigin
+        every { TerixPlayer[mockPlayer].origin } returns mockOrigin
+        every { TerixPlayer[allAny<Player>()].origin } returns mockOrigin
     }
 
     private fun startKoin(): KoinApplication {

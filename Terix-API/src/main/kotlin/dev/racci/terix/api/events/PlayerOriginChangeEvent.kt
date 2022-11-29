@@ -2,8 +2,8 @@ package dev.racci.terix.api.events
 
 import dev.racci.minix.api.events.CompanionEventHandler
 import dev.racci.minix.api.events.player.KPlayerEvent
+import dev.racci.terix.api.data.player.TerixPlayer
 import dev.racci.terix.api.origins.origin.Origin
-import org.bukkit.entity.Player
 import org.bukkit.event.HandlerList
 
 /**
@@ -18,7 +18,7 @@ import org.bukkit.event.HandlerList
  * @property skipRequirement If the origins' requirement check is skipped.
  */
 public class PlayerOriginChangeEvent(
-    player: Player,
+    player: TerixPlayer,
     public val preOrigin: Origin,
     public val newOrigin: Origin,
     public val bypassCooldown: Boolean = false,

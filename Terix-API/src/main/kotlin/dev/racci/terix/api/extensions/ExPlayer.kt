@@ -17,7 +17,7 @@ import org.bukkit.potion.PotionEffect
 public val Player.handle: ServerPlayer get() = if (this is TerixPlayer) this.handle else this.toNMS()
 
 internal fun Player.originPotions(filterOrigin: Boolean = true): Sequence<Pair<PotionEffect, OriginNamespacedTag>> {
-    val origin by lazy { TerixPlayer.cachedOrigin(this) }
+    val origin by lazy { TerixPlayer[this].origin }
     return this.activePotionEffects.asSequence()
         .filter(PotionEffect::hasKey)
         .mapNotNull { pot -> pot to (OriginNamespacedTag.fromBukkitKey(pot.key!!) ?: return@mapNotNull null) }

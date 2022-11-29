@@ -109,7 +109,7 @@ public class MerlingOrigin(override val plugin: Terix) : Origin() {
         }
 
         Tentacles.addGlobalMiningModifier(NamespacedKey(plugin, "merling_mining")) { player, _ ->
-            if (!player.handle.isEyeInFluid(FluidTags.WATER) || TerixPlayer.cachedOrigin(player) !== this@MerlingOrigin) return@addGlobalMiningModifier null
+            if (!player.handle.isEyeInFluid(FluidTags.WATER) || TerixPlayer[player].origin !== this@MerlingOrigin) return@addGlobalMiningModifier null
 
             if (player.isOnGround) {
                 5F

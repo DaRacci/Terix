@@ -15,8 +15,8 @@ import dev.racci.terix.api.data.player.TerixPlayer
 public class TerixPlaceholders(override val plugin: MinixPlugin) : PlaceholderIntegration() {
 
     init {
-        registerOnlinePlaceholder("origin_name") { TerixPlayer.cachedOrigin(this).name }
-        registerOnlinePlaceholder("origin_display") { TerixPlayer.cachedOrigin(this).displayName }
-        registerOnlinePlaceholder("origin_colour") { TerixPlayer.cachedOrigin(this).colour }
+        registerOnlinePlaceholder("origin_name") { TerixPlayer[this].origin.name }
+        registerOnlinePlaceholder("origin_display") { TerixPlayer[this].origin.displayName }
+        registerOnlinePlaceholder("origin_colour") { TerixPlayer[this].origin.colour }
     }
 }

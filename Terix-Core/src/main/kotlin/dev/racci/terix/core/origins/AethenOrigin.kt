@@ -12,6 +12,7 @@ import dev.racci.minix.api.extensions.toItemStack
 import dev.racci.minix.api.utils.minecraft.MaterialTagsExtension
 import dev.racci.terix.api.Terix
 import dev.racci.terix.api.annotations.OriginEventSelector
+import dev.racci.terix.api.data.player.TerixPlayer
 import dev.racci.terix.api.dsl.dslMutator
 import dev.racci.terix.api.extensions.handle
 import dev.racci.terix.api.origins.OriginHelper
@@ -175,7 +176,7 @@ public class AethenOrigin(override val plugin: Terix) : Origin() {
 
     @OriginEventSelector(EventSelector.PLAYER)
     public suspend fun PlayerMoveFullXYZEvent.handle() {
-        if (OriginHelper.shouldIgnorePlayer(this.player)) return
+        if (OriginHelper.shouldIgnorePlayer(TerixPlayer[this.player])) return
 
         if (handler == null) {
             plugin.log.warn { "LightAPI is not installed, disabling Aethen's ability" }

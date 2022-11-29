@@ -56,7 +56,7 @@ public fun sentryBreadcrumb(
     Sentry.addBreadcrumb(breadcrumb)
 }
 
-public suspend fun sentryScoped(
+public fun sentryScoped(
     player: Player,
     category: String,
     message: String? = null,

@@ -41,6 +41,7 @@ import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableSharedFlow
+import kotlinx.coroutines.flow.SharedFlow
 import kotlinx.coroutines.flow.asSharedFlow
 import kotlinx.coroutines.flow.buffer
 import kotlinx.coroutines.flow.catch
@@ -48,7 +49,6 @@ import kotlinx.coroutines.flow.conflate
 import kotlinx.coroutines.flow.filter
 import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.flow.launchIn
-import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.mapNotNull
 import kotlinx.coroutines.flow.onEach
 import kotlinx.coroutines.plus
@@ -60,7 +60,6 @@ import net.minecraft.core.BlockPos
 import net.minecraft.world.level.biome.Biome
 import net.minecraft.world.level.levelgen.Heightmap
 import org.bukkit.Material
-import org.bukkit.entity.Player
 import org.bukkit.event.EventPriority
 import org.bukkit.event.player.PlayerJoinEvent
 import org.bukkit.event.player.PlayerQuitEvent
@@ -83,7 +82,7 @@ public class TickServiceImpl(override val plugin: Terix) : Extension<Terix>(), T
     /** The queue of players that have disconnected or have no subscribers. */
     private val removeQueue = ConcurrentHashMap.newKeySet<UUID>()
 
-    override val playerFlow: Flow<Player> = internalFlow.asSharedFlow().map { it.backingPlayer }
+    override val playerFlow: SharedFlow<TerixPlayer> = internalFlow.asSharedFlow()
 
     override val threadContext: CoroutineDispatcher get() = this.dispatcher.get()
 
@@ -106,8 +105,6 @@ public class TickServiceImpl(override val plugin: Terix) : Extension<Terix>(), T
         event<PlayerOriginChangeEvent>(EventPriority.MONITOR, true) {
             if (!result.isSuccessful) return@event
             rehabMother(TerixPlayer[player])
-
-            TerixPlayer[player]
         }
 
         event<PlayerQuitEvent> {
@@ -125,9 +122,10 @@ public class TickServiceImpl(override val plugin: Terix) : Extension<Terix>(), T
     }
 
     // TODO -> Construct a cache of filtered flows, which can be used to reduce the amount of filtering done.
-    override fun filteredPlayer(player: Player): Flow<Player> = runBlocking {
-        appendPlayer(player as? TerixPlayer ?: TerixPlayer[player])
-        playerFlow.filter { it.uniqueId == player.uniqueId }
+    override fun filteredPlayer(player: TerixPlayer): Flow<TerixPlayer> = runBlocking {
+        val terixPlayer = TerixPlayer[player]
+        appendPlayer(terixPlayer)
+        playerFlow.filter { flowPlayer -> terixPlayer == flowPlayer }
     }
 
     private suspend fun appendPlayer(player: TerixPlayer) = tickingPlayers.add(player.uniqueId).ifTrue {
@@ -167,7 +165,7 @@ public class TickServiceImpl(override val plugin: Terix) : Extension<Terix>(), T
 
     private fun startInternalTickListeners() = playerFlow
         .conflate()
-        .onEach { player -> TerixPlayer[player].origin.onTick(player) }
+        .onEach { player -> player.origin.onTick(player) }
         .mapNotNull(motherTickers::get)
         .onEach(MotherTicker::run)
         .catch { logger.error(it) { "Error in internal tick listener." } }
@@ -182,7 +180,7 @@ public class TickServiceImpl(override val plugin: Terix) : Extension<Terix>(), T
         val brightness = nmsLevel.getMaxLocalRawBrightness(pos)
         val canSeeSky = nmsLevel.canSeeSky(pos)
 
-        with(TerixPlayer[player].ticks) {
+        with(player.ticks) {
             sunlight.update { inSunlight(player, canSeeSky, nmsLevel, brightness) }
             darkness.update { inDarkness(brightness, player.inventory) }
             water.update { player.location.block.liquidType == LiquidType.WATER }

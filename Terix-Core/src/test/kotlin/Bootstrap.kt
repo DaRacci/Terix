@@ -77,7 +77,7 @@ object Bootstrap {
 
         mockkStatic("dev.racci.terix.core.extensions.ExPlayerKt")
         mockkObject(CoroutineScheduler)
-        every { TerixPlayer.cachedOrigin(mockPlayer) } returns mockOrigin
+        every { TerixPlayer[mockPlayer].origin } returns mockOrigin
 
         every { CoroutineScheduler.runAsyncTaskTimer(allAny(), allAny<CoroutineRunnable>(), allAny(), allAny()) } answers {
             mockk {

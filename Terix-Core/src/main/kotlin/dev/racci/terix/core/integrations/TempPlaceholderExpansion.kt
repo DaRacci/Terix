@@ -13,9 +13,9 @@ import org.bukkit.entity.Player
 /** For until the minix api is updated. */
 public class TempPlaceholderExpansion(override val plugin: Terix) : PlaceholderExpansion(), WithPlugin<Terix> {
     private val placeholders = persistentMapOf<String, (Player) -> Any>(
-        "origin_name" to { TerixPlayer.cachedOrigin(it).name },
-        "origin_display" to { TerixPlayer.cachedOrigin(it).displayName },
-        "origin_colour" to { TerixPlayer.cachedOrigin(it).colour }
+        "origin_name" to { TerixPlayer[it].origin.name },
+        "origin_display" to { TerixPlayer[it].origin.displayName },
+        "origin_colour" to { TerixPlayer[it].origin.colour }
     )
 
     override fun persist(): Boolean = true

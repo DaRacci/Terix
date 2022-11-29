@@ -119,20 +119,20 @@ public sealed class OriginValues : WithPlugin<MinixPlugin> {
 
     public data class AbilityData internal constructor(
         public val generators: PersistentSet<AbilityGenerator<*>>,
-        private val cache: Cache<Player, PlayerAbilityHolder>
+        private val cache: Cache<TerixPlayer, PlayerAbilityHolder>
     ) {
-        public operator fun get(player: Player): PlayerAbilityHolder = cache.getIfPresent(player) ?: PlayerAbilityHolder.empty
+        public operator fun get(player: TerixPlayer): PlayerAbilityHolder = cache.getIfPresent(player) ?: PlayerAbilityHolder.empty
 
-        internal suspend fun create(player: Player) {
+        internal suspend fun create(player: TerixPlayer) {
             val holder = this(player)
             cache.put(player, holder)
         }
 
-        public suspend fun close(player: Player) {
+        public fun close(player: TerixPlayer) {
             cache.invalidate(player)
         }
 
-        private suspend operator fun invoke(player: Player): PlayerAbilityHolder {
+        private suspend operator fun invoke(player: TerixPlayer): PlayerAbilityHolder {
             val abilities = mutableSetOf<Ability>()
 
             for (generator in generators) {
@@ -250,7 +250,7 @@ public sealed class OriginValues : WithPlugin<MinixPlugin> {
                 }
 
                 addRequiredParameter("abilityPlayer", TerixPlayer[player])
-                addRequiredParameter("linkedOrigin", TerixPlayer.cachedOrigin(player))
+                addRequiredParameter("linkedOrigin", TerixPlayer[player].origin)
 
                 additionalConstructorParams.forEach { (property, value) -> addRequiredParameter(property.name, value) }
             }

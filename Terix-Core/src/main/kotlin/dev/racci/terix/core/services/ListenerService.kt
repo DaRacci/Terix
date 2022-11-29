@@ -36,6 +36,7 @@ import dev.racci.terix.api.services.StorageService
 import dev.racci.terix.core.commands.TerixPermissions
 import dev.racci.terix.core.extensions.fromOrigin
 import dev.racci.terix.core.extensions.message
+import dev.racci.terix.core.integrations.ItemsAdderIntegration
 import dev.racci.terix.core.origins.DragonOrigin
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.ExperimentalCoroutinesApi
@@ -78,6 +79,8 @@ import org.bukkit.persistence.PersistentDataType
 import org.koin.core.component.inject
 import java.util.UUID
 import kotlin.reflect.KProperty1
+import kotlin.time.Duration
+import kotlin.time.Duration.Companion.milliseconds
 
 // TODO -> This class is disgusting, needs to be cleaned up
 @MappedExtension(Terix::class, "Listener Service", [DataService::class])
@@ -109,12 +112,12 @@ public class ListenerService(override val plugin: Terix) : Extension<Terix>() {
             scheduler { bowTracker.remove(entity, bow) }.runAsyncTaskLater(plugin, 2.ticks)
         }
 
-        event<PlayerJoinEvent>(EventPriority.LOWEST) { OriginHelper.activateOrigin(player, TerixPlayer[player].origin) }
-        event<PlayerQuitEvent>(EventPriority.LOWEST) { OriginHelper.deactivateOrigin(player, TerixPlayer[player].origin) }
-        event<PlayerKickEvent>(EventPriority.MONITOR, true) { OriginHelper.deactivateOrigin(player, TerixPlayer[player].origin) }
+        event<PlayerJoinEvent>(EventPriority.LOWEST) { OriginHelper.activateOrigin(TerixPlayer[player]) }
+        event<PlayerQuitEvent>(EventPriority.LOWEST) { OriginHelper.deactivateOrigin(TerixPlayer[player]) }
+        event<PlayerKickEvent>(EventPriority.MONITOR, true) { OriginHelper.deactivateOrigin(TerixPlayer[player]) }
 
         event<PlayerPostRespawnEvent>(forceAsync = true) {
-            OriginHelper.recalculateStates(player, TerixPlayer[player].origin)
+            OriginHelper.recalculateStates(TerixPlayer[player])
             player.health = player.getAttribute(Attribute.GENERIC_MAX_HEALTH)!!.value
         }
 
@@ -122,12 +125,12 @@ public class ListenerService(override val plugin: Terix) : Extension<Terix>() {
 
         event<EntityCombustEvent> {
             val player = entity as? Player ?: return@event
-            if (ensureNoFire(player, TerixPlayer.cachedOrigin(player))) cancel()
+            if (ensureNoFire(player, TerixPlayer[player].origin)) cancel()
         }
 
         event<EntityDamageEvent>(EventPriority.HIGH, true) {
             val player = entity as? Player ?: return@event
-            val origin = TerixPlayer.cachedOrigin(player)
+            val origin = TerixPlayer[player].origin
 
             if (ensureNoFire(player, origin) ||
                 origin.damageActions[cause]?.invoke(this) != null &&
@@ -157,12 +160,13 @@ public class ListenerService(override val plugin: Terix) : Extension<Terix>() {
 
             action(this)
 
-            val origin = TerixPlayer.cachedOrigin(player)
+            val origin = TerixPlayer[player].origin
 
             origin.foodData.getAction(this.item!!)?.invoke(player)
 
             val nmsPlayer = player.handle
-            val potions = origin.foodData.getProperties(this.item!!)?.effects?.filter { pair -> nmsPlayer.level.random.nextFloat() >= pair.second }
+            val potions =
+                origin.foodData.getProperties(this.item!!)?.effects?.filter { pair -> nmsPlayer.level.random.nextFloat() >= pair.second }
 
             if (!potions.isNullOrEmpty()) {
                 sync {
@@ -173,10 +177,7 @@ public class ListenerService(override val plugin: Terix) : Extension<Terix>() {
             player.sendHealthUpdate()
         }
 
-        event<PlayerOriginChangeEvent>(
-            ignoreCancelled = true,
-            priority = EventPriority.LOWEST
-        ) {
+        event<PlayerOriginChangeEvent>(EventPriority.LOWEST) {
             StorageService.transaction {
                 val databaseEntity = TerixPlayer[player].databaseEntity
 
@@ -201,7 +202,7 @@ public class ListenerService(override val plugin: Terix) : Extension<Terix>() {
                 databaseEntity.origin = newOrigin
             }
 
-            OriginHelper.changeTo(player, preOrigin, newOrigin) // TODO: This should cover the removeUnfulfilled method
+            OriginHelper.changeTo(TerixPlayer[player], preOrigin, newOrigin)
 
             lang.origin.broadcast[
                 "player" to { player.displayName() },
@@ -210,16 +211,38 @@ public class ListenerService(override val plugin: Terix) : Extension<Terix>() {
             ] message onlinePlayers
 
             if (terixConfig.showTitleOnChange) newOrigin.becomeOriginTitle?.invoke(player)
+
+            val terixPlayer = TerixPlayer[player]
+            delayUntil { newOrigin.abilityData.generators.size == newOrigin.abilityData[terixPlayer].size }
+
+            val abilityHolder = newOrigin.abilityData[terixPlayer]
+            val filteredAbilities = ItemsAdderIntegration.PlayerData.filteredAbilities(abilityHolder)
+            val playerData = ItemsAdderIntegration.PlayerData[terixPlayer].copy(abilities = filteredAbilities)
+            playerData.hudElements.forEachIndexed { index, element ->
+                println("Updating element $index of ${ItemsAdderIntegration.PlayerData.fontImages.size}, shown size: ${playerData.abilities.size}")
+                if (index <= playerData.abilities.lastIndex) {
+                    element.setFontImages(listOf(ItemsAdderIntegration.PlayerData.fontImages.first()))
+                    element.floatValue = ItemsAdderIntegration.PlayerData.fontImages.lastIndex.toFloat()
+                    element.isVisible = true
+                } else if (element.fontImagesCount == 1) {
+                    element.removeFontImageByIndex(0)
+                    element.floatValue = 0f
+                    element.isVisible = false
+                }
+            }
+            playerData.holderWrapper.sendUpdate()
+
+            ItemsAdderIntegration.PlayerData.cache.put(terixPlayer.backingPlayer, playerData)
         }
 
         event(EventPriority.HIGHEST, ignoreCancelled = true, forceAsync = false, block = ::handle)
 
         event<PlayerGameModeChangeEvent> {
             if (this.newGameMode.ordinal in 1..2) {
-                return@event OriginHelper.activateOrigin(player)
+                return@event OriginHelper.activateOrigin(TerixPlayer[player])
             }
 
-            OriginHelper.deactivateOrigin(player)
+            OriginHelper.deactivateOrigin(TerixPlayer[player])
         }
 
         this.soundHandlers()
@@ -228,22 +251,21 @@ public class ListenerService(override val plugin: Terix) : Extension<Terix>() {
 
     private fun soundHandlers() {
         fun emitSound(
-            player: Player,
-            origin: Origin,
+            player: TerixPlayer,
             function: KProperty1<SoundEffects, SoundEffect>
         ) {
             if (OriginHelper.shouldIgnorePlayer(player)) return
 
-            val sound = function.get(origin.sounds)
+            val sound = function.get(player.origin.sounds)
             player.playSound(sound.resourceKey.asString(), sound.volume, sound.pitch, sound.distance)
         }
 
         eventFlow<PlayerDeathEvent>(priority = EventPriority.MONITOR, ignoreCancelled = true)
-            .subscribe { event -> emitSound(event.entity, TerixPlayer.cachedOrigin(event.entity), SoundEffects::deathSound) }
+            .subscribe { event -> emitSound(TerixPlayer[event.entity], SoundEffects::deathSound) }
 
         eventFlow<EntityDamageEvent>(priority = EventPriority.MONITOR, ignoreCancelled = true)
             .mapNotNull { event -> event.entity as? Player }
-            .subscribe { player -> emitSound(player, TerixPlayer.cachedOrigin(player), SoundEffects::hurtSound) }
+            .subscribe { player -> emitSound(TerixPlayer[player], SoundEffects::hurtSound) }
     }
 
     private fun requirementHandlers() {
@@ -413,4 +435,13 @@ public class ListenerService(override val plugin: Terix) : Extension<Terix>() {
     }
 
     public companion object : ExtensionCompanion<ListenerService>()
+}
+
+public suspend inline fun delayUntil(
+    delayDuration: Duration = 5.milliseconds,
+    crossinline condition: suspend () -> Boolean
+) {
+    while (!condition()) {
+        delay(delayDuration)
+    }
 }

@@ -1,8 +1,8 @@
 package dev.racci.terix.api.events
 
 import dev.racci.minix.api.events.CompanionEventHandler
+import dev.racci.terix.api.data.player.TerixPlayer
 import dev.racci.terix.api.origins.origin.Origin
-import org.bukkit.entity.Player
 import org.bukkit.event.HandlerList
 
 /**
@@ -13,7 +13,7 @@ import org.bukkit.event.HandlerList
  * @property ticks The amount of ticks the player will be on fire for.
  */
 public class OriginSunlightBurnEvent(
-    player: Player,
+    player: TerixPlayer,
     origin: Origin,
     public var ticks: Int
 ) : OriginEvent(player, origin) {

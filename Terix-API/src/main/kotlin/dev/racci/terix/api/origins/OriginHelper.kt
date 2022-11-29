@@ -21,7 +21,7 @@ public object OriginHelper : KoinComponent, WithPlugin<Terix> {
     override val plugin: Terix by inject()
 
     /** Checks if a player should be ignored for something like staff mode. */
-    public fun shouldIgnorePlayer(player: Player): Boolean {
+    public fun shouldIgnorePlayer(player: TerixPlayer): Boolean {
         // TODO -> Vanished
         // TODO -> Partial Ignore
         // TODO -> Staff Mode
@@ -36,7 +36,7 @@ public object OriginHelper : KoinComponent, WithPlugin<Terix> {
     }
 
     public suspend fun changeTo(
-        player: Player,
+        player: TerixPlayer,
         oldOrigin: Origin?,
         newOrigin: Origin
     ): Unit = sentryScoped(player, "OriginHelper.changeTo", "Changing from ${oldOrigin?.name} to ${newOrigin.name}", context = plugin.asyncDispatcher) {
@@ -79,8 +79,8 @@ public object OriginHelper : KoinComponent, WithPlugin<Terix> {
 
     /** Designed to be invoked for when a player needs everything to reset. */
     public suspend fun activateOrigin(
-        player: Player,
-        origin: Origin = TerixPlayer.cachedOrigin(player)
+        player: TerixPlayer,
+        origin: Origin = player.origin
     ) {
         sentryScoped(player, "OriginHelper.activateOrigin", "Activating ${origin.name} for ${player.name}") {
             player.setCanBreathUnderwater(origin.waterBreathing)
@@ -100,8 +100,8 @@ public object OriginHelper : KoinComponent, WithPlugin<Terix> {
      * @param origin The origin to disable.
      */
     public suspend fun deactivateOrigin(
-        player: Player,
-        origin: Origin = TerixPlayer[player].origin
+        player: TerixPlayer,
+        origin: Origin = player.origin
     ) {
         sentryScoped(
             player,
@@ -117,8 +117,8 @@ public object OriginHelper : KoinComponent, WithPlugin<Terix> {
     }
 
     public suspend fun recalculateStates(
-        player: Player,
-        origin: Origin = TerixPlayer.cachedOrigin(player)
+        player: TerixPlayer,
+        origin: Origin = player.origin
     ) {
         State[player].forEach { state ->
             state.deactivate(player, origin)
@@ -140,7 +140,7 @@ public object OriginHelper : KoinComponent, WithPlugin<Terix> {
      */
     // TODO -> Merge into respective sources (State, Food, etc.)
     public fun getBaseOriginPotions(
-        player: Player,
+        player: TerixPlayer,
         state: State?
     ): Sequence<PotionEffectType> = player.originPotions(false)
         .filter { (_, tag) -> tag.isCauseTypeState }

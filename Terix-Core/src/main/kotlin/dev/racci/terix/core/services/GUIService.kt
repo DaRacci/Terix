@@ -301,7 +301,7 @@ public class GUIService(override val plugin: Terix) : Extension<Terix>() {
             val origin = selectedOrigin.getIfPresent(player) ?: return@getButton
             async {
                 val bypass = player.databaseEntity.freeChanges > 0
-                val event = PlayerOriginChangeEvent(player, TerixPlayer.cachedOrigin(player), origin, bypass)
+                val event = PlayerOriginChangeEvent(player, TerixPlayer[player].origin, origin, bypass)
 
                 if (event.callEvent()) {
                     if (bypass) player.databaseEntity.freeChanges--

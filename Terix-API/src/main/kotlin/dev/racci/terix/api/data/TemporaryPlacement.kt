@@ -113,7 +113,7 @@ public data class TemporaryPlacement(
                 val currentOrigin = mutableMapOf<Player, Origin>()
 
                 fun TemporaryPlacement.changedOrigin(): Boolean =
-                    this.abilityRef.linkedOrigin !== currentOrigin.getOrPut(this.abilityRef.abilityPlayer) { TerixPlayer.cachedOrigin(this.abilityRef.abilityPlayer) }
+                    this.abilityRef.linkedOrigin !== currentOrigin.getOrPut(this.abilityRef.abilityPlayer) { TerixPlayer[this.abilityRef.abilityPlayer].origin }
 
                 fun TemporaryPlacement.changedWorld(): Boolean =
                     this.replacedState.location.world != this.abilityRef.abilityPlayer.world

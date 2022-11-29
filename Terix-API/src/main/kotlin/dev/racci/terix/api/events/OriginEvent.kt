@@ -1,10 +1,10 @@
 package dev.racci.terix.api.events
 
 import dev.racci.minix.api.events.player.KPlayerEvent
+import dev.racci.terix.api.data.player.TerixPlayer
 import dev.racci.terix.api.origins.origin.Origin
-import org.bukkit.entity.Player
 
 public sealed class OriginEvent(
-    player: Player,
+    player: TerixPlayer,
     public val origin: Origin
 ) : KPlayerEvent(player, true)
