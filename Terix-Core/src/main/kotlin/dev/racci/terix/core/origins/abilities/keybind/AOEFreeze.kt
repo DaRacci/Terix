@@ -26,7 +26,7 @@ public class AOEFreeze(
 
     override suspend fun handleTrigger() {
         val entities = deferredSync { abilityPlayer.world.getNearbyLivingEntities(abilityPlayer.location, radius) }.await()
-            .filterNot { it === abilityPlayer }
+            .filterNot { it == abilityPlayer }
             .ifEmpty { return failActivation() }
 
         val offset = 0.5
@@ -40,7 +40,7 @@ public class AOEFreeze(
             val zAng = sin(angle)
 
             ParticleBuilder(Particle.SNOWFLAKE)
-                .source(abilityPlayer)
+                .source(abilityPlayer.backingPlayer)
                 .location(abilityPlayer.location.clone().add(0.0, offset, 0.0))
                 .offset(xAng, 0.0, zAng)
                 .spawn()
