@@ -9,8 +9,7 @@ fi
 git push origin || exit 1
 git push origin v"${2}" || exit 1 # Push the new version tag for the release
 
-SEMIPATH=build/libs/Terix
-cog changelog v"${1}"..v"${2}" | gh release create "v$2" -F - -t "Terix release $2" $SEMIPATH-$2.jar Terix-Core/$SEMIPATH-Core-$2.jar
+cog changelog v"${1}"..v"${2}" | gh release create "v$2" -F - -t "Terix release $2" "build/libs/Terix-$2.jar" "build/Terix-API/libs/Terix-API-$2.jar"
 
 gh workflow run "docs.yml" # Generate the documentation
 
