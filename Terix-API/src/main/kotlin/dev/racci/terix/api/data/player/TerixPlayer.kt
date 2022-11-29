@@ -59,6 +59,14 @@ public class TerixPlayer private constructor(
         return other is Player && other.uniqueId == this.uniqueId
     }
 
+    override fun hashCode(): Int {
+        return backingPlayer.hashCode()
+    }
+
+    override fun toString(): String {
+        return "TerixPlayer(id=$id, backingPlayer=$backingPlayer, databaseEntity=$databaseEntity)"
+    }
+
     private inline fun ensureTransaction(f: () -> Unit) {
         if (TransactionManager.currentOrNull() == null) error("Unable to perform set operation on snapshot entity.")
         f()
