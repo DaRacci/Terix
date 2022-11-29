@@ -1,6 +1,6 @@
 package dev.racci.terix.api.origins.abilities.keybind
 
-import dev.racci.minix.api.extensions.inWholeTicks
+import dev.racci.minix.api.extensions.ticks
 import dev.racci.terix.api.data.Cooldown
 import dev.racci.terix.api.origins.OriginHelper
 import dev.racci.terix.api.services.TickService
@@ -18,7 +18,7 @@ import kotlin.reflect.KProperty
 import kotlin.time.Duration
 
 public sealed class ChargeKeybindAbility : KeybindAbility() {
-    private val perTick by lazy { 1F / (chargeTime.inWholeTicks / TickService.TICK_RATE) }
+    private val perTick by lazy { (TickService.TICK_RATE.ticks / chargeTime).toFloat() * 2 }
     private var holding: Boolean = false
     private val bossBar by lazy {
         BossBar.bossBar(
