@@ -4,7 +4,7 @@ import arrow.core.None
 import arrow.core.toOption
 import arrow.optics.lens
 import dev.racci.minix.api.extensions.reflection.castOrThrow
-import dev.racci.terix.api.data.TemporaryPlacement
+import dev.racci.terix.api.data.placement.TemporaryPlacement
 import dev.racci.terix.api.extensions.maybeAppend
 import dev.racci.terix.api.origins.abilities.Ability
 import dev.racci.terix.api.origins.abilities.keybind.KeybindAbility
@@ -52,10 +52,6 @@ public fun <A : KeybindAbility> AbilityBuilder<A>.keybinding(
 
 public inline fun <reified A : KeybindAbility> AbilityBuilder<A>.cooldown(duration: Duration): AbilityBuilder<A> {
     return parameter(A::class.get(KeybindAbility::cooldownDuration), duration)
-}
-
-public inline fun <reified A> AbilityBuilder<A>.placementRadius(radius: Double): AbilityBuilder<A> where A : Ability, A : TemporaryPlacement.RadiusLimited {
-    return parameter(A::class.get(TemporaryPlacement.RadiusLimited::placementRadius), radius)
 }
 
 public inline fun <reified A> AbilityBuilder<A>.placementProvider(provider: Material): AbilityBuilder<A> where A : Ability, A : TemporaryPlacement.BlockDataProvider {

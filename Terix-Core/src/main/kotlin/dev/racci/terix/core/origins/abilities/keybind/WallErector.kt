@@ -2,7 +2,8 @@ package dev.racci.terix.core.origins.abilities.keybind
 
 import com.destroystokyo.paper.block.TargetBlockInfo
 import dev.racci.minix.api.utils.minecraft.rangeTo
-import dev.racci.terix.api.data.TemporaryPlacement
+import dev.racci.terix.api.data.placement.TemporaryPlacement
+import dev.racci.terix.api.data.placement.tempPlacement
 import dev.racci.terix.api.data.player.TerixPlayer
 import dev.racci.terix.api.extensions.above
 import dev.racci.terix.api.origins.abilities.keybind.TriggeringKeybindAbility
@@ -26,7 +27,7 @@ public class WallErector(
     TemporaryPlacement.Immutable,
     TemporaryPlacement.BlockDataProvider,
     TemporaryPlacement.DurationLimited {
-    private val temporaryPlacement by TemporaryPlacement
+    private val temporaryPlacement = tempPlacement()
 
 //    override suspend fun handleTrigger() {
 //        val multi = when {
@@ -55,6 +56,6 @@ public class WallErector(
             .map(Location::getBlock)
             .filter { block -> block.isEmpty && block.canPlace(temporaryPlacement.replacementData) }
 
-        sync { filteredPositions.forEach { temporaryPlacement.copyFor(it).commit() } }
+        sync { filteredPositions.forEach { temporaryPlacement.commit(it.location) } }
     }
 }

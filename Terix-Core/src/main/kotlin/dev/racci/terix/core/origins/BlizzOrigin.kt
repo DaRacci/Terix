@@ -70,13 +70,13 @@ public class BlizzOrigin(override val plugin: Terix) : Origin() {
         abilities {
             newBuilder<TrailPassive>()
                 .parameter(TrailPassive::trailLength, 3)
-                .parameter(TrailPassive::trailDuration, 1.seconds)
+                .parameter(TrailPassive::placementDuration, 1.seconds)
                 .placementProvider(Material.SNOW)
                 .build()
 
             newBuilder<FluidWalker>()
                 .parameter(FluidWalker::replaceableMaterials, setOf(Material.WATER))
-                .placementProvider(Material.FROSTED_ICE)
+                .placementProvider(Material.PACKED_ICE)
                 .build()
 
             newBuilder<AOEFreeze>()
