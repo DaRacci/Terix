@@ -2,6 +2,19 @@
 All notable changes to this project will be documented in this file. See [conventional commits](https://www.conventionalcommits.org/) for commit guidelines.
 
 - - -
+## [v1.3.1](https://github.com/DaRacci/Terix/compare/v1.3.0..v1.3.1) - 2022-11-30
+#### Bug Fixes
+- **(AEOFreeze)** not ignoring player and cast error - ([2922409](https://github.com/DaRacci/Terix/commit/29224090e3e95d1ba1fa9aa36b155da9e39a675d)) - [@DaRacci](https://github.com/DaRacci)
+- **(ItemsAdderIntegration)** fix but why? - ([ac6c565](https://github.com/DaRacci/Terix/commit/ac6c565a6da4c1fb993ab26b7776eca5ee6d16a7)) - [@DaRacci](https://github.com/DaRacci)
+- **(TemporaryPlacement)** Missing removals and large speed improvements - ([a6fdaee](https://github.com/DaRacci/Terix/commit/a6fdaeed90dc3241cf0b5ae0b3e8dc7cd3c6a6e3)) - [@DaRacci](https://github.com/DaRacci)
+- Tests - ([c6998a0](https://github.com/DaRacci/Terix/commit/c6998a03bf4aac38edacd4c146c01c6e87601a57)) - [@DaRacci](https://github.com/DaRacci)
+- git release - ([ffa9912](https://github.com/DaRacci/Terix/commit/ffa99124f1ba5536f76992ca1aff1de8e88845fb)) - [@DaRacci](https://github.com/DaRacci)
+- api check - ([fb57425](https://github.com/DaRacci/Terix/commit/fb574251118a06fd0d4c1d434ab59d6140d78981)) - [@DaRacci](https://github.com/DaRacci)
+#### Miscellaneous Chores
+- API Dump - ([5207116](https://github.com/DaRacci/Terix/commit/52071169887de093f56dd0079cb6be9c374fd925)) - [@DaRacci](https://github.com/DaRacci)
+
+- - -
+
 ## [v1.3.0](https://github.com/DaRacci/Terix/compare/v1.2.0..v1.3.0) - 2022-11-29
 #### Bug Fixes
 - **(Abilities)** Deactivate toggled abilities when loosing them - ([c7e8cbf](https://github.com/DaRacci/Terix/commit/c7e8cbf938f4552ba05ce4a4dadd86ee410a1803)) - [@DaRacci](https://github.com/DaRacci)
