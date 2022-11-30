@@ -5,6 +5,7 @@ module:Terix-API
 dev.racci.terix.api
 dev.racci.terix.api.annotations
 dev.racci.terix.api.data
+dev.racci.terix.api.data.placement
 dev.racci.terix.api.data.player
 dev.racci.terix.api.dsl
 dev.racci.terix.api.events
