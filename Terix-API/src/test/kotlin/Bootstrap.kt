@@ -26,7 +26,6 @@ import kotlinx.coroutines.runBlocking
 import net.minecraft.SharedConstants
 import net.minecraft.world.level.storage.DataVersion
 import org.bukkit.GameMode
-import org.bukkit.craftbukkit.v1_19_R1.entity.CraftPlayer
 import org.bukkit.entity.Player
 import org.koin.core.KoinApplication
 import org.koin.core.context.startKoin
@@ -48,7 +47,7 @@ object Bootstrap {
     lateinit var mockkScheduler: CoroutineScheduler
 
     @MockK
-    lateinit var mockPlayer: Player
+    lateinit var mockPlayer: TerixPlayer
 
     @MockK
     lateinit var mockOrigin: Origin
@@ -77,7 +76,7 @@ object Bootstrap {
         }
         mockkConstructor(DataFixerBuilder::class)
         every { anyConstructed<DataFixerBuilder>().addFixer(any()) } just Runs
-        mockPlayer = mockk<CraftPlayer>()
+        mockPlayer = mockk()
 
         startKoin()
         mockkPlugin()
