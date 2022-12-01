@@ -32,13 +32,14 @@ public class TrailPassive(
     private val templateReplacement = tempPlacement(
         removablePredicate = { _ -> trailSize.value > 1 },
         expeditedPredicate = { _ -> trailSize.value > trailLength },
+        commitCallback = { trailSize.incrementAndGet() },
         removalCallback = { trailSize.decrementAndGet() }
     )
 
     override suspend fun handleAbilityGained() {
         TickService.filteredPlayer(abilityPlayer)
             .takeWhile { trailSize.value <= trailLength }
-            .onEach { sync { newTailPart() } }
+            .onEach { newTailPart() }
             .abilitySubscription()
     }
 
@@ -52,7 +53,7 @@ public class TrailPassive(
         .filter { block -> block.isSolid }
         .map { block -> block.getRelative(BlockFace.UP) }
         .filter { block -> block.type.isEmpty }
-        .tap { block -> sync { templateReplacement.commit(block.location).also { trailSize.incrementAndGet() } } }
+        .tap { block -> templateReplacement.commit(block.location) }
 
 //    private fun removeIfExpired() {
 //        if (trailCache.size <= 1) return

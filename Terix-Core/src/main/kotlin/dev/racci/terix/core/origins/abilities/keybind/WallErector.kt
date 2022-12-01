@@ -8,6 +8,11 @@ import dev.racci.terix.api.data.player.TerixPlayer
 import dev.racci.terix.api.extensions.above
 import dev.racci.terix.api.origins.abilities.keybind.TriggeringKeybindAbility
 import dev.racci.terix.api.origins.origin.Origin
+import kotlinx.coroutines.flow.asFlow
+import kotlinx.coroutines.flow.collect
+import kotlinx.coroutines.flow.conflate
+import kotlinx.coroutines.flow.filter
+import kotlinx.coroutines.flow.map
 import org.bukkit.Location
 import org.bukkit.block.data.BlockData
 import org.bukkit.util.Vector
@@ -52,10 +57,10 @@ public class WallErector(
         val firstPos = initBlock.location.subtract(modifierVec)
         val secondPos = initBlock.location.add(modifierVec).above(3.0)
 
-        val filteredPositions = firstPos.rangeTo(secondPos)
+        firstPos.rangeTo(secondPos).asFlow()
             .map(Location::getBlock)
             .filter { block -> block.isEmpty && block.canPlace(temporaryPlacement.replacementData) }
-
-        sync { filteredPositions.forEach { temporaryPlacement.commit(it.location) } }
+            .conflate()
+            .collect { block -> temporaryPlacement.commit(block.location) }
     }
 }

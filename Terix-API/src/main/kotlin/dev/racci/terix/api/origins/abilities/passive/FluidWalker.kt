@@ -1,6 +1,7 @@
 package dev.racci.terix.api.origins.abilities.passive
 
 import arrow.core.getOrElse
+import dev.racci.minix.api.coroutine.minecraftDispatcher
 import dev.racci.minix.api.events.player.PlayerMoveXYZEvent
 import dev.racci.minix.api.utils.minecraft.rangeTo
 import dev.racci.minix.api.utils.ticks
@@ -13,6 +14,11 @@ import dev.racci.terix.api.extensions.above
 import dev.racci.terix.api.origins.abilities.RayCastingSupplier
 import dev.racci.terix.api.origins.enums.EventSelector
 import dev.racci.terix.api.origins.origin.Origin
+import kotlinx.coroutines.flow.asFlow
+import kotlinx.coroutines.flow.collect
+import kotlinx.coroutines.flow.filter
+import kotlinx.coroutines.flow.flowOn
+import kotlinx.coroutines.flow.onEach
 import net.minecraft.core.BlockPos
 import net.minecraft.world.phys.shapes.CollisionContext
 import org.bukkit.Material
@@ -34,7 +40,7 @@ public class FluidWalker(
     TemporaryPlacement.BlockDataProvider,
     TemporaryPlacement.DurationLimited {
     private val temporaryPlacement = tempPlacement(
-        removablePredicate = { pos -> pos.above().distance(abilityPlayer.location) > radius }
+        removablePredicate = { pos -> pos.above().distance(abilityPlayer.location.toCenterLocation()) > radius }
     )
 
     @OriginEventSelector(EventSelector.PLAYER)
@@ -44,17 +50,19 @@ public class FluidWalker(
         val surfaceLocation = RayCastingSupplier.of(player)
             .map { trace -> trace.hitPosition.toLocation(player.world) }
             .getOrElse { return }
-        val range = surfaceLocation.clone().add(-radius + 0.5, 0.0, -radius + 0.5).rangeTo(surfaceLocation.clone().add(radius, 0.0, radius))
+        val range = surfaceLocation.clone().add(-radius, 0.0, -radius).rangeTo(surfaceLocation.clone().add(radius, 0.0, radius))
 
-        val locations = range
+        val trailData = linkedOrigin.abilityData[abilityPlayer].abilities.filterIsInstance<TrailPassive>().firstOrNull()?.placementData
+        range.asFlow()
             .filter { pos -> pos.distance(surfaceLocation) <= radius }
-            .filter { pos -> player.world.getBlockAt(pos.above()).state.type.isEmpty }
+            .filter { pos -> pos.above().block.let { block -> block.state.type.isEmpty || trailData?.matches(block.blockData) == true } }
             .filter { pos ->
                 val state = player.world.getBlockState(pos)
                 val blockData = state.blockData
                 state.type in replaceableMaterials && (blockData !is Levelled || blockData.level == 0)
             }.filter { pos -> pos.block.blockData == temporaryPlacement.replacementData || pos.block.canPlace(temporaryPlacement.replacementData) && nmsWorld.isUnobstructed(blockState, BlockPos(pos.x, pos.y, pos.z), CollisionContext.empty()) }
-
-        sync { locations.forEach { temporaryPlacement.commit(it) } }
+            .onEach { pos -> temporaryPlacement.commit(pos) }
+            .flowOn(plugin.minecraftDispatcher)
+            .collect()
     }
 }

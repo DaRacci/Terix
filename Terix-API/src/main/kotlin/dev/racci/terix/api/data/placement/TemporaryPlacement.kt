@@ -44,13 +44,14 @@ public data class TemporaryPlacement internal constructor(
     public val abilityRef: Ability,
     public val replacementData: BlockData,
     public val removeAfter: Duration = Duration.INFINITE,
+    public val commitCallback: Option<Lambda> = None,
     public val removalCallback: Option<Lambda> = None,
     public val removablePredicate: Option<PosPredicate> = None,
     public val expeditedPredicate: Option<PosPredicate> = None
 ) {
 
-    public fun commit(location: Location): TemporaryPlacement {
-        placementChannel.trySend(PlacementCommit(location, this))
+    public suspend fun commit(location: Location): TemporaryPlacement {
+        placementChannel.send(PlacementCommit(location, this))
         return this
     }
 
@@ -63,6 +64,7 @@ public data class TemporaryPlacement internal constructor(
         nmsWorld.setBlock(nmsPos, nmsState, 2 or 16 or 128 or 1024) // NOTIFY | NO_OBSERVER | NO_LIGHTING_UPDATE | NO_PLACE (custom)
         nmsWorld.minecraftWorld.sendBlockUpdated(nmsPos, nmsOldState, nmsState, 3)
         block.setMetadata(META_KEY, metaValueCache.get(abilityRef.abilityPlayer))
+        commitCallback.tap(Lambda::invoke)
 
         return commit
     }
@@ -149,6 +151,7 @@ public data class TemporaryPlacement internal constructor(
 
 public fun <A> A.tempPlacement(
     removalCallback: Lambda? = null,
+    commitCallback: Lambda? = null,
     removablePredicate: PosPredicate? = null,
     expeditedPredicate: PosPredicate? = null
 ): TemporaryPlacement where A : Ability, A : TemporaryPlacement.BlockDataProvider {
@@ -156,6 +159,7 @@ public fun <A> A.tempPlacement(
         abilityRef = this,
         replacementData = this.placementData.clone(),
         removeAfter = (this as? TemporaryPlacement.DurationLimited)?.placementDuration ?: Duration.INFINITE,
+        commitCallback = commitCallback.toOption(),
         removalCallback = removalCallback.toOption(),
         removablePredicate = removablePredicate.toOption(),
         expeditedPredicate = expeditedPredicate.toOption()
