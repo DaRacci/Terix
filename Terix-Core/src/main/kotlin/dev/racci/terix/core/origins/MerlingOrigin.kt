@@ -53,6 +53,7 @@ public class MerlingOrigin(override val plugin: Terix) : Origin() {
         sounds.ambientSound = SoundEffect("entity.salmon.ambient")
 
         attributes {
+            // TODO -> ConcurrentModificationException when mining underwater
             State.LiquidState.LAND to Attribute.GENERIC_MOVEMENT_SPEED *= 0.75
             State.LiquidState.WATER to Attribute.GENERIC_ATTACK_DAMAGE *= 1.2
             State.LiquidState.WATER to Attribute.GENERIC_KNOCKBACK_RESISTANCE *= 0.80
@@ -74,13 +75,13 @@ public class MerlingOrigin(override val plugin: Terix) : Origin() {
             State.LiquidState.WATER += dslMutator {
                 type = PotionEffectType.NIGHT_VISION
                 duration = Duration.INFINITE
-                amplifier = -1
+                amplifier = 0
                 ambient = true
             }
             State.LiquidState.WATER += dslMutator {
                 type = PotionEffectType.DOLPHINS_GRACE
                 duration = Duration.INFINITE
-                amplifier = -1
+                amplifier = 0
                 ambient = true
             }
         }

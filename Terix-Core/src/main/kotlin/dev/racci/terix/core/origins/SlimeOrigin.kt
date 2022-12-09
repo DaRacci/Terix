@@ -46,7 +46,7 @@ public class SlimeOrigin(override val plugin: Terix) : Origin() {
             State.CONSTANT += dslMutator {
                 type = PotionEffectType.JUMP
                 amplifier = 4
-                duration = kotlin.time.Duration.INFINITE
+                duration = Duration.INFINITE
                 ambient = true
             }
         }
