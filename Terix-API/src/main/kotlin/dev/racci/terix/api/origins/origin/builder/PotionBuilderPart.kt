@@ -40,9 +40,10 @@ public class PotionBuilderPart internal constructor() : BuilderPart<PotionBuilde
     }
 
     override suspend fun insertInto(originValues: OriginValues): Option<Exception> {
-        super.getElements().associate { it.state to it.builder }
-            .onEach { (state, builder) -> builder.applyTag(OriginNamespacedTag.baseStateOf(originValues, state)) }
-            .forEach { (state, builder) -> originValues.stateData = originValues.stateData.modify(state, OriginValues.StateData::potions) { potions -> potions.add(builder) } }
+        super.getElements().groupBy(PotionElement::state)
+            .mapValues { (_, elements) -> elements.map(PotionElement::builder) }
+            .onEach { (state, builders) -> builders.forEach { builder -> builder.applyTag(OriginNamespacedTag.baseStateOf(originValues, state)) } }
+            .forEach { (state, builders) -> originValues.stateData = originValues.stateData.modify(state, OriginValues.StateData::potions) { potions -> potions.addAll(builders) } }
 
         return None
     }
