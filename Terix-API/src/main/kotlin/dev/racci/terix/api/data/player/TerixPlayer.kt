@@ -97,10 +97,10 @@ public class TerixPlayer private constructor(
 
         init {
             EntityHook.subscribe { change ->
-                println("EntityHook: $change")
-                if (change.changeType != EntityChangeType.Updated) return@subscribe println("Not updated")
-                val newEntity = change.toEntity<UUID, TerixPlayerEntityHolder>() ?: return@subscribe println("Not a TerixPlayerEntityHolder")
-                get(newEntity.id.value).databaseEntity = newEntity
+                if (change.changeType != EntityChangeType.Updated) return@subscribe
+                if (change.entityClass != TerixPlayerEntityHolder.Companion) return@subscribe
+                val newEntity = change.toEntity<UUID, TerixPlayerEntityHolder>() ?: return@subscribe
+                this[newEntity.id.value].databaseEntity = newEntity
             }
         }
 
