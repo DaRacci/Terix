@@ -92,6 +92,11 @@ public class ListenerService(override val plugin: Terix) : Extension<Terix>() {
 
     @Suppress("kotlin:S3776")
     override suspend fun handleEnable() {
+//        event<AreaEffectCloudApplyEvent> {
+//            val nmsCloud = this.entity.toNMS<AreaEffectCloud>()
+//            if (nmsCloud.owner != null && nmsCloud.owner)
+//        }
+
         event<BeaconEffectEvent>(EventPriority.HIGH, true) {
             if (shouldIgnore()) return@event
 

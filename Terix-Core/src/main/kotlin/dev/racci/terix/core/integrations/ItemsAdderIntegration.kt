@@ -77,11 +77,11 @@ public class ItemsAdderIntegration(override val plugin: MinixPlugin) : FileExtra
         val holderWrapper: PlayerHudsHolderWrapper,
         val hudElements: Array<PlayerCustomHudWrapper>
     ) {
-        fun tick() {
+        public fun tick() {
             abilities.forEachIndexed { index, ability -> tickAbility(index, ability) }
         }
 
-        fun tickAbility(
+        public fun tickAbility(
             index: Int,
             ability: KeybindAbility
         ) {
@@ -123,7 +123,7 @@ public class ItemsAdderIntegration(override val plugin: MinixPlugin) : FileExtra
             return result
         }
 
-        companion object {
+        public companion object {
             internal var fontImages: Array<FontImageWrapper> = emptyArray()
             internal val cache: Cache<Player, PlayerData> = Caffeine
                 .newBuilder()
@@ -145,7 +145,9 @@ public class ItemsAdderIntegration(override val plugin: MinixPlugin) : FileExtra
                     "terix:ability_bar_$index"
                 ).apply {
                     println("Creating element $index of ${fontImages.lastIndex}, shown size: $initialShownSize")
-                    this.offsetX += ((fontImages.first().width) * index) + 5
+                    val imageWidth = fontImages.first().width
+                    val imageBasedOffset = imageWidth * index
+                    this.offsetX += if (index == 0) 0 else imageBasedOffset + ((imageWidth / 2) * index)
                     if (index < initialShownSize) {
                         println("Adding font image to element $index")
                         this.floatValue = fontImages.size.toFloat()
@@ -166,7 +168,7 @@ public class ItemsAdderIntegration(override val plugin: MinixPlugin) : FileExtra
                 )
             }
 
-            operator fun get(player: TerixPlayer): PlayerData = cache.get(player.backingPlayer) { _ ->
+            public operator fun get(player: TerixPlayer): PlayerData = cache.get(player.backingPlayer) { _ ->
                 create(player).also { data ->
                     data.holderWrapper.recalculateOffsets()
                     data.holderWrapper.sendUpdate()

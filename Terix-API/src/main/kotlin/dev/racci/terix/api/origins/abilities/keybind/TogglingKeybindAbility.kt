@@ -33,14 +33,14 @@ public abstract class TogglingKeybindAbility : KeybindAbility() {
         if (this.isActivated) this.deactivate(false)
     }
 
-    private suspend fun activate(): Boolean = KeybindAbilityActivateEvent(this).onSuccess {
+    private fun activate(): Boolean = KeybindAbilityActivateEvent(this).onSuccess {
         this.isActivated = true
         this.addToPersistentData()
         this.cooldown = Cooldown.of(this.cooldownDuration)
         sentryScoped(abilityPlayer, SCOPE, "$name.activate", context = plugin.asyncDispatcher, block = this::handleActivation)
     }
 
-    private suspend fun deactivate(cancellable: Boolean): Boolean = KeybindAbilityDeactivateEvent(this, cancellable).onSuccess {
+    private fun deactivate(cancellable: Boolean): Boolean = KeybindAbilityDeactivateEvent(this, cancellable).onSuccess {
         this.isActivated = false
         this.removeFromPersistentData()
         sentryScoped(abilityPlayer, SCOPE, "$name.deactivate", context = plugin.asyncDispatcher, block = this::handleDeactivation)
