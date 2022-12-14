@@ -20,6 +20,7 @@ public class Repulsion(
     public var repulsePredicate: (targetEntity: LivingEntity) -> Boolean = Unit.truePredicateOne()
     public var onRepulsion: (targetEntity: LivingEntity) -> Unit = Unit.emptyLambdaOne()
 
+    // Pull target at defined speed until the entity is within the defined radius of the player
     override suspend fun handleTrigger() {
         val nmsPlayer = abilityPlayer.handle
         nmsPlayer.level.getEntities(
@@ -36,10 +37,7 @@ public class Repulsion(
                 val length = baseVector.length()
                 val strength = length * strengthMultiplier
 
-                logger.debug { "Repulsing ${entity.name} with strength $strength from $length" }
-
-                entity.velocity =
-                    entity.velocity.add(baseVector.normalize()./*multiply(0.1).*/multiply(strengthMultiplier))
+                entity.velocity = entity.velocity.add(baseVector.normalize().multiply(-strengthMultiplier))
             }
     }
 }
