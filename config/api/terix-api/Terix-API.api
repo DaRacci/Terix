@@ -371,18 +371,20 @@ public final class dev/racci/terix/api/data/placement/PlacementCommit {
 
 public final class dev/racci/terix/api/data/placement/TemporaryPlacement {
 	public static final field Companion Ldev/racci/terix/api/data/placement/TemporaryPlacement$Companion;
-	public synthetic fun <init> (Ldev/racci/terix/api/origins/abilities/Ability;Lorg/bukkit/block/data/BlockData;JLarrow/core/Option;Larrow/core/Option;Larrow/core/Option;ILkotlin/jvm/internal/DefaultConstructorMarker;)V
-	public final fun commit (Lorg/bukkit/Location;)Ldev/racci/terix/api/data/placement/TemporaryPlacement;
+	public synthetic fun <init> (Ldev/racci/terix/api/origins/abilities/Ability;Lorg/bukkit/block/data/BlockData;JLarrow/core/Option;Larrow/core/Option;Larrow/core/Option;Larrow/core/Option;ILkotlin/jvm/internal/DefaultConstructorMarker;)V
+	public final fun commit (Lorg/bukkit/Location;Lkotlin/coroutines/Continuation;)Ljava/lang/Object;
 	public final fun component1 ()Ldev/racci/terix/api/origins/abilities/Ability;
 	public final fun component2 ()Lorg/bukkit/block/data/BlockData;
 	public final fun component3-UwyO8pc ()J
 	public final fun component4 ()Larrow/core/Option;
 	public final fun component5 ()Larrow/core/Option;
 	public final fun component6 ()Larrow/core/Option;
-	public final fun copy-WPi__2c (Ldev/racci/terix/api/origins/abilities/Ability;Lorg/bukkit/block/data/BlockData;JLarrow/core/Option;Larrow/core/Option;Larrow/core/Option;)Ldev/racci/terix/api/data/placement/TemporaryPlacement;
-	public static synthetic fun copy-WPi__2c$default (Ldev/racci/terix/api/data/placement/TemporaryPlacement;Ldev/racci/terix/api/origins/abilities/Ability;Lorg/bukkit/block/data/BlockData;JLarrow/core/Option;Larrow/core/Option;Larrow/core/Option;ILjava/lang/Object;)Ldev/racci/terix/api/data/placement/TemporaryPlacement;
+	public final fun component7 ()Larrow/core/Option;
+	public final fun copy-SYHnMyU (Ldev/racci/terix/api/origins/abilities/Ability;Lorg/bukkit/block/data/BlockData;JLarrow/core/Option;Larrow/core/Option;Larrow/core/Option;Larrow/core/Option;)Ldev/racci/terix/api/data/placement/TemporaryPlacement;
+	public static synthetic fun copy-SYHnMyU$default (Ldev/racci/terix/api/data/placement/TemporaryPlacement;Ldev/racci/terix/api/origins/abilities/Ability;Lorg/bukkit/block/data/BlockData;JLarrow/core/Option;Larrow/core/Option;Larrow/core/Option;Larrow/core/Option;ILjava/lang/Object;)Ldev/racci/terix/api/data/placement/TemporaryPlacement;
 	public fun equals (Ljava/lang/Object;)Z
 	public final fun getAbilityRef ()Ldev/racci/terix/api/origins/abilities/Ability;
+	public final fun getCommitCallback ()Larrow/core/Option;
 	public final fun getExpeditedPredicate ()Larrow/core/Option;
 	public final fun getRemovablePredicate ()Larrow/core/Option;
 	public final fun getRemovalCallback ()Larrow/core/Option;
@@ -407,8 +409,8 @@ public abstract interface class dev/racci/terix/api/data/placement/TemporaryPlac
 }
 
 public final class dev/racci/terix/api/data/placement/TemporaryPlacementKt {
-	public static final fun tempPlacement (Ldev/racci/terix/api/origins/abilities/Ability;Lkotlin/jvm/functions/Function0;Lkotlin/jvm/functions/Function1;Lkotlin/jvm/functions/Function1;)Ldev/racci/terix/api/data/placement/TemporaryPlacement;
-	public static synthetic fun tempPlacement$default (Ldev/racci/terix/api/origins/abilities/Ability;Lkotlin/jvm/functions/Function0;Lkotlin/jvm/functions/Function1;Lkotlin/jvm/functions/Function1;ILjava/lang/Object;)Ldev/racci/terix/api/data/placement/TemporaryPlacement;
+	public static final fun tempPlacement (Ldev/racci/terix/api/origins/abilities/Ability;Lkotlin/jvm/functions/Function0;Lkotlin/jvm/functions/Function0;Lkotlin/jvm/functions/Function1;Lkotlin/jvm/functions/Function1;)Ldev/racci/terix/api/data/placement/TemporaryPlacement;
+	public static synthetic fun tempPlacement$default (Ldev/racci/terix/api/origins/abilities/Ability;Lkotlin/jvm/functions/Function0;Lkotlin/jvm/functions/Function0;Lkotlin/jvm/functions/Function1;Lkotlin/jvm/functions/Function1;ILjava/lang/Object;)Ldev/racci/terix/api/data/placement/TemporaryPlacement;
 }
 
 public abstract interface class dev/racci/terix/api/data/player/OverrideFixer : net/kyori/adventure/audience/Audience {
@@ -452,6 +454,8 @@ public final class dev/racci/terix/api/data/player/TerixPlayer : dev/racci/terix
 	public fun boostElytra (Lorg/bukkit/inventory/ItemStack;)Lorg/bukkit/entity/Firework;
 	public fun breakBlock (Lorg/bukkit/block/Block;)Z
 	public fun broadcastItemBreak (Lorg/bukkit/inventory/EquipmentSlot;)V
+	public fun broadcastSlotBreak (Lorg/bukkit/inventory/EquipmentSlot;)V
+	public fun broadcastSlotBreak (Lorg/bukkit/inventory/EquipmentSlot;Ljava/util/Collection;)V
 	public fun canBreathUnderwater ()Z
 	public fun canBreatheUnderwater ()Z
 	public fun canSee (Lorg/bukkit/entity/Entity;)Z
@@ -468,6 +472,8 @@ public final class dev/racci/terix/api/data/player/TerixPlayer : dev/racci/terix
 	public fun customName (Lnet/kyori/adventure/text/Component;)V
 	public fun damage (D)V
 	public fun damage (DLorg/bukkit/entity/Entity;)V
+	public fun damageItemStack (Lorg/bukkit/inventory/EquipmentSlot;I)V
+	public fun damageItemStack (Lorg/bukkit/inventory/ItemStack;I)Lorg/bukkit/inventory/ItemStack;
 	public fun decrementStatistic (Lorg/bukkit/Statistic;)V
 	public fun decrementStatistic (Lorg/bukkit/Statistic;I)V
 	public fun decrementStatistic (Lorg/bukkit/Statistic;Lorg/bukkit/Material;)V
@@ -541,6 +547,7 @@ public final class dev/racci/terix/api/data/player/TerixPlayer : dev/racci/terix
 	public fun getFoodLevel ()I
 	public fun getFreeChanges ()I
 	public fun getFreezeTicks ()I
+	public fun getFrictionState ()Lnet/kyori/adventure/util/TriState;
 	public fun getGameMode ()Lorg/bukkit/GameMode;
 	public fun getGrants ()Ljava/util/Set;
 	public fun getHandRaised ()Lorg/bukkit/inventory/EquipmentSlot;
@@ -891,6 +898,7 @@ public final class dev/racci/terix/api/data/player/TerixPlayer : dev/racci/terix
 	public fun setFoodLevel (I)V
 	public fun setFreeChanges (I)V
 	public fun setFreezeTicks (I)V
+	public fun setFrictionState (Lnet/kyori/adventure/util/TriState;)V
 	public fun setGameMode (Lorg/bukkit/GameMode;)V
 	public fun setGliding (Z)V
 	public fun setGlowing (Z)V
@@ -1342,6 +1350,8 @@ public final class dev/racci/terix/api/exceptions/OriginCreationException : java
 }
 
 public final class dev/racci/terix/api/extensions/ExEventKt {
+	public static final fun fold (Lorg/bukkit/event/Event;Lkotlin/jvm/functions/Function1;Lkotlin/jvm/functions/Function1;)Z
+	public static final fun onFailure (Lorg/bukkit/event/Event;Lkotlin/jvm/functions/Function1;)Z
 	public static final fun onSuccess (Lorg/bukkit/event/Event;Lkotlin/jvm/functions/Function1;)Z
 }
 
