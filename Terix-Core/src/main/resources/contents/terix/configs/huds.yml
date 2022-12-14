@@ -6,7 +6,7 @@ huds:
     show:
       auto: false
     type: CUSTOM
-    x_position_pixels: 100
+    x_position_pixels: 90
   ability_bar_1: *ability_bar
   ability_bar_2: *ability_bar
   ability_bar_3: *ability_bar

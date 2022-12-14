@@ -145,11 +145,11 @@ public class ItemsAdderIntegration(override val plugin: MinixPlugin) : FileExtra
                     "terix:ability_bar_$index"
                 ).apply {
                     println("Creating element $index of ${fontImages.lastIndex}, shown size: $initialShownSize")
+                    // TODO: Get the widest non transparent point to find the real width
                     val imageWidth = fontImages.first().width
-                    val imageBasedOffset = imageWidth * index
-                    this.offsetX += if (index == 0) 0 else imageBasedOffset + ((imageWidth / 2) * index)
+                    val imageBasedOffset = (imageWidth / 2) * index
+                    this.offsetX += if (index == 0) 0 else imageBasedOffset + ((imageWidth / 3) * index)
                     if (index < initialShownSize) {
-                        println("Adding font image to element $index")
                         this.floatValue = fontImages.size.toFloat()
                         this.addFontImage(fontImages.first())
                         this.isVisible = true
