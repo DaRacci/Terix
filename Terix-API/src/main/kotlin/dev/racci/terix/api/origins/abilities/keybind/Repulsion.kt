@@ -8,11 +8,12 @@ import dev.racci.terix.api.origins.origin.Origin
 import net.minecraft.world.entity.Entity
 import org.bukkit.entity.LivingEntity
 import kotlin.time.Duration
+import kotlin.time.Duration.Companion.seconds
 
 public class Repulsion(
     override val abilityPlayer: TerixPlayer,
     override val linkedOrigin: Origin,
-    override val cooldownDuration: Duration = Duration.ZERO
+    override val cooldownDuration: Duration = 15.seconds
 ) : TriggeringKeybindAbility() {
 
     public var radius: Double = 15.0
