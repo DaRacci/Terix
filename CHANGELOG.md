@@ -2,6 +2,24 @@
 All notable changes to this project will be documented in this file. See [conventional commits](https://www.conventionalcommits.org/) for commit guidelines.
 
 - - -
+## [v1.4.0](https://github.com/DaRacci/Terix/compare/v1.3.1..v1.4.0) - 2022-12-14
+#### Bug Fixes
+- **(Merling)** Potion levels - ([21ec87d](https://github.com/DaRacci/Terix/commit/21ec87dafa562e6af01cab781d625e85dc6d3996)) - [@DaRacci](https://github.com/DaRacci)
+- **(OriginBuilder)** Would only apply the last potion in the state group - ([f64e601](https://github.com/DaRacci/Terix/commit/f64e601dd92c65f18c7789d3cfb19e9d525af5b9)) - [@DaRacci](https://github.com/DaRacci)
+- EntityHook subscription - ([2346d0b](https://github.com/DaRacci/Terix/commit/2346d0b5fa62ecf7ac65bd773986339bb3793bbd)) - [@DaRacci](https://github.com/DaRacci)
+#### Features
+- New cooldown images - ([8a27663](https://github.com/DaRacci/Terix/commit/8a276631412c9ff1fb9aa0945f5e72983a4ac835)) - [@DaRacci](https://github.com/DaRacci)
+#### Miscellaneous Chores
+- API Dump - ([dd5590d](https://github.com/DaRacci/Terix/commit/dd5590dc64ee60f6c282ce42b71a406d4110b3f5)) - [@DaRacci](https://github.com/DaRacci)
+#### Performance Improvements
+- **(TempPlacement)** More perf improvements - ([db1e8c8](https://github.com/DaRacci/Terix/commit/db1e8c8a581db2ec454b7139a1fcfe14ccd1a317)) - [@DaRacci](https://github.com/DaRacci)
+#### Refactoring
+- **(ItemsAdderIntegration)** Better width calculation - ([54ef444](https://github.com/DaRacci/Terix/commit/54ef44432f7668ea28f928ce0cf1058990fad3af)) - [@DaRacci](https://github.com/DaRacci)
+- **(Repulsion)** 15 second cooldown - ([1f59809](https://github.com/DaRacci/Terix/commit/1f5980988c9ccb838760d997b7c708e126156e5e)) - [@DaRacci](https://github.com/DaRacci)
+- **(Repulsion)** Pull instead of push - ([bd71a12](https://github.com/DaRacci/Terix/commit/bd71a1247d279ca08f25f32654c76bea57b005a2)) - [@DaRacci](https://github.com/DaRacci)
+
+- - -
+
 ## [v1.3.1](https://github.com/DaRacci/Terix/compare/v1.3.0..v1.3.1) - 2022-11-30
 #### Bug Fixes
 - **(AEOFreeze)** not ignoring player and cast error - ([2922409](https://github.com/DaRacci/Terix/commit/29224090e3e95d1ba1fa9aa36b155da9e39a675d)) - [@DaRacci](https://github.com/DaRacci)
